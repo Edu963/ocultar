@@ -1,46 +1,69 @@
 ---
-name: distribution-smoke-tester
-description: A dedicated skill to spin up a clean Docker container, unpack the client-package, and verify the setup-community.sh runs successfully.
+name: distribution-integrity-validator
+description: Production-grade validator for Ocultar distribution artifacts. Executes cryptographic signature verification, clean-room environment provisioning, and automated health/redaction audits.
 ---
 
-# Ocultar | Distribution Smoke Tester
+# Ocultar | Distribution Integrity Validator
 
 ## Purpose
-This skill provides the final validation before a release. It ensures that the distributed package is self-contained and functional by simulating a "First Install" in a clean environment.
+This skill serves as the final, immutable gate in the Ocultar distribution pipeline. It ensures that every release artifact is cryptographically authentic, structurally complete, and functionally secure in a zero-knowledge, clean-room environment.
 
 ## When To Use This Skill
-**MANDATORY** before any release is finalized.
-- Must run **AFTER** `release-artifact-builder` has created the archive.
+**MANDATORY GATING** for all release candidates (`rc-*`) and production releases.
+- Must execute after `artifact-signer` has generated `.sig` files.
+- Must execute prior to any public distribution or deployment.
 
 ## Preconditions
-- `docker` and `docker-compose` are available in the testing environment.
-- The `dist/ocultar-community.zip` package has been built.
+- `docker` (v20.10+) and `docker-compose` (v2.0+) available on the runner.
+- The **Ocultar Release Public Key** is accessible for signature verification.
+- Artifacts (`.zip`, `.tar.gz`) and their corresponding `.sig` files exist in the `dist/` directory.
+
+## Inputs / Outputs
+
+### Inputs:
+- `artifact_path` (Path): Absolute path to the distribution package.
+- `distribution_type` (Enum): `community` | `enterprise`.
+- `verify_signature` (Boolean): Default `true`.
+
+### Outputs:
+- `validation_report` (Artifact): Detailed log of signature, setup, and health checks.
+- `integrity_status` (Boolean): `true` if all checks pass.
+- `diagnostics_bundle` (Path): (On Failure) Archive of container logs and environment state.
 
 ## Instructions
 
-### 1. Clean Room Setup
-1. Create a temporary directory `temp_smoke_test/`.
-2. Unpack the distribution archive into this directory.
-3. Ensure no local `.env` or persistent volumes are inherited.
+### 1. Cryptographic Verification
+1. Locate the signature file: `{artifact_path}.sig`.
+2. Verify the artifact integrity using the Ocultar Public Key.
+3. **FAIL-CLOSED**: If signature verification fails or the `.sig` file is missing, abort immediately. DO NOT execute scripts from an unverified archive.
 
-### 2. Execution Flow
-1. Run the setup script: `cd temp_smoke_test && bash scripts/setup-community.sh`.
-2. Verify that `docker-compose.yml` is correctly initialized.
-3. Start the services: `docker-compose up -d`.
+### 2. Isolated Environment Provisioning
+1. Create a randomized, isolated workspace: `/tmp/ocultar_val_<uuid>/`.
+2. Unpack the artifact into the workspace.
+3. **Network Isolation**: Ensure the test environment uses a dedicated Docker network.
+4. **Dynamic Port Mapping**: Do not use hardcoded host ports. Use `0` (auto-assign) or a verified available range to avoid host collisions.
 
-### 3. Health & Redaction Check
-1. Wait for services to be healthy (using `curl http://localhost:8081/healthz`).
-2. Run a basic redaction test using the existing `smoke_test.sh` logic.
-3. Confirm that the dashboard (`http://localhost:3000`) is reachable.
+### 3. Execution & Health Audit
+1. Run the targeted setup script (e.g., `bash scripts/setup-community.sh`).
+2. Verify the generation of `docker-compose.yml` and `.env` (ensure defaults are production-safe).
+3. Lifecycle Start: `docker-compose up -d --wait`.
+4. **Health Gate**: Query the internal health endpoint (e.g., `/healthz`) until status is `200 OK`. Timeout after 120s.
 
-### 4. Cleanup
-1. Shut down Docker services: `docker-compose down -v`.
-2. Delete the temporary directory.
+### 4. Security & Redaction Smoke Test
+1. Execute the internal `smoke_test.sh` logic (or equivalent test runner).
+2. **Mandatory Check**: Send a PII-heavy payload and verify that the core engine intercepts and redacts/pseudonymizes as per the global policy.
+3. **Web Dashboard**: Verify the Enterprise Dashboard is reachable and serving valid localized assets.
 
-## Outputs
-- **Smoke Test Report**: Success or failure log with system diagnostics.
-- **Traceability**: Link the test run to the specific git commit hash.
+### 5. Teardown & Reporting
+1. Extract all container logs: `docker-compose logs > validation.log`.
+2. Collect system stats: `docker stats --no-stream`.
+3. Perform cleanup: `docker-compose down -v` and wipe the temporary workspace.
 
 ## Failure Handling
-- **Missing Dependency in Archive**: If `setup-community.sh` fails due to a missing file, YOU MUST return to the `client-package-updater` skill and fix the manifest.
-- **Startup Timeout**: If the proxy fails to start within 60 seconds, check the container logs for configuration errors or missing environment defaults.
+- **Signature Mismatch**: Exit with `SECURITY_VIOLATION`. Report to CTO/Security Lead.
+- **Dependency Missing**: Exit with `MANIFEST_MISMATCH`. Return to `client-package-updater`.
+- **Startup Timeout**: Inspect `validation.log` for service crashes or database connectivity issues.
+
+## Quality Standards
+- **Determinism**: The test MUST produce the same result for the same artifact regardless of host state.
+- **Idempotency**: Running the validator multiple times must not leave residue on the host.

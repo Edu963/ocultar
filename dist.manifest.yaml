@@ -55,3 +55,17 @@ security:
   sanitization: true
   egress_audit: true
   license_enforcement: true
+  cryptographic_gating: true
+
+# Validation Profiles
+validation:
+  community:
+    test_script: "scripts/integrity_validator.sh"
+    distribution_type: "community"
+    allowed_ports: [8081, 3000]
+    required_signatures: ["ocultar-community.zip.sig"]
+  enterprise:
+    test_script: "scripts/integrity_validator.sh"
+    distribution_type: "enterprise"
+    allowed_ports: [8081, 3001]
+    required_signatures: ["ocultar-enterprise.tar.gz.sig"]

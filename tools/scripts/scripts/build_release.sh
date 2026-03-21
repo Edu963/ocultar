@@ -27,14 +27,13 @@ fi
 echo -e "${BLUE}Executing Manifest-Driven Build...${NC}"
 python3 "$SCRIPT_DIR/manifest_executor.py"
 
-# 3. Post-Build Compliance
-echo -e "${BLUE}Running parity checks...${NC}"
-bash "$SCRIPT_DIR/check_parity.sh" "$DIST_DIR"
+# 3. Cryptographic Signing
+echo -e "${BLUE}Signing artifacts...${NC}"
+bash "$SCRIPT_DIR/sign_artifacts.sh" "$DIST_DIR"
 
-# 4. Final Packaging
-echo -e "${BLUE}Finalizing archives...${NC}"
-(cd "$DIST_DIR" && zip -q -r ocultar-community.zip community/)
-(cd "$DIST_DIR" && tar -czf ocultar-enterprise.tar.gz enterprise/)
+# 4. Distribution Integrity Validation (Gated)
+echo -e "${BLUE}Running Integrity Validator (Smoke Test)...${NC}"
+bash "$SCRIPT_DIR/integrity_validator.sh" "community" "$DIST_DIR/ocultar-community.zip"
 
-echo -e "${GREEN}🚀 Release artifacts generated and verified in $DIST_DIR/${NC}"
-ls -lh "$DIST_DIR"/*.zip "$DIST_DIR"/*.tar.gz
+echo -e "${GREEN}🚀 Release artifacts generated, signed, and verified in $DIST_DIR/${NC}"
+ls -lh "$DIST_DIR"/*.zip "$DIST_DIR"/*.tar.gz "$DIST_DIR"/*.sig
