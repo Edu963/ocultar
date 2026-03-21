@@ -1,68 +1,45 @@
 ---
 name: change-impact-visualizer
-description: Deterministic analysis of code changes to map architectural, security, and regulatory impacts. Step 12 of the Ocultar 16-Step Protocol.
+description: Deterministic analysis of code changes to map architectural, security, and regulatory impacts. Step 12 of the Ocultar Protocol.
 ---
 
-# Change Impact Visualizer (Step 12)
+# Change Impact Visualizer (v1.1)
 
 ## Purpose
-This skill provides a high-fidelity "Impact Narrative" for every modification. It ensures that engineers and auditors understand the ripple effects of a change across the Ocultar ecosystem by cross-referencing `ARCHITECTURE.md` and `PII_DETECTION.md`.
 
-## Inputs
-- **Primary**: `git diff` (staged or unstaged changes).
-- **Secondary**: `docs/ARCHITECTURE.md` (Package Dependency Graph, C4 Container Diagram).
-- **Tertiary**: `docs/PII_DETECTION.md` (Token Type Compliance Mappings).
+The CIV (Step 12) prevents "Security Drift" during refactoring. It analyzes the `git diff` to identify ripple effects across the Ocultar tiers and ensures that documentation remains a "Live" representation of the system.
 
-## Outputs
-- **Impact Matrix**: A structured Markdown table summarizing impacts.
-- **Risk Assessment**: A list of regulatory and doc-drift risks.
-- **Verification Note**: Confirmation that all changed files are analyzed.
+## Inputs / Outputs
 
-## Preconditions
-1. The technical task is marked as "Completed" or "In Review".
-2. `docs/ARCHITECTURE.md` and `docs/PII_DETECTION.md` are present and readable.
-3. Access to `git` tools is available.
+### Inputs
+- `git_diff`: STAGED changes.
+- `protocol_phase`: Current step in the 16-step protocol.
+
+### Outputs
+- `impact_matrix` (Artifact): Logical mapping of File -> Component -> Regulatory Impact.
+- `drift_verdict`: `SYNCED` | `DOC_DRIFT_DETECTED`.
+
+---
 
 ## Instructions
 
-### 1. Architectural Component Mapping
-- Identify all modified files from the `git diff`.
-- Use the **Container Diagram** in `docs/ARCHITECTURE.md` to map each file to an Ocultar component:
-    - `pkg/engine` → **Core Engine** (High Impact)
-    - `pkg/proxy` → **Sombra Gateway** (High Impact)
-    - `pkg/vault` → **Identity Vault** (Critical Impact)
-    - `docs/` → **Documentation Cluster**
-    - `dist/` → **Distribution Artifacts**
-    - `apps/web` → **Enterprise Dashboard**
+### 1. Component Attribution
+- Map every changed file to its core component:
+    - `pkg/engine` -> **Refinery Tier**.
+    - `pkg/vault` -> **Identity Vault**.
+    - `apps/sombra` -> **Gateway Layer**.
 
-### 2. Regulatory & PII Traceability
-- If changes occur in `pkg/engine` (Redaction tiers) or `pkg/vault` (Storage):
-    - Locate any new or modified regex/logic patterns.
-    - Reference `docs/PII_DETECTION.md` (Section 2) to determine the **Compliance Requirement** (e.g., GDPR Art 4, HIPAA, PCI-DSS).
-    - Flag if a change to a detection Tier (0-3) alters the "Deterministic Pseudonymization" guarantee.
+### 2. Regulatory Impact Check
+- For changes in **Vault** or **Refinery**:
+    - Identify if a PII category logic is modified.
+    - **Logic**: Document if the "Zero-Egress" promise for that category is affected (Recall/Precision change).
 
-### 3. Doc Drift & Stale Logic Detection
-- Compare logic changes in `pkg/` against the **Refinery Pipeline** sequence in `docs/ARCHITECTURE.md`.
-- **Condition**: If the data flow (e.g., adding a new Evasion Shield tier) has changed, flag `docs/ARCHITECTURE.md` as "Required Update."
-- Check if `PII_DETECTION.md` requires updates due to new `[TOKEN_TYPE]` additions.
-
-### 4. Distribution Impact Assessment
-- Determine if the change alters the contents of the final release (refer to `docs/RELEASE_GUIDE.md` if available).
-- **Rules**:
-    - Binary code changes → Impact **Community/Enterprise Builds**.
-    - Config schema changes → Impact **Onboarding Guides**.
-
-### 5. Final Output Generation
-- Create an **Impact Matrix** following this format:
-
-| File(s) | Component | Primary Impact | Regulatory/Risk |
-|---|---|---|---|
-| `engine.go` | **Core Engine** | Hardened AES-GCM rotation | GDPR (Data at Rest) |
-| `PII.md` | **Docs** | Updated PII Mapping | Auditor Transparency |
+### 3. Doc-Parity Validation
+- Verify if `PII_DETECTION.md` or `ARCHITECTURE.md` requires an update based on the logic change.
+- **Gate**: If a schema changed but `ARCHITECTURE.md` was not updated, return `DOC_DRIFT_DETECTED`.
 
 ## Failure Handling
-- **Missing Architecture**: If `ARCHITECTURE.md` is missing, use absolute file paths and flag as a "Critical Doc Failure."
-- **Ambiguous Change**: If the `git diff` contains >50 modified files, categorize by directory and focus on "High Impact" components first.
+- **`MONOLITHIC_DIFF`**: If >30 files changed, group impacts by directory and flag for "Package Isolation" review.
 
-## Validation Step
-- **Integrity Check**: Ensure every file listed in `git diff --name-only` is represented in the final Impact Matrix. If missing, append an "Uncategorized Impact" section.
+## Postconditions
+- The matrix MUST be included in the PR description as the "Impact Manifest".

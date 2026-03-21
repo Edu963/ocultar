@@ -1,70 +1,51 @@
 ---
 name: industry-snapshot-generator
-description: Programmatically provisions the Ocultar stack (Refinery, Shield, Dashboard) for specific verticals (Finance, Healthcare, GovTech, etc.).
+description: Programmatically provisions the Ocultar stack (Refinery, Shield, Dashboard) for specific verticals.
 ---
 
-# Industry Snapshot Generator
+# Industry Snapshot Generator (v1.1)
 
 ## Purpose
-Automates the configuration of the Ocultar ecosystem for vertical-specific compliance requirements. This skill ensures that a prospect or new client starts with a high-fidelity, industry-standard security posture.
 
-## Role
-- **Category**: Provisioner / Orchestrator
-- **Environment**: Staging / Demo / Initial Onboarding
-- **Lifecycle**: Pre-Sales, Deployment
+The ISG automates the vertical-specific configuration of Ocultar. It ensures a "Day-0" high-fidelity posture for regulated industries by orchestrating rule injection and dashboard provisioning.
 
-## Inputs & Preconditions
+## Inputs / Outputs
 
-| Input | Type | Description |
-| :--- | :--- | :--- |
-| `INDUSTRY_ID` | String | `finance`, `healthcare`, `govtech`, `legal` |
-| `TARGET_ENV` | Enum | Must be `DEMO` or `STAGING`. `PRODUCTION` requires MFA. |
-| `MOCK_DATA` | Boolean | Whether to generate ROI/Risk data for the dashboard. |
+### Inputs
+- `industry_id`: `FINANCE` | `HEALTHCARE` | `LEGAL`.
+- `target_env`: `DEMO` | `STAGING` | `PRODUCTION`.
+- `mfa_token` (Optional): Required for `PRODUCTION`.
 
-### Preconditions
-1. Ocultar Engine and Sombra Gateway are reachable.
-2. `security/regulatory_policy.json` is initialized.
-3. `pii-regression-suite-runner` is available for validation.
+### Outputs
+- `provisioning_id`: Unique trace for the event.
+- `compliance_report`: Summary of rules applied.
+- `verdict`: `SUCCESS` | `REVERTED`.
+
+## Preconditions
+- All target skills (`dictionary-shield-manager`, `refinery-architecture-manager`) must be reachable.
+
+---
 
 ## Instructions
 
-### 1. Load Declarative Snapshot
-- Retrieve the JSON payload from `/configs/snapshots/[INDUSTRY_ID].json`.
-- **Validation**: If the file does not exist, fail and report "Unsupported Industry".
+### 1. Transactional Provisioning
+- **Step A**: Load industry snapshot JSON.
+- **Step B**: Sync Dictionary Shield (VIPs, SEC-terms).
+- **Step C**: Inject Regulatory Policies (Regex, SLM).
+- **Validation**: Trigger `pii-regression-suite-runner`.
 
-### 2. Infuse Dictionary Shield
-- Extract the `dictionary_entities` list from the snapshot.
-- Delegate to `Ocultar | Dictionary Shield Manager`:
-  - Command: `UpdateProtectedList(entities)`
-  - Goal: Synchronize industry-specific terms.
+### 2. Atomic Rollback
+- If Step C or Validation fails:
+    - **Action**: Restore `regulatory_policy.json` and `protected_entities.json` from the pre-provisioning backup.
+    - **Verdict**: Return `REVERTED`.
 
-### 3. Update Policy Posture
-- Read PII mappings from the snapshot (regex and SLM classifiers).
-- Update `security/regulatory_policy.json` with the industry-specific mappings.
-- Delegate to `Ocultar | Refinery Architecture Manager`:
-  - Command: `VerifyRuleIntegrity(rules)`
-  - Trigger `sombra-gateway-policy-enforcer` to apply `strip_categories`.
-
-### 4. Direct Compliance Mapping
-- Delegate to `Ocultar | Industry Compliance Validator`:
-  - Command: `ValidateIndustryPosture(regulatory_policy.json)`
-  - Goal: Generate `COMPLIANCE_AUDIT.md`.
-
-### 5. Provision Dashboard Analytics
-- If `MOCK_DATA` is true:
-  - Delegate to `Ocultar | Dashboard Scenario Generator`:
-    - Command: `TriggerScenario(INDUSTRY_ID)`
-    - Goal: Update `Mock-API` state and ROI metrics.
-
-### 5. Verification & Health Check
-- Run `pii-regression-suite-runner` against the newly applied rules.
-- Verify Sombra Gateway connectivity via `sombra-performance-benchmarker`.
+### 3. Production Hardening
+- If `target_env` == `PRODUCTION`:
+    - **MFA Gate**: Require `mfa_token` before applying policy changes.
+    - **Audit**: Log the event as a "Production-State Change" in the compliance suite.
 
 ## Failure Handling
-- **Invalid Snapshot**: Logs error and aborts before any file modification.
-- **Validation Failure**: If regression tests fail, revert `regulatory_policy.json` to the previous version from Git/Backup.
+- **`DEPENDENCY_MISSING`**: If the Dictionary Shield Manager fails to sync, abort the entire transaction.
 
 ## Postconditions
-1. `regulatory_policy.json` contains industry-specific mappings.
-2. Dictionary Shield is populated with vertical-specific terms.
-3. Dashboard reflects realistic risk/ROI data for the vertical.
+- System state MUST be captured in a "System Health" snapshot post-provisioning.
