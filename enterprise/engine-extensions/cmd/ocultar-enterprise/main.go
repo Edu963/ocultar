@@ -170,30 +170,82 @@ func printReport(eng *engine.Engine, filesScanned int) {
 	fmt.Fprintln(os.Stderr, string(out))
 }
 
+// VerifyDashboardIntegrity checks the SHA256 hashes of served assets against the manifest.
+func VerifyDashboardIntegrity() error {
+	path := "security/dashboard_integrity.json"
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("integrity manifest missing: %v", err)
+	}
+
+	var manifest struct {
+		Checksums map[string]string `json:"checksums"`
+	}
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		return fmt.Errorf("failed to parse manifest: %v", err)
+	}
+
+	for relPath, expectedHash := range manifest.Checksums {
+		fullPath := "dist/enterprise/dashboard/" + relPath
+		f, err := os.Open(fullPath)
+		if err != nil {
+			return fmt.Errorf("asset missing: %s", relPath)
+		}
+		defer f.Close()
+
+		h := sha256.New()
+		if _, err := io.Copy(h, f); err != nil {
+			return err
+		}
+		actualHash := fmt.Sprintf("%x", h.Sum(nil))
+
+		if actualHash != expectedHash {
+			return fmt.Errorf("INTEGRITY_VIOLATION: %s (expected %s, got %s)", relPath, expectedHash, actualHash)
+		}
+	}
+
+	log.Printf("[INFO] Dashboard integrity verified successfully (%d assets).", len(manifest.Checksums))
+	return nil
+}
+
 // startServer initializes and starts the local HTTP dashboard and API endpoints.
 func startServer(eng *engine.Engine, servePort string) {
+	if license.Active.Tier == "enterprise" {
+		if err := VerifyDashboardIntegrity(); err != nil {
+			log.Fatalf("[FATAL] Dashboard integrity check failed: %v", err)
+		}
+	}
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/index_v2.html" {
-			http.ServeFile(w, r, "index_v2.html")
+		baseDir := "apps/web/dist"
+		if license.Active.Tier == "enterprise" {
+			baseDir = "dist/enterprise/dashboard"
+		}
+
+		// Static Asset Routing
+		if strings.HasPrefix(r.URL.Path, "/assets/") {
+			http.ServeFile(w, r, baseDir+r.URL.Path)
 			return
 		}
-		if r.URL.Path == "/index.html" {
-			http.ServeFile(w, r, "index.html")
-			return
-		}
-		if strings.HasPrefix(r.URL.Path, "/dist/") {
-			http.ServeFile(w, r, r.URL.Path[1:])
-			return
-		}
-		if r.URL.Path != "/" {
-			http.NotFound(w, r)
+		if r.URL.Path == "/vite.svg" {
+			http.ServeFile(w, r, baseDir+"/vite.svg")
 			return
 		}
 
-		if license.Active.Tier == "enterprise" {
-			http.ServeFile(w, r, "index_v2.html")
-		} else {
-			http.ServeFile(w, r, "index.html")
+		// SPA Entrypoint
+		if r.URL.Path == "/" || r.URL.Path == "/index.html" {
+			http.ServeFile(w, r, baseDir+"/index.html")
+			return
+		}
+
+		if r.URL.Path == "/roi_calc.html" {
+			http.ServeFile(w, r, "apps/web/roi_calc.html")
+			return
+		}
+
+		if !strings.HasPrefix(r.URL.Path, "/api/") {
+			http.NotFound(w, r)
+			return
 		}
 	})
 

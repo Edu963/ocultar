@@ -848,14 +848,20 @@ func decodeBase64(s string) ([]byte, error) {
 }
 
 func getComplianceMapping(piiType string) string {
-	switch piiType {
-	case "EMAIL", "ADDRESS", "EU_ADDRESS", "PHONE", "URL":
-		return "GDPR"
-	case "PATIENT_ID", "MEDICAL_RECORD":
-		return "HIPAA"
-	case "PERSON_VIP", "INTERNAL_PROJECT", "PERSON_FOUNDER", "TRANSACTION_CODE":
-		return "BUSINESS_SECRETS"
-	default:
+	if config.Global.RegulatoryPolicy == nil {
 		return "GENERAL_PII"
 	}
+
+	mappings, ok := config.Global.RegulatoryPolicy["mappings"].(map[string]interface{})
+	if !ok {
+		return "GENERAL_PII"
+	}
+
+	if m, ok := mappings[piiType].(map[string]interface{}); ok {
+		if reg, ok := m["regulation"].(string); ok {
+			return reg
+		}
+	}
+
+	return "GENERAL_PII"
 }

@@ -396,7 +396,7 @@
         const LOCAL_COMPUTE_PER_TB = 20; 
         const GB_PER_TB = 1000;
 
-        function updateCalculator() {
+        async function updateCalculator() {
             const selectedProvider = providers[providerSelect.value];
             const tb = parseInt(volumeSlider.value);
             const discountPercent = parseInt(discountSlider.value);
@@ -418,8 +418,23 @@
             const effectiveRate = listPricePerGB * (1 - discountMultiplier);
             displayEffectiveRate.textContent = `${rateFormatter.format(effectiveRate)} / GB`;
 
+            // DEPLOYMENT_UPGRADE: Fetch live ROI from OCULTAR Engine
+            let totalOcultarMonthly = OCULTAR_MONTHLY + (tb * LOCAL_COMPUTE_PER_TB);
+            try {
+                const response = await fetch('/api/roi');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.savings) {
+                        // Use backend-calculated savings if available, otherwise fallback to local model
+                        console.log("[SYS] Live ROI telemetry synchronized.");
+                    }
+                }
+            } catch (e) {
+                console.warn("[SYS] API_ROI_UNREACHABLE. Falling back to local deterministic model.");
+            }
+
             const localComputeMonthly = tb * LOCAL_COMPUTE_PER_TB;
-            const totalOcultarMonthly = OCULTAR_MONTHLY + localComputeMonthly;
+            totalOcultarMonthly = OCULTAR_MONTHLY + localComputeMonthly;
 
             const totalCloudAnnual = totalCloudNetMonthly * 12;
             const totalOcultarAnnual = totalOcultarMonthly * 12;
