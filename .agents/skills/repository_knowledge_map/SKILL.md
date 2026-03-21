@@ -1,173 +1,62 @@
 ---
 name: repository-knowledge-map
-description: Use this skill whenever working in the Ocultar repository to understand its structure, documentation layout, and conceptual components before making changes.
+description: Programmable discovery skill for understanding the Ocultar repository structure, documentation clusters, and conceptual component boundaries.
 ---
 
-# Repository Knowledge Map
+# Repository Knowledge Map (v2.1)
 
 ## Purpose
 
-This skill provides the AI agent with a structured understanding of the Ocultar repository.
+This skill provides AI agents with a deterministic, programmatic mapping of the repository. It moves beyond static lists to provide structured discovery of technical, operational, and compliance artifacts.
 
-It explains:
+## Inputs / Outputs
 
-- the documentation layout
-- the operational documentation
-- internal reports
-- pilot program materials
-- core technical documentation
+### Inputs
+- `target_domain` (Enum): `CORE`, `DOCS`, `PILOT`, `REPORTS`, `CONNECTORS`.
+- `recursive` (Boolean): Whether to walk the full subtree.
 
-The goal is to ensure the AI agent modifies the correct files and respects the intended project structure.
+### Outputs
+- `map_metadata` (JSON): A dictionary of path mappings, purposes, and distribution status (`INTERNAL` | `CLIENT`).
+- `structure_verdict` (Boolean): Confirms if the current repo layout matches the `architectural-linter` rules.
 
-## Repository Documentation Structure
+## Preconditions
+- Filesystem MUST be accessible with READ permissions.
+- `architectural-linter` MUST be available for layout validation.
 
-### Core Technical Documentation
-
-Located in:
-
-documentation/
-
-This directory contains the primary technical documentation of the system.
-
-Key files include:
-
-README.md  
-ARCHITECTURE.md  
-API_REFERENCE.md  
-DEVELOPER_GUIDE.md  
-SETUP_GUIDE.md  
-ENTERPRISE_SETUP_GUIDE.md  
-RELEASE_GUIDE.md  
-TESTING_GUIDE.md  
-TECH_DOCS.md  
-SOMBRA_GUIDE.md  
-CONNECTORS_GUIDE.md
-
-These documents explain how the system works and how developers interact with it.
-
-### Internal Technical Documentation
-
-Located in:
-
-documentation/internal/
-
-Example:
-
-LICENSE_MANAGEMENT.md
-
-This directory contains internal operational documentation that is not meant for external distribution.
-
-### Operational and Deployment Documentation
-
-Located in:
-
-docs/
-
-Files include:
-
-setup_guide.md
-smoke_test.sh (located in tools/scripts/scripts/)
-
-These documents describe operational procedures and deployment workflows.
-
-### Pilot Program Documentation
-
-Located in:
-
-docs/pilot/
-
-Files include:
-
-onboarding.md  
-playbook.md  
-report_template.md  
-
-These documents support pilot deployments and evaluation processes.
-
-### Internal Reports and Compliance Analysis
-
-Located in:
-
-docs/internal/
-
-Examples include:
-
-COMPLIANCE_COMPARISON_REPORT.md  
-GDPR_Exposure_Report.md  
-SLM_Optimization_Report.md  
-
-These documents contain internal research, regulatory analysis, or optimization reports.
-
-They are not intended for client distribution.
-
-## Conceptual Components
-
-The repository includes several conceptual areas:
-
-Ocultar  
-The main system or platform being developed.
-
-Sombra  
-A component or subsystem documented in SOMBRA_GUIDE.md.
-
-Pilot Program  
-Operational framework used to onboard and evaluate pilot users.
-
-Enterprise Deployment  
-Enterprise deployment procedures documented in ENTERPRISE_SETUP_GUIDE.md.
-
-Sombra Pro Connectors
-Modular architecture for platform-specific ingestion (Slack, SharePoint, etc.) located in services/engine/pkg/connector/.
-
-Internal Compliance and Research  
-Internal analysis documents stored in docs/internal/.
+---
 
 ## Instructions
 
-Before making changes to the repository:
+### 1. Domain Discovery
+Identify the subtrees related to the `target_domain`:
 
-1. Identify which conceptual area the task belongs to.
+| Domain | Root Path | Primary Purpose |
+| :--- | :--- | :--- |
+| **CORE** | `documentation/` | Technical specifications and setup guides. |
+| **DOCS** | `docs/` | Operational workflows and deployment logs. |
+| **PILOT** | `docs/pilot/` | Onboarding materials and pilot playbooks. |
+| **REPORTS** | `docs/internal/` | Compliance reports and deep research. |
+| **CONNECTORS**| `services/engine/pkg/connector/` | Third-party ingestion logic. |
 
-Possible categories:
+### 2. Metadata Enrichment
+For each file in the domain, extract:
+- `is_internal`: TRUE if path contains `internal`.
+- `last_sync`: Timestamp of the last documentation update.
+- `related_component`: Derived from the directory name.
 
-- system architecture
-- APIs
-- developer workflows
-- setup and installation
-- enterprise deployment
-- pilot program operations
-- compliance or research documentation
+### 3. Consistency Validation
+- Run a scan to ensure that every `CORE` document has a corresponding entry in `TECH_DOCS.md`.
+- Flag any undocumented directories in the project root.
 
-2. Locate the correct documentation directory.
-
-3. Ensure modifications are applied only to relevant documentation.
-
-4. Avoid modifying internal documentation unless the task explicitly concerns internal processes.
-
-5. Ensure that updates remain consistent with the repository structure.
+## Failure Handling
+- **Path Violation**: If a file is in the wrong directory (e.g., a report in `CORE`), return an `ARCHITECTURAL_DRIFT` error and block the caller.
 
 ## Examples
 
-Example 1
+### Example: API Documentation Check
+- **Input**: `target_domain` = `CORE`.
+- **Action**: Map all files in `documentation/`. Match `API_REFERENCE.md` against the engine's current routes.
 
-Input:
-A new API endpoint is implemented.
-
-Action:
-Update documentation/API_REFERENCE.md.
-
-Example 2
-
-Input:
-A new pilot onboarding workflow is introduced.
-
-Action:
-Update docs/pilot/onboarding.md and docs/pilot/playbook.md.
-
-Example 3
-
-Input:
-A licensing workflow changes.
-
-Action:
-Update documentation/internal/LICENSE_MANAGEMENT.md.
+### Example: Connector Discovery
+- **Input**: `target_domain` = `CONNECTORS`.
+- **Action**: List all sub-packages and their README status.

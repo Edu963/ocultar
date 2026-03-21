@@ -1,98 +1,73 @@
 ---
 name: ai-development-protocol
-description: Production-grade orchestrator for the AI agent development lifecycle. Ensures repository consistency, security integrity, and release readiness through a deterministic pipeline of documentation, packaging, and sanitization gates.
+description: Production-grade orchestrator for the AI agent development lifecycle. Ensures repository consistency, security integrity, and release readiness through a deterministic pipeline.
 ---
 
-# AI Development Protocol (v2.0)
+# AI Development Protocol (v2.1)
 
 ## Purpose
 
-The AI Development Protocol is the authoritative orchestrator for the project lifecycle. It transforms standard development activity into a production-ready state by enforcing strict validation gates and coordinating specialized skills. This protocol ensures that every "meaningful change" is documented, tested, sanitized, and optionally packaged without manual oversight or ambiguity.
-
-## Prerequisites
-
-Before executing this protocol, the following conditions **MUST** be met:
-- **Git Status**: Working directory must be clean (no uncommitted changes).
-- **Build Status**: The current codebase must pass all unit tests and linting.
-- **Branch Policy**: Releases are only permitted from `main`, `stable`, or designated `release/*` branches.
+The AI Development Protocol is the authoritative orchestrator for the project lifecycle. It transforms development activity into a production-ready state by enforcing strict validation gates and coordinating specialized skills for documentation, security, and packaging.
 
 ## Inputs / Outputs
 
 ### Inputs:
-- `project_root` (Path): The absolute path to the repository.
-- `change_set` (Git Diff/Manifest): A summary of files modified in the current iteration.
-- `release_intent` (Boolean): Whether the current change is intended for a versioned release or a milestone.
+- `project_root` (Path): Absolute path to the repository.
+- `change_set` (Git Diff): Summary of modifications.
+- `release_intent` (Boolean): Defines if packaging/versioning is required.
 
 ### Outputs:
-- `validation_report` (Artifact): A report detailing the outcome of documentation, packaging, and security checks.
-- `release_manifest` (JSON): (Optional) Metadata for the generated release artifact.
+- `protocol_report` (Artifact): Summary of all gate outcomes.
+- `release_manifest` (JSON): Metadata for the generated release (if applicable).
+- `verdict` (Enum): `PROCEED` | `HALT`.
+
+## Preconditions
+- **Branch Eligibility**: Current branch must match `main`, `stable`, or `release/*` if `release_intent` is TRUE.
+- **Git State**: Clean workspace required (`git status --porcelain` is empty).
+- **Environment**: All required environment variables (`OCULTAR_KEY`, etc.) MUST be present.
 
 ---
 
 ## Instructions
 
-### Step 1 – Vision Oracle Alignment
+### Step 1 — Product Strategy Alignment
 **Dependency**: `Ocultar | Product Context`
-- Before any change analysis, the AI agent **MUST** present the `proposal` to the `Product Context` skill.
-- **Gate**: If the `alignment_report` returns a **REJECT** verdict, the protocol **MUST** halt immediately.
-- **Validation**: Analyze the `alignment_report` for specific guardrail violations.
+- Submit the `change_set` and `intent` to the `Product Context` skill.
+- **Gate**: If alignment is `REJECTED`, the protocol MUST halt.
 
-### Step 2 – Change Impact Analysis
+### Step 2 — Impact Mapping
 **Dependency**: `change-impact-visualizer`
-- Execute the `change-impact-visualizer` to map modified files to their functional domains.
-- **Gate**: If the impact analysis identifies undocumented API changes, immediately flag a failure.
+- Map modified files to functional domains (Engine, UI, Policy, Docs).
+- **Validation**: If changes affect `services/engine/` but no test updates are present, flag as `WARNING`.
 
-### Step 3 – Automated Documentation Sync
-**Dependency**: `Ocultar | Documentation Updater`
-- Identify all files modified in the `change_set`.
-- Run the `Documentation Updater` to synchronize `TECH_DOCS.md`, `API_REFERENCE.md`, and any relevant `/documentation/*.md` guides.
-- **Validation**: Confirm that the generated documentation reflects the current state of the code.
+### Step 3 — Integrated Governance Sync
+**Dependency**: `compliance-docs-orchestrator`
+- Trigger document synchronization for all identified domains.
+- **Validation**: Ensure `TECH_DOCS.md` and `API_REFERENCE.md` deep hashes are updated in the manifest.
 
-### Step 4 – Zero-Trust Security Shield
-**Dependency**: `security-sanitizer`, `zero-egress-validator`, `architectural-linter`
-- **4.1 Architectural Integrity**: Run the `architectural-linter` to check for terminology drift and structural errors.
-- **4.2 Leak Detection**: Run the `zero-egress-validator` to ensure no unmasked PII is passed to external URIs.
-- **4.3 Sanitization**: Scan the entire repository (or the staging area) for secrets, hardcoded credentials, and internal paths. Run the `security-sanitizer` to replace sensitive values with environment-safe placeholders.
-- **Gate**: Failure in ANY security sub-step **MUST** block subsequent actions.
+### Step 4 — Security & Integrity Shield
+**Dependency**: `secret-scanner`, `zero-egress-validator`, `architectural-linter`
+- **4.1 Linting**: Validate structural and terminology compliance.
+- **4.2 Zero-Trust**: Verify no PII egress in new code paths.
+- **4.3 Sanitization**: Scan and redact secrets from the staging area.
 
-### Step 5 – Client Package Integrity
-**Dependency**: `client-package-updater`
-- If the `change_set` affects files designated for client distribution (.tar, .zip, .exe):
-  - Run the `Client Package Updater` to verify build script alignment and file inclusions.
-  - **Validation**: Ensure all new dependencies are accounted for in the packaging rules.
+### Step 5 — Distribution Alignment (Conditional)
+**Dependency**: `client-package-updater`, `release-artifact-builder`
+- Execute only if `release_intent` is TRUE.
+- **Action**: Increment version strings in `package.json`, `VERSION`, and `go.mod`.
+- **Validation**: Verify that `client-package-updater` confirms build script parity.
 
-### Step 6 – Release Artifact Generation (Conditional)
-**Dependency**: `release-artifact-builder`
-- **Condition**: Only execute if `release_intent` is TRUE.
-- Run the `Release Artifact Builder` to generate a versioned, reproducible archive.
-- Ensure the version naming follows standard SemVer (e.g., `v1.2.3`).
-
-### Step 7 – Post-Flight Verification
-- Verify the following assertions:
-  1. `alignment_report` verdict is APPROVE.
-  2. `security_verdict` is PASS.
-  3. `lint_report` is clean.
-  4. `git_status` remains clean (unless documentation updates were committed).
-  5. `release_artifact` (if generated) is checksum-validated and signature-ready.
-  6. `TECH_DOCS.md` includes a reference to the latest changes.
+### Step 6 — Final Verification & Receipt
+- Aggregate all receipts from previous steps.
+- **Postcondition**: `protocol_report` MUST include hashes of all updated files and generated artifacts.
 
 ## Failure Handling
-
-- **Step Failure**: If any sub-skill fails or a validation gate is not met, the protocol **MUST** halt immediately and report the specific error.
-- **Recovery**: Correct the underlying issue (e.g., fix a test, add a doc entry) and restart the protocol from Step 1.
-
----
+- **Soft Fail**: Warnings (e.g., doc gaps) do not halt non-releases but MUST be reported.
+- **Hard Fail**: Any security or alignment failure triggers immediate `HALT`.
 
 ## Examples
 
-### Example 1: API Enhancement (Non-Release)
-- **Input**: `change_set` includes internal API changes; `release_intent` = FALSE.
-- **Action**: Run Step 1 (Impact), Step 2 (Docs), and Step 4 (Security). Skip Step 3 and 5.
-
-### Example 2: Major Milestone (Release Candidate)
-- **Input**: `change_set` includes critical feature completion; `release_intent` = TRUE.
-- **Action**: Run the **Full Protocol (Steps 1-6)**. Generate a versioned tarball and update all compliance docs.
-
-### Example 3: Bug Fix (Emergency Patch)
-- **Input**: One-line fix in logic; `release_intent` = TRUE.
-- **Action**: Run the **Full Protocol**. Ensure the patch is sanitized and the version is incremented appropriately.
+### Example: Security Patch
+- **Input**: Fix for SSN masking; `release_intent` = TRUE.
+- **Action**: Full protocol run. Ensure `zero-egress-validator` passes specifically for the new fix. 
+appropriately.
