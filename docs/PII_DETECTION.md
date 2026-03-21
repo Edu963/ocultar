@@ -37,6 +37,11 @@ OCULTAR always uses **deterministic pseudonymization**:
 
 ## 4. Auditor Verification Note
 
+Every policy update in OCULTAR goes through the **Validation-First DAG**:
+1.  **Simulation**: Proposed changes are replayed against the last 1,000 requests to predict impact.
+2.  **Signing**: Final policies are signed with Ed25519 to prevent tampering.
+3.  **Audit**: The `compliance-integrity-suite` continuously monitors for configuration drift and runtime violations.
+
 ## 5. Performance & SLA
 
 To satisfy enterprise latency and reliability requirements, the Tier 2 AI Scan implements deterministic SLA enforcement:

@@ -154,14 +154,14 @@ Ocultar uses a decentralized network of **Specialized Agent Skills** to maintain
 
 | Tier | Agent Skills | Focus |
 |---|---|---|
-| **Security & Privacy** | `pii-detection-updater`, `dictionary-shield-manager`, `security-sanitizer`, `audit-log-validator` | Heart of the system; prevents data egress and ensures log integrity. |
+| **Security & Privacy** | `regulation-digest-ingestor`, `regulatory-intent-decoder`, `policy-schema-generator`, `compliance-integrity-suite` | Heart of the system; manages policy lifecycle and ensures log/config integrity. |
 | **Development & Code** | `refinery-rule-generator`, `sombra-gateway-policy-enforcer`, `enterprise-dashboard-checker` | Automates architectural compliance and UI consistency. |
-| **Intelligence & Audit** | `change-impact-visualizer`, `pii-security-docs-generator`, `red-team-evasion-scanner` | Provides transparency and proactive stress-testing. |
+| **Intelligence & Audit** | `change-impact-visualizer`, `policy-impact-simulator`, `red-team-evasion-scanner` | Provides transparency, impact simulation, and proactive stress-testing. |
 | **Business & Ops** | `roi-cost-efficiency-accountant`, `industry-snapshot-generator`, `sombra-performance-benchmarker` | Optimizes for scale, cost, and industry-specific needs. |
 
 ### The 16-Step Ocultar Protocol
 The orchestrator triggers a standard 16-step sequence for every meaningful change:
-1. **Docs** → 2. **Security Docs** → 3. **Packaging** → 4. **PII Verification** → 5. **Rule Gen** → 6. **Shield Sync** → 7. **Log Validation** → 8. **Policy Enforcement** → 9. **Dashboard Check** → 10. **Sanitization** → 11. **Release Builder** → 12. **Impact Visualization** → 13. **Red-Teaming** → 14. **Industry Snapshot** → 15. **ROI Accounting** → 16. **Performance Benchmarking**.
+1. **Ingest** → 2. **Decode** → 3. **Generate** → 4. **Simulate** → 5. **Sign** → 6. **Audit** → 7. **Rule Gen** → 8. **Shield Sync** → 9. **Dashboard Check** → 10. **Sanitization** → 11. **Release Builder** → 12. **Impact Visualization** → 13. **Red-Teaming** → 14. **Industry Snapshot** → 15. **ROI Accounting** → 16. **Performance Benchmarking**.
 
 ---
 

@@ -60,5 +60,5 @@ The Shadow API Scanner ensures that every service listening for AI-related reque
 
 ## Ecosystem Role
 - **Category**: Discovery / Auditor.
-- **Dependencies**: `drift-detector`, `repository-knowledge-map`.
+- **Dependencies**: `compliance-integrity-suite`, `repository-knowledge-map`.
 - **Triggers**: Weekly security sweep or manual audit.

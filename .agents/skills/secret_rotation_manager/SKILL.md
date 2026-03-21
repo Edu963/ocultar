@@ -64,5 +64,5 @@ This skill is the primary remediator for "Secret Drift". It replaces insecure de
 
 ## Ecosystem Role
 - **Category**: Remediator / Tasker.
-- **Dependencies**: `drift-detector` (Trigger), `artifact-signer` (Verification).
+- **Dependencies**: `compliance-integrity-suite` (Trigger), `artifact-signer` (Verification).
 - **Triggers**: Infrastructure update.
