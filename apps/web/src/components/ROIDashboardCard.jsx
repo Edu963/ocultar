@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 
 const ROIDashboardCard = () => {
-    const [data, setData] = useState({ savings: 0, vault_entries: 0, status: 'offline' });
+    const [data, setData] = useState({ savings: 0, vault_entries: 0, status: 'offline', name: 'Standard_Mode' });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchROI = async () => {
             try {
-                const response = await fetch('/api/roi');
+                // Use absolute URL to ensure connection to the Mock-API on :8080
+                const response = await fetch('http://localhost:8080/api/roi');
                 if (response.ok) {
                     const result = await response.json();
                     setData({
                         savings: result.savings || 0,
                         vault_entries: result.vault_entries || 0,
-                        status: 'online'
+                        status: 'online',
+                        name: result.name || 'Standard_Mode'
                     });
                 }
             } catch (error) {
@@ -47,7 +49,7 @@ const ROIDashboardCard = () => {
             </div>
 
             <div className="space-y-1">
-                <h3 className="font-tech text-[10px] uppercase text-dim tracking-widest italic">Capital_Retention_Metric</h3>
+                <h3 className="font-tech text-[10px] uppercase text-dim tracking-widest italic">{loading ? "Capital_Retention_Metric" : data.name}</h3>
                 <div className="text-4xl font-bold tracking-tighter tabular-nums">
                     {loading ? "---" : formatCurrency(data.savings)}
                 </div>
