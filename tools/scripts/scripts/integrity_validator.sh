@@ -37,7 +37,24 @@ else
     exit 1
 fi
 
-# 2. Setup Gating
+# 2. Manifest Lookup
+echo -e "[*] Reading validation profile from dist.manifest.yaml..."
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+MANIFEST_PATH="$REPO_ROOT/dist.manifest.yaml"
+
+if [[ ! -f "$MANIFEST_PATH" ]]; then
+    echo -e "${RED}FAILURE: Manifest not found at $MANIFEST_PATH${NC}"
+    exit 1
+fi
+
+# Use Python to extract metadata from the manifest
+GET_VAL="import yaml; m = yaml.safe_load(open('$MANIFEST_PATH')); print(m['validation']['$DIST_TYPE']"
+SETUP_SCRIPT=$(python3 -c "$GET_VAL['test_script'])")
+ALLOWED_PORTS=$(python3 -c "$GET_VAL['allowed_ports'])")
+
+echo -e "[*] Configuration: Script=$SETUP_SCRIPT, Ports=$ALLOWED_PORTS"
+
+# 3. Setup Gating
 echo -e "[*] Simulating Clean-Room Setup..."
 TMP_DIR=$(mktemp -d -t ocultar_val_XXXXXX)
 trap 'echo "Cleaning up $TMP_DIR..."; rm -rf "$TMP_DIR"' EXIT
@@ -50,13 +67,6 @@ elif [[ "$ARTIFACT_PATH" == *.tar.gz ]]; then
 fi
 
 cd "$TMP_DIR"
-
-# Ensure manifest requirements are met
-if [[ "$DIST_TYPE" == "community" ]]; then
-    SETUP_SCRIPT="scripts/setup-community.sh"
-else
-    SETUP_SCRIPT="scripts/setup-enterprise.sh"
-fi
 
 if [[ ! -f "$SETUP_SCRIPT" ]]; then
     echo -e "${RED}FAILURE: Required setup script $SETUP_SCRIPT not found in archive.${NC}"
