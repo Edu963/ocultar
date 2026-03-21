@@ -49,6 +49,11 @@ distributions:
         include:
           - "setup-enterprise.sh"
         dest: "scripts/"
+      - name: "mock-api"
+        src: "./services/mock-api/main.go"
+        type: "go-binary"
+        dest: "mock-api"
+        optional: true
 
 # Mandatory Security Checks for all components
 security:

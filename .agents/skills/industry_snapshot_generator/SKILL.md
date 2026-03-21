@@ -1,38 +1,70 @@
 ---
 name: industry-snapshot-generator
-description: Instantly configures the Ocultar Refinery, Dictionary Shield, and Enterprise Dashboard for a specific industry (Finance, Healthcare, GovTech, etc.).
+description: Programmatically provisions the Ocultar stack (Refinery, Shield, Dashboard) for specific verticals (Finance, Healthcare, GovTech, etc.).
 ---
 
-# Industry-Specific Snapshot Generator
+# Industry Snapshot Generator
 
 ## Purpose
+Automates the configuration of the Ocultar ecosystem for vertical-specific compliance requirements. This skill ensures that a prospect or new client starts with a high-fidelity, industry-standard security posture.
 
-This skill bridges the gap between a generic security tool and a deep, vertical-specific compliance solution. It allows Sales and Customer Success teams to demonstrate immediate relevance by pre-configuring the system for the prospect's specific regulatory environment.
+## Role
+- **Category**: Provisioner / Orchestrator
+- **Environment**: Staging / Demo / Initial Onboarding
+- **Lifecycle**: Pre-Sales, Deployment
 
-## When To Use This Skill
+## Inputs & Preconditions
 
-Use this skill:
-- Preparing for a sales demo to a prospect in a specific vertical (e.g., a bank).
-- During initial client onboarding to provide a "warm start" configuration.
-- Designing industry-specific "Gold Images" for enterprise distribution.
-- Testing the Refinery against industry-standard data formats (e.g., HL7 for healthcare).
+| Input | Type | Description |
+| :--- | :--- | :--- |
+| `INDUSTRY_ID` | String | `finance`, `healthcare`, `govtech`, `legal` |
+| `TARGET_ENV` | Enum | Must be `DEMO` or `STAGING`. `PRODUCTION` requires MFA. |
+| `MOCK_DATA` | Boolean | Whether to generate ROI/Risk data for the dashboard. |
+
+### Preconditions
+1. Ocultar Engine and Sombra Gateway are reachable.
+2. `security/regulatory_policy.json` is initialized.
+3. `pii-regression-suite-runner` is available for validation.
 
 ## Instructions
 
-1.  **Define Target Vertical**: Identify the primary regulatory framework (GDPR, HIPAA, PCI-DSS) and industry (Finance, Healthcare, etc.).
-2.  **Select Rule Set**: Load pre-defined configuration templates:
-    - **Finance**: IBAN, SWIFT, Credit Card (PCI), Proprietary Ticker symbols.
-    - **Healthcare**: Patient IDs, ICD-10 codes, HIPAA-protected identifiers.
-    - **GovTech**: Social Security Numbers, Classified Project codenames, Tax IDs.
-3.  **Configure Dictionary Shield**: Infuse the Tier 0 shield with industry-specific sensitive terminology (e.g., "M&A", "Internal Trial Data", "Classified").
-4.  **Mock Dashboard Data**: Populate the Risk Matrix and ROI Analytics with realistic "Day 1" data points to visualize the value proposition.
-5.  **Apply Sales Persona**: Ensure the Dashboard metrics (e.g., "Potential Fines Avoided") are calibrated to the vertical's average regulatory penalties.
-6.  **Safety Guardrail**: Ensure these snapshots are applied to *staging/demo* environments; never overwrite production settings without explicit confirmation.
+### 1. Load Declarative Snapshot
+- Retrieve the JSON payload from `/configs/snapshots/[INDUSTRY_ID].json`.
+- **Validation**: If the file does not exist, fail and report "Unsupported Industry".
 
-## Examples
+### 2. Infuse Dictionary Shield
+- Extract the `dictionary_entities` list from the snapshot.
+- Delegate to `Ocultar | Dictionary Shield Manager`:
+  - Command: `UpdateProtectedList(entities)`
+  - Goal: Synchronize industry-specific terms.
 
-### Finance Snapshot
-**Action**: Load European IBAN regex, SWIFT/BIC patterns, and populate the Risk Matrix with mocked "Financial Leak" events from a simulated chatbot.
+### 3. Update Policy Posture
+- Read PII mappings from the snapshot (regex and SLM classifiers).
+- Update `security/regulatory_policy.json` with the industry-specific mappings.
+- Delegate to `Ocultar | Refinery Architecture Manager`:
+  - Command: `VerifyRuleIntegrity(rules)`
+  - Trigger `sombra-gateway-policy-enforcer` to apply `strip_categories`.
 
-### Healthcare Onboarding
-**Action**: Activate the HIPAA detection profile, load ICD-10 SLM prompts, and sets the Dashboard ROI multiplier based on healthcare data breach costs ($10M+).
+### 4. Direct Compliance Mapping
+- Delegate to `Ocultar | Industry Compliance Validator`:
+  - Command: `ValidateIndustryPosture(regulatory_policy.json)`
+  - Goal: Generate `COMPLIANCE_AUDIT.md`.
+
+### 5. Provision Dashboard Analytics
+- If `MOCK_DATA` is true:
+  - Delegate to `Ocultar | Dashboard Scenario Generator`:
+    - Command: `TriggerScenario(INDUSTRY_ID)`
+    - Goal: Update `Mock-API` state and ROI metrics.
+
+### 5. Verification & Health Check
+- Run `pii-regression-suite-runner` against the newly applied rules.
+- Verify Sombra Gateway connectivity via `sombra-performance-benchmarker`.
+
+## Failure Handling
+- **Invalid Snapshot**: Logs error and aborts before any file modification.
+- **Validation Failure**: If regression tests fail, revert `regulatory_policy.json` to the previous version from Git/Backup.
+
+## Postconditions
+1. `regulatory_policy.json` contains industry-specific mappings.
+2. Dictionary Shield is populated with vertical-specific terms.
+3. Dashboard reflects realistic risk/ROI data for the vertical.
