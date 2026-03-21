@@ -3,58 +3,50 @@ name: regulation-digest-ingestor
 description: Expert AI Orchestrator for regulatory source monitoring. Fetches updates from official bodies and pre-processes them for the policy-schema-generator.
 ---
 
-# Regulation Digest Ingestor (v1.0)
+# Regulation Digest Ingestor (v1.1)
 
 ## Purpose
 
-The Regulation Digest Ingestor is the "Front-End" of the compliance pipeline. It automates the collection of regulatory updates (e.g., from the EU Journal, HIPAA updates, or CISO internal memos), transforming them into a clean `regulation_digest` string for downstream analysis.
-
-## Preconditions
-
-- **Input**: A `source_url` (Public/Internal) or `raw_artifact` (PDF/DOCX/Email).
-- **Access**: Internet access (for public sources) or repository access (for internal memos).
-- **Tools**: `read_url_content`, `view_file`.
+The RDI triggers the compliance pipeline by monitoring and collecting regulatory updates. It sanitizes noisy sources (web, PDF, email) into a format ready for semantic decoding.
 
 ## Inputs / Outputs
 
 ### Inputs
-- `source_url` (String, Optional): URL of the regulatory update.
-- `target_artifact` (Path, Optional): Local file containing the update.
+- `source_uri`: URL or absolute path of the source.
+- `ingestion_mode` (Enum): `PUBLIC` | `INTERNAL` | `AUTO_SCAN`.
 
 ### Outputs
-- `regulation_digest` (Artifact): A sanitized markdown file containing the raw regulatory text.
-- `ingestion_metadata` (JSON): Source, timestamp, and relevance score.
+- `regulation_digest`: Markdown artifact containing sanitized text.
+- `relevance_score` (Int): 0-100 based on keyword density (GDPR, PII, Encryption).
+- `sources_verified` (Boolean): Cryptographic proof of source origin (if available).
+
+## Preconditions
+- Network access for `PUBLIC` mode.
+- `read_url_content` or `view_file` permissions.
 
 ---
 
 ## Instructions
 
-### Step 1 – Source Acquisition
-1.  **Public Sources**: Use `read_url_content` to fetch the markdown/HTML update.
-2.  **Internal Sources**: Use `view_file` to read the CISO's memo or regulation PDF.
-3.  **Halt on Fail**: If the source is unreachable or unreadable, retry once or fail with `SOURCE_UNAVAILABLE`.
+### 1. Source Acquisition
+- Use `read_url_content` (Public) or `view_file` (Internal/PDF).
+- **Halt**: If 404 or access denied, retry once with `RETRY_AFTER` header respect.
 
-### Step 2 – Content Sanitization
-1.  Remove boilerplate (nav bars, legal footers, formatting noise).
-2.  Preserve key legal citations (Articles, Sections, Requirements).
-3.  Format as a single "Regulation Digest" markdown artifact.
+### 2. Sanitization Pipeline
+- Strip HTML tags, headers/footers, and ad blocks.
+- **Deterministic Format**: Structure as `## [SOURCE]`, `### [SECTION]`.
+- Output MUST be a clean markdown string.
 
-### Step 3 – Relevance Scoring
-1.  Determine if the update affects Ocultar's protected categories (SSN, PHI, etc.).
-2.  Assign `relevance`:
-    - `CRITICAL`: Directly impacts `regulatory_policy.json` mappings.
-    - `LOW`: Informational or procedural.
-
----
+### 3. Relevance Calculation
+Assign score based on weighted keywords:
+- `PII`, `Personal Data`, `Healthcare`: +30 pts.
+- `Encryption`, `SSN`, `Masking`: +40 pts.
+- `Admin`, `Procedural`: +5 pts.
 
 ## Failure Handling
+- **`UNSUPPORTED_FORMAT`**: Fail if binary data (other than PDF) is encountered.
+- **`BOT_BLOCKED`**: If public sources block the crawler, report `ACCESS_DENIED`.
 
-- **`MALFORMED_SOURCE`**: If the source contains encrypted data or unreadable characters.
-- **`NO_DATA_FETCHED`**: If the URL returns a 404 or empty content.
-
----
-
-## Ecosystem Role
-- **Role**: Ingestor / Crawler.
-- **Target**: `regulatory-intent-decoder`.
-- **Trigger**: Chron task or manual URL submission.
+## Postconditions
+- Artifact MUST be saved in `docs/compliance/digests/{{timestamp}}.md`.
+- Metadata MUST be registered in `ecosystem-state-tracker`.

@@ -1,39 +1,48 @@
 ---
 name: compliance-docs-orchestrator
-description: Expert Instructions (prompt-based persona) for the AI assistant. Synchronizes all Ocultar technical, API, and compliance documentation. Ensures every code or refinery change is reflected in auditor-ready reports and developer guides.
+description: Synchronizes Ocultar technical, API, and compliance documentation. Ensures architectural changes are reflected in reports.
 ---
 
-# Compliance Docs Orchestrator
+# Compliance Docs Orchestrator (v1.1)
 
 ## Purpose
-This skill serves as the single source of truth for Ocultar documentation. It merges technical API documentation with security and compliance narratives, ensuring that auditors, developers, and users stay synchronized with the latest architectural changes and PII detection rules.
 
-## Responsibilities
+CDO ensures the "Documentation-as-Code" principle. It synchronizes technical specifications with security narratives, maintaining auditor-ready documentation across the repository.
 
-### 1. Technical & API Documentation
-- Update `TECH_DOCS.md`, `DEVELOPER_GUIDE.md`, and `API_REFERENCE.md` when core logic or endpoints change.
-- Document new environment variables, configuration parameters, and build flags.
+## Inputs / Outputs
 
-### 2. Privacy & Compliance Documentation
-- Update `PII_DETECTION.md` with new supported entities (e.g., `SSN`, `IBAN`).
-- Map detection rules to regulatory standards (GDPR, HIPAA, PCI-DSS).
-- Generate audit log summaries explaining how new rules appear in SIEM exports.
+### Inputs
+- `change_set`: Modified code and config files.
+- `impact_domain` (Enum): `CORE`, `API`, `PII`, `UI`.
 
-### 3. User & Transparency Notes
-- Draft simple "Transparency Reports" for end-users explaining how their data is refined.
-- Maintain troubleshooting guides for core services and extensions.
+### Outputs
+- `doc_manifest` (JSON): Hashes of all updated markdown files.
+- `sync_status` (Enum): `COMPLETE` | `PARTIAL` | `OUT_OF_SYNC`.
+
+## Preconditions
+- Access to `repository-knowledge-map` for path resolution.
+- Read/Write permissions on `/documentation` and `/docs`.
 
 ---
 
 ## Instructions
 
-1.  **Change Analysis**: Identify if the change affects code logic, API endpoints, or PII detection rules.
-2.  **Synchronized Update**:
-    - If API change: Update `API_REFERENCE.md` and `DEVELOPER_GUIDE.md`.
-    - If PII change: Update `PII_DETECTION.md` and the **Regulatory Mapping** section.
-    - If Configuration change: Update `TECH_DOCS.md`.
-3.  **Auditor Verification**: Ensure the "Technical Narrative" matches the "Compliance Narrative."
-4.  **Cross-Reference Integrity**: Verify that all documentation links remain valid and reflect the current repository structure (consult the `Repository Knowledge Map`).
+### 1. Domain-Locked Sync
+Trigger updates based on `impact_domain`:
+- **CORE**: Update `TECH_DOCS.md` and `ARCHITECTURE.md`.
+- **API**: Synchronize `API_REFERENCE.md` with new routes.
+- **PII**: Update `PII_DETECTION.md` and horizontal regulatory mappings.
 
-> [!NOTE]
-> This skill consists of **Expert Instructions** for the AI assistant. It is a prompt-based persona, not an autonomous background service.
+### 2. Consistency Cross-Check
+- Verify that any new environment variable in code is documented in `SETUP_GUIDE.md`.
+- Ensure all relative documentation links are valid using `repository-knowledge-map`.
+
+### 3. Manifest Generation
+- Generate `doc_manifest.json` containing: `{ "file": string, "sha256": string, "last_reviewed_by_ai": timestamp }`.
+
+## Failure Handling
+- **`DOCUMENTATION_DRIFT`**: If documentation is significantly behind code (measured by git history), flag `OUT_OF_SYNC`.
+- **`LINK_ROT`**: If internal links are broken, return a `PARTIAL` status with a list of bad links.
+
+## Postconditions
+- `doc_manifest` MUST be signed by `evidence-archiver`.
