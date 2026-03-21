@@ -64,4 +64,4 @@ The Policy Impact Simulator provides "Safety-First" validation. It predicts the 
 ## Ecosystem Role
 - **Role**: Validator / Simulation Agent.
 - **Consumer**: `continuous-ai-orchestrator` (Before deployment).
-- **Dependency**: `audit-log-validator`.
+- **Dependency**: `compliance-integrity-suite`.

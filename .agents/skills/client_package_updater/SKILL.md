@@ -37,10 +37,10 @@ The **Ocultar Distribution Manifest** (`dist.manifest.yaml`) is the single sourc
 4. **Script Sync**: Ensure `tools/scripts/scripts/build_release.sh` reflects the logic defined in the manifest.
 
 ### 3. Security & Compliance (MANDATORY)
-1. **Egress Audit**: Verify that new scripts do not contain hardcoded developer URLs or phone-home telemetry.
-2. **Sanitization**: Invoke the `security-sanitizer` skill on the `dist/` staging directory before final packaging.
-3. **SBOM Generation**: Invoke the `sbom-generator` skill to include dependency manifests in the bundle.
-4. **License Verification**: Ensure `enterprise/` artifacts are **ONLY** present in the `ocultar-enterprise.tar.gz`.
+1. **Secret Scanning**: Invoke the `secret-scanner` skill on the `dist/` staging directory to prevent credential leaks.
+2. **Content Sanitization**: Use the `content-redactor` to remove internal build paths and developer metadata.
+3. **Policy Integrity**: Ensure the `regulatory_policy.json` is signed via the `compliance-certificate-signer` before final compression.
+4. **SBOM Generation**: Invoke the `sbom-generator` skill to include dependency manifests in the bundle.
 
 ### 4. Verification Flow
 1. **Dry Run**: Execute `tools/scripts/scripts/build_release.sh` locally.

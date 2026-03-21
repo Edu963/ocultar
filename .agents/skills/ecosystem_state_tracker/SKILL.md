@@ -48,7 +48,7 @@ Upon skill completion:
     - Build the state JSON including `status`, `artifacts`, `state_hash`, and a calculated `expires_at` (based on the skill's specific TTL policy).
     - Write to a temporary file: `.agents/state/{{skill_id}}/{{state_hash}}.tmp`.
     - Atomically rename `.tmp` to `.json` to ensure integrity.
-3.  **Audit Trail Integration**: If in `COMPLIANCE` mode, send a hash of this state record to the `audit-log-validator`.
+3.  **Audit Trail Integration**: If in `COMPLIANCE` mode, send a hash of this state record to the `compliance-integrity-suite`.
 
 ### 3. Cleanup & Pruning
 - EST does not maintain a giant manifest. Individual files should be pruned by an external `maintenance-agent` or via a `garbage_collection` trigger if a partition exceeds a specific size (e.g., 50MB).
