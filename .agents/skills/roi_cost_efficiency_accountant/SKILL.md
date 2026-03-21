@@ -1,39 +1,45 @@
 ---
 name: roi-cost-efficiency-accountant
-description: Analyzes token usage across the Sombra Gateway and calculates the financial impact of Ocultar’s AI security, including potential fines avoided.
+description: Analyzes token usage and calculates the financial impact of Ocultar’s security and cost-avoidance.
 ---
 
-# ROI & Cost-Efficiency Accountant
+# ROI & Cost-Efficiency Accountant (v1.1)
 
 ## Purpose
 
-This skill provides the data-driven justification for AI security investments. It transforms technical logs into financial metrics (ROI, Cost-Avoidance) that C-suite executives can use to measure the value of the Ocultar platform.
+The REA quantifies the monetary value of Ocultar. It measures token efficiency and potential fine-avoidance, allowing the CISO to justify security budgets through technical data.
 
-## When To Use This Skill
+## Inputs / Outputs
 
-Use this skill:
-- Monthly or quarterly to generate compliance and budget reports.
-- When evaluating the performance of different LLM/SLM providers.
-- During infrastructure reviews to identify cost-saving opportunities in the refinement pipeline.
-- When justifying the "Security Tax" of AI protection to the CFO or CISO.
+### Inputs
+- `audit_logs`: Path to `app/audit.log` or SIEM stream.
+- `pricing_model`: JSON mapping categories to risk-dollar values.
+- `timeframe`: `1d`, `7d`, `30d`, `quarterly`.
+
+### Outputs
+- `roi_report` (Artifact): Detailed breakdown of savings and protected capital.
+- `optimization_tips`: Specific changes to reduce token spend.
+
+---
 
 ## Instructions
 
-1.  **Extract Usage Metrics**: Aggregate token counts for both external LLM requests and internal SLM refinement operations.
-2.  **Calculate Fine-Avoidance**: Map every blocked PII leak or Dictionary Shield hit to a potential regulatory penalty (e.g., $4k per breach for minor GDPR violations).
-3.  **Perform Cost Benchmarking**: Compare the cost of using a high-end LLM for simple tasks versus routing them through cheaper, specialized SLMs (e.g., using a local regex/SLM vs. a remote GPT-4 call for PII detection).
-4.  **Identify Resource Leaks**: Detect inefficient prompts or redundant refinement loops that are inflating token costs.
-5.  **Generate Executive Summary**: Produce a high-level report showing:
-    - **Total Tokens Refined**.
-    - **Security ROI** ($ Fines Avoided / $ Ocultar Cost).
-    - **Optimization Savings** ($ Saved by switching to cheaper SLMs).
-6.  **Maintain Privacy**: Ensure that all cost reports use aggregated data and never reveal the content of the refined PII.
+### 1. Fine-Avoidance Mapping
+- Identify all `REDACT` or `VAULT` hits in `audit_logs`.
+- **Arithmetic**: `Sum(hits * penalty_per_category)`.
+- **Default Penalty**: Minor ($5k), Major ($100k - Tier 0).
 
-## Examples
+### 2. Token Optimization Audit
+- Measure the ratio of SLM (Local) vs LLM (Remote) calls.
+- **Savings Logic**: Calculate `$ Total_Saved` by using local refinery vs. passing raw PII through remote provider filters (which often reject or over-redact).
 
-### Quarterly ROI Report
-**Action**: Aggregate 12 million refined tokens and 500 blocked leaks. Calculate $2M in potential fine-avoidance based on vertical-specific penalties.
+### 3. Efficiency Reporting
+- Generate a "Cost-per-Million-Tokens" (CPMT) metric.
+- **Goal**: Highlight how the Enterprise Site License reduces CPMT compared to individual API keys.
 
-### Model Swap Recommendation
-**Change**: Discovered that 80% of PII detection is being handled by a remote LLM.
-**Action**: Recommend switching to the local "Refinery Rule" engine to reduce token latency and cost by 95%.
+## Failure Handling
+- **`LOG_DATA_SPARSITY`**: If less than 1,000 requests are logged, provide a "Projected ROI" based on industry averages.
+
+## Postconditions
+- Data MUST be aggregated and sanitized (No PII in ROI reports).
+- Results stored in `services/engine/analytics/roi/`.
