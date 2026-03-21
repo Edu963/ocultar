@@ -33,6 +33,14 @@ Welcome to the unified Ocultar Engine ecosystem. This monorepo contains all core
     go run ./apps/sombra  # See apps/sombra/README.md for configuration
     ```
 
+## AI-Driven Governance
+
+OCULTAR is maintained by a specialized ecosystem of 40+ AI Agent Skills. Every change to this repository is verified by the **16-Step Ocultar Protocol**, ensuring deterministic security and compliance.
+
+- **Orchestration**: Managed by `/.agents/skills/`.
+- **Policy**: Defined in `/security/regulatory_policy.json`.
+- **Audit**: Verifiable logs signed with Ed25519.
+
 ## Development
 
 - **Documentation**: See `/docs` for architecture and API references.
