@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+
+# Build artifacts
+dist/
+bin/
+
+# Environment and Secrets
+.env
+*.db
+vault_data/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+audit.log

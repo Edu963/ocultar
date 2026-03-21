@@ -1,0 +1,45 @@
+# Exclude heavy / irrelevant directories from the Docker build context.
+# This file lives in the root to support `context: .` in docker-compose files.
+
+# Node / frontend assets
+**/node_modules
+**/.next
+dist/
+**/dist/bin
+**/dist/*.db
+
+# Go build cache & test artifacts
+**/__debug_bin
+**/testdata
+**/*.test
+
+# Data & model files (can be GBs)
+**/*.gguf
+**/*.bin
+**/*.pt
+**/*.safetensors
+**/slm_data
+**/vault_data
+**/*.db
+**/*.duckdb
+
+# IDE / tooling
+**/.git
+**/.vscode
+**/.idea
+**/.DS_Store
+
+# Logs
+**/*.log
+**/logs
+
+# Python virtualenvs / cache
+**/__pycache__
+**/.venv
+**/venv
+**/*.pyc
+
+# Demo / test data
+**/Emails test
+**/PITCH.md
+**/raw_emails.json
