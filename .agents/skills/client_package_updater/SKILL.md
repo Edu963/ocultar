@@ -45,7 +45,7 @@ The **Ocultar Distribution Manifest** (`dist.manifest.yaml`) is the single sourc
 ### 4. Verification Flow
 1. **Dry Run**: Execute `tools/scripts/scripts/build_release.sh` locally.
 2. **Parity Check**: Run `bash tools/scripts/scripts/check_parity.sh` to ensure Community/Enterprise isolation.
-3. **Smoke Test**: Invoke the `distribution-smoke-tester` skill to verify the package in a clean environment.
+3. **Smoke Test**: Invoke the `distribution-integrity-validator` skill to verify the package in a clean environment.
 
 ## Inputs
 - **Changeset**: Description of the changes made to the repository.

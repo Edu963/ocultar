@@ -43,7 +43,7 @@ Do NOT use this skill for minor internal commits or experimental changes.
 7. **SBOM Generation**: Invoke the `sbom-generator` skill to capture all included dependencies and licenses.
 8. Create a versioned archive using a consistent naming format.
 9. **Artifact Signing**: Invoke the `artifact-signer` skill to generate detached Ed25519 signatures for the final archives.
-10. **Final Validation**: Invoke the `distribution-smoke-tester` skill to verify the package in a clean Docker environment.
+10. **Final Validation**: Invoke the `distribution-integrity-validator` skill to verify the package in a clean Docker environment.
 11. Ensure the archive structure is clean and reproducible.
 7. If necessary, verify the package by inspecting its contents.
 
