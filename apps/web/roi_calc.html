@@ -418,23 +418,9 @@
             const effectiveRate = listPricePerGB * (1 - discountMultiplier);
             displayEffectiveRate.textContent = `${rateFormatter.format(effectiveRate)} / GB`;
 
-            // DEPLOYMENT_UPGRADE: Fetch live ROI from OCULTAR Engine
-            let totalOcultarMonthly = OCULTAR_MONTHLY + (tb * LOCAL_COMPUTE_PER_TB);
-            try {
-                const response = await fetch('/api/roi');
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.savings) {
-                        // Use backend-calculated savings if available, otherwise fallback to local model
-                        console.log("[SYS] Live ROI telemetry synchronized.");
-                    }
-                }
-            } catch (e) {
-                console.warn("[SYS] API_ROI_UNREACHABLE. Falling back to local deterministic model.");
-            }
-
+            // Static Manual Model (Zero-Egress isolation for public web)
             const localComputeMonthly = tb * LOCAL_COMPUTE_PER_TB;
-            totalOcultarMonthly = OCULTAR_MONTHLY + localComputeMonthly;
+            const totalOcultarMonthly = OCULTAR_MONTHLY + localComputeMonthly;
 
             const totalCloudAnnual = totalCloudNetMonthly * 12;
             const totalOcultarAnnual = totalOcultarMonthly * 12;
