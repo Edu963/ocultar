@@ -1,0 +1,47 @@
+# OCULTAR Standalone Proxy Stack
+#
+# Brings up the transparent HTTP proxy and a lightweight echo upstream.
+# Used for the smoke test (bash tools/scripts/scripts/smoke_test.sh).
+#
+# Usage:
+#   docker compose -f docker-compose.proxy.yml up -d --build
+#   bash tools/scripts/scripts/smoke_test.sh http://localhost:8081
+#   docker compose -f docker-compose.proxy.yml down
+
+services:
+  # ── Lightweight Echo Server (acts as the upstream "AI API") ────────────────
+  echo-upstream:
+    image: ealen/echo-server:latest
+    container_name: ocultar-echo-upstream
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+      - ENABLE__ENVIRONMENT=false
+    ports:
+      - "8082:8080"
+
+  # ── OCULTAR Privacy Proxy ────────────────────────────────────────────────
+  ocultar-proxy:
+    build:
+      context: .   # Repo root — includes both apps/proxy/ and services/engine/
+      dockerfile: apps/proxy/Dockerfile
+    container_name: ocultar-proxy
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - OCU_PROXY_TARGET=http://ocultar-echo-upstream:8080
+      - OCU_PROXY_PORT=8081
+      - OCU_MASTER_KEY=${OCU_MASTER_KEY:-default-dev-key-32-chars-long-!!!}
+      - OCU_SALT=${OCU_SALT:-ocultar-v112-kdf-salt-fixed-16}
+    depends_on:
+      - echo-upstream
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+networks:
+  default:
+    name: ocultar-proxy-net

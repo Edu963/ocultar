@@ -1,0 +1,169 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=JetBrains+Mono:wght@300;400;600&display=swap');
+
+:root {
+  /* Design System: Technical Artifact / Zero-Egress Refinery */
+  --bg-primary: #FAFAFA;
+  --text-primary: #000000;
+  --text-dim: rgba(0, 0, 0, 0.5);
+  --border-stark: 1px solid #000000;
+  
+  /* Typography */
+  --font-hero: 'Space Grotesk', sans-serif;
+  --font-tech: 'JetBrains Mono', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 0 !important; /* Forces brutalist sharp edges */
+}
+
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-tech);
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Base UI Elements */
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.7;
+}
+
+hr {
+  border: none;
+  border-top: var(--border-stark);
+  margin: 2rem 0;
+}
+
+/* Performance Optimized Canvas */
+#zero-egress-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* Typography Hierarchy */
+h1, h2, h3, h4 {
+  font-family: var(--font-hero);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: clamp(4rem, 15vw, 12rem);
+  line-height: 0.85;
+}
+
+h2 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1;
+  margin-bottom: 2rem;
+}
+
+.mono-label {
+  font-family: var(--font-tech);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+/* Brutalist Container */
+.system-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Section Spacing */
+section {
+  padding: 10rem 0;
+  border-bottom: var(--border-stark);
+}
+
+section:last-of-type {
+  border-bottom: none;
+}
+
+/* Technical Blocks */
+.terminal-block {
+  border: var(--border-stark);
+  padding: 1.5rem;
+  font-family: var(--font-tech);
+  font-size: 0.875rem;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-block::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--text-primary);
+  opacity: 0.1;
+}
+
+/* Buttons (Text/Outline only) */
+.btn-stark {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border: var(--border-stark);
+  text-transform: uppercase;
+  font-family: var(--font-tech);
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background: transparent;
+}
+
+.btn-stark:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  opacity: 1;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  section {
+    padding: 6rem 0;
+  }
+  .system-container {
+    padding: 0 1.5rem;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-primary);
+}
+
