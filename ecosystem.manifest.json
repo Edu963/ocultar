@@ -1,0 +1,27 @@
+{
+  "name": "Ocultar",
+  "version": "2.1.0",
+  "canonical_components": {
+    "Refinery": {
+      "path": "services/engine/",
+      "responsibility": "Core PII detection and redaction logic."
+    },
+    "Sombra": {
+      "path": "apps/gateway/",
+      "responsibility": "Agentic gateway and LLM proxy orchestration."
+    },
+    "Vault": {
+      "path": "services/vault/",
+      "responsibility": "AES-256 encrypted storage for de-identified PII."
+    },
+    "Shield": {
+      "path": "services/engine/pkg/shield/",
+      "responsibility": "Deterministic protection for VIPs and sensitive entities."
+    }
+  },
+  "forbidden_terms": {
+    "Proxy": "Sombra",
+    "Engine": "Refinery",
+    "Souverain": "Ocultar"
+  }
+}
