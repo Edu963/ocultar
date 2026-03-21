@@ -1,51 +1,71 @@
 ---
 name: pii-regression-suite-runner
-description: Formalizes the verification of refinery rules to prevent regression in sensitive data detection. Executes automated test cases against the Ocultar Engine and verifies redaction/pseudonymization accuracy.
+description: Production-grade orchestrator for the PII Regression Suite. Validates Ocultar Engine detection accuracy against ground-truth datasets to prevent privacy regressions.
 ---
 
 # PII Regression Suite Runner
 
 ## Purpose
-This skill ensures that updates to PII detection logic, regex patterns, or refinery configurations do not break existing detection capabilities. It acts as a "Quality Gate" for privacy compliance before any changes are merged into the core engine or Sombra Gateway.
+This skill acts as a mandatory Quality Gate (Step 11 of the Ocultar 16-Step Protocol) to ensure that updates to Refinery rules, NLP models, or regex patterns do not degrade detection capabilities. It enforces a "Fail-Closed" policy for regressions in critical (Tier 0/1) data categories.
+
+## Preconditions
+1.  **Environment Isolation**: Execution MUST occur in a "Zero-Egress" ephemeral container.
+2.  **License Validation**: A valid Ocultar Enterprise license must be active (Verified via `tier-compliance-checker`).
+3.  **Artifact Parity**: The `engine_version` and `refinery_rules.json` must be compatible (Verified via `distribution-integrity-validator`).
 
 ## Inputs
-- `test_data_path`: Absolute path to the JSON/Text files containing ground-truth PII examples.
-- `rule_diff`: The change-set of refinery rules to verify.
-- `engine_version`: The binary version or build of the Ocultar Engine to test against.
+- `test_suite_id`: [REQUIRED] ID of the ground-truth dataset in `services/engine/tests/ground_truth/`.
+- `rule_set_hash`: [REQUIRED] SHA-256 hash of the refinery rules to be tested.
+- `engine_binary_path`: [REQUIRED] Absolute path to the Ocultar Engine binary.
+- `concurrency_limit`: [OPTIONAL] Max parallel requests to the engine (Default: 4).
 
 ## Outputs
-- `regression_report`: A detailed summary of pass/fail counts, missed hits (FN), and false positives (FP).
-- `verification_hash`: A SHA-256 hash of the rule-set + test results.
+- `regression_report`: Detailed JSON containing:
+    - `pass_rate`: Percentage of correctly redacted tokens.
+    - `fn_list`: List of missed tokens (False Negatives) with their categories.
+    - `fp_list`: List of over-redacted tokens (False Positives).
+    - `latency_p95`: 95th percentile latency per request.
+- `verification_signature`: Ed25519 signature of the report, linked to the `rule_set_hash`.
+- `state_token`: UUID registered in the `ecosystem-state-tracker`.
 
 ---
 
 ## Instructions
 
-### 1. Load Ground Truth
-- Locate the regression test suite in `services/engine/tests/ground_truth/`.
-- Ensure test cases cover all supported PII categories (SSN, Email, IBAN, Credentials, etc.).
+### 1. Initialize Clean-Room Environment
+- Provision an ephemeral workspace with NO external network access.
+- Mount the ground-truth dataset as a READ-ONLY volume.
+- **Security Rule**: Never log the actual content of ground-truth PII; only log the token positions and category IDs.
 
-### 2. Configure Local Engine
-- Spin up a local instance of the Ocultar Engine using the updated `refinery_rules.json`.
-- Ensure the engine is running in `DEBUG_REFINERY` mode to capture detailed hit metadata.
+### 2. Verify Engine Integrity
+- Execute `ocultar-engine --version` and verify against requirements.
+- Run a `Health-Check` on the engine's `/heartbeat` endpoint.
+- Ensure `DEBUG_REFINERY=1` is set to enable hit-metadata extraction.
 
-### 3. Execute Suite
-- Stream the test data through the engine's `/refine` endpoint.
-- Compare the output tokens against the expected ground truth markers.
-- **Rule**: 100% accuracy required for "Critical" categories (SSN, Passport, Secret Keys).
+### 3. Execute Batch Processing
+- Partition the ground-truth data into chunks based on `concurrency_limit`.
+- Iterate through each chunk, sending requests to the `/refine` endpoint.
+- **Fail-Fast**: Stop execution if the engine latency exceeds 500ms for more than 5% of requests.
 
-### 4. Analysis & Result
-- Calculate detection metrics (Precision/Recall).
-- Identify any regression where a previously caught token is now missed.
-- **Gate**: Any regression in "Tier 0" or "Tier 1" data MUST result in a `FAIL`.
+### 4. Differential Analysis (Ground-Truth Mapping)
+- Compare actual engine redactions against expected ground-truth markers.
+- Classify mismatches into:
+    - **Tier A Regression**: Critical missed hit (SSN, Passport, Secret Key) -> **IMMEDIATE FAIL**.
+    - **Tier B Regression**: High-sensitivity missed hit (Email, Address) -> **FAIL**.
+    - **Functional Drift**: False Positive in non-PII context -> **WARNING**.
+
+### 5. Finalize Verification & State Sync
+- Generate the `regression_report`.
+- Call `artifact-signer` to sign the report hash.
+- Register the results in the `ecosystem-state-tracker` with the current `rule_set_hash` as the key.
 
 ## Failure Handling
-- **Missing Ground Truth**: If test data is missing, halt execution and alert the Privacy Officer.
-- **Engine Crash**: If the engine fails under the test load, report a "Stability Regression".
+- **Engine Instability**: If the engine crashes (Signal 9/11), report as "Critical Stability Regression".
+- **Schema Mismatch**: If the ground-truth format is invalid, halt and trigger `policy-schema-generator` for update.
+- **Security Alert**: If any network egress is detected during the suite run, immediate SHUTDOWN and alert CISO.
 
-## Examples
-
-### Scenario: New SSN Regex
-- **Input**: Updated regex for US SSN with dashes.
-- **Process**: Run the suite against 10,000 anonymized samples.
-- **Result**: Verify that the new regex catches all 10,000 samples without increasing false positives in serial numbers.
+## Quality Metadata
+- Role: Validator / Gatekeeper
+- Lifecycle: CI-CD / Pre-Release
+- Maturity: Production
+- Zero-Egress: MANDATORY
