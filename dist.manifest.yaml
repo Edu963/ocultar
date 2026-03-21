@@ -1,0 +1,57 @@
+# Ocultar Distribution Manifest
+# This file defines the files and binaries included in Ocultar releases.
+# It is used by the client-package-updater skill and the build_release.sh script.
+
+version: "1.0"
+
+distributions:
+  community:
+    name: "ocultar-community"
+    format: "zip"
+    components:
+      - name: "engine"
+        src: "./services/engine/cmd/main.go"
+        type: "go-binary"
+        dest: "ocultar"
+      - name: "dashboard"
+        src: "./apps/web"
+        type: "npm-build"
+        dest: "dashboard"
+      - name: "docker-compose"
+        src: "./docker-compose.proxy.yml"
+        type: "file"
+        dest: "docker-compose.yml"
+      - name: "scripts"
+        src: "./tools/scripts/scripts"
+        type: "directory"
+        include:
+          - "setup-community.sh"
+          - "setup-community.ps1"
+        dest: "scripts/"
+
+  enterprise:
+    name: "ocultar-enterprise"
+    format: "tar.gz"
+    extends: "community"
+    components:
+      - name: "enterprise-engine"
+        src: "./enterprise/engine-extensions/cmd/ocultar-enterprise/main.go"
+        type: "go-binary"
+        dest: "ocultar-enterprise"
+        optional: true
+      - name: "config-template"
+        src: "./configs/config.yaml"
+        type: "file"
+        dest: "config.yaml"
+      - name: "enterprise-scripts"
+        src: "./tools/scripts/scripts"
+        type: "directory"
+        include:
+          - "setup-enterprise.sh"
+        dest: "scripts/"
+
+# Mandatory Security Checks for all components
+security:
+  sanitization: true
+  egress_audit: true
+  license_enforcement: true

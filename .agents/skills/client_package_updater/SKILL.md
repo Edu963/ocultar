@@ -1,70 +1,74 @@
 ---
 name: client-package-updater
-description: Use this skill whenever changes to the codebase may affect files distributed to clients in packaged formats such as .tar or .zip. The skill ensures that client deliverables remain complete, functional, and aligned with the current version of the software.
+description: Expert skill for synchronizing the Ocultar codebase with client-facing distribution artifacts. Ensures that any changes to binaries, configurations, or scripts are reflected in the build manifests and packaging logic.
 ---
 
-# Client Package Updater
+# Ocultar | Client Package Updater
 
 ## Purpose
-
-This skill ensures that all artifacts delivered to clients (such as .tar or .zip archives) remain consistent with the current codebase. Whenever relevant code, dependencies, configuration files, or scripts change, the packaging process and contents must be reviewed and updated if necessary.
+This skill ensures that the **Ocultar Distribution Manifest** (currently implemented in `tools/scripts/scripts/build_release.sh`) remains synchronized with the evolving codebase. It prevents "Dark Features" (implemented but not shipped) and "Broken Shipments" (shipped but missing dependencies).
 
 ## When To Use This Skill
+**MANDATORY** whenever a change affects:
+- **Core Binaries**: New `main.go` entry points or renamed service commands.
+- **Enterprise Extensions**: Any addition to the `enterprise/` directory that must be bundled separately.
+- **Static Assets**: Updates to the `apps/web` dashboard or new public icons/locales.
+- **Configuration Templates**: New keys in `configs/config.yaml` or `.env.example`.
+- **Deployment Scripts**: Modifications to `docker-compose.proxy.yml` or `setup-community.sh`.
+- **Documentation**: New `/docs/*.md` guides that must be included in the `.zip` or `.tar.gz`.
 
-Use this skill whenever:
-
-- Files included in client distributions change
-- Build scripts or packaging scripts are modified
-- New dependencies are added
-- Configuration files required by clients change
-- Installation scripts change
-- Directory structure changes
-- Runtime assets are added or removed
-
-Do NOT use this skill for internal-only code changes that do not affect distributed artifacts.
+## Preconditions
+- The agent has completed a code or configuration change.
+- The `tools/scripts/scripts/build_release.sh` script is available and readable.
 
 ## Instructions
 
-1. Detect the change made to the repository.
-2. Determine whether the change impacts the client distribution package.
-3. Identify the packaging mechanism used by the project. This may include:
-   - build scripts
-   - packaging scripts
-   - Docker exports
-   - release workflows
-4. Identify the files included in the client package (.tar, .zip, or similar).
-5. Verify whether the new code changes require:
-   - adding files
-   - removing files
-   - updating configuration
-   - updating install scripts
-   - ensuring `README.md`, `roadmap.md`, and relevant `/documentation/*.md` guides are bundled
-6. Update the packaging configuration if necessary.
-7. Ensure the package remains minimal, functional, and reproducible.
-8. If applicable, regenerate or validate the archive structure.
+### 1. Change Impact Mapping
+Identify the specific category of the change:
+- **Binary Change**: Does `go build` output a new filename?
+- **Logic Change**: Does a new service require a new port mapping in `docker-compose.yml`?
+- **Asset Change**: Has the `apps/web/dist` structure changed?
+
+### 2. Manifest Synchronization
+The **Ocultar Distribution Manifest** (`dist.manifest.yaml`) is the single source of truth for all releases.
+1. **Audit `dist.manifest.yaml`**: Ensure all new files (e.g., extensions, config keys) are explicitly listed in the appropriate `distributions` section.
+2. **Component Mapping**: Update `src` and `dest` paths if directory structures change.
+3. **Exclusion Logic**: Verify that `security` flags (`sanitization`, `egress_audit`) are enabled for new components.
+4. **Script Sync**: Ensure `tools/scripts/scripts/build_release.sh` reflects the logic defined in the manifest.
+
+### 3. Security & Compliance (MANDATORY)
+1. **Egress Audit**: Verify that new scripts do not contain hardcoded developer URLs or phone-home telemetry.
+2. **Sanitization**: Invoke the `security-sanitizer` skill on the `dist/` staging directory before final packaging.
+3. **SBOM Generation**: Invoke the `sbom-generator` skill to include dependency manifests in the bundle.
+4. **License Verification**: Ensure `enterprise/` artifacts are **ONLY** present in the `ocultar-enterprise.tar.gz`.
+
+### 4. Verification Flow
+1. **Dry Run**: Execute `tools/scripts/scripts/build_release.sh` locally.
+2. **Parity Check**: Run `bash tools/scripts/scripts/check_parity.sh` to ensure Community/Enterprise isolation.
+3. **Smoke Test**: Invoke the `distribution-smoke-tester` skill to verify the package in a clean environment.
+
+## Inputs
+- **Changeset**: Description of the changes made to the repository.
+- **Package Target**: (Optional) Specific target to update (Community/Enterprise).
+
+## Outputs
+- **Updated Manifest**: Modified `tools/scripts/scripts/build_release.sh`.
+- **Validation Report**: Confirmation of correct file placement and security sanitization.
+
+## Failure Handling
+- **Build Failure**: If `build_release.sh` fails after your change, analyze the diff of the script and revert if logic is circular or paths are broken.
+- **Leaked Secret**: If `security-sanitizer` detects a secret in `dist/`, YOU MUST locate the source in the repo and fix it before re-running this skill.
 
 ## Examples
 
-Example 1
+### Example 1: New Enterprise Connector
+**Input**: Added `enterprise/connectors/sharepoint.go`.
+**Action**: Update `build_release.sh` to ensure `enterprise/connectors` is built and the .so/.go binary is included in `ocultar-enterprise.tar.gz`.
 
-Input:
-A new runtime configuration file is required for the application to start.
+### Example 2: Dashboard Redesign
+**Input**: Moved frontend build artifacts to `apps/web/out`.
+**Action**: Update the `npm run build` step and the `cp -r` path in `build_release.sh` to match the new `out` directory.
 
-Action:
-Ensure the configuration file is included in the client package.
-
-Example 2
-
-Input:
-A dependency script is moved from `tools/scripts/scripts/` to `tools/`.
-
-Action:
-Update the packaging process so the script is included in the distribution.
-
-Example 3
-
-Input:
-A new installation script is added.
-
-Action:
-Include the script in the package and update any installation documentation if necessary.
+### Example 3: Deployment Script Update
+**Input**: Added `scripts/harden-linux.sh`.
+**Action**: Add `cp "$SCRIPT_DIR/harden-linux.sh" "$DIST_DIR/community/scripts/"` to the community preparation section of `build_release.sh`.
