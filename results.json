@@ -1,0 +1,33 @@
+{
+    "baseline_echo_server": {
+        "throughput_rps": 2221.142949066886,
+        "total_requests": 1000,
+        "successes": 1000,
+        "failures": 0,
+        "latency_ms": {
+            "p50": 11.04435499291867,
+            "p90": 18.221623396675568,
+            "p99": 55.82133650488686,
+            "mean": 12.473928941471968,
+            "max": 64.7000110038789
+        }
+    },
+    "sombra_proxy": {
+        "throughput_rps": 9765.156291563024,
+        "total_requests": 1000,
+        "successes": 0,
+        "failures": 1000,
+        "latency_ms": {
+            "p50": 2.557783998781815,
+            "p90": 4.294699997990392,
+            "p99": 11.94381387802423,
+            "mean": 3.005360780240153,
+            "max": 13.334369999938644
+        }
+    },
+    "redaction_overhead_ms": {
+        "mean": -9.468568161231815,
+        "p99": -43.87752262686263
+    },
+    "performance_verdict": "OPTIMAL"
+}

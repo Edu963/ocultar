@@ -5,11 +5,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ libc6-d
 
 WORKDIR /build
 
-# Copy the engine module (dependency via replace directive)
-COPY services/engine/ /build/services/engine/
-
-# Copy the proxy module
-COPY apps/proxy/ /build/apps/proxy/
+# Copy all files for the workspace
+COPY . /build/
 
 WORKDIR /build/apps/proxy
 
