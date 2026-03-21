@@ -53,11 +53,11 @@ This skill ensures the **Ocultar Enterprise Dashboard** (React/Vite) remains a h
     - [ ] Ensure the "Risk Score" correctly reflects the **K-Anonymity** logic defined in `pkg/audit/risk.go`.
 
 ### 3. Match ROI Metrics (The "Truth" Check)
-- **Action**: Compare the "Annual Savings" displayed in the UI against the `/api/roi` response.
+- **Action**: Compare the "Annual Savings" displayed in the internal Enterprise Dashboard against the `/api/roi` response.
 - **Validation**: 
-    - [ ] UI Savings must NOT be hardcoded.
+    - [ ] Internal Dashboard Savings must NOT be hardcoded.
     - [ ] `savings = vault_entries * multiplicative_constant`.
-    - [ ] Mismatch > 5% triggers an `INTEGRITY_ALARM`.
+    - [ ] Confirm that the public `roi_calc.html` remains static (Manual Entry) to maintain Zero-Egress optics.
 
 ### 4. Navigation & Link Integrity
 - **Action**: Crawl the sidebar and breadcrumbs to ensure zero broken links.
