@@ -5,4 +5,5 @@ use (
 	./apps/sombra
 	./enterprise/engine-extensions
 	./services/engine
+	./services/vault
 )

@@ -23,7 +23,7 @@ import (
 	"github.com/Edu963/ocultar/pkg/engine"
 	"github.com/Edu963/ocultar/pkg/license"
 	"github.com/Edu963/ocultar/pkg/proxy"
-	"github.com/Edu963/ocultar/pkg/vault"
+	"github.com/Edu963/ocultar/vault"
 	"golang.org/x/crypto/hkdf"
 )
 

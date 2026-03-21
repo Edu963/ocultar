@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/Edu963/ocultar/pkg/engine"
-	"github.com/Edu963/ocultar/pkg/vault"
+	"github.com/Edu963/ocultar/vault"
 )
 
 const (

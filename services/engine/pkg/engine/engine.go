@@ -19,7 +19,7 @@ import (
 
 	"github.com/Edu963/ocultar/pkg/config"
 	"github.com/Edu963/ocultar/pkg/license"
-	"github.com/Edu963/ocultar/pkg/vault"
+	"github.com/Edu963/ocultar/vault"
 )
 
 // AuditLogger defines the interface for the Enterprise SIEM logger

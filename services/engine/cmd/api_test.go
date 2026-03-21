@@ -10,7 +10,7 @@ import (
 
 	"github.com/Edu963/ocultar/pkg/config"
 	"github.com/Edu963/ocultar/pkg/engine"
-	"github.com/Edu963/ocultar/pkg/vault"
+	"github.com/Edu963/ocultar/vault"
 )
 
 func TestAPIEndpoints(t *testing.T) {
