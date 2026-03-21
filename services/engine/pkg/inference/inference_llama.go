@@ -1,17 +1,20 @@
+//go:build cgo
+
 package inference
 
 /*
-#cgo LDFLAGS: -lllama -lstdc++
+#cgo CFLAGS: -I${SRCDIR}/llama_cpp/include
+#cgo LDFLAGS: -L${SRCDIR}/llama_cpp/lib -lllama -lstdc++
 #include <llama.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
 // Forward declaration of the abort callback
-bool llama_abort_callback(void * data);
+bool go_llama_abort_callback(void * data);
 
 // Wrapper to set the abort callback
 static void llama_set_abort(struct llama_context * ctx, void * data) {
-    llama_set_abort_callback(ctx, llama_abort_callback, data);
+    llama_set_abort_callback(ctx, go_llama_abort_callback, data);
 }
 */
 import "C"
@@ -159,8 +162,8 @@ func (s *LlamaScanner) SetDomain(domain string) {
 	s.domain = domain
 }
 
-//export llama_abort_callback
-func llama_abort_callback(data unsafe.Pointer) C.bool {
+//export go_llama_abort_callback
+func go_llama_abort_callback(data unsafe.Pointer) C.bool {
 	aborted := (*bool)(data)
 	return C.bool(*aborted)
 }

@@ -1,0 +1,19 @@
+{
+  "version": "1.2",
+  "mappings": {
+    "EMAIL": { "regulation": "GDPR", "article": "Art. 4(1)", "description": "Online identifier" },
+    "ADDRESS": { "regulation": "GDPR", "article": "Art. 4(1)", "description": "Physical location identifier" },
+    "EU_ADDRESS": { "regulation": "GDPR", "article": "Art. 4(1)", "description": "EU-specific physical location" },
+    "PHONE": { "regulation": "GDPR", "article": "Art. 4(1)", "description": "Telecommunication identifier" },
+    "URL": { "regulation": "GDPR", "article": "Art. 4(1)", "description": "Online resource locator" },
+    "PATIENT_ID": { "regulation": "HIPAA", "article": "164.514(b)", "description": "Unique medical identifier" },
+    "MEDICAL_RECORD": { "regulation": "HIPAA", "article": "164.514(b)", "description": "Protected Health Information (PHI)" },
+    "PERSON_VIP": { "regulation": "BUSINESS_SECRETS", "article": "Internal", "description": "High-profile individual protector" },
+    "INTERNAL_PROJECT": { "regulation": "BUSINESS_SECRETS", "article": "Internal", "description": "Proprietary project nomenclature" },
+    "PERSON_FOUNDER": { "regulation": "BUSINESS_SECRETS", "article": "Internal", "description": "Executive identity protection" },
+    "TRANSACTION_CODE": { "regulation": "BUSINESS_SECRETS", "article": "Internal", "description": "Proprietary financial transaction identifier" },
+    "CREDIT_CARD": { "regulation": "PCI_DSS", "requirement": "Sec. 3", "description": "Protect stored cardholder data" },
+    "SSN": { "regulation": "GDPR", "article": "Art. 6", "description": "National identification numbers" }
+  },
+  "default_posture": "FAIL_CLOSED"
+}

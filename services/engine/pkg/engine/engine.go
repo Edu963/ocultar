@@ -349,6 +349,40 @@ func (e *Engine) RefineString(input string, actor string, preScanMap map[string]
 	refined := input
 	var err error
 
+	// TIER 0.05: [VULN-001] Noise-Stripping Sliding Window Evasion Shield
+	// This pass strips non-alphanumeric noise and scans for segmented patterns.
+	if len(trimmed) > 8 && (strings.ContainsAny(trimmed, "0123456789")) {
+		// 1. Create a normalized version: strip common 'noise' words and non-alnum
+		noiseWords := []string{"then", "is", "at", "and", "under", "with", "plus"}
+		normalized := strings.ToLower(trimmed)
+		for _, w := range noiseWords {
+			normalized = strings.ReplaceAll(normalized, " "+w+" ", " ")
+		}
+		// Strip all non-alphanumeric characters for the 'tight' scan
+		regAlnum := regexp.MustCompile(`[^a-zA-Z0-9]`)
+		tightBuffer := regAlnum.ReplaceAllString(normalized, "")
+
+		// 2. Scan the tightBuffer for high-risk patterns (SSN, CREDIT_CARD)
+		// SSN (compact): 9 digits
+		ssnCompact := regexp.MustCompile(`\d{9}`)
+		if ssnCompact.MatchString(tightBuffer) {
+			// If a compact SSN is found in the noise-stripped buffer, 
+			// we must fail-closed and redact the entire original string 
+			// or attempt a fuzzy match. For maximum security, we tokenise the whole sequence.
+			log.Printf("[VULN-001] Segmented SSN detected in normalized buffer.")
+			return e.getOrSetSecureToken(trimmed, "SSN", actor)
+		}
+
+		// CC (compact): 13-16 digits
+		ccCompact := regexp.MustCompile(`\d{13,16}`)
+		if m := ccCompact.FindString(tightBuffer); m != "" {
+			if isLuhnValid(m) {
+				log.Printf("[VULN-001] Segmented Credit Card detected in normalized buffer.")
+				return e.getOrSetSecureToken(trimmed, "CREDIT_CARD", actor)
+			}
+		}
+	}
+
 	// TIER 0.1: Embedded Base64 Evasion Shield
 	base64Matches := base64Regex.FindAllStringIndex(refined, -1)
 	if len(base64Matches) > 0 {
@@ -660,6 +694,12 @@ func (e *Engine) applyReplacement(line, target, piiType string, actor string) (s
 
 // getOrSetSecureToken retrieves an existing token from the vault or generates, encrypts, and stores a new one.
 func (e *Engine) getOrSetSecureToken(pii, piiType string, actor string) (string, error) {
+	// [VULN-003] Enforce checksum validation for high-fidelity types
+	if piiType == "CREDIT_CARD" && !isLuhnValid(pii) {
+		// False positive avoidance: if it's not Luhn-valid, it's not a PII credit card
+		return pii, nil
+	}
+
 	hash := sha256Hash(pii)
 	token := fmt.Sprintf("[%s_%s]", piiType, hash[:8])
 
@@ -698,6 +738,35 @@ func (e *Engine) getOrSetSecureToken(pii, piiType string, actor string) (string,
 func sha256Hash(s string) string {
 	sum := sha256.Sum256([]byte(s))
 	return hex.EncodeToString(sum[:])
+}
+
+// isLuhnValid implements the Luhn algorithm (mod 10) for credit card checksum validation.
+func isLuhnValid(s string) bool {
+	// Strip non-digits
+	digits := ""
+	for _, r := range s {
+		if r >= '0' && r <= '9' {
+			digits += string(r)
+		}
+	}
+	if len(digits) < 13 || len(digits) > 19 {
+		return false
+	}
+
+	sum := 0
+	shouldDouble := false
+	for i := len(digits) - 1; i >= 0; i-- {
+		n := int(digits[i] - '0')
+		if shouldDouble {
+			n *= 2
+			if n > 9 {
+				n -= 9
+			}
+		}
+		sum += n
+		shouldDouble = !shouldDouble
+	}
+	return (sum % 10) == 0
 }
 
 // Encrypt encrypts plaintext with AES-256-GCM using the provided key.
