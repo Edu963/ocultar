@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=JetBrains+Mono:wght@300;400;600&display=swap');
+@import "tailwindcss";
 
 :root {
   /* Design System: Technical Artifact / Zero-Egress Refinery */
