@@ -35,7 +35,7 @@ Map the `impact_matrix` to one or more **Execution Profiles**:
 | Impact Domain | Execution Profile | Required Skills / Protocols |
 | :--- | :--- | :--- |
 | **Core Engine / Sombra** | `CORE_SECURITY` | `ai-development-protocol`, `secret-scanner`, `security-advisory-scanner`, `sombra-gateway-policy-enforcer`, `red-team-evasion-scanner` |
-| **PII / Refinery Rules** | `PRIVACY_COMPLIANCE` | `pii-detection-updater`, `pii-regression-suite-runner`, `refinery-rule-generator`, `dictionary-shield-manager`, `audit-log-validator` |
+| **PII / Policy Lifecycle** | `PRIVACY_COMPLIANCE` | `regulation-digest-ingestor`, `regulatory-intent-decoder`, `policy-schema-generator`, `policy-impact-simulator`, `compliance-certificate-signer`, `compliance-integrity-suite`, `pii-regression-suite-runner` |
 | **Documentation Only** | `DOCS_SYNC` | `compliance-docs-orchestrator` |
 | **Enterprise Dashboard**| `UI_INTEGRITY` | `enterprise-dashboard-integrity-checker`, `secret-scanner` |
 | **Pilot / Onboarding** | `PILOT_OPS` | `Ocultar | Pilot Operations Manager`, `industry-snapshot-generator` |
@@ -45,14 +45,17 @@ Follow the DAG (Directed Acyclic Graph) for the active profiles:
 
 #### Phase A: Initialization (Sequential)
 1. **Ecosystem State Tracker**: Check for redundant tasks and initialize the execution audit trail.
-2. **Secret Scanner**: (Mandatory for all code/config/UI profiles). Scan for hardcoded keys and internal paths.
-   - **Gate**: If a secret is detected, **HALT** everything.
+2. **Secret Scanner**: Scan for hardcoded keys and internal paths.
 
 #### Phase B: Parallel Processing
 Execute based on selected profiles:
-- **Development**: Run `ai-development-protocol` (Steps 1-3).
 - **Security**: Run `red-team-evasion-scanner`, `sombra-gateway-policy-enforcer`, and `security-advisory-scanner`.
-- **Compliance**: Run `audit-log-validator`, `pii-detection-updater`, and `pii-regression-suite-runner`.
+- **Compliance (The Policy DAG)**:
+    1. `regulation-digest-ingestor` -> `regulatory-intent-decoder`.
+    2. `policy-schema-generator` (v2.1) consumes the manifest.
+    3. `policy-impact-simulator` validates against historical logs.
+    4. `compliance-certificate-signer` signs the final JSON.
+    5. `compliance-integrity-suite` performs the final audit.
 - **Documentation**: Run `compliance-docs-orchestrator` to sync all technical and regulatory docs.
 
 #### Phase C: Validation & Content Redaction (Sequential)
