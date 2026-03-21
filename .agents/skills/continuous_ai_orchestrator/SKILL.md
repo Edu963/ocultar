@@ -1,110 +1,87 @@
 ---
 name: continuous-ai-orchestrator
-description: Automatically orchestrates all Ocultar AI skills whenever meaningful changes occur in the codebase, documentation, or configuration. Ensures all actions respect product context, repository knowledge, and enterprise security/privacy principles.
+description: Metadata-driven master orchestrator for the Ocultar AI ecosystem. Coordinates specialized skills and protocols through impact-aware execution profiles and deterministic validation gates.
 ---
 
-# Continuous AI Orchestrator
+# Continuous AI Orchestrator (v2.0)
 
 ## Purpose
 
-This skill monitors changes in the Ocultar repository and automatically triggers the appropriate sequence of skills, ensuring:
+The Continuous AI Orchestrator is the "Ecosystem Brain" responsible for autonomous lifecycle management. Instead of running a static sequence, it analyzes the **Impact Matrix** of a change and dynamically dispatches specialized skills and sub-protocols. It ensures that every modification is validated for security, documentation parity, and architectural integrity.
 
-- Documentation is updated
-- Client packages are accurate
-- Secrets are never leaked
-- Release artifacts are correctly built
-- All changes respect Product Context and Repository Knowledge Map
+## Inputs / Outputs
 
-It effectively **creates a self-managing AI workflow**.
+### Inputs
+- `change_set` (Git Diff): The raw source of change.
+- `trigger_event` (Enum): `COMMIT`, `PR_OPEN`, `MANUAL_RELEASE`, `PILOT_UPDATE`.
+- `impact_matrix` (From `change-impact-visualizer`): Component-level impact mapping.
 
-## When To Use This Skill
+### Outputs
+- `orchestration_summary` (Artifact): A report of triggered skills, their outcomes, and validation status.
+- `gate_status` (Boolean): `PASS` or `FAIL` (Blocks downstream release if FAIL).
 
-Use this skill whenever:
-
-- Code, configuration, or architecture changes occur  
-- New features or bug fixes are implemented  
-- Pilot program workflows are updated  
-- Release candidates are prepared  
-- Documentation is modified  
-
-Do NOT run for trivial formatting or comment changes.
+---
 
 ## Instructions
 
-1. **Detect Change Scope**  
-   - Identify which files and components were modified  
-   - Classify the type of change: code logic, API, architecture, configuration, documentation, pilot program, or packaging
+### 1. Change Sensitivity Analysis
+**Dependency**: `change-impact-visualizer`
+- Immediately execute the `change-impact-visualizer` on the `change_set`.
+- Parse the resulting **Impact Matrix** to identify affected functional domains.
 
-2. **Consult Product Context**  
-   - Determine which product principles, components, or regulatory rules are affected  
+### 2. Profile Selection (Trigger Logic)
+Map the `impact_matrix` to one or more **Execution Profiles**:
 
-3. **Consult Repository Knowledge Map**  
-   - Locate the correct directories and documentation to modify  
-   - Identify impacted components (Ocultar engine, Sombra Gateway, Dashboard, Identity Vault, etc.)
+| Impact Domain | Execution Profile | Required Skills / Protocols |
+| :--- | :--- | :--- |
+| **Core Engine / Sombra** | `CORE_SECURITY` | `ai-development-protocol`, `secret-scanner`, `security-advisory-scanner`, `sombra-gateway-policy-enforcer`, `red-team-evasion-scanner` |
+| **PII / Refinery Rules** | `PRIVACY_COMPLIANCE` | `pii-detection-updater`, `pii-regression-suite-runner`, `refinery-rule-generator`, `dictionary-shield-manager`, `audit-log-validator` |
+| **Documentation Only** | `DOCS_SYNC` | `compliance-docs-orchestrator` |
+| **Enterprise Dashboard**| `UI_INTEGRITY` | `enterprise-dashboard-integrity-checker`, `secret-scanner` |
+| **Pilot / Onboarding** | `PILOT_OPS` | `Ocultar | Pilot Operations Manager`, `industry-snapshot-generator` |
 
-4. **Run Skills in Correct Sequence**  
+### 3. Orchestrated Execution Flow
+Follow the DAG (Directed Acyclic Graph) for the active profiles:
 
-    a. **Documentation Updater** – Update affected documentation  
-    b. **PII Security Docs Generator** – Generate auditor reports for new rules  
-    c. **Client Package Updater** – Ensure packaging rules are correct for client deliverables  
-    d. **Security Sanitizer** – Remove secrets and validate general package safety  
-    e. **PII Detection Updater** – Update refinery rules and regression tests  
-    f. **Refinery Rule Generator** – Automatically generate regex/configs for new rules  
-    g. **Dictionary Shield Manager** – Update keyword protection dictionaries  
-    h. **Audit Log Validator** – Verify regulatory mapping and log integrity  
-    i. **Sombra Gateway Policy Enforcer** – Validate architectural compliance in Sombra  
-    j. **Enterprise Dashboard Integrity Checker** – Prevent UI regressions and license mismatches  
-    k. **Release Artifact Builder** – Build clean, versioned, Zero-Egress artifacts  
-    l. **Change Impact Visualizer** – Generate final impact summary for auditors  
-    m. **Red-Team Evasion Scanner** – Proactively stress-test the refinery for bypasses  
-    n. **Industry-Specific Snapshot Generator** – Pre-configure vertical-specific demo/onboarding environments  
-    o. **ROI & Cost-Efficiency Accountant** – Quantify the financial impact and security cost-avoidance  
-    p. **Sombra Performance Benchmarker** – Monitor latency and optimize the refinery pipeline  
+#### Phase A: Initialization (Sequential)
+1. **Ecosystem State Tracker**: Check for redundant tasks and initialize the execution audit trail.
+2. **Secret Scanner**: (Mandatory for all code/config/UI profiles). Scan for hardcoded keys and internal paths.
+   - **Gate**: If a secret is detected, **HALT** everything.
 
-5. **Validate Outputs**  
-   - Ensure documentation matches the latest code  
-   - Confirm packaged artifacts are complete and secure  
-   - Check that all changes adhere to Product Context principles (Zero-Egress, Fail-Closed, Privacy-by-Design, Regulatory Alignment).
-- **Fail-Closed Security**: If the engine or `protected_entities.json` (located in `services/engine/configs/`) is missing or unreachable, the workflow must terminate immediately.
+#### Phase B: Parallel Processing
+Execute based on selected profiles:
+- **Development**: Run `ai-development-protocol` (Steps 1-3).
+- **Security**: Run `red-team-evasion-scanner`, `sombra-gateway-policy-enforcer`, and `security-advisory-scanner`.
+- **Compliance**: Run `audit-log-validator`, `pii-detection-updater`, and `pii-regression-suite-runner`.
+- **Documentation**: Run `compliance-docs-orchestrator` to sync all technical and regulatory docs.
 
-6. **Optional Logging**  
-   - Record a summary of actions taken for audit and compliance purposes
+#### Phase C: Validation & Content Redaction (Sequential)
+1. **Quality Gates**: Verify all parallel tasks returned `SUCCESS`.
+2. **Content Redactor**: Sanitize the distribution area for internal metadata and temporary files.
+3. **Release Builder**: If `trigger_event` == `MANUAL_RELEASE` or `PR_MERGE` to `main`:
+   - Run `release-artifact-builder`.
+   - Run `artifact-signer`.
+   - Run `sbom-generator`.
+
+### 4. Post-Flight Integrity Check
+- Update the `ecosystem-state-tracker` with final hashes and outcomes.
+- Ensure `orchestration_summary` is generated and signed.
+
+---
+
+## Failure Handling
+
+- **Critical Failure**: Any "Security" (Scanner, Evasion) or "Core" skill failure triggers an immediate **LOCKDOWN** state.
+- **Compliance Gap**: If `pii-regression-suite-runner` fails, the ruleset must be rolled back.
 
 ## Examples
 
-Example 1
-
-Input:
-A new API endpoint is added to Sombra and changes are made to PII detection logic.
-
-Action:
-- Update API_REFERENCE.md via Documentation Updater  
-- Adjust packaging rules if endpoint scripts are included via Client Package Updater  
-- Run PII Detection Updater to verify new refinement rules  
-- Run Audit Log Validator to ensure regulatory mapping is correct  
-- Run Security Sanitizer to verify final package security  
-- Prepare a versioned release artifact via Release Artifact Builder  
-- Validate that all steps comply with Product Context principles
-
-Example 2
-
-Input:
-Pilot program onboarding workflow is updated.
-
-Action:
-- Update docs/pilot/onboarding.md and playbook.md  
-- Verify pilot deliverables via Client Package Updater  
-- Ensure no secrets or sensitive data leak via Security Sanitizer  
-- Generate release artifact if it’s a deliverable milestone
-
-Example 3
-
-Input:
-Enterprise dashboard sidebar is modified.
-
-Action:
-- Update relevant UI documentation  
-- Run Enterprise Dashboard Integrity Checker to prevent regressions  
-- Adjust client package only if necessary  
-- Run Security Sanitizer  
-- Build release artifact if part of a stable milestone
+### Example: Core Engine Optimization
+- **Trigger**: Change in `pkg/engine/refinery.go`.
+- **Action**:
+  1. `change-impact-visualizer` identifies `CORE_SECURITY`.
+  2. `ecosystem-state-tracker` initializes.
+  3. `secret-scanner` clears the source.
+  4. `ai-development-protocol` & `security-advisory-scanner` run in parallel.
+  5. `content-redactor` scrubs internal build paths.
+  6. `orchestration_summary` generated.
