@@ -35,6 +35,9 @@ type Settings struct {
 	// Phase 5: SR-SLMs (Domain Snapshots)
 	// DomainSnapshot selects the AI model: "standard", "clinical", or "fintech".
 	DomainSnapshot string `yaml:"domain_snapshot" json:"domain_snapshot"`
+
+	// Governance: Regulatory Policy
+	RegulatoryPolicy map[string]interface{} `yaml:"-" json:"regulatory_policy"`
 }
 
 var Global Settings
@@ -55,7 +58,32 @@ func initDefaultConfig() {
 		DomainSnapshot:     "standard",
 	}
 	loadProtectedEntities()
+	LoadRegulatoryPolicy()
 	CompileRegexes()
+}
+
+// LoadRegulatoryPolicy reads the centralized governance mapping from security/regulatory_policy.json.
+func LoadRegulatoryPolicy() {
+	// Look for security/regulatory_policy.json in the current dir or parent
+	path := "security/regulatory_policy.json"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		path = "../security/regulatory_policy.json" // Try parent (monorepo structure)
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		log.Printf("[WARN] Failed to load regulatory_policy.json: %v. Using hardcoded fallbacks.", err)
+		return
+	}
+
+	var policy map[string]interface{}
+	if err := json.Unmarshal(data, &policy); err != nil {
+		log.Printf("[ERROR] Failed to parse regulatory_policy.json: %v", err)
+		return
+	}
+
+	Global.RegulatoryPolicy = policy
+	log.Printf("[INFO] Regulatory policy v%v loaded successfully.", policy["version"])
 }
 
 // loadProtectedEntities attempts to read local dictionary terms from configs/protected_entities.json.
