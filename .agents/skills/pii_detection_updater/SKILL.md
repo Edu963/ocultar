@@ -4,6 +4,7 @@ description: Expert Instructions (prompt-based persona) for the AI assistant. En
 ---
 
 # Responsibilities
+- **Refinery-First Enforcement**: Ensure all data hits the Ocultar Engine for refinement before any LLM egress.
 - Update `PII_DETECTION.md` with new supported entities (e.g. `SSN`, `CREDENTIAL`).
 - Suggest updates to the engine to block new bypass techniques.
 - **Audit `strip_categories` policy** in Sombra Gateway to ensure high-sensitivity data is never pseudonymized but removed.
