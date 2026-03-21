@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ROIDashboardCard from './components/ROIDashboardCard';
 
 // --- Particle Background System ---
 const CanvasBackground = () => {
@@ -292,6 +293,31 @@ export default function App() {
                                 content={`AUDIT LOG TAIL:\n[2026-03-19T07:34:11Z] PII_REDACT req_id=992a action=vault\n[2026-03-19T07:34:12Z] POLICY_EVAL req_id=992b result=pass\n[2026-03-19T07:34:15Z] REGULATORY_MAP GDPR=pass HIPAA=pass`}
                             />
                         </div>
+                    </div>
+                </section>
+
+                {/* 5. VALUE REALIZATION (LIVE ROI) */}
+                <section className="space-y-12">
+                    <div className="flex justify-between items-end border-b border-black pb-4">
+                        <h2 className="text-2xl font-bold uppercase">Value Realization</h2>
+                        <span className="mono-label tracking-widest text-[9px]">Live_Telemetry</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div className="space-y-6">
+                            <p className="font-tech text-sm text-dim leading-relaxed">
+                                Real-time quantification of capital retention achieved via zero-egress architecture. 
+                                This logic bypasses external API taxation by executing SLM-based PII refinement within your local security perimeter.
+                            </p>
+                            <div className="flex gap-4">
+                                <div className="border border-black px-4 py-2 font-tech text-[10px] uppercase">
+                                    Vector: Local_Refine
+                                </div>
+                                <div className="border border-black px-4 py-2 font-tech text-[10px] uppercase">
+                                    Status: Zero_Egress
+                                </div>
+                            </div>
+                        </div>
+                        <ROIDashboardCard />
                     </div>
                 </section>
 
