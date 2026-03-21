@@ -125,9 +125,10 @@ func (s *SlackConnector) Fetch(ctx context.Context, params map[string]interface{
 	}
 
 	// Apply Fail-Closed Ocultar Engine redaction
-	processed, err := s.engine.ProcessInterface(jsonData, "slack-connector")
+	processed, err := s.engine.Refine(jsonData)
 	if err != nil {
-		return nil, fmt.Errorf("data sanitization failed (Fail-Closed): %w", err)
+		// Terminal request block required by the Gateway Policy Enforcer
+		return nil, fmt.Errorf("OCULTAR Gateway Block: refinery pipeline failed: %w", err) 
 	}
 
 	redactedBytes, err := json.Marshal(processed)

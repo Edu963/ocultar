@@ -218,6 +218,11 @@ func (e *Engine) ProcessInterface(data interface{}, actor string) (interface{}, 
 	return e.processInterfaceRecursive(data, actor, preScanMap)
 }
 
+// Refine is a convenience method that delegates to ProcessInterface.
+func (e *Engine) Refine(data interface{}) (interface{}, error) {
+	return e.ProcessInterface(data, "system-refinery")
+}
+
 // processInterfaceRecursive is the internal recursive helper for traversing JSON structures.
 func (e *Engine) processInterfaceRecursive(data interface{}, actor string, preScanMap map[string][]string) (interface{}, error) {
 	switch val := data.(type) {
