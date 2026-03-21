@@ -31,40 +31,50 @@ Before executing this protocol, the following conditions **MUST** be met:
 
 ## Instructions
 
-### Step 1 – Change Impact Analysis
+### Step 1 – Vision Oracle Alignment
+**Dependency**: `Ocultar | Product Context`
+- Before any change analysis, the AI agent **MUST** present the `proposal` to the `Product Context` skill.
+- **Gate**: If the `alignment_report` returns a **REJECT** verdict, the protocol **MUST** halt immediately.
+- **Validation**: Analyze the `alignment_report` for specific guardrail violations.
+
+### Step 2 – Change Impact Analysis
 **Dependency**: `change-impact-visualizer`
-- Execute the `change-impact-visualizer` to map modified files to their functional domains (API, Core Logic, Config, Docs).
+- Execute the `change-impact-visualizer` to map modified files to their functional domains.
 - **Gate**: If the impact analysis identifies undocumented API changes, immediately flag a failure.
 
-### Step 2 – Automated Documentation Sync
+### Step 3 – Automated Documentation Sync
 **Dependency**: `Ocultar | Documentation Updater`
 - Identify all files modified in the `change_set`.
 - Run the `Documentation Updater` to synchronize `TECH_DOCS.md`, `API_REFERENCE.md`, and any relevant `/documentation/*.md` guides.
 - **Validation**: Confirm that the generated documentation reflects the current state of the code.
 
-### Step 3 – Client Package Integrity
+### Step 4 – Zero-Trust Security Shield
+**Dependency**: `security-sanitizer`, `zero-egress-validator`, `architectural-linter`
+- **4.1 Architectural Integrity**: Run the `architectural-linter` to check for terminology drift and structural errors.
+- **4.2 Leak Detection**: Run the `zero-egress-validator` to ensure no unmasked PII is passed to external URIs.
+- **4.3 Sanitization**: Scan the entire repository (or the staging area) for secrets, hardcoded credentials, and internal paths. Run the `security-sanitizer` to replace sensitive values with environment-safe placeholders.
+- **Gate**: Failure in ANY security sub-step **MUST** block subsequent actions.
+
+### Step 5 – Client Package Integrity
 **Dependency**: `client-package-updater`
 - If the `change_set` affects files designated for client distribution (.tar, .zip, .exe):
   - Run the `Client Package Updater` to verify build script alignment and file inclusions.
   - **Validation**: Ensure all new dependencies are accounted for in the packaging rules.
 
-### Step 4 – Zero-Trust Security Shield
-**Dependency**: `security-sanitizer`
-- **Mandatory Step**: Scan the entire repository (or the staging area) for secrets, hardcoded credentials, and internal paths.
-- Run the `Security Sanitizer` to replace sensitive values with environment-safe placeholders.
-- **Gate**: Failure to sanitize a detected secret **MUST** block all subsequent steps.
-
-### Step 5 – Release Artifact Generation (Conditional)
+### Step 6 – Release Artifact Generation (Conditional)
 **Dependency**: `release-artifact-builder`
 - **Condition**: Only execute if `release_intent` is TRUE.
 - Run the `Release Artifact Builder` to generate a versioned, reproducible archive.
 - Ensure the version naming follows standard SemVer (e.g., `v1.2.3`).
 
-### Step 6 – Post-Flight Verification
+### Step 7 – Post-Flight Verification
 - Verify the following assertions:
-  1. `git_status` remains clean (unless documentation updates were committed).
-  2. `release_artifact` (if generated) is checksum-validated and signature-ready.
-  3. `TECH_DOCS.md` includes a reference to the latest changes.
+  1. `alignment_report` verdict is APPROVE.
+  2. `security_verdict` is PASS.
+  3. `lint_report` is clean.
+  4. `git_status` remains clean (unless documentation updates were committed).
+  5. `release_artifact` (if generated) is checksum-validated and signature-ready.
+  6. `TECH_DOCS.md` includes a reference to the latest changes.
 
 ## Failure Handling
 
