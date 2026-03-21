@@ -1,6 +1,7 @@
 package config
 
 import (
+	"embed"
 	"encoding/json"
 	"log"
 	"os"
@@ -8,6 +9,9 @@ import (
 
 	"gopkg.in/yaml.v3"
 )
+
+//go:embed data/*
+var embeddedData embed.FS
 
 type RegexRule struct {
 	Type     string         `yaml:"type" json:"type"`
@@ -50,6 +54,9 @@ func initDefaultConfig() {
 			{Type: "SSN", Pattern: `\b\d{3}-\d{2}-\d{4}\b`},
 			{Type: "CREDENTIAL", Pattern: `(?i)\bpassword\s*[:=]\s*[^\s,]+`},
 			{Type: "SECRET", Pattern: `(?i)\b(?:secret|key|token)\s*[:=]\s*[^\s,]+`},
+			{Type: "CREDIT_CARD", Pattern: `\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})\b`},
+			{Type: "PATIENT_ID", Pattern: `\b[A-Z]{2,3}[0-9]{6,10}\b`},
+			{Type: "MEDICAL_RECORD", Pattern: `\bMRN[- ]?[0-9]{7,10}\b`},
 		},
 		Dictionaries: []DictRule{
 			{Type: "PERSON_VIP", Terms: []string{"Héctor Eduardo Trejos", "Héctor Eduardo", "Eduardo Trejos", "Héctor", "Hector", "Eduardo", "Trejos", "Project Phoenix", "Ouroboros Protocol"}},
@@ -62,41 +69,35 @@ func initDefaultConfig() {
 	CompileRegexes()
 }
 
-// LoadRegulatoryPolicy reads the centralized governance mapping from security/regulatory_policy.json.
+// LoadRegulatoryPolicy reads the centralized governance mapping from embedded security data.
 func LoadRegulatoryPolicy() {
-	// Look for security/regulatory_policy.json in the current dir or parent
-	path := "security/regulatory_policy.json"
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		path = "../security/regulatory_policy.json" // Try parent (monorepo structure)
-	}
-
-	data, err := os.ReadFile(path)
+	data, err := embeddedData.ReadFile("data/regulatory_policy.json")
 	if err != nil {
-		log.Printf("[WARN] Failed to load regulatory_policy.json: %v. Using hardcoded fallbacks.", err)
+		log.Printf("[WARN] Failed to read embedded regulatory_policy.json: %v. Using hardcoded fallbacks.", err)
 		return
 	}
 
 	var policy map[string]interface{}
 	if err := json.Unmarshal(data, &policy); err != nil {
-		log.Printf("[ERROR] Failed to parse regulatory_policy.json: %v", err)
+		log.Printf("[ERROR] Failed to parse embedded regulatory_policy.json: %v", err)
 		return
 	}
 
 	Global.RegulatoryPolicy = policy
-	log.Printf("[INFO] Regulatory policy v%v loaded successfully.", policy["version"])
+	log.Printf("[INFO] Embedded regulatory policy v%v loaded successfully.", policy["version"])
 }
 
-// loadProtectedEntities attempts to read local dictionary terms from configs/protected_entities.json.
+// loadProtectedEntities attempts to read local dictionary terms from embedded data.
 // If found, they are injected dynamically into the Global configuration.
 func loadProtectedEntities() {
-	data, err := os.ReadFile("configs/protected_entities.json")
+	data, err := embeddedData.ReadFile("data/protected_entities.json")
 	if err != nil {
-		log.Fatalf("[FATAL] Failed reading protected_entities.json! Engine refusing to boot (fail-closed): %v", err)
+		log.Fatalf("[FATAL] [VULN-004] Failed reading embedded protected_entities.json! Engine refusing to boot (fail-closed): %v", err)
 	}
 
 	var entities []string
 	if err := json.Unmarshal(data, &entities); err != nil {
-		log.Fatalf("[FATAL] Failed parsing protected_entities.json! Engine refusing to boot (fail-closed): %v", err)
+		log.Fatalf("[FATAL] [VULN-004] Failed parsing embedded protected_entities.json! Engine refusing to boot (fail-closed): %v", err)
 	}
 
 	if len(entities) > 0 {
@@ -105,9 +106,8 @@ func loadProtectedEntities() {
 			Terms: entities,
 		})
 	} else {
-		log.Fatalf("[FATAL] protected_entities.json parsed successfully but contains zero entries. " +
-			"This would boot the engine with no Dictionary Shield. Engine refusing to start (fail-closed). " +
-			"Add at least one protected entity to configs/protected_entities.json.")
+		log.Fatalf("[FATAL] [VULN-004] Embedded protected_entities.json parsed successfully but contains zero entries. " +
+			"This would boot the engine with no Dictionary Shield. Engine refusing to start (fail-closed).")
 	}
 }
 
