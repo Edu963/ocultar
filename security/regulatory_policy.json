@@ -1,0 +1,31 @@
+{
+  "version": "1.1",
+  "mappings": {
+    "PERSON_VIP": {
+      "regulation": "GDPR",
+      "article": "Art. 32",
+      "description": "Security of processing - Special protections for high-profile PII"
+    },
+    "SSN": {
+      "regulation": "GDPR",
+      "article": "Art. 6",
+      "description": "Lawfulness of processing - National identification numbers"
+    },
+    "CREDIT_CARD": {
+      "regulation": "PCI_DSS",
+      "requirement": "Sec. 3",
+      "description": "Protect stored cardholder data"
+    },
+    "HEALTH_CONDITION": {
+      "regulation": "HIPAA",
+      "safeguard": "Technical Safeguards",
+      "description": "Access control and integrity for PHI"
+    },
+    "BUSINESS_SECRETS": {
+      "regulation": "ISO_27001",
+      "control": "A.8.11",
+      "description": "Information masking as per organizational policy"
+    }
+  },
+  "default_posture": "FAIL_CLOSED"
+}
