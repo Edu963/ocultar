@@ -69,6 +69,24 @@ You should see the OCULTAR Live Dashboard with the input panel on the left.
 
 ---
 
+## Part 2.5: Enterprise Licensing & Pilot Onboarding
+
+**Your Goal:** Activate your Enterprise trial and run a 14-day technical pilot.
+
+### 1. License Activation
+OCULTAR uses an **Offline Ed25519** model. To activate:
+1. Locate your `OCU_LICENSE_KEY` (provided by the Ocultar account team).
+2. Paste it into your `.env` file: `OCU_LICENSE_KEY=Signature.Payload`.
+3. Restart the engine. The dashboard will now unlock the **Risk Matrix** and **ROI Analytics**.
+
+### 2. Pilot "Proof of Value" (PoV)
+Every Enterprise pilot follows a structured 14-day lifecycle (managed by the `Pilot-Manager` skill):
+- **Days 1-3 (Onboarding)**: Auto-rotation of `OCU_MASTER_KEY` and sync of local VIP dictionaries.
+- **Days 7-10 (Quantification)**: Running the **ROI Accountant** against your sample audit logs to map blocked PII to financial risk.
+- **Day 14 (Hardening)**: Generating the verifiable **Auditor Report** for your SOC2/HIPAA stakeholders.
+
+---
+
 ## Part 3: Using the Dashboard
 
 ### The Interface

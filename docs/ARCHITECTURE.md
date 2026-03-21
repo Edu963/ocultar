@@ -150,18 +150,18 @@ sequenceDiagram
 
 Ocultar uses a decentralized network of **Specialized Agent Skills** to maintain security, compliance, and product integrity. These are orchestrated by the `Continuous AI Orchestrator`.
 
-### Governance Tiers
+### Governance Tiers (v2.1)
 
 | Tier | Agent Skills | Focus |
 |---|---|---|
-| **Security & Privacy** | `regulation-digest-ingestor`, `regulatory-intent-decoder`, `policy-schema-generator`, `compliance-integrity-suite` | Heart of the system; manages policy lifecycle and ensures log/config integrity. |
-| **Development & Code** | `refinery-rule-generator`, `sombra-gateway-policy-enforcer`, `enterprise-dashboard-checker` | Automates architectural compliance and UI consistency. |
-| **Intelligence & Audit** | `change-impact-visualizer`, `policy-impact-simulator`, `red-team-evasion-scanner` | Provides transparency, impact simulation, and proactive stress-testing. |
-| **Business & Ops** | `roi-cost-efficiency-accountant`, `industry-snapshot-generator`, `sombra-performance-benchmarker` | Optimizes for scale, cost, and industry-specific needs. |
+| **Core Orchestration** | `continuous-ai-orchestrator`, `ai-development-protocol`, `ecosystem-state-tracker`, `repository-knowledge-map` | The master-switch; manages the execution DAG and ensures state-persistence across skill runs. |
+| **Compliance & Intent** | `regulatory-intent-decoder`, `regulation-digest-ingestor`, `policy-schema-generator`, `compliance-integrity-suite`, `compliance-certificate-signer` | The "Legal-to-Technical" engine; decodes regulations and signs technical evidence. |
+| **Security & Egress** | `zero-egress-validator`, `refinery-architecture-manager`, `secret-scanner`, `secret-rotation-manager`, `red-team-evasion-scanner`, `pii-regression-suite-runner` | The "Fail-Closed" layer; automates PII detection rules and detects "Shadow AI" adoption. |
+| **Business & Infrastructure** | `manage-ocultar-license`, `license-validation-cli`, `tier-compliance-checker`, `pilot-manager`, `roi-cost-efficiency-accountant`, `sombra-gateway-policy-enforcer` | The "Value Layer"; manages Ed25519 licensing, Pilot lifecycles, and financial ROI quantification. |
 
 ### The 16-Step Ocultar Protocol
-The orchestrator triggers a standard 16-step sequence for every meaningful change:
-1. **Ingest** → 2. **Decode** → 3. **Generate** → 4. **Simulate** → 5. **Sign** → 6. **Audit** → 7. **Rule Gen** → 8. **Shield Sync** → 9. **Dashboard Check** → 10. **Sanitization** → 11. **Release Builder** → 12. **Impact Visualization** → 13. **Red-Teaming** → 14. **Industry Snapshot** → 15. **ROI Accounting** → 16. **Performance Benchmarking**.
+The orchestrator triggers a deterministic sequence for ALL repository modifications:
+1. **Ingest** (Regs) → 2. **Decode** (Intent) → 3. **Sync** (State) → 4. **Generate** (Policy) → 5. **Simulate** (Impact) → 6. **Sign** (Artifact) → 7. **Audit** (Log check) → 8. **Enforce** (Gateway) → 9. **Verify** (Dash) → 10. **Redact** (Content) → 11. **Scan** (Secrets) → 12. **Visualize** (CIV) → 13. **Red-Team** (Evasion) → 14. **Provision** (Snapshot) → 15. **Account** (ROI) → 16. **Benchmark** (Perf).
 
 ---
 
