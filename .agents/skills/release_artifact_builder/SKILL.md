@@ -40,14 +40,11 @@ Do NOT use this skill for minor internal commits or experimental changes.
 4. Validate that required dependencies and runtime files are included.
 5. Perform Zero-Egress Check: Ensure no hardcoded external URLs or unauthorized phone-home scripts are present in the final binaries or scripts.
 6. PII Leakage Scan: Run the `security-sanitizer` specifically on the final staging directory to ensure no local PII (e.g., from developer testing) is captured in the archive.
-7. Create a versioned archive using a consistent naming format.
-
-Example naming formats:
-
-project-name-v1.2.0.tar  
-project-name-v1.2.0.zip
-
-6. Ensure the archive structure is clean and reproducible.
+7. **SBOM Generation**: Invoke the `sbom-generator` skill to capture all included dependencies and licenses.
+8. Create a versioned archive using a consistent naming format.
+9. **Artifact Signing**: Invoke the `artifact-signer` skill to generate detached Ed25519 signatures for the final archives.
+10. **Final Validation**: Invoke the `distribution-smoke-tester` skill to verify the package in a clean Docker environment.
+11. Ensure the archive structure is clean and reproducible.
 7. If necessary, verify the package by inspecting its contents.
 
 ## Examples
