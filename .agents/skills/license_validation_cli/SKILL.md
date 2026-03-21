@@ -1,74 +1,51 @@
 ---
 name: license_validation_cli
-description: >
-  Deterministic validator for OCULTAR license tokens.
-  Verifies signature, expiry, and capabilities against the active engine public key.
+description: Deterministic validator for OCULTAR license tokens. Verifies signature, expiry, and capabilities against the active engine public key.
 ---
 
-# Skill: License Validation CLI
+# License Validation CLI (v1.1)
 
-## Context
-Use this skill to verify if a given `OCU_LICENSE_KEY` is valid for the current engine build without needing to deploy or restart the engine.
+## Purpose
+
+The LVC provides a "Dry-Run" channel to verify license integrity without affecting production runtime. It ensures that tokens are cryptographically aligned with the engine's hardcoded public key.
 
 ## Inputs / Outputs
 
 ### Inputs
-| Variable | Description |
-|---|---|
-| `OCU_LICENSE_KEY` | The full license token (Signature.Payload) |
+- `license_token`: The full `Signature.Payload` string.
+- `public_key_override` (Optional): Force validation against a specific key.
 
 ### Outputs
-| Variable | Description |
-|---|---|
-| `IS_VALID` | Boolean indicating if the signature is authentic |
-| `DECODED_PAYLOAD` | JSON object containing Customer, Tier, and Expiry |
+- `is_valid` (Boolean).
+- `payload` (JSON): Decoded Customer, Tier, and Expiry metadata.
+- `verification_log` (Artifact): Step-by-step verification trace.
 
-## Steps
+## Preconditions
+- Access to `services/engine/pkg/license/license.go` to extract the public key.
 
-### 1. Extract and Decode Payload
-```bash
-TOKEN="<OCU_LICENSE_KEY>"
-PAYLOAD_B64=$(echo "$TOKEN" | cut -d. -f2)
-echo "$PAYLOAD_B64" | base64 -d | jq .
-```
+---
 
-### 2. Check Expiry
-```bash
-EXPIRY=$(echo "$TOKEN" | cut -d. -f2 | base64 -d | jq .ExpiryDate)
-date -d @$EXPIRY
-```
+## Instructions
 
-### 3. Verify Signature (Self-Contained Go Script)
-Run the following check to verify the signature against the current hardcoded key in `license.go`:
+### 1. Extraction & Decoding
+- Split `license_token` at the `.` delimiter.
+- **Payload**: Base64-decode the second part to extract JSON metadata.
+- **Signature**: Base64-decode the first part for crypto verification.
 
-```bash
-# This requires querying the public key from the engine first
-PUB_KEY=$(grep "licensePubKeyBase64 =" services/engine/pkg/license/license.go | cut -d'"' -f2)
+### 3. Cryptographic Verification
+- Extract `PUB_KEY` from `license.go`.
+- Use the standard `ocultar-license-tool check --token="{{license_token}}" --pubkey="{{PUB_KEY}}"` if available.
+- **Fallback**: Use the `crypto/ed25519` verification logic.
+- **Integrity**: Return `FALSE` if the signature does not match the payload + public key.
 
-# Create a temporary validator
-cat <<EOF > /tmp/val.go
-package main
-import (
-	"crypto/ed25519"
-	"encoding/base64"
-	"fmt"
-	"strings"
-)
-func main() {
-	pub := "$PUB_KEY"
-	token := "$TOKEN"
-	parts := strings.Split(token, ".")
-	sig, _ := base64.StdEncoding.DecodeString(parts[0])
-	val, _ := base64.StdEncoding.DecodeString(parts[1])
-	puk, _ := base64.StdEncoding.DecodeString(pub)
-	fmt.Printf("Valid: %v\n", ed25519.Verify(puk, val, sig))
-}
-EOF
+### 4. Expiry Check
+- Parse `ExpiryDate` from the payload.
+- Compare against current system time.
+- **Verdict**: If `now > ExpiryDate`, return `is_valid = FALSE` with reason `EXPIRED`.
 
-go run /tmp/val.go
-rm /tmp/val.go
-```
+## Failure Handling
+- **`MALFORMED_TOKEN`**: If the token contains fewer than two parts, return `INVALID_FORMAT`.
+- **`BASE64_ERROR`**: If decoding fails, flag as `TAMPER_SUSPECTED`.
 
-## Validation
-- If `Valid: true`, the token is cryptographically sound for this engine version.
-- If `Valid: false`, the token was signed with a different private key or has been tampered with.
+## Postconditions
+- Verification MUST be completed before any automated rotation or deployment task.

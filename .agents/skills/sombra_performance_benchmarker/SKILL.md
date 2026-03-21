@@ -3,38 +3,49 @@ name: sombra-performance-benchmarker
 description: Monitor latency overhead introduced by the Refinery and optimize the execution pipeline, ensuring AI requests feel fast while preserving security.
 ---
 
-# Sombra Performance Benchmarker
+# Sombra Performance Benchmarker (v1.1)
 
 ## Purpose
 
-This skill ensures that the security layers (Refinery, Dictionary Shield) do not become a bottleneck for real-time AI interactions. It provides deep visibility into the latency "tax" of security and identifies optimization targets.
+The SPB ensures that "Security Latency" stays within acceptable human-interactive boundaries. It automates the measurement of the security "tax" across all detection tiers (0, 1, 2) and flags performance regressions.
 
-## When To Use This Skill
+## Inputs / Outputs
 
-Use this skill:
-- During load testing or performance profiling of the Sombra Gateway.
-- After adding complex SLM-based refinement rules.
-- When users report "sluggish" AI responses.
-- To validate that engine optimizations (e.g., regex caching) are effective.
+### Inputs
+- `latency_threshold_ms`: Max acceptable overhead (Default: `100ms`).
+- `sample_payload`: Path to a representative AI request.
+- `tier_depth`: `0` (Dict), `1` (Regex), `2` (SLM).
+
+### Outputs
+- `bench_report` (Artifact): Per-tier latency breakdown.
+- `performance_verdict`: `OPTIMAL` | `DEGRADED` | `SHALLOW_BYPASS_RECOMMENDED`.
+- `optimization_patch`: Suggested rule modifications to reduce overhead.
+
+## Preconditions
+- Sombra Gateway must be running in `PROFILING_MODE`.
+
+---
 
 ## Instructions
 
-1.  **Measure Pipeline Latency**: Instrument the request flow to track milliseconds spent in:
-    - Tier 0: Dictionary Shield lookup.
-    - Tier 1: Regex/Rule-based PII detection.
-    - Tier 2: SLM-based refinement.
-    - Gateway Overhead: Routing and TLS termination.
-2.  **Identify Bottlenecks**: Pinpoint "Heavy Rules" (e.g., inefficient regex or slow SLM prompts) that contribute disproportionately to latency.
-3.  **Validate Optimizations**: Compare "Before vs. After" metrics for engine patches.
-4.  **Balance Security/Speed**: Suggest using "Fast-Track" rules for non-sensitive traffic while maintaining "Deep-Scan" for critical PII.
-5.  **Generate Periodic Reports**: Produce performance snapshots for DevOps teams and clients to ensure transparency on AI responsiveness.
+### 1. Instrumentation & Sampling
+- Execute the `sample_payload` through the gateway with `X-Ocultar-Profiler: true`.
+- Collect high-fidelity spans for:
+    - **Tier 0 (Dictionary)**: Constant time $O(1)$ lookup.
+    - **Tier 1 (Regex)**: Pattern matching time.
+    - **Tier 2 (SLM)**: Inference time.
 
-## Examples
+### 2. Threshold Violation Analysis
+- If total latency > `latency_threshold_ms`:
+    - **Action**: Identify the "Heavy Rule" with the highest span value.
+    - **Refactor**: Suggest pre-compilation, dictionary-migration, or rule-pruning.
 
-### Regex Optimization
-**Bottleneck**: A complex pattern for global banking codes is adding 50ms per request.
-**Action**: Suggest replacing the regex with a pre-compiled Aho-Corasick dictionary if possible, or optimizing the pattern structure.
+### 3. Verdict Generation
+- `DEGRADED`: Latency is > threshold but within 2x limit.
+- `SHALLOW_BYPASS_RECOMMENDED`: If security recall is high but latency is prohibitive, recommend moving rules from Tier 2 to Tier 1.
 
-### SLM Latency Audit
-**Bottleneck**: Tier 2 refinement is consistently taking >500ms.
-**Action**: Recommend switching to a smaller, quantized SLM model or optimizing the refinement prompt for faster inference.
+## Failure Handling
+- **`COLD_START_BIAS`**: If the first request is slow due to cache Misses, perform 5 warm-up runs before measuring.
+
+## Postconditions
+- Artifact: Final performance snapshot must be saved to `services/engine/bench/results.json`.
