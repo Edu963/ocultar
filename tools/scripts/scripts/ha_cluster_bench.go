@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/Edu963/ocultar/pkg/config"
-	"github.com/Edu963/ocultar/pkg/vault"
+	"github.com/Edu963/ocultar/vault"
 
 	_ "github.com/lib/pq"
 )

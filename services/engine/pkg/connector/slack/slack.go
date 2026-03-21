@@ -113,7 +113,27 @@ func (s *SlackConnector) Fetch(ctx context.Context, params map[string]interface{
 		}
 	}
 
-	// SECURITY CHECK: We return the raw JSON to Sombra.
-	// We DO NOT redact here. Redaction is Sombra's responsibility.
-	return body, nil
+	// REFINERY-FIRST: Sanitize data at the entry point.
+	var jsonData interface{}
+	if err := json.Unmarshal(body, &jsonData); err != nil {
+		// If it's not JSON, fallback to string redaction
+		refinedStr, err := s.engine.RefineString(string(body), "slack-connector", nil)
+		if err != nil {
+			return nil, fmt.Errorf("string sanitization failed (Fail-Closed): %w", err)
+		}
+		return []byte(refinedStr), nil
+	}
+
+	// Apply Fail-Closed Ocultar Engine redaction
+	processed, err := s.engine.ProcessInterface(jsonData, "slack-connector")
+	if err != nil {
+		return nil, fmt.Errorf("data sanitization failed (Fail-Closed): %w", err)
+	}
+
+	redactedBytes, err := json.Marshal(processed)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal sanitized data (Fail-Closed): %w", err)
+	}
+
+	return redactedBytes, nil
 }
