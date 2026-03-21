@@ -3,60 +3,58 @@ name: ecosystem-state-tracker
 description: A partitioned, dependency-aware metadata orchestrator for the Ocultar AI ecosystem. Prevents redundant skill executions by tracking deep hashes of both inputs and environmental dependencies.
 ---
 
-# Ecosystem State Tracker (EST)
+# Ecosystem State Tracker (v2.1)
 
 ## Purpose
-EST serves as the high-fidelity state store for the Ocultar multi-agent system. It maintains a deterministic record of skill executions to optimize performance, prevent redundant security scans, and ensure consistency across the agent lifecycle.
 
-## Inputs
+EST is the high-fidelity state store for the Ocultar multi-agent system. It maintains deterministic records of skill executions to optimize performance, prevent redundant security scans, and ensure consistency.
+
+## Inputs / Outputs
+
+### Inputs
 - `execution_context`:
-    - `skill_id`: The unique identifier of the calling skill (e.g., `security-sanitizer`).
-    - `agent_id`: Identifier of the agent requesting the state check.
-    - `input_parameters`: Key-value map of all direct arguments passed to the skill.
-    - `dependencies`: List of file paths or system configurations that influence the skill's outcome.
-- `update_payload`: (Post-execution only)
-    - `status`: SUCCESS | FAIL | WARNING.
-    - `artifacts`: List of absolute paths to generated files.
-    - `metadata`: Any additional context (e.g., lines of code scanned, vulnerabilities found).
+    - `skill_id`: Unique identifier (e.g., `secret-scanner`).
+    - `input_hash`: Pre-calculated SHA-256 of all input parameters.
+    - `dependency_manifest`: List of absolute paths to files influencing the outcome.
+- `update_payload` (Post-execution):
+    - `receipt`: Signed proof of execution result (`SUCCESS` | `FAIL`).
+    - `artifacts`: List of generated absolute paths.
 
-## Outputs
-- `redundancy_check`:
-    - `is_redundant`: Boolean.
-    - `cached_result`: The previously stored `skill_result` if `is_redundant` is TRUE.
-    - `last_executed_at`: Timestamp of the cached execution.
-- `state_receipt`: Confirmation of the registered state update.
+### Outputs
+- `cache_status`: `HIT` | `MISS`.
+- `receipt`: The stored receipt if `cache_status` == `HIT`.
+
+## Preconditions
+- Filesystem MUST support atomic `rename` operations.
+- `skill_id` MUST be registered in `ttl_manifest.json`.
 
 ---
 
 ## Instructions
 
-### 1. Verification of Redundancy
-Before executing any resource-intensive skill:
-1.  **Compute Deep Hash**:
-    - Generate a SHA-256 hash of all `input_parameters`.
-    - Generate a Merkle-tree style recursive hash of all files listed in `dependencies`.
-    - Combine these into a single `state_hash`.
-2.  **Partition Lookup**:
-    - Navigate to `.agents/state/{{skill_id}}/{{state_hash}}.json`.
-3.  **Validate TTL**:
-    - If the file exists, check the `expires_at` field. If not expired AND `status` was `SUCCESS`, return `is_redundant = TRUE`.
+### 1. Verification (Redundancy Check)
+1. **Compute State ID**: Combine `input_hash` and the Merkle-hash of the `dependency_manifest`.
+2. **TTL Validation**:
+   - Lookup `.agents/state/{{skill_id}}/{{state_id}}.json`.
+   - Verify `expires_at` > `now()`.
+   - If valid, return `cache_status = HIT`.
 
-### 2. Registering State Updates
-Upon skill completion:
-1.  **Initialize Partition**: Create the directory `.agents/state/{{skill_id}}/` if it does not exist.
-2.  **Atomic Write**:
-    - Build the state JSON including `status`, `artifacts`, `state_hash`, and a calculated `expires_at` (based on the skill's specific TTL policy).
-    - Write to a temporary file: `.agents/state/{{skill_id}}/{{state_hash}}.tmp`.
-    - Atomically rename `.tmp` to `.json` to ensure integrity.
-3.  **Audit Trail Integration**: If in `COMPLIANCE` mode, send a hash of this state record to the `compliance-integrity-suite`.
+### 2. State Committal
+1. **Atomic Write**:
+   - Serialize `status`, `receipt`, and `artifacts`.
+   - Calculate `expires_at` using the `ttl_manifest.json` policy.
+   - Write to `.tmp` and rename to `.json`.
+2. **Audit Push**:
+   - If in `STRICT_AUDIT` mode, broadcast the state hash to the `evidence-archiver`.
 
-### 3. Cleanup & Pruning
-- EST does not maintain a giant manifest. Individual files should be pruned by an external `maintenance-agent` or via a `garbage_collection` trigger if a partition exceeds a specific size (e.g., 50MB).
+### 3. Lifecycle Management
+- **Pruning**: Execute `Prune()` on any partition exceeding 100MB.
+- **Verification**: Periodically re-validate artifact hashes on disk against the stored manifest in EST.
 
 ## Failure Handling
-- **Missing Dependencies**: If a path in `dependencies` is unreachable, fail the redundancy check and force a skill re-run.
-- **State Collision**: If two agents attempt to write the same hash simultaneously, use the atomic `rename` operation to let the filesystem resolve the race condition.
+- **Collision**: If a write collision occurs, the filesystem rename ensures only one state persists.
+- **Corrupt Cache**: On parse error, immediately delete the JSON and return `MISS`.
 
 ## Constraints
-- **Absolute Paths Only**: All artifact and dependency paths must be absolute.
-- **Fail-Safe**: If any error occurs during state lookup (e.g., permissions, corruption), EST MUST return `is_redundant = FALSE` to ensure the skill runs and system integrity is preserved.
+- **Absolute Paths**: No relative pathing permitted.
+- **Signatures**: Receipts MUST be signed by the executing agent’s Ed25519 key.
