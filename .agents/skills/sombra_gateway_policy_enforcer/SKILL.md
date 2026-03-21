@@ -3,32 +3,44 @@ name: sombra-gateway-policy-enforcer
 description: Automatically injects policy hooks when new endpoints or features are added. Ensures all AI requests go through the Fail-Closed logic.
 ---
 
-# Sombra Gateway Policy Enforcer
+# Sombra Gateway Policy Enforcer (v1.1)
 
 ## Purpose
 
-This skill acts as an architectural validator for the Sombra Gateway. It ensures that no data-handling path bypasses the Ocultar Refinery or violates the Fail-Closed principle.
+The SGPE acts as the "Architectural Linter" for the Gateway layer. It ensures that every code path that handles AI payloads (Prompt or Response) is explicitly bound to a Refinery hook, preventing accidental unmasked egress.
 
-## When To Use This Skill
+## Inputs / Outputs
 
-Use this skill when:
-- Adding new HTTP routes to Sombra (`/query`, `/stream`, etc.).
-- Implementing new Model Connectors or Provider wrappers.
-- Modifying or adding modular OCULTAR Pro Connectors (Slack, SharePoint, etc.).
-- Modifying the primary gateway handler in `apps/sombra/pkg/handler/`.
-- Changing the policy enforcement middleware.
+### Inputs
+- `change_set` (Git Diff): The code modifications to evaluate.
+- `registry_source`: Path to `sombra.yaml` or route registry.
+
+### Outputs
+- `policy_verdict` (Enum): `ENFORCED` | `BYPASS_DETECTED`.
+- `critical_gaps` (List): Description of paths missing security hooks.
+
+## Preconditions
+- Access to `apps/sombra/pkg/handler/` source code.
+
+---
 
 ## Instructions
 
-1.  **Identify Data Entry Points**: Locate all methods where external AI requests enter the system.
-2.  **Verify Refinery Hook**: Ensure that `eng.ProcessInterface` or `eng.RefineString` is called before any data is sent to an upstream provider.
-3.  **Validate Fail-Closed Logic**: Confirm that if the Refinery returns an error, the request is blocked and an appropriate security event is logged.
-4.  **Vault Alignment**: Verify that Sombra shares the same `vault.db` as the core engine (at `services/engine/`) to enable re-hydration.
-5.  **Audit Configuration**: Verify that `sombra.yaml` correctly mapping models to their required security policies.
-6.  **Enforce Multi-Model Consistency**: Ensure that new model providers follow the same redaction-hydration lifecycle as existing ones (OpenAI, Gemini).
-7.  **Validate Connector Boundaries**: Confirm that Pro Connectors (SharePoint, Teams) do not leak ingestion logic into the core engine and strictly implement the `Connector` interface.
+### 1. Data Path Identification
+- Audit the `change_set` for new HTTP routes or model connector implementations.
+- **Goal**: Identify any function that handles `[]byte` or `string` payloads destined for an LLM.
 
-## Examples
+### 2. Hook Validation
+- For every path identified:
+    - **Requirement**: Must call `Refinery.Refine()` or `Protocol.FailClosedHandler()`.
+    - **Policy**: If the hook is missing or commented out, flag as `BYPASS_DETECTED`.
 
-### Adding a new `/stream` endpoint
-**Action**: Verify that the streaming chunk handler invokes the refinery and that the stream is severed immediately if a security violation is detected.
+### 3. Fail-Closed Verification
+- Verify that the error return from the Refinery is NOT ignored.
+- **Logic**: Any `if err != nil` following a refine call MUST result in a terminal request block (e.g., `return nil, err`).
+
+## Failure Handling
+- **`COMPLEX_BYPASS`**: If custom encryption or encoding is used before refinery, flag for `red-team-evasion-scanner` audit.
+
+## Postconditions
+- `BYPASS_DETECTED` MUST result in a mandatory human review and block the CI pipeline.

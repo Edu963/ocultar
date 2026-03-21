@@ -1,117 +1,52 @@
 ---
 name: manage_ocultar_license
-description: >
-  Professional-grade orchestrator for the OCULTAR Ed25519 offline license ecosystem.
-  Manages keypair generation, license issuance, and validation integrity.
+description: Professional-grade orchestrator for the OCULTAR Ed25519 offline license ecosystem. Manages keypair generation, license issuance, and validation integrity.
 ---
 
-# Skill: Manage OCULTAR License
+# Manage OCULTAR License (v1.1)
 
-## Context
+## Purpose
 
-OCULTAR implements a **Zero-Egress** offline license verification model using Ed25519 signatures. No external license server is required.
-
-### Core Architecture
-1. **Verification Logic**: [license.go](file:///home/edu/ocultar/services/engine/pkg/license/license.go) contains the hardcoded `licensePubKeyBase64`.
-2. **Environment Key**: The engine expects the signed token in the `OCU_LICENSE_KEY` environment variable.
-3. **Tooling**: [keygen.go](file:///home/edu/ocultar/tools/scripts/scripts/keygen.go) handles keypair generation and token signing.
-
----
+The MLC manages the "Offline Root-of-Trust". It handles the generation, signing, and integration of Ed25519 license tokens for Enterprise deployments.
 
 ## Inputs / Outputs
 
 ### Inputs
-| Variable | Description | Default |
-|---|---|---|
-| `CUSTOMER_NAME` | Legal name of the licensee | "Acme Corp" |
-| `TIER` | Support tier (`community` \| `enterprise`) | "enterprise" |
-| `EXPIRY_YEARS` | Validity period in years | 1 |
-| `EXISTING_PRIV_KEY` | (Optional) Private key for signing without rotation | N/A |
+- `customer_name`: Legal entity name.
+- `tier` (Enum): `COMMUNITY` | `ENTERPRISE` | `PRO_PILOT`.
+- `capabilities` (Bitmask): e.g., `1` (Slack), `2` (SharePoint).
+- `rotation_required` (Boolean): Default `FALSE`.
 
 ### Outputs
-| Variable | Description | Destination |
-|---|---|---|
-| `OCU_LICENSE_KEY` | Signed license token | `.env` |
-| `PUBLIC_KEY` | Ed25519 Public Key | `license.go` |
-| `PRIVATE_KEY` | Ed25519 Private Key | Password Manager |
+- `license_token`: The full `Signature.Payload` string.
+- `public_key_patch`: Go code snippet for `license.go`.
+- `verdict`: `ISSUED` | `FAILED`.
+
+## Preconditions
+- Access to `tools/scripts/scripts/keygen.go`.
+- No plaintext keys stored in environment history.
 
 ---
 
-## Task 1 — Issue New License (Existing Keypair)
+## Instructions
 
-> Use this for standard renewals or adding new clients to an existing deployment.
+### 1. Keypair Selection
+- If `rotation_required` == `TRUE`: Generate new pair via `keygen.go`.
+- Else: Retrieve `OCU_MASTER_PRIVATE_KEY` from the Secure Vault.
 
-### 1. Retrieve Private Key
-Securely retrieve the `PRIVATE_KEY` from the enterprise password manager matching the current public key in `license.go`.
+### 2. Token Issuance
+- Execute the signing command:
+  `go run tools/scripts/scripts/keygen.go --customer="{{customer_name}}" --tier="{{tier}}" --caps={{capabilities}}`
+- **Integrity Check**: Validate the generated token immediately via `license_validation_cli` before deployment.
 
-### 2. Verify Key Matching
-```bash
-# Check current public key in engine
-grep "licensePubKeyBase64 =" services/engine/pkg/license/license.go
-```
-
-### 3. Sign License
-Because currently `keygen.go` forces rotation, you must use the deterministic `sign_license` utility (or proposed `keygen.go` upgrade).
-**CAUTION**: Do not leave private keys in shell history or temporary files.
-
-```bash
-# [Proposed Upgraded Command]
-# go run tools/scripts/scripts/keygen.go --customer="Target Client" --private-key="<secret>"
-```
-
----
-
-## Task 2 — Bootstrap / Key Rotation
-
-> Use this for initial deployment or after a suspected keypair compromise.
-
-### 1. Generate Keypair & Token
-```bash
-cd /home/edu/ocultar
-go run tools/scripts/scripts/keygen.go --customer="Internal Dev" --tier="enterprise" --expiry=2
-```
-
-### 2. Update Engine Verification
-Update the hardcoded public key in `services/engine/pkg/license/license.go`:
-
-```go
-// services/engine/pkg/license/license.go:14
-var licensePubKeyBase64 = "NEW_PUBLIC_KEY_OUTPUT_FROM_STEP_1"
-```
-
-### 3. Deploy Token to Environment
-Update all relevant infrastructure `.env` files:
-
-```bash
-# Update .env
-sed -i 's/OCU_LICENSE_KEY=.*/OCU_LICENSE_KEY=SIGNATURE.PAYLOAD/' .env
-```
-
----
-
-## Task 3 — Validation & Troubleshooting
-
-### 1. Verify Token Payload
-```bash
-TOKEN="<OCU_LICENSE_KEY_VALUE>"
-echo "$TOKEN" | cut -d. -f2 | base64 -d | jq .
-```
-
-### 2. Verify Expiry Date
-```bash
-EXPIRY=$(echo "$TOKEN" | cut -d. -f2 | base64 -d | jq .ExpiryDate)
-date -d @$EXPIRY
-```
+### 3. Registry Update
+- Update `services/engine/pkg/license/license.go` with the new public key if rotated.
+- Deploy the token to the target `.env` file via `sed` or the configuration manager.
 
 ## Failure Handling
-
-| Issue | Remediation |
-|---|---|
-| `Invalid or expired license` | Check if `licensePubKeyBase64` matches the signing private key. |
-| `Marshalling Error` | Ensure `CUSTOMER_NAME` contains no illegal characters for JSON. |
-| `Signature Mismatch` | Verify the token was not truncated during copy-paste. |
+- **`KEY_MISMATCH`**: If the token fails validation against the public key, ABORT and check the Private Key source.
+- **`UNAUTHORIZED_CAPS`**: If `capabilities` exceed the `tier` permissions, flag as a Business Logic violation.
 
 ## Postconditions
-- **Clean Environment**: No `/tmp` scripts containing private keys remain.
-- **Verification**: `go build ./services/engine/...` completes without error.
-- **Audit Log**: Record the license issuance in the internal compliance ledger.
+- Artifact: `license_audit_log.json` must be updated with the `rotation_id`.
+- The `licensePubKeyBase64` in the source code MUST match the token.

@@ -1,53 +1,52 @@
 ---
-name: Ocultar | Pilot Operations Manager
+name: pilot_manager
 description: Professional-grade orchestrator for the 14-day Enterprise Pilot lifecycle. Manages technical onboarding, risk assessment verification, and trial-to-purchase transition.
 ---
 
-# Role
-You are the Ocultar Pilot Operations Manager. Your objective is to drive a frictionless "Proof of Value" (PoV) for Enterprise clients, ensuring that 100% of technical verification steps and risk quantification reports are completed within the 14-day window.
+# Pilot Operations Manager (v1.1)
 
-# Inputs / Outputs
+## Purpose
 
-| Direction | Variable | Description |
-|---|---|---|
-| **Input** | `CLIENT_ID` | UUID or Slug of the enterprise client. |
-| **Input** | `TRIAL_START_TS` | RFC3339 timestamp of the license activation. |
-| **Input** | `CONFIG_DIR` | Path to the client's local configuration (`.env`, `configs/`). |
-| **Output** | `PILOT_STATUS` | Current stage: `ONBOARDING`, `VERIFICATION`, `RISK_ASSESSMENT`, `COMPLETED`. |
-| **Output** | `RED_TEAM_SCORE` | Quantified leak reduction percentage from the Risk Report. |
+The POM drives the "Proof of Value" (PoV) for Enterprise clients. It ensures that technical verification and risk quantification reports are completed within the 14-day window to facilitate a successful transition to production.
 
-# Operational Lifecycle
+## Inputs / Outputs
 
-## 1. Onboarding Validation (Day 1)
-- **Precondition**: `OCU_LICENSE_KEY` must have `Tier: "enterprise"` and `Exp` > 14 days.
-- **Action**: Verify `configs/protected_entities.json` contains at least one high-value entity.
-- **Verify**: Confirm `.env` contains `OCU_MASTER_KEY` and `OCU_SALT`.
-- **Failure**: If master key is missing, halt execution and guide user via `docs/SETUP_GUIDE.md`.
+### Inputs
+- `client_name`: Enterprise identifier.
+- `pilot_start_date`: RFC3339 activation timestamp.
+- `protected_entity_sample`: Path to `entities.json` for validation.
 
-## 2. Technical Verification (Day 2-3)
-- **Action**: Execute `go test ./services/engine/...` to ensure core engine integrity in the client VPC.
-- **Action**: Verify audit log generation in `app/audit.log` (if Enterprise bitmask is active).
-- **Validation**: Confirm the Sombra Proxy correctly intercepts PII using the `internal/test_payloads/leaky_demo.json`.
+### Outputs
+- `pilot_readiness`: `0-100%`.
+- `risk_quantification`: Mock or real dollar-value of PII protected.
+- `verdict`: `SUCCESS` | `STALLED` | `EXPAND_TO_PROD`.
 
-## 3. Data Risk Assessment (Day 7-10)
-- **Action**: Run the Risk Report generator against the client's provided sample dataset.
-- **Tool**: `go run services/engine/cmd/main.go -mode risk-audit -input [DATASET]` (or target the `/api/audit/risk` endpoint).
-- **Metric**: Extract `Financial Exposure Estimate` vs. `Vaulted Savings`.
+## Preconditions
+- `manage_ocultar_license` has issued a `PRO_PILOT` token.
 
-## 4. Closure & Hardening (Day 14)
-- **Action**: Perform final health check on `postgres` HA vault (if deployed).
-- **Transition**: Prepare the expansion manifest for "Full Production" deployment.
-- **Postcondition**: Close the `Pilot_Log.md` with "Success Store" and "Compliance Proof" artifacts.
+---
 
-# Dependencies
-- [manage-ocultar-license](file:///home/edu/ocultar/.agents/skills/manage_license/SKILL.md): To verify bitmasks and trial dates.
-- [roi-cost-efficiency-accountant](file:///home/edu/ocultar/.agents/skills/roi_cost_efficiency_accountant/SKILL.md): To populate the "Economic Value" section of the pilot report.
-- [pii-regression-suite-runner](file:///home/edu/ocultar/.agents/skills/pii_regression_suite_runner/SKILL.md): For accuracy benchmarking.
+## Instructions
 
-# Failure Handling
-- **License Expiry**: If trial time > 14 days, immediately flag as "STALLED" and request a license extension via the Account Executive.
-- **Detection Decay**: If `smoke_test` accuracy < 95%, trigger a mandatory review of `configs/protected_entities.json`.
+### 1. Zero-Trust Onboarding (Day 1)
+- Verify `OCU_MASTER_KEY` rotation from default.
+- **Action**: Call `dictionary_shield_manager` to sync `protected_entity_sample`.
+- **Gate**: If `license_tier` != `PRO_PILOT`, halt onboarding.
 
-# Safety & Compliance
-- **Zero-Egress Enforcement**: Ensure all pilot data remains within the target VPC. Do not transmit raw `app/audit.log` or client PII-laden payloads out of the environment.
-- **Sanitization**: All "Success Stories" meant for marketing must be run through the `Content-Redactor` skill.
+### 2. Value Quantification (Day 7)
+- Query the ROI Accountant for blocked egress events:
+  `ocultar-roi-tool query --client="{{client_name}}" --timeframe="7d"`
+- **Metrics**: 
+    - `Total_PII_Blocked`: Count of redact events.
+    - `Avoided_Liability`: Calculated using standard GDPR/CCPA fine estimates (e.g., $100/record).
+
+### 3. Hardening & Handover (Day 14)
+- Execute `pii-regression-suite-runner` to prove accuracy.
+- Generate the `Pilot_Success_Artifact.md` containing the ROI metrics and security verdicts.
+
+## Failure Handling
+- **`LOW_ENGAGEMENT`**: If `Total_PII_Blocked` == 0 after 5 days, trigger a mandatory workshop on "Connector Configuration".
+- **`LICENSE_EXPIRED`**: If Pilot exceeds 14 days without an extension, signal `continuous-ai-orchestrator` to enter `RESTRICTED_MODE`.
+
+## Postconditions
+- Artifact: Final signed PoV Report must be archived in `evidence-archiver`.
