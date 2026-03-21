@@ -1,69 +1,58 @@
 ---
 name: compliance-certificate-signer
-description: Expert skill for signing regulatory policies using Ed25519. Prevents policy-tampering by ensuring only authorized Ocultar policies are loaded by the Sombra Gateway.
+description: Expert skill for signing regulatory policies using Ed25519.
 ---
 
-# Compliance Certificate Signer (v1.0)
+# Compliance Certificate Signer (v1.1)
 
 ## Purpose
 
-The Compliance Certificate Signer ensures the "Immutable Chain of Custody" for regulatory policies. It signs the final `regulatory_policy.json` with an Ocultar Ed25519 private key, appending a `.sig` or embedding a `signature` field to prevent unauthorized modifications to the policy.
-
-## Preconditions
-
-- **Input**: A `regulatory_policy.json` (JSON).
-- **Security**: Access to the `OCU_POLICY_PRIVATE_KEY` (Safe environment variable or vault).
-- **Tools**: `openssl`, `sha256sum`, or Ocultar's internal `artifact-signer`.
+Ensures the "Immutable Chain of Custody" for regulatory policies. It prevents unauthorized modifications to the `regulatory_policy.json` by appending a cryptographic signature that the Sombra Gateway validates during boot.
 
 ## Inputs / Outputs
 
 ### Inputs
-- `policy_file` (Path): Path to the `regulatory_policy.json` (default: `security/regulatory_policy.json`).
-- `private_key` (Secret): Ed25519 private key for signing.
+- `policy_file` (Path): Global policy path.
+- `signing_key` (Secret): Ed25519 private key.
 
 ### Outputs
-- `signed_policy` (File): The policy with an embedded `signature` field.
-- `certificate_manifest` (Artifact): A structured summary of the signature, signer ID, and timestamp.
+- `signed_policy` (File): Rich JSON containing the `signature` and `signer_id`.
+- `receipt` (JSON): Verification metadata for the `ecosystem-state-tracker`.
+
+## Preconditions
+- `jq` MUST be available for canonicalization.
+- `signing_key` MUST be loaded into the ephemeral session.
 
 ---
 
 ## Instructions
 
-### Step 1 – Policy Canonicalization
-1.  Read the `policy_file`.
-2.  Canonicalize the JSON (remove extra whitespace, sort keys) using `jq -S '.'` to ensure a deterministic hash.
-3.  Generate a SHA-256 hash of the canonical JSON.
+### 1. Canonicalization
+- Read the policy and pipe through `jq -S '.'`.
+- **Requirement**: ALL keys must be sorted alphabetically and all whitespace removed to ensure a stable hash.
 
-### Step 2 – Cryptographic Signing
-1.  Sign the SHA-256 hash using the Ed25519 `private_key`.
-2.  Encode the resulting signature in Base64 or Hex.
+### 2. Hashing & Signing
+- Generate SHA-256 hash of the canonical string.
+- Sign using Ed25519.
+- Encode in Base64.
 
-### Step 3 – Policy Enrichment
-1.  Append the signature to the root level of the JSON:
-    ```json
-    {
-      "version": "X.Y",
-      "mappings": { ... },
-      "signature": "BASE64_SIGNATURE_HERE",
-      "signer": "OCULTAR_CISO_CA"
-    }
-    ```
-2.  Write the enriched JSON back to `policy_file`.
+### 3. Payload Enrichment
+Inject the signature into the JSON root:
+```json
+{
+  "protocol": "OCU_SIG_V1",
+  "signature": "BASE64",
+  "mappings": { ... }
+}
+```
 
-### Step 4 – Verification
-1.  Immediately verify the signature using the corresponding public key (`OCU_POLICY_PUBLIC_KEY`).
-2.  If verification fails, **HALT** and alert the `Security Advisory Scanner`.
-
----
+### 4. Verification Check
+- Immediately verify the signed file using the corresponding Public Key.
+- **Fail**: If verification fails, return `SIGNATURE_BOOT_FAILURE`.
 
 ## Failure Handling
+- **`KEY_CORRUPTION`**: If the private key fails to load, halt the pipeline.
+- **`TAMPER_ON_WRITE`**: If the file contents change between signing and verification, trigger an audit alert.
 
-- **`PRIVATE_KEY_MISSING`**: If the signing key is not found in the environment.
-- **`SIGNATURE_MISMATCH`**: If the verification step fails post-signing.
-
----
-
-## Ecosystem Role
-- **Role**: Security / Integrator.
-- **Consumer**: Sombra Gateway (Boot sequence).
-- **Trigger**: `continuous-ai-orchestrator` (Final release step).
+## Postconditions
+- Signed policy MUST be registered in `ecosystem-state-tracker`.

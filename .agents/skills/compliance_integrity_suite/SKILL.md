@@ -1,68 +1,55 @@
 ---
 name: compliance-integrity-suite
-description: Expert AI Auditor for Ocultar compliance. Combines static configuration drift detection with runtime audit log validation to ensure end-to-end regulatory alignment.
+description: Expert AI Auditor for Ocultar compliance. Combines static configuration drift detection with runtime audit log validation.
 ---
 
-# Compliance Integrity Suite (v1.0)
+# Compliance Integrity Suite (v1.1)
 
 ## Purpose
 
-The Compliance Integrity Suite is the "Ultimate Truth" mechanism for the Ocultar ecosystem. It ensures that the system is not only *configured* correctly (Static Audit) but is also *performing* correctly (Runtime Audit). It identifies discrepancies between the intended policy, the active gateway settings, and the actual traffic observed in the logs.
-
-## Preconditions
-
-- **Inputs**: Access to `regulatory_policy.json`, `sombra.yaml`, and `audit.log`.
-- **Tools**: `jq`, `yq`, `openssl`.
+CIS is the authoritative auditor. It reconciles intended policy, active architecture, and observed behavior to detect drift, tampering, or security evasions.
 
 ## Inputs / Outputs
 
 ### Inputs
-- `policy_path` (Path): Path to the global policy.
-- `config_root` (Path): Path to the Sombra configuration files.
-- `audit_log_path` (Path): Path to the system audit logs.
+- `policy_path`: Path to `regulatory_policy.json`.
+- `config_root`: Sombra config directory.
+- `audit_log_path`: System audit logs.
 
 ### Outputs
-- `integrity_score` (Int): 0-100 (where 100 is perfect alignment).
-- `drift_findings` (JSON): Mismatches between policy and configuration.
-- `runtime_violations` (JSON): Observations in the logs that violate the policy.
-- `suite_report` (Artifact): A comprehensive audit report for the CISO.
+- `integrity_score` (Int): 0-100.
+- `verdict` (Enum): `AUDIT_PASS` | `AUDIT_FAIL` | `TAMPER_DETECTED`.
+- `findings`: Detailed JSON of discrepancies.
+
+## Preconditions
+- Logs MUST have been signed by the Sombra logging service.
+- `compliance-certificate-signer` MUST be available to verify policy integrity.
 
 ---
 
 ## Instructions
 
-### Phase 1 – Static Configuration Audit (Legacy Drift Detector)
-1.  **Version Validation**: Ensure `regulatory_policy.json` version matches the system manifest.
-2.  **Mapping Coverage**: Verify that every category in the policy is explicitly handled in `sombra.yaml` (STRIP, REDACT, etc.).
-3.  **Secret Integrity**: Check for default `OCU_SALT` and `OCU_MASTER_KEY` values in the infrastructure.
+### 1. Static Integrity (Configuration)
+- Verify that the `regulatory_policy.json` contains a valid signature (via `compliance-certificate-signer`).
+- Map each category in the policy to a corresponding block/mask rule in `sombra.yaml`.
+- **Deduction**: -20 pts if a policy category has no technical enforcement.
 
-### Phase 2 – Runtime Performance Audit (Legacy Audit Log Validator)
-1.  **Log Continuity**: Verify sequence IDs in `audit.log` to detect tampering.
-2.  **Detection Efficacy**: Cross-reference `hit_category` from logs against the policy mappings.
-3.  **Action Verification**: Confirm that "Blocked" events in the log were actually blocked by the gateway logic.
+### 2. Runtime Integrity (Audit Logs)
+- Check sequence IDs in logs for continuity.
+- **Cross-check**: Ensure that `hit_category` entries in the logs match the active policy.
+- **Validation**: If a category is marked `STRIP` in config but appears unmasked in logs, return `AUDIT_FAIL`.
 
-### Phase 3 – Cross-Domain Reconciliation (New)
-1.  **Shadow Category Detection**: Identify hits in the `audit.log` that have NO mapping in the `regulatory_policy.json`.
-2.  **Evasion Check**: Look for patterns where a category is blocked in config but allowed in logs (indicates a bypass or misconfiguration).
-3.  **Statistical Baseline**: Calculate the "Sanitize-to-Block" ratio and flag sudden spikes as potential security incidents.
+### 3. Cross-Domain Reconciliation
+- Identify "Ghost Hits": Hits for categories that are NOT in the policy.
+- Calculate the "Evasion Index": Ratio of allowed-to-blocked traffic for high-risk categories.
 
-### Phase 4 – Integrity Scoring
-1.  Score the deployment:
-    - `-20 points` per Critical Drift (Secret/Policy gap).
-    - `-10 points` per Log Tampering evidence.
-    - `-5 points` per Unmapped Hit Category.
-2.  Generate the `suite_report`.
-
----
+### 4. Verdict & Report
+- Final Score: `100 - (StaticGaps * 15) - (RuntimeDrift * 20)`.
+- If score < 90 OR `TAMPER_DETECTED`, exit with `AUDIT_FAIL`.
 
 ## Failure Handling
+- **`TAMPER_ALERT`**: If log hashes don't match or gaps exist, trigger `LOCKDOWN`.
+- **`UNREACHABLE_VAULT`**: If the Identity Vault cannot be queried for policy hashes, fail the audit.
 
-- **`MALFORMED_INPUTS`**: If any of the required files are unreadable.
-- **`CRITICAL_TAMPERING`**: If log sequence gaps are detected, escalate to `PILOT_OPS` and lock the release.
-
----
-
-## Ecosystem Role
-- **Role**: Auditor / Validator (Level 2).
-- **Triggers**: Commit, PR, or Weekly Cron.
-- **Dependencies**: `repository-knowledge-map`, `compliance-certificate-signer`.
+## Postconditions
+- Output Report MUST be available to the `continuous-ai-orchestrator`.

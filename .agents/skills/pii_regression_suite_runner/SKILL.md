@@ -1,71 +1,52 @@
 ---
 name: pii-regression-suite-runner
-description: Production-grade orchestrator for the PII Regression Suite. Validates Ocultar Engine detection accuracy against ground-truth datasets to prevent privacy regressions.
+description: Production-grade orchestrator for the PII Regression Suite.
 ---
 
-# PII Regression Suite Runner
+# PII Regression Suite Runner (v1.1)
 
 ## Purpose
-This skill acts as a mandatory Quality Gate (Step 11 of the Ocultar 16-Step Protocol) to ensure that updates to Refinery rules, NLP models, or regex patterns do not degrade detection capabilities. It enforces a "Fail-Closed" policy for regressions in critical (Tier 0/1) data categories.
+
+PRSR acts as the ultimate quality gate (Step 11). It ensures that no change to detection rules or engine logic degrades the "Recall" of sensitive data. It enforces a strict "No Regressions" policy for Tier 0 categories.
+
+## Inputs / Outputs
+
+### Inputs
+- `test_suite_id`: Dataset ID in `ground_truth/`.
+- `rule_set_hash`: SHA-256 of the refinery rules under test.
+- `enforcement`: `FAIL_ON_ANY` | `FAIL_ON_TIER_0`.
+
+### Outputs
+- `verdict`: `PASS` | `FAIL`.
+- `metrics` (JSON): Pass rate, False Negatives (FN), Latency P95.
+- `state_id`: SHA-256 key for `ecosystem-state-tracker`.
 
 ## Preconditions
-1.  **Environment Isolation**: Execution MUST occur in a "Zero-Egress" ephemeral container.
-2.  **License Validation**: A valid Ocultar Enterprise license must be active (Verified via `tier-compliance-checker`).
-3.  **Artifact Parity**: The `engine_version` and `refinery_rules.json` must be compatible (Verified via `distribution-integrity-validator`).
-
-## Inputs
-- `test_suite_id`: [REQUIRED] ID of the ground-truth dataset in `services/engine/tests/ground_truth/`.
-- `rule_set_hash`: [REQUIRED] SHA-256 hash of the refinery rules to be tested.
-- `engine_binary_path`: [REQUIRED] Absolute path to the Ocultar Engine binary.
-- `concurrency_limit`: [OPTIONAL] Max parallel requests to the engine (Default: 4).
-
-## Outputs
-- `regression_report`: Detailed JSON containing:
-    - `pass_rate`: Percentage of correctly redacted tokens.
-    - `fn_list`: List of missed tokens (False Negatives) with their categories.
-    - `fp_list`: List of over-redacted tokens (False Positives).
-    - `latency_p95`: 95th percentile latency per request.
-- `verification_signature`: Ed25519 signature of the report, linked to the `rule_set_hash`.
-- `state_token`: UUID registered in the `ecosystem-state-tracker`.
+- Ephemeral Clean-Room environment (No Internet).
+- Mount read-only ground-truth volume.
 
 ---
 
 ## Instructions
 
-### 1. Initialize Clean-Room Environment
-- Provision an ephemeral workspace with NO external network access.
-- Mount the ground-truth dataset as a READ-ONLY volume.
-- **Security Rule**: Never log the actual content of ground-truth PII; only log the token positions and category IDs.
+### 1. Integrity Prep
+- Verify `refinery-architecture-manager` output hash.
+- **Constraint**: Never log raw PII. Use token offsets for reporting.
 
-### 2. Verify Engine Integrity
-- Execute `ocultar-engine --version` and verify against requirements.
-- Run a `Health-Check` on the engine's `/heartbeat` endpoint.
-- Ensure `DEBUG_REFINERY=1` is set to enable hit-metadata extraction.
+### 2. Differential Execution
+- Run the engine over the ground-truth set.
+- Compare hits.
+- **Regressions**:
+    - **Tier 0 (SSN, Keys)**: 1 missed hit = `FAIL`.
+    - **Tier 1 (Phone, Email)**: >1% degradation = `FAIL`.
 
-### 3. Execute Batch Processing
-- Partition the ground-truth data into chunks based on `concurrency_limit`.
-- Iterate through each chunk, sending requests to the `/refine` endpoint.
-- **Fail-Fast**: Stop execution if the engine latency exceeds 500ms for more than 5% of requests.
-
-### 4. Differential Analysis (Ground-Truth Mapping)
-- Compare actual engine redactions against expected ground-truth markers.
-- Classify mismatches into:
-    - **Tier A Regression**: Critical missed hit (SSN, Passport, Secret Key) -> **IMMEDIATE FAIL**.
-    - **Tier B Regression**: High-sensitivity missed hit (Email, Address) -> **FAIL**.
-    - **Functional Drift**: False Positive in non-PII context -> **WARNING**.
-
-### 5. Finalize Verification & State Sync
-- Generate the `regression_report`.
-- Call `artifact-signer` to sign the report hash.
-- Register the results in the `ecosystem-state-tracker` with the current `rule_set_hash` as the key.
+### 3. State Registration
+- Commit results to `ecosystem-state-tracker`.
+- Use `state_id` derived from `(engine_version + rule_set_hash)`.
 
 ## Failure Handling
-- **Engine Instability**: If the engine crashes (Signal 9/11), report as "Critical Stability Regression".
-- **Schema Mismatch**: If the ground-truth format is invalid, halt and trigger `policy-schema-generator` for update.
-- **Security Alert**: If any network egress is detected during the suite run, immediate SHUTDOWN and alert CISO.
+- **`ENGINE_CRASH`**: Immediate `FAIL`.
+- **`RESOURCE_EXHAUSTED`**: If P95 latency > 200ms, flag as `PERFORMANCE_REGRESSION`.
 
-## Quality Metadata
-- Role: Validator / Gatekeeper
-- Lifecycle: CI-CD / Pre-Release
-- Maturity: Production
-- Zero-Egress: MANDATORY
+## Postconditions
+- Verdict MUST be signed by `artifact-signer` for release eligibility.

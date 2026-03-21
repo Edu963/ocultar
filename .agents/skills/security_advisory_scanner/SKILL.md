@@ -1,50 +1,48 @@
 ---
 name: security-advisory-scanner
-description: Integrate with OSV, Snyk, or GitHub Advisory Database to detect vulnerable dependencies before release. Ensures all Ocultar components (Go, JS, Python) are free from known CVEs.
+description: Supply-chain auditor for vulnerable dependencies (CVEs).
 ---
 
-# Security Advisory Scanner
+# Security Advisory Scanner (v1.1)
 
 ## Purpose
-This skill proactively scans the Software Bill of Materials (SBOM) and project manifest files (go.mod, package.json, requirements.txt) for known vulnerabilities. It ensures that no production build contains critical security flaws in its supply chain.
 
-## Inputs
-- `sbom_path`: Absolute path to the generated SBOM file.
-- `severity_threshold`: (Enum) `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.
-- `fail_on_vulnerability`: Boolean (Trigger HALT if a match is found).
+The SAS prevents "Dependency Decay". It ensures that no Ocultar component is released with critical vulnerabilities by cross-referencing the project's Manifest (SBOM) against global advisory databases (OSV, GitHub).
 
-## Outputs
-- `vulnerability_report`: List of detected CVEs, affected versions, and fix version suggestions.
-- `scanner_status`: `SAFE` or `VULNERABLE`.
+## Inputs / Outputs
+
+### Inputs
+- `sbom_path`: Path to `dist.manifest.yaml` or generated SBOM.
+- `enforcement` (Enum): `ADVISORY` | `STRICT_HALT`.
+- `min_severity`: `HIGH` | `CRITICAL`.
+
+### Outputs
+- `scan_verdict`: `CLEAN` | `VULNERABLE`.
+- `vulnerability_list` (JSON): CVE IDs and affected components.
+
+## Preconditions
+- Network access for OSV/Snyk API (or local cached DB).
 
 ---
 
 ## Instructions
 
-### 1. Extract Dependencies
-- Parse `go.mod` (Core Engine/Sombra), `package.json` (Dashboard), and any Python `requirements.txt`.
-- Map all indirect and direct dependencies.
+### 1. Manifest Parity Check
+- Verify the `sbom_path` matches the current `go.mod` and `package.json` hashes.
+- **Constraint**: If hashes differ, return `MANIFEST_DRIFT` error.
 
-### 2. Query Advisory Databases
-- Use `osv-scanner` or equivalent API tools to query the **Open Source Vulnerability (OSV)** database.
-- Cross-reference with the **GitHub Advisory Database**.
+### 2. Vulnerability Lookup
+- Query vulnerable components by version string.
+- Identify "Reachability": Is the vulnerable function actually called in Ocultar's source?
 
-### 3. Evaluate Impact
-- Determine if the vulnerability is reachable in the Ocultar execution context (e.g., if a crypto bug affects our specific AES implementation).
-- Categorize by `severity_threshold`.
-
-### 4. Enforcement (Gate)
-- If `fail_on_vulnerability` is TRUE and `CRITICAL` or `HIGH` vulnerabilities are found:
-  - **HALT** the `continuous-ai-orchestrator`.
-  - Report the specific CVE and the required update.
+### 3. Enforcement Gate
+- If `enforcement` == `STRICT_HALT`:
+    - **Logic**: Any `match.severity` >= `min_severity` results in `BLOCK_PIPELINE`.
+- **Mitigation**: Suggest the specific `npm install` or `go get` command to patch.
 
 ## Failure Handling
-- **Network Error**: If advisory databases are unreachable, report a "Compliance Gap" but do not block staging builds (unless in STRICT mode).
-- **Scanner Failure**: If the scanner tool crashes, assume `VULNERABLE` state for SAFETY.
+- **`DB_UNREACHABLE`**: In `STRICT_HALT` mode, fail the build (Fail-Closed). In `ADVISORY` mode, log a warning.
+- **`FALSE_POSITIVE`**: Allow whitelist only via signed `security_override.json`.
 
-## Examples
-
-### Scenario: Vulnerable Go Module
-- **Input**: `golang.org/x/crypto` version with a known padding oracle bug.
-- **Process**: OSV lookup returns CVE-202X-XXXX.
-- **Result**: Scanner flags the build and suggests `go get golang.org/x/crypto@latest`.
+## Postconditions
+- Results MUST be logged in the `continuous-ai-orchestrator` execution log.

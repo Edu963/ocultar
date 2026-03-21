@@ -3,37 +3,47 @@ name: zero-egress-validator
 description: Specialized security linter to detect unmasked PII leakage and unauthorized external network calls.
 ---
 
-# Zero-Egress Validator
+# Zero-Egress Validator (v1.1)
 
 ## Purpose
-Enforces the "Platinum Rule": No unmasked PII ever leaves the client's VPC.
+
+Enforces the "Platinum Rule": **No unmasked PII ever leaves the client's VPC.** This skill acts as a static gate to block code that attempts to bypass the Sombra logic.
 
 ## Inputs / Outputs
 
-### Inputs:
+### Inputs
 - `change_set` (Git Diff): The code diff to evaluate.
+- `strict_mode` (Boolean): Default `TRUE`. If false, only log warnings for suspicious patterns.
 
-### Outputs:
-- `security_verdict` (Enum): [PASS | FAIL]
-- `leak_report` (Artifact): Detailed breakdown of potential egress points.
+### Outputs
+- `verdict` (Enum): `PASS` | `FAIL` | `MANDATORY_REDACTION`.
+- `leak_report` (Artifact): File/Line mapping of egress risks.
+
+## Preconditions
+- Access to the list of "Approved Internal Domains" in `sombra.yaml`.
+
+---
 
 ## Instructions
 
-### Step 1 – Network Call Detection
-- Search the `change_set` for external communication patterns:
-    - JavaScript: `fetch(`, `axios(`, `https.request(`
-    - Go: `http.Post(`, `http.Get(`, `url.Parse(`
-    - Python: `requests.`, `urllib.`
+### 1. Heuristic Egress Search
+Identify outbound communication that bypasses Ocultar hooks:
+- **Heuristic A (JS/TS)**: `fetch(`, `axios.`, `navigator.sendBeacon`.
+- **Heuristic B (Go)**: `http.Client`, `net.Dial`, `grpc.Dial`.
+- **Heuristic C (Python)**: `requests.`, `urllib.`, `httpx.`.
 
-### Step 2 – Data Payload Audit
-- For every network call identified in Step 1, verify if the data passed is:
-    - Redacted/Anonymized
-    - Internal-only (e.g., local health checks)
-- **Gate**: If unmasked raw data from `services/engine` or `services/vault` is passed to an external URI, the verdict is **FAIL**.
+### 2. Payload Sanitization Audit
+For every hit in Step 1, verify variable names against the PII category list.
+- **Violation**: If variables like `user_ssn`, `raw_prompt`, or `unmasked_payload` are passed to external IPs.
+- **Logic**: If `uri` is NOT in the "Approved Internal Domains", the data MUST be piped through `Refinery.Refine()` first.
 
-### Step 3 – Verdict Generation
-- Issue a `security_verdict`.
-- **Action**: If FAIL, provide specific remediation (e.g., "Use Sombra's redaction hook before calling this API").
+### 3. Verdict Generation
+- `FAIL`: Unmasked PII sent to external domain.
+- `MANDATORY_REDACTION`: Egress found, but data sensitivity is unknown (Assume PII).
+- `PASS`: No egress or egress is piped through Ocultar.
 
 ## Failure Handling
-- A FAIL verdict **MUST** halt any deployment or release process.
+- **`OBFUSCATION_DETECTED`**: If `eval()` or `base64.decode` is used near an egress point, trigger an automatic `FAIL` and escort to `red-team-evasion-scanner`.
+
+## Postconditions
+- `FAIL` verdict MUST block the current task in `continuous-ai-orchestrator`.

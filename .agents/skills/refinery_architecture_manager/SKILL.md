@@ -3,36 +3,48 @@ name: refinery-architecture-manager
 description: Master architect for the Ocultar Engine's detection layer. Manages the end-to-end lifecycle of PII detection rules and architectural integrity.
 ---
 
-# Refinery Architecture Manager
+# Refinery Architecture Manager (v1.1)
 
 ## Purpose
-The Ocultar Engine's detection layer requires a unified, proactive architectural oversight. This skill merges rule generation (proactive) and detection updates (reactive) into a single, high-fidelity lifecycle manager. It ensures that "Refinement" is the first and most robust line of defense.
 
-## Role
-- **Category**: Architect / Security Maintainer
-- **Ecosystem Positioning**: Core Engine / Sombra Gateway
-- **Primary Goal**: 100% Recall for sensitive entities with minimal performance overhead.
+The RAM is the core architect for the detection layer. It ensures that "Refinement" is the first line of defense, maintaining 100% recall for Tier 0 entities while optimizing for engine performance.
 
-## Responsibilities
+## Inputs / Outputs
 
-### 1. Rule Lifecycle Management
-- **Identification**: Analyze `audit.log` and "Refinement" failures to discover new PII types or bypass techniques.
-- **Generation**: Propose optimized regex patterns and high-entropy dictionary strings for the Ocultar Engine.
-- **Integration**: Update `protected_entities.json` and `PII_DETECTION.md`.
-- **Validation**: Trigger the `pii-regression-suite-runner` to verify that new rules do not break existing detection.
+### Inputs
+- `audit_feedback`: Leak reports or "Shadow PII" findings.
+- `enforcement_level` (Enum): `ADVISORY` | `STRICT` | `BLOCK_EGRESS`.
 
-### 2. Architectural Integrity (Refinery-First)
-- **Gatekeeper**: Ensure all data flows through the Ocultar Engine before LLM egress.
-- **Policy Audit**: Regularly review the `strip_categories` policy in `sombra.yaml` to prioritize "Removal" over "Pseudonymization" for Tier 0 data (SSN, Passwords).
-- **Scanner Optimization**: Maintain SHA-256 keying standards and ensure the AI-based NER fallback is only used when deterministic rules fail.
+### Outputs
+- `rule_patch`: JSON object for `refinery_rules.json`.
+- `impact_matrix`: SHA-256 hash deltas and performance overhead estimate.
+- `regression_verdict`: `PASS` | `FAIL` (from `pii-regression-suite`).
 
-### 3. Edge Case Mitigation
-- Generate specific regex patterns instead of broad "catch-all" rules.
-- Balance security (recall) against system latency.
+## Preconditions
+- `pii-regression-suite-runner` MUST be active in the toolset.
+- `protected_entities.json` MUST be the latest canonical version.
 
-## Inputs & Dependencies
-- **Inputs**: `audit.log`, user-reported leaks, new regulatory requirements.
-- **Dependencies**: `pii-regression-suite-runner`, `dictionary-shield-manager`.
+---
+
+## Instructions
+
+### 1. Dynamic Rule Generation
+- Analyze leaks to generate optimized regex or dictionary entries.
+- **Constraint**: Prefer high-entropy dictionary strings over broad regex to minimize false positives.
+- **Normalization**: All rules MUST result in either `STRIP` or `VAULT` for Tier 0 data.
+
+### 2. Integration & Validation
+- Stage the new rule in a temporary `refinery_rules.json`.
+- Call `pii-regression-suite-runner` with the ruleset hash.
+- **Enforcement**: If `enforcement_level` == `STRICT`, any regression in Tier 0 categories results in an automatic `REJECT`.
+
+### 3. Performance Profiling
+- Measure engine latency delta (max 5ms per 1KB of text).
+- If overhead > 20%, trigger architectural refactor of the regex pattern.
 
 ## Failure Handling
-- If a new rule causes a detection regression (>5%), revert the `regulatory_policy.json` and refine the rule logic.
+- **`DETECTION_COLLISION`**: If a new rule overlaps with an existing category, flag for CISO conflict resolution.
+- **`OOM_RISK`**: If dictionary size exceeds 50MB, trigger `dictionary-shield-manager` for pruning.
+
+## Postconditions
+- Final ruleset MUST be pushed to `ecosystem-state-tracker`.
