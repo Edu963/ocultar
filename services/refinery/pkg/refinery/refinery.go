@@ -66,11 +66,11 @@ var semanticTriggerRegex = regexp.MustCompile(`(?i)\b(DIVORCE|MARIAGE|WEDDING|AV
 
 // DryRunReport collects PII hit metadata when running in --dry-run or --report mode.
 type DryRunReport struct {
-	Mode       string              `json:"mode"`
-	FilesIn    int                 `json:"files_scanned"`
-	Hits       map[string][]string `json:"pii_hits"`
-	TotalCount int                 `json:"total_pii_count"`
-	Blocking   bool                `json:"blocking"`
+	Mode       string                `json:"mode"`
+	FilesIn    int                   `json:"files_scanned"`
+	Hits       []pii.DetectionResult `json:"pii_hits"`
+	TotalCount int                   `json:"total_pii_count"`
+	Blocking   bool                  `json:"blocking"`
 }
 
 // Refinery is the OCULTAR core redaction refinery.
@@ -88,7 +88,7 @@ type Refinery struct {
 	AuditLogger  AuditLogger
 	AIScanner    AIScanner
 
-	Hits      map[string][]string
+	Hits      []pii.DetectionResult
 	hitsMutex sync.Mutex
 
 	// SessionCache provides a fast-path for identical strings during a single batch/recursion run.
@@ -105,7 +105,7 @@ func NewRefinery(v vault.Provider, key []byte) *Refinery {
 		Vault:       v,
 		MasterKey:   key,
 		VaultCount:  &atomic.Int64{},
-		Hits:        make(map[string][]string),
+		Hits:        []pii.DetectionResult{},
 		AuditLogger: NoopAuditLogger{},
 		AIScanner:   NoopAIScanner{},
 	}
@@ -126,16 +126,10 @@ func (e *Refinery) GenerateReport(filesScanned int) DryRunReport {
 	if e.Serve != "" {
 		mode = "serve"
 	}
-	total := 0
-	for _, v := range e.Hits {
-		total += len(v)
-	}
+	total := len(e.Hits)
 
 	// Copy hits to avoid race conditions with JSON marshaling
-	hitsCopy := make(map[string][]string)
-	for k, v := range e.Hits {
-		hitsCopy[k] = append([]string{}, v...)
-	}
+	hitsCopy := append([]pii.DetectionResult{}, e.Hits...)
 
 	return DryRunReport{
 		Mode:       mode,
@@ -150,7 +144,7 @@ func (e *Refinery) GenerateReport(filesScanned int) DryRunReport {
 func (e *Refinery) ResetHits() {
 	e.hitsMutex.Lock()
 	defer e.hitsMutex.Unlock()
-	e.Hits = make(map[string][]string)
+	e.Hits = []pii.DetectionResult{}
 	e.SessionCache = sync.Map{}
 }
 
@@ -405,18 +399,18 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	eng := pii.NewEngine()
 	tokens := tokenPattern.FindAllStringIndex(refined, -1)
 
-	refined, err = eng.Redact(refined, func(val, piiType string, start, end int) (string, error) {
+	refined, err = eng.Redact(refined, func(d pii.DetectionResult) (string, error) {
 		overlap := false
 		for _, t := range tokens {
-			if start < t[1] && end > t[0] {
+			if d.Range.Start < t[1] && d.Range.End > t[0] {
 				overlap = true
 				break
 			}
 		}
 		if overlap {
-			return val, nil // Skip replacement by returning original value
+			return d.Value, nil // Skip replacement by returning original value
 		}
-		return e.getOrSetSecureToken(val, piiType, actor)
+		return e.getOrSetSecureResult(d, actor)
 	})
 	if err != nil {
 		return "", err
@@ -708,36 +702,51 @@ func (e *Refinery) applyReplacement(line, target, piiType string, actor string) 
 	})
 }
 
-// getOrSetSecureToken retrieves an existing token from the vault or generates, encrypts, and stores a new one.
-func (e *Refinery) getOrSetSecureToken(pii, piiType string, actor string) (string, error) {
+func (e *Refinery) getOrSetSecureToken(val, piiType string, actor string) (string, error) {
+	res := pii.DetectionResult{
+		Entity:     piiType,
+		Value:      val,
+		Confidence: 1.0,
+		Method:     []string{"heuristic"},
+	}
+	// Note: We don't have start/end offsets here for simple string replacements
+	return e.getOrSetSecureResult(res, actor)
+}
+
+// getOrSetSecureResult retrieves an existing token from the vault or generates, encrypts, and stores a new one.
+func (e *Refinery) getOrSetSecureResult(res pii.DetectionResult, actor string) (string, error) {
 	// [VULN-003] Enforce checksum validation for high-fidelity types
-	if piiType == "CREDIT_CARD" && !isLuhnValid(pii) {
+	if res.Entity == "CREDIT_CARD" && !isLuhnValid(res.Value) {
 		// False positive avoidance: if it's not Luhn-valid, it's not a PII credit card
-		return pii, nil
+		return res.Value, nil
 	}
 
-	hash := sha256Hash(pii)
-	token := fmt.Sprintf("[%s_%s]", piiType, hash[:8])
+	hash := sha256Hash(res.Value)
+	token := fmt.Sprintf("[%s_%s]", res.Entity, hash[:8])
 
 	if e.DryRun || e.Report || e.Serve != "" {
 		e.hitsMutex.Lock()
-		e.Hits[piiType] = append(e.Hits[piiType], hash[:8]+"…")
+		res.ValueHash = hash
+		if res.Location == "" && res.Range.End > 0 {
+			res.Location = fmt.Sprintf("%d-%d", res.Range.Start, res.Range.End)
+		}
+		e.Hits = append(e.Hits, res)
 		e.hitsMutex.Unlock()
 	}
 
 	// Check vault for an existing token
 	if existing, found := e.Vault.GetToken(hash); found {
 		if license.Active.Tier == "enterprise" && !e.DryRun {
-			e.AuditLogger.Log(actor, "matched", existing, getComplianceMapping(piiType))
+			e.AuditLogger.Log(actor, "matched", existing, getComplianceMapping(res.Entity))
 		}
 		return existing, nil
 	}
 
 	if license.Active.Tier == "enterprise" && !e.DryRun {
-		e.AuditLogger.Log(actor, "vaulted", token, getComplianceMapping(piiType))
+		e.AuditLogger.Log(actor, "vaulted", token, getComplianceMapping(res.Entity))
 	}
 
-	encrypted, encErr := encrypt([]byte(pii), e.MasterKey)
+	encrypted, encErr := encrypt([]byte(res.Value), e.MasterKey)
 	if encErr != nil {
 		return "", fmt.Errorf("encryption failed: %w", encErr)
 	}

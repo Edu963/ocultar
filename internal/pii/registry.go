@@ -8,6 +8,11 @@ const (
 	ValNone  ValidationMethod = "NONE"
 	ValLuhn  ValidationMethod = "LUHN"
 	ValMod97 ValidationMethod = "MOD97"
+	ValESDNI ValidationMethod = "ES_DNI"
+	ValITCF  ValidationMethod = "IT_CF"
+	ValNLBSN ValidationMethod = "NL_BSN"
+	ValPLPSL ValidationMethod = "PL_PESEL"
+	ValDESTID ValidationMethod = "DE_STID"
 )
 
 type EntityDef struct {
@@ -34,28 +39,28 @@ var Registry = []EntityDef{
 	{Type: "FR_SIRET", Pattern: regexp.MustCompile(`\b[0-9]{3}\s*[0-9]{3}\s*[0-9]{3}\s*[0-9]{5}\b`), Validator: ValNone, MinLength: 14, Normalization: true},
 
 	// Spain
-	{Type: "ES_DNI_NIE", Pattern: regexp.MustCompile(`(?i)\b[XYZ]?\d{7,8}[A-Z]\b`), Validator: ValNone, MinLength: 9, Normalization: true},
+	{Type: "ES_DNI_NIE", Pattern: regexp.MustCompile(`(?i)\b[XYZ]?\d{7,8}[A-Z]\b`), Validator: ValESDNI, MinLength: 9, Normalization: true},
 	{Type: "ES_CIF", Pattern: regexp.MustCompile(`(?i)\b[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]\b`), Validator: ValNone, MinLength: 9, Normalization: true},
 
 	// Germany
-	{Type: "DE_STEUER_ID", Pattern: regexp.MustCompile(`\b\d{2}\s*\d{3}\s*\d{3}\s*\d{3}\b|\b\d{11}\b`), Validator: ValNone, MinLength: 11, Normalization: true},
+	{Type: "DE_STEUER_ID", Pattern: regexp.MustCompile(`\b\d{11}\b`), Validator: ValDESTID, MinLength: 11, Normalization: true},
 
 	// Italy
-	{Type: "IT_CODICE_FISCALE", Pattern: regexp.MustCompile(`(?i)\b[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]\b`), Validator: ValNone, MinLength: 16, Normalization: true},
+	{Type: "IT_CODICE_FISCALE", Pattern: regexp.MustCompile(`(?i)\b[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]\b`), Validator: ValITCF, MinLength: 16, Normalization: true},
 
 	// Netherlands
-	{Type: "NL_BSN", Pattern: regexp.MustCompile(`\b\d{9}\b`), Validator: ValNone, MinLength: 9, Normalization: true},
+	{Type: "NL_BSN", Pattern: regexp.MustCompile(`\b\d{8,9}\b`), Validator: ValNLBSN, MinLength: 8, Normalization: true},
 
 	// UK
 	{Type: "UK_NINO", Pattern: regexp.MustCompile(`(?i)\b[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z]\s*\d{2}\s*\d{2}\s*\d{2}\s*[A-D]\b`), Validator: ValNone, MinLength: 9, Normalization: true},
 	{Type: "UK_NHS", Pattern: regexp.MustCompile(`\b\d{3}\s*\d{3}\s*\d{4}\b`), Validator: ValNone, MinLength: 10, Normalization: true},
 
 	// Poland
-	{Type: "PL_PESEL", Pattern: regexp.MustCompile(`\b\d{11}\b`), Validator: ValNone, MinLength: 11, Normalization: true},
+	{Type: "PL_PESEL", Pattern: regexp.MustCompile(`\b\d{11}\b`), Validator: ValPLPSL, MinLength: 11, Normalization: true},
 
 	// Nordics
-	{Type: "SE_PIN", Pattern: regexp.MustCompile(`\b\d{6}[-+]?\d{4}\b|\b\d{8}[-+]?\d{4}\b`), Validator: ValNone, MinLength: 10, Normalization: true},
-	{Type: "DK_CPR", Pattern: regexp.MustCompile(`\b\d{6}[-]?\d{4}\b`), Validator: ValNone, MinLength: 10, Normalization: true},
+	{Type: "SE_PIN", Pattern: regexp.MustCompile(`\b\d{10,12}\b`), Validator: ValNone, MinLength: 10, Normalization: true},
+	{Type: "DK_CPR", Pattern: regexp.MustCompile(`\b\d{10}\b`), Validator: ValNone, MinLength: 10, Normalization: true},
 	{Type: "FI_HETU", Pattern: regexp.MustCompile(`(?i)\b\d{6}[A-Y+-]\d{3}[0-9A-FHJ-NPR-Y]\b`), Validator: ValNone, MinLength: 11, Normalization: true},
 
 	// Generic Entities

@@ -18,7 +18,14 @@ func TestEngineEvasionResistance(t *testing.T) {
 		{"Credit Card with Dashes", "Card 4111-1111-1111-1111", "4111-1111-1111-1111"}, // Valid test visa
 		{"Boundary Enforcement", "NotAnEU_VATGB1234567890Inside", ""}, // Should not match due to boundaries
 		{"Valid EU VAT", "VAT is GB123456789", "GB123456789"},
-		{"Valid BE VAT", "VAT is BE0123456789", "BE0123456789"}, 
+		{"Valid BE VAT", "VAT is BE0123456789", "BE0123456789"},
+		{"Valid ES DNI", "DNI: 12345678Z", "12345678Z"},
+		{"Valid IT CF", "CF: RSSMRA80A10H501W", "RSSMRA80A10H501W"},
+		{"Valid NL BSN", "BSN: 123456782", "123456782"},
+		{"Valid PL PESEL", "PESEL: 44051401359", "44051401359"},
+		{"Valid DE StId", "StId: 65929970489", "65929970489"},
+		{"Base64 Evasion", "Data: REU4OTM3MDQwMDQ0MDUzMjAxMzAwMA==", ""}, // Base64 should be handled by refinery, not raw engine
+		{"Multi-line PII", "FR_NIR is\n190017500100112", "190017500100112"},
 	}
 
 	for _, tc := range cases {
@@ -62,5 +69,35 @@ func TestValidationLayer(t *testing.T) {
 	}
 	if len(res[0].Method) != 2 || res[0].Method[1] != "checksum" {
 		t.Errorf("Expected method to include checksum, got %v", res[0].Method)
+	}
+
+	// Valid NL BSN should pass
+	res = eng.Scan("123456782")
+	if len(res) == 0 {
+		t.Errorf("Expected valid NL BSN to pass, got no hits")
+	}
+
+	// Invalid IT CF should fail
+	res = eng.Scan("RSSMRA80A01H501X")
+	if len(res) > 0 {
+		t.Errorf("Expected invalid IT CF to fail, got hit")
+	}
+
+	// Valid IT CF should pass
+	res = eng.Scan("RSSMRA80A10H501W")
+	if len(res) == 0 {
+		t.Errorf("Expected valid IT CF to pass, got no hits")
+	}
+
+	// Valid PL PESEL should pass
+	res = eng.Scan("44051401359")
+	if len(res) == 0 {
+		t.Errorf("Expected valid PL PESEL to pass, got no hits")
+	}
+
+	// Valid DE Steuer-ID should pass
+	res = eng.Scan("65929970489")
+	if len(res) == 0 {
+		t.Errorf("Expected valid DE Steuer-ID to pass, got no hits")
 	}
 }

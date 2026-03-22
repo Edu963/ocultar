@@ -9,11 +9,12 @@ import (
 	"strings"
 
 	"github.com/Edu963/ocultar/pkg/refinery"
+	"github.com/Edu963/ocultar/internal/pii"
 )
 
 type FileExposure struct {
-	TotalPII int                 `json:"total_pii"`
-	Types    map[string][]string `json:"types"`
+	TotalPII int                   `json:"total_pii"`
+	Hits     []pii.DetectionResult `json:"hits"`
 }
 
 type HeatmapReport struct {
@@ -90,7 +91,7 @@ func (c *Crawler) CrawlLocalDirectory(rootPath string) (HeatmapReport, error) {
 			report.TotalExposures += rpt.TotalCount
 			report.Files[path] = FileExposure{
 				TotalPII: rpt.TotalCount,
-				Types:    rpt.Hits,
+				Hits:     rpt.Hits,
 			}
 		}
 
