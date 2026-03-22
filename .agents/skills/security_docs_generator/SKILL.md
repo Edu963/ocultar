@@ -7,7 +7,7 @@ description: Expert AI orchestrator for PII compliance and auditor-ready documen
 
 ## Purpose
 
-The PSDG automates the generation of verifiable compliance documentation. It ensures that the current state of the Ocultar Engine (rules, filters, recall) is accurately represented for SOC2/HIPAA auditors.
+The PSDG automates the generation of verifiable compliance documentation. It ensures that the current state of the Ocultar Refinery (rules, filters, recall) is accurately represented for SOC2/HIPAA auditors.
 
 ## Inputs / Outputs
 
@@ -37,7 +37,7 @@ The PSDG automates the generation of verifiable compliance documentation. It ens
 - Generate a "Regulatory Coverage Matrix" (Mapped to GDPR Art 32, HIPAA §164.306).
 
 ### 3. Drift Analysis
-- Compare the current engine state against the previous `auditor_report`.
+- Compare the current refinery state against the previous `auditor_report`.
 - Highlight "Hardening Events" (New regex rules, expanded dictionary).
 
 ## Failure Handling

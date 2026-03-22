@@ -1,11 +1,11 @@
 # Ocultar Monorepo
 
-Welcome to the unified Ocultar Engine ecosystem. This monorepo contains all core services, applications, and enterprise extensions.
+Welcome to the unified Ocultar Refinery ecosystem. This monorepo contains all core services, applications, and enterprise extensions.
 
 ## Structure
 
 - `/apps/` - User-facing applications (Proxy, Sombra, Web)
-- `/services/` - Core backend services (Engine)
+- `/services/` - Core backend services (Refinery)
 - `/enterprise/` - Enterprise-only extensions
 - `/experiments/` - Research and prototypes
 - `/docs/` - Documentation

@@ -36,8 +36,8 @@ This skill ensures that every proposed change or response aligns with Ocultar's 
 - **Failure Handling**: Verdict **MUST** be MODIFY if error handling is "Fail-Open".
 
 ### 3. Pure Refinery (Source Agnosticism)
-- **Constraint**: The `Engine` must remain agnostic of data sources (Slack, SQL, etc.).
-- **Validation**: Ensure no source-specific parsing logic exists within `services/engine`.
+- **Constraint**: The `Refinery` must remain agnostic of data sources (Slack, SQL, etc.).
+- **Validation**: Ensure no source-specific parsing logic exists within `services/refinery`.
 - **Failure Handling**: Verdict **MUST** be MODIFY if coupling is detected.
 
 ---
@@ -56,7 +56,7 @@ Ensure the following terms are used with 100% precision:
 
 ### Step 1 – Identity Audit
 - Scan the `proposal` for naming inconsistencies.
-- **Action**: Correct any mentions of "Proxy" to "Sombra" or "Engine" to "Refinery" where appropriate.
+- **Action**: Correct any mentions of "Proxy" to "Sombra" or "Refinery" to "Refinery" where appropriate.
 
 ### Step 2 – Guardrail Validation
 - Analyze the `proposal` against the **Zero-Egress** and **Fail-Closed** guardrails.

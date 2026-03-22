@@ -3,7 +3,7 @@ go 1.24.0
 use (
 	./apps/proxy
 	./apps/sombra
-	./enterprise/engine-extensions
-	./services/engine
+	./enterprise/refinery-extensions
+	./services/refinery
 	./services/vault
 )

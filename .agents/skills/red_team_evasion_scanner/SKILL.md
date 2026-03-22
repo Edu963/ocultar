@@ -7,17 +7,17 @@ description: Proactively tests the Ocultar Refinery for weaknesses using advance
 
 ## Purpose
 
-The RTES identifies "Refinement Blindspots". It attempts to bypass the Ocultar Engine's detection tiers using adversarial techniques (encodings, injections, splitting) to ensure the "Zero-Egress" guarantee holds against advanced attackers.
+The RTES identifies "Refinement Blindspots". It attempts to bypass the Ocultar Refinery's detection tiers using adversarial techniques (encodings, injections, splitting) to ensure the "Zero-Egress" guarantee holds against advanced attackers.
 
 ## Inputs / Outputs
 
 ### Inputs
 - `threat_vectors` (List): `BASE64`, `UNICODE_OBFUSCATION`, `PROMPT_INJECTION`, `POLYGLOT`.
-- `refinery_target`: ID of the Ruleset/Engine version being tested.
+- `refinery_target`: ID of the Ruleset/Refinery version being tested.
 
 ### Outputs
 - `evasion_report` (Artifact): Detailed breakdown of successful vs blocked bypasses.
-- `vulnerability_score` (Int): 0-100 indicating engine surface risk.
+- `vulnerability_score` (Int): 0-100 indicating refinery surface risk.
 - `patch_recommendations` (JSON): Logic for `refinery-architecture-manager`.
 
 ## Preconditions

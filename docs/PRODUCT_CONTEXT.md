@@ -10,7 +10,7 @@ OCULTAR is an enterprise-grade **Global Data Refinery**. Its mission is to enabl
 
 | Component | Description |
 |---|---|
-| **Live Refinery** | The multi-tier engine (Regex, NLP, SLM) that detects and obfuscates PII in real-time. |
+| **Live Refinery** | The multi-tier refinery (Regex, NLP, SLM) that detects and obfuscates PII in real-time. |
 | **Sombra Gateway** | A high-performance proxy and agentic gateway with native connectors (Slack, SharePoint) enforcing "Fail-Closed" security. |
 | **Identity Vault** | A local, encrypted database (DuckDB/PostgreSQL) that stores mappings for deterministic re-hydration. |
 | **Enterprise Dashboard** | A centralized UI for monitoring the **Risk Matrix**, **ROI Analytics**, and **Audit Logs**. |

@@ -43,7 +43,7 @@
 | Requirement | Details |
 |---|---|
 | **OS** | Linux or macOS (Windows via WSL 2 or Docker Desktop) |
-| **Docker** | Docker Engine + Compose plugin, or Docker Desktop |
+| **Docker** | Docker Refinery + Compose plugin, or Docker Desktop |
 | **RAM** | 8 GB minimum (for Tier 2 local AI model) |
 | **Disk** | ~2 GB free for the GGUF model on first run |
 | **Go** | 1.22+ only if building from source |
@@ -141,7 +141,7 @@ docker compose -f docker-compose.proxy.yml up -d
 **What happens on first run:**
 1. `init-slm` (alpine) downloads the `Qwen 1.5B Q4_K_M` GGUF model (~900 MB) from HuggingFace into the `slm_data` volume.
 2. `ocultar-proxy` runs pre-flight validation (master key entropy, vault directory, SLM model path accessibility), then starts listening.
-3. The engine uses **Native CGO bindings** to perform inference directly within the proxy process.
+3. The refinery uses **Native CGO bindings** to perform inference directly within the proxy process.
 
 Watch progress:
 ```bash
@@ -244,7 +244,7 @@ echo "Patient PTN-001234 was admitted." | ./ocultar-enterprise
 
 ## 6. Dictionary Shield (`configs/protected_entities.json`)
 
-`configs/protected_entities.json` is the **Tier 0 Dictionary Shield** — a mandatory fail-closed dependency. The engine **will not start** if this file is missing or empty.
+`configs/protected_entities.json` is the **Tier 0 Dictionary Shield** — a mandatory fail-closed dependency. The refinery **will not start** if this file is missing or empty.
 
 ```json
 ["Alice Martin", "Project Phoenix", "Ouroboros Protocol"]
@@ -424,7 +424,7 @@ Alternatively, you can place the token in a file named `license.key` in the same
 echo "<your_token_here>" > license.key
 ```
 
-The engine checks `OCU_LICENSE_KEY` first, then falls back to reading `license.key`.
+The refinery checks `OCU_LICENSE_KEY` first, then falls back to reading `license.key`.
 
 ### Confirming activation
 

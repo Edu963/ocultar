@@ -21,7 +21,7 @@ The DSM manages the "Platinum List" of protected entities. It ensures that criti
 - `parity_hash`: SHA-256 of the unified `protected_entities.json`.
 
 ## Preconditions
-- Access to all three config paths (Sombra, Gateway, Engine).
+- Access to all three config paths (Sombra, Gateway, Refinery).
 
 ---
 
@@ -29,7 +29,7 @@ The DSM manages the "Platinum List" of protected entities. It ensures that criti
 
 ### 1. Atomic Add & Sync
 - **Staging**: Update `apps/sombra/configs/protected_entities.json`.
-- **Propagation**: Copy to `engine-extensions` and `services/engine`.
+- **Propagation**: Copy to `refinery-extensions` and `services/refinery`.
 - **Validation**: Calculate SHA-256 for all three files.
 - **Integrity**: If hashes differ, attempt **RE-SYNC** once.
 

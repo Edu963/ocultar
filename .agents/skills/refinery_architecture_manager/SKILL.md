@@ -1,13 +1,13 @@
 ---
 name: refinery-architecture-manager
-description: Master architect for the Ocultar Engine's detection layer. Manages the end-to-end lifecycle of PII detection rules and architectural integrity.
+description: Master architect for the Ocultar Refinery's detection layer. Manages the end-to-end lifecycle of PII detection rules and architectural integrity.
 ---
 
 # Refinery Architecture Manager (v1.1)
 
 ## Purpose
 
-The RAM is the core architect for the detection layer. It ensures that "Refinement" is the first line of defense, maintaining 100% recall for Tier 0 entities while optimizing for engine performance.
+The RAM is the core architect for the detection layer. It ensures that "Refinement" is the first line of defense, maintaining 100% recall for Tier 0 entities while optimizing for refinery performance.
 
 ## Inputs / Outputs
 
@@ -39,7 +39,7 @@ The RAM is the core architect for the detection layer. It ensures that "Refineme
 - **Enforcement**: If `enforcement_level` == `STRICT`, any regression in Tier 0 categories results in an automatic `REJECT`.
 
 ### 3. Performance Profiling
-- Measure engine latency delta (max 5ms per 1KB of text).
+- Measure refinery latency delta (max 5ms per 1KB of text).
 - If overhead > 20%, trigger architectural refactor of the regex pattern.
 
 ## Failure Handling

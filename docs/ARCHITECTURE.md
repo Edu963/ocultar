@@ -57,7 +57,7 @@ graph TD
 
     subgraph "OCULTAR Host (on-premise)"
         Proxy["ocultar-proxy\n(Go HTTP/gRPC/Syslog)\npkg/proxy"]
-        Engine["OCULTAR Engine\n(Go library)\npkg/engine\nRefineBatch ✦"]
+        Refinery["OCULTAR Refinery\n(Go library)\npkg/refinery\nRefineBatch ✦"]
         Config["Config Loader\npkg/config\n configs/config.yaml"]
         Vault_svc["Identity Vault\npkg/vault"]
         DDB[("DuckDB\nvault.db")]
@@ -73,18 +73,18 @@ graph TD
     end
 
     App -->|"POST /v1/...\nraw JSON"| Proxy
-    Proxy -->|"ProcessInterface"| Engine
-    Engine -->|"reads rules"| Config
-    Engine -->|"StoreToken / GetToken"| Vault_svc
-    Engine -->|"ScanForPII ✦"| SLM
-    Engine -->|"Log ✦"| AuditLog
-    Connectors -->|"RefineBatch / ProcessInterface"| Engine
+    Proxy -->|"ProcessInterface"| Refinery
+    Refinery -->|"reads rules"| Config
+    Refinery -->|"StoreToken / GetToken"| Vault_svc
+    Refinery -->|"ScanForPII ✦"| SLM
+    Refinery -->|"Log ✦"| AuditLog
+    Connectors -->|"RefineBatch / ProcessInterface"| Refinery
     Vault_svc -->|"default"| DDB
     Vault_svc -->|"vault_backend: postgres ✦"| PG
     Proxy -->|"sanitised payload"| Upstream
     Upstream -->|"response with tokens"| Proxy
     Proxy -->|"DecryptToken → rehydrate"| Vault_svc
-    Dashboard -->|"POST /api/refine"| Engine
+    Dashboard -->|"POST /api/refine"| Refinery
 
     style SLM fill:#f96,stroke:#c33
     style PG fill:#f96,stroke:#c33
@@ -102,7 +102,7 @@ A single request through the OCULTAR proxy, showing every processing step:
 sequenceDiagram
     participant C as Client
     participant P as Proxy Handler
-    participant E as Engine
+    participant E as Refinery
     participant V as Vault
     participant U as Upstream API
 
@@ -155,7 +155,7 @@ Ocultar uses a decentralized network of **Specialized Agent Skills** to maintain
 | Tier | Agent Skills | Focus |
 |---|---|---|
 | **Core Orchestration** | `continuous-ai-orchestrator`, `ai-development-protocol`, `ecosystem-state-tracker`, `repository-knowledge-map` | The master-switch; manages the execution DAG and ensures state-persistence across skill runs. |
-| **Compliance & Intent** | `regulatory-intent-decoder`, `regulation-digest-ingestor`, `policy-schema-generator`, `compliance-integrity-suite`, `compliance-certificate-signer` | The "Legal-to-Technical" engine; decodes regulations and signs technical evidence. |
+| **Compliance & Intent** | `regulatory-intent-decoder`, `regulation-digest-ingestor`, `policy-schema-generator`, `compliance-integrity-suite`, `compliance-certificate-signer` | The "Legal-to-Technical" refinery; decodes regulations and signs technical evidence. |
 | **Security & Egress** | `zero-egress-validator`, `refinery-architecture-manager`, `secret-scanner`, `secret-rotation-manager`, `red-team-evasion-scanner`, `pii-regression-suite-runner` | The "Fail-Closed" layer; automates PII detection rules and detects "Shadow AI" adoption. |
 | **Business & Infrastructure** | `manage-ocultar-license`, `license-validation-cli`, `tier-compliance-checker`, `pilot-manager`, `roi-cost-efficiency-accountant`, `sombra-gateway-policy-enforcer` | The "Value Layer"; manages Ed25519 licensing, Pilot lifecycles, and financial ROI quantification. |
 
@@ -177,7 +177,7 @@ graph LR
     subgraph "TRUSTED ZONE\n(OCULTAR process boundary)"
         direction TB
         Proxy["proxy.Handler"]
-        Engine["engine.Engine"]
+        Refinery["refinery.Refinery"]
         Vault["vault.Provider"]
         Key["MasterKey\n(in-process memory only)"]
     end
@@ -188,8 +188,8 @@ graph LR
 
     Client -- "raw PII crosses boundary →" --> Proxy
     Proxy -- "tokens only cross boundary →" --> Upstream
-    Engine -- "writes encrypted PII" --> DB
-    Key -- "never leaves process" --> Engine
+    Refinery -- "writes encrypted PII" --> DB
+    Key -- "never leaves process" --> Refinery
 
     style Key fill:#c33,color:#fff,stroke:#900
 ```
@@ -212,7 +212,7 @@ graph TD
     Config["pkg/config\n(zero internal deps)"]
     License["pkg/license"]
     Vault["pkg/vault"]
-    Engine["pkg/engine"]
+    Refinery["pkg/refinery"]
     Proxy["pkg/proxy"]
     Reporter["pkg/reporter"]
     DistCommunity["dist/community\n(main)"]
@@ -221,27 +221,27 @@ graph TD
 
     Vault --> Config
     Vault --> License
-    Engine --> Config
-    Engine --> Vault
-    Engine --> License
-    Proxy --> Engine
+    Refinery --> Config
+    Refinery --> Vault
+    Refinery --> License
+    Proxy --> Refinery
     Proxy --> Vault
-    Reporter --> Engine
-    DistCommunity --> Engine
+    Reporter --> Refinery
+    DistCommunity --> Refinery
     DistCommunity --> Vault
     DistCommunity --> Config
-    DistEnterprise --> Engine
+    DistEnterprise --> Refinery
     DistEnterprise --> Vault
     DistEnterprise --> Config
     DistEnterprise --> Reporter
-    Connectors --> Engine
+    Connectors --> Refinery
     Connectors --> Config
 ```
 
 **Key architecture rules:**
 1. `pkg/config` has zero internal dependencies — it is the root of the dependency tree.
-2. `pkg/engine` does **not** import `pkg/proxy` — the engine knows nothing about HTTP.
-3. `pkg/vault` does **not** import `pkg/engine` — storage is decoupled from redaction logic.
+2. `pkg/refinery` does **not** import `pkg/proxy` — the refinery knows nothing about HTTP.
+3. `pkg/vault` does **not** import `pkg/refinery` — storage is decoupled from redaction logic.
 
 ---
 
@@ -334,14 +334,14 @@ OCULTAR enforces fail-closed at every critical junction:
 |---|---|
 | `protected_entities.json` missing or empty | `log.Fatal` — process refuses to start |
 | `configs/config.yaml` contains invalid regex | `regexp.MustCompile` panics at startup — process refuses to start |
-| Engine error during redaction (any tier) | Proxy returns `500` — un-redacted body is **never forwarded** |
+| Refinery error during redaction (any tier) | Proxy returns `500` — un-redacted body is **never forwarded** |
 | Trial limit reached (`OCU_PILOT_MODE`) | Proxy returns `403` — request is blocked |
-| Obfuscated payload detected (Base64/JWT prefix, URL-encoded JSON) | Engine returns error → proxy returns `403` |
+| Obfuscated payload detected (Base64/JWT prefix, URL-encoded JSON) | Refinery returns error → proxy returns `403` |
 | SSRF attempt in `Ocultar-Target` header | `resolveTarget` returns error → proxy returns `403` |
 | Payload exceeds 5 MB | `MaxBytesReader` triggers → proxy returns `413` |
 | Concurrency limit exceeded (>15 concurrent) | Semaphore blocks for 5 seconds → `429` if not acquired |
 | Token re-hydration key mismatch (key rotation) | Logs error, returns **token unchanged** (fail-safe — no data loss) |
-| SLM inference fails (Enterprise) | Engine returns error → proxy returns `500` |
+| SLM inference fails (Enterprise) | Refinery returns error → proxy returns `500` |
 | Pro Connector initialized without Bitmask license | `log.Printf([WARN])` — connector remains dormant (Fail-Closed) |
 
 > **Re-hydration exception:** Unlike request-side processing which is strictly fail-closed, response-side re-hydration is **fail-safe** — if a token cannot be decrypted (e.g. after a key rotation), the token is returned as-is rather than returning a 500 error. This prevents permanent proxy unavailability while preserving security (the token string itself contains no PII).
@@ -371,4 +371,4 @@ OCULTAR enforces fail-closed at every critical junction:
 - **Request bodies** are read fully into RAM before processing (5 MB cap enforced via `io.MaxBytesReader`).
 - **File uploads** (`/api/refine/file`) use `bufio.Scanner` — line-by-line streaming. Memory overhead is bounded to a single line, not the file size.
 - **SLM batch scan** marshals an entire JSON record to a string once per document — for deeply nested objects, worst-case memory is 2× the JSON document size.
-- **Vault hits map** (`engine.Hits`) is accumulated per-request and protected by `sync.Mutex`. It is reset between requests via `ResetHits()`.
+- **Vault hits map** (`refinery.Hits`) is accumulated per-request and protected by `sync.Mutex`. It is reset between requests via `ResetHits()`.

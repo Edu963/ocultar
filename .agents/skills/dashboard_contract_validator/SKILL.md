@@ -11,7 +11,7 @@ This skill prevents breaking changes in the API from reaching the dashboard. It 
 ## Role
 - **Category**: Integration Validator
 - **Phase**: CI/CD / Pre-Release
-- **Ecosystem Fit**: Acts as a bridge between `services/engine` and `apps/web`.
+- **Ecosystem Fit**: Acts as a bridge between `services/refinery` and `apps/web`.
 
 ## Inputs / Outputs
 
@@ -29,7 +29,7 @@ This skill prevents breaking changes in the API from reaching the dashboard. It 
 | `breaking_changes` | array | List of missing or mismatched fields. |
 
 ## Preconditions
-- The Refinery Engine must be running in a test environment.
+- The Refinery Refinery must be running in a test environment.
 - The `Refinery-Rule-Generator` should have generated a stable set of test PII hits.
 
 ## Instructions

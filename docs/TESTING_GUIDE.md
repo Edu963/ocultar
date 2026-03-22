@@ -6,9 +6,9 @@ This guide helps you test OCULTAR in all three modes: Community CLI/Dashboard, E
 
 ## Part 1: Community Edition — Dashboard Test
 
-The Community edition runs the regex + phone + address engine (Tiers 0–1.5).
+The Community edition runs the regex + phone + address refinery (Tiers 0–1.5).
 
-### Step 1 — Start the engine
+### Step 1 — Start the refinery
 
 ```bash
 # If running from the distribution zip:
@@ -51,7 +51,7 @@ Click **Run Batch Refinery**. The **Clean Asset** panel should show all of the a
 
 The Enterprise edition adds SLM deep-scan (contextual NER) and the SIEM audit log.
 
-### Step 1 — Start the Enterprise engine
+### Step 1 — Start the Enterprise refinery
 
 ```bash
 # From source:

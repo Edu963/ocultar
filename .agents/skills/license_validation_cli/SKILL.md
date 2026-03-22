@@ -1,13 +1,13 @@
 ---
 name: license_validation_cli
-description: Deterministic validator for OCULTAR license tokens. Verifies signature, expiry, and capabilities against the active engine public key.
+description: Deterministic validator for OCULTAR license tokens. Verifies signature, expiry, and capabilities against the active refinery public key.
 ---
 
 # License Validation CLI (v1.1)
 
 ## Purpose
 
-The LVC provides a "Dry-Run" channel to verify license integrity without affecting production runtime. It ensures that tokens are cryptographically aligned with the engine's hardcoded public key.
+The LVC provides a "Dry-Run" channel to verify license integrity without affecting production runtime. It ensures that tokens are cryptographically aligned with the refinery's hardcoded public key.
 
 ## Inputs / Outputs
 
@@ -21,7 +21,7 @@ The LVC provides a "Dry-Run" channel to verify license integrity without affecti
 - `verification_log` (Artifact): Step-by-step verification trace.
 
 ## Preconditions
-- Access to `services/engine/pkg/license/license.go` to extract the public key.
+- Access to `services/refinery/pkg/license/license.go` to extract the public key.
 
 ---
 

@@ -20,7 +20,7 @@ Ocultar aligns with major frameworks like **GDPR**, **HIPAA**, **SOC 2 Type II**
 ## 2. Core Components
 
 ### What is the Live Refinery?
-The **Live Refinery** is the core processing engine. It identifies and redacts sensitive data using a tiered approach, ranging from high-speed dictionary lookups to deep-scan AI analysis using local Small Language Models (SLMs).
+The **Live Refinery** is the core processing refinery. It identifies and redacts sensitive data using a tiered approach, ranging from high-speed dictionary lookups to deep-scan AI analysis using local Small Language Models (SLMs).
 
 ### In Tier 1, where can a client modify a regex, and should this be in the Dashboard?
 Enterprise clients modify regex rules via the `config.yaml` file. Much like the dictionaries, we intend to move this into a "no-code" section of the Dashboard to allow for dynamic updates without restarting the service.
@@ -64,7 +64,7 @@ The main restriction in DuckDB is that it is single-process (not suitable for mu
 The **Dictionary Shield (Tier 0)** is the first line of defense. it uses a mandatory list of protected terms (VIP names, internal project codes, proprietary keywords) to perform instant, exact-match redaction.
 
 ### In Tier 0, how can a client add its own dictionaries?
-Currently, clients add terms by editing the `configs/protected_entities.json` file. This is a "Fail-Closed" dependency; if the file is missing or contains invalid JSON, the engine will refuse to start to ensure no data is processed without the primary shield.
+Currently, clients add terms by editing the `configs/protected_entities.json` file. This is a "Fail-Closed" dependency; if the file is missing or contains invalid JSON, the refinery will refuse to start to ensure no data is processed without the primary shield.
 
 ### Can we connect to external tools like LDAP, CRMs, or Databases for Tier 0?
 OCULTAR does not natively pull from these sources yet. This is a high-priority item on our Enterprise roadmap. Integrating these would allow for automated, real-time "Identity Ingestion" from systems like Salesforce or Active Directory.
@@ -74,7 +74,7 @@ OCULTAR does not natively pull from these sources yet. This is a high-priority i
 ## 3. Security & Privacy Principles
 
 ### What is the "Fail-Closed" guarantee?
-Ocultar is built on a **Fail-Closed** principle: if any part of the security pipeline fails (e.g., a missing config file or an engine error), the request is blocked and never forwarded to the upstream API. Security is prioritized over availability to prevent accidental data leaks.
+Ocultar is built on a **Fail-Closed** principle: if any part of the security pipeline fails (e.g., a missing config file or an refinery error), the request is blocked and never forwarded to the upstream API. Security is prioritized over availability to prevent accidental data leaks.
 
 ### How is data encrypted in the vault?
 Data is encrypted using **AES-256-GCM** with a master key (`OCU_MASTER_KEY`) that exists only in-process RAM during execution. Even if the vault file is compromised, the content is unreadable without the master key.
@@ -97,7 +97,7 @@ Yes. Every component is architected to minimize data exposure. Clear trust bound
 ## 5. Typical Workflows
 
 ### What is the difference between Pilot and Enterprise workflows?
-- **Pilot**: A 90-day structured onboarding focused on engine deployment, PII pattern tuning, and weekly compliance reports.
+- **Pilot**: A 90-day structured onboarding focused on refinery deployment, PII pattern tuning, and weekly compliance reports.
 - **Enterprise**: Full-scale production deployment with high-availability (PostgreSQL), SIEM integration, and ongoing ROI accounting.
 
 ### How can I update Refinery rules?
@@ -146,7 +146,7 @@ Latency is minimal. Tier 0 and Tier 1 (Regex/Dictionary) run at disk speed. Tier
 Yes. Ocultar supports horizontal scaling in Enterprise mode using a PostgreSQL HA Vault, allowing multiple proxy instances to share the same identity mappings.
 
 ### How does the system handle slow AI models?
-Ocultar Enterprise uses a **Fail-Closed** design for SLM scans. If the AI model (e.g., Qwen or Phi) takes longer than 5 seconds to respond, the engine defaults to high-security mode (redacting chunks it cannot verify). We recommend using ultra-light models (< 1B parameters) and the **SLM AI Relay** for caching to maintain real-time performance.
+Ocultar Enterprise uses a **Fail-Closed** design for SLM scans. If the AI model (e.g., Qwen or Phi) takes longer than 5 seconds to respond, the refinery defaults to high-security mode (redacting chunks it cannot verify). We recommend using ultra-light models (< 1B parameters) and the **SLM AI Relay** for caching to maintain real-time performance.
 
 ---
 

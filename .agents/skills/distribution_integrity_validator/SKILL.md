@@ -51,7 +51,7 @@ This skill serves as the final, immutable gate in the Ocultar distribution pipel
 
 ### 4. Security & Redaction Smoke Test
 1. Execute the internal `smoke_test.sh` logic (or equivalent test runner).
-2. **Mandatory Check**: Send a PII-heavy payload and verify that the core engine intercepts and redacts/pseudonymizes as per the global policy.
+2. **Mandatory Check**: Send a PII-heavy payload and verify that the core refinery intercepts and redacts/pseudonymizes as per the global policy.
 3. **Web Dashboard**: Verify the Enterprise Dashboard is reachable and serving valid localized assets.
 
 ### 5. Teardown & Reporting

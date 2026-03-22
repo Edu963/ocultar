@@ -7,7 +7,7 @@ description: Production-grade orchestrator for the PII Regression Suite.
 
 ## Purpose
 
-PRSR acts as the ultimate quality gate (Step 11). It ensures that no change to detection rules or engine logic degrades the "Recall" of sensitive data. It enforces a strict "No Regressions" policy for Tier 0 categories.
+PRSR acts as the ultimate quality gate (Step 11). It ensures that no change to detection rules or refinery logic degrades the "Recall" of sensitive data. It enforces a strict "No Regressions" policy for Tier 0 categories.
 
 ## Inputs / Outputs
 
@@ -34,7 +34,7 @@ PRSR acts as the ultimate quality gate (Step 11). It ensures that no change to d
 - **Constraint**: Never log raw PII. Use token offsets for reporting.
 
 ### 2. Differential Execution
-- Run the engine over the ground-truth set.
+- Run the refinery over the ground-truth set.
 - Compare hits.
 - **Regressions**:
     - **Tier 0 (SSN, Keys)**: 1 missed hit = `FAIL`.
@@ -42,10 +42,10 @@ PRSR acts as the ultimate quality gate (Step 11). It ensures that no change to d
 
 ### 3. State Registration
 - Commit results to `ecosystem-state-tracker`.
-- Use `state_id` derived from `(engine_version + rule_set_hash)`.
+- Use `state_id` derived from `(refinery_version + rule_set_hash)`.
 
 ## Failure Handling
-- **`ENGINE_CRASH`**: Immediate `FAIL`.
+- **`REFINERY_CRASH`**: Immediate `FAIL`.
 - **`RESOURCE_EXHAUSTED`**: If P95 latency > 200ms, flag as `PERFORMANCE_REGRESSION`.
 
 ## Postconditions

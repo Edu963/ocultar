@@ -10,7 +10,7 @@
 2. [Development Environment](#2-development-environment)
 3. [Running Tests](#3-running-tests)
 4. [Package Overview](#4-package-overview)
-5. [Extending the Engine](#5-extending-the-engine)
+5. [Extending the Refinery](#5-extending-the-refinery)
    - [Adding a Detection Rule (no recompile)](#51-adding-a-detection-rule-no-recompile)
    - [Adding a New Detection Tier (code)](#52-adding-a-new-detection-tier-code)
    - [Adding a Vault Backend](#53-adding-a-vault-backend)
@@ -33,7 +33,7 @@ ocultar/                          ← root — shared library (github.com/Edu963
 │
 ├── pkg/                            ← all importable packages
 │   ├── config/       config.go     ← settings, regex/dict rules, fail-closed startup
-│   ├── engine/       engine.go     ← core redaction pipeline (RefineString, ProcessInterface)
+│   ├── refinery/       refinery.go     ← core redaction pipeline (RefineString, ProcessInterface)
 │   │                 phone_parser.go
 │   │                 address_parser.go
 │   ├── vault/        vault.go      ← Provider interface + factory (New)
@@ -156,11 +156,11 @@ export OCU_LICENSE_KEY="your-enterprise-key"
 go test ./...
 
 # Run a specific package
-go test ./pkg/engine/...
+go test ./pkg/refinery/...
 go test ./pkg/proxy/...
 go test ./pkg/vault/...
 
-# Run with race detector (recommended for proxy/engine concurrency tests)
+# Run with race detector (recommended for proxy/refinery concurrency tests)
 go test -race ./...
 
 # Run fail-closed proxy tests specifically
@@ -175,11 +175,11 @@ go tool cover -html=coverage.out
 
 | File | What it covers |
 |---|---|
-| `pkg/engine/engine_test.go` | Core redaction correctness (email, phone, IBAN, address, base64, nested JSON) |
-| `pkg/engine/phone_parser_test.go` | International phone number parsing edge cases |
-| `pkg/engine/address_parser_test.go` | European/LATAM address heuristics |
+| `pkg/refinery/refinery_test.go` | Core redaction correctness (email, phone, IBAN, address, base64, nested JSON) |
+| `pkg/refinery/phone_parser_test.go` | International phone number parsing edge cases |
+| `pkg/refinery/address_parser_test.go` | European/LATAM address heuristics |
 | `pkg/proxy/proxy_test.go` | End-to-end proxy redaction with a mock upstream |
-| `pkg/proxy/fail_closed_test.go` | Ensures engine errors return 4xx/5xx and never forward un-redacted data |
+| `pkg/proxy/fail_closed_test.go` | Ensures refinery errors return 4xx/5xx and never forward un-redacted data |
 | `pkg/vault/vault_test.go` | StoreToken idempotency, GetToken lookup, CountAll |
 
 ---
@@ -187,26 +187,26 @@ go tool cover -html=coverage.out
 ## 4. Package Overview
 
 ```
-pkg/config   ──► loaded once at startup ──► pkg/engine reads config.Global
+pkg/config   ──► loaded once at startup ──► pkg/refinery reads config.Global
                                         ──► pkg/vault reads cfg.VaultBackend
 pkg/vault    ──► Provider interface ──► duckdbProvider (default)
                                    ──► postgresProvider (Enterprise)
-pkg/engine   ──► RefineString / ProcessInterface
+pkg/refinery   ──► RefineString / ProcessInterface
              ──► depends on: pkg/config, pkg/vault, pkg/license
              ──► optional: AuditLogger, AIScanner (injected post-construction)
-pkg/proxy    ──► http.Handler wrapping pkg/engine
-             ──► depends on: pkg/engine, pkg/vault
+pkg/proxy    ──► http.Handler wrapping pkg/refinery
+             ──► depends on: pkg/refinery, pkg/vault
 ```
 
 **Dependency rules (enforced by import graph):**
 - `pkg/config` has **zero** internal dependencies (it only uses stdlib).
-- `pkg/vault` depends on `pkg/config` and `pkg/license` — never on `pkg/engine`.
-- `pkg/engine` depends on `pkg/config`, `pkg/vault`, `pkg/license` — never on `pkg/proxy`.
-- `pkg/proxy` sits at the top of the stack; it may import `pkg/engine` and `pkg/vault`.
+- `pkg/vault` depends on `pkg/config` and `pkg/license` — never on `pkg/refinery`.
+- `pkg/refinery` depends on `pkg/config`, `pkg/vault`, `pkg/license` — never on `pkg/proxy`.
+- `pkg/proxy` sits at the top of the stack; it may import `pkg/refinery` and `pkg/vault`.
 
 ---
 
-## 5. Extending the Engine
+## 5. Extending the Refinery
 
 ### 5.1 Adding a Detection Rule (no recompile)
 
@@ -234,7 +234,7 @@ Restart the enterprise binary. Changes take effect at next startup (no recompila
 
 ### 5.2 Adding a New Detection Tier (code)
 
-To add a new Tier inside `RefineString` in `pkg/engine/engine.go`:
+To add a new Tier inside `RefineString` in `pkg/refinery/refinery.go`:
 
 1. **Write a parser function** following the existing pattern:
    ```go
@@ -253,7 +253,7 @@ To add a new Tier inside `RefineString` in `pkg/engine/engine.go`:
    }
    ```
 
-3. **Add tests** in `pkg/engine/engine_test.go` following the pattern in `TestRefineString`.
+3. **Add tests** in `pkg/refinery/refinery_test.go` following the pattern in `TestRefineString`.
 
 > **Important:** Never return partial output when `err != nil`. The caller always discards output on error.
 
@@ -285,12 +285,12 @@ To add a new Tier inside `RefineString` in `pkg/engine/engine.go`:
 
 ## 6. Embedding OCULTAR as a Go Library
 
-You can import the engine directly into your own Go service:
+You can import the refinery directly into your own Go service:
 
 ```go
 import (
     "github.com/Edu963/ocultar/pkg/config"
-    "github.com/Edu963/ocultar/pkg/engine"
+    "github.com/Edu963/ocultar/pkg/refinery"
     "github.com/Edu963/ocultar/pkg/vault"
     "crypto/sha256"
 )
@@ -311,8 +311,8 @@ func main() {
     }
     defer v.Close()
 
-    // 4. Construct the engine
-    eng := engine.NewEngine(v, masterKey)
+    // 4. Construct the refinery
+    eng := refinery.NewRefinery(v, masterKey)
 
     // 5. Refine a string
     refined, err := eng.RefineString("Call me at john@example.com", "system", nil)
@@ -336,11 +336,11 @@ func main() {
 | Area | Convention |
 |---|---|
 | **Error handling** | Always return errors; never panic in `pkg/` packages (only `main` and config loading may `log.Fatal`). |
-| **Fail-closed** | Engine errors must **block** processing — never forward partially-processed data. |
+| **Fail-closed** | Refinery errors must **block** processing — never forward partially-processed data. |
 | **Thread safety** | All shared state (e.g. `Hits` map) must be protected by a mutex. Use `atomic.Int64` for counters. |
 | **No side effects in tests** | Tests must not rely on disk state. Use `:memory:` for vault and `config.InitDefaults()`. |
 | **Token format** | `[TYPE_XXXXXXXX]` where `XXXXXXXX` is the first 8 hex characters of the SHA-256 of the original PII. Never change this format — it breaks existing vaults. |
-| **Logging** | Use stdlib `log`. Prefix proxy messages `[PROXY]`, engine messages `[ENGINE]`, config messages `[config]`. |
+| **Logging** | Use stdlib `log`. Prefix proxy messages `[PROXY]`, refinery messages `[REFINERY]`, config messages `[config]`. |
 | **Imports** | `stdlib` → `external` → `internal` (the standard Go import grouping). |
 
 ---
@@ -365,7 +365,7 @@ Skills are triggered automatically by the agent during the task lifecycle. Ensur
 OCULTAR Enterprise supports high-scan PII detection using local Small Language Models (SLMs) via a **native CGO integration** with `llama.cpp`. This replaces the legacy Python-based relay and Ollama fallback logic.
 
 ### Architecture
-- **Direct Linkage**: The engine links directly against `libllama.so` (or `.a`) using CGO.
+- **Direct Linkage**: The refinery links directly against `libllama.so` (or `.a`) using CGO.
 - **Performance**: Zero-latency inference — no HTTP overhead or Python process management.
 - **Fail-Closed**: A strict **5-second context timeout** is enforced via a C-land abort callback.
 
@@ -377,14 +377,14 @@ export SLM_MODEL_PATH="models/qwen-1.5b-q4_k_m.gguf"
 ```
 
 ### Build Requirements
-Compiling the engine now requires `llama.cpp` headers and the corresponding Shared Object (`.so`) or archive (`.a`) in your library path.
+Compiling the refinery now requires `llama.cpp` headers and the corresponding Shared Object (`.so`) or archive (`.a`) in your library path.
 ```bash
 # Example build on Linux
 go build -o ocultar-enterprise ./dist/enterprise
 ```
 
 ### Model selection
-The engine is optimized for **Qwen 1.5B Q4_K_M** GGUF models (~1.2 GB VRAM). Other models (Phi-3, Mistral) are compatible if they follow the GGUF standard.
+The refinery is optimized for **Qwen 1.5B Q4_K_M** GGUF models (~1.2 GB VRAM). Other models (Phi-3, Mistral) are compatible if they follow the GGUF standard.
 
 ---
 

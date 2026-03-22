@@ -32,5 +32,5 @@ The Content Redactor ensures that the final "deliverable" (the package the clien
 ## Examples
 
 ### Scenario: Preparing a Community Build
-- **Input**: A `dist/` folder containing `ocultar-engine` and a lingering `.env.local`.
+- **Input**: A `dist/` folder containing `ocultar-refinery` and a lingering `.env.local`.
 - **Action**: Delete `.env.local` and verify that the `config.yaml` uses default placeholders.

@@ -36,7 +36,7 @@ Identify the subtrees related to the `target_domain`:
 | **DOCS** | `docs/` | Operational workflows and deployment logs. |
 | **PILOT** | `docs/pilot/` | Onboarding materials and pilot playbooks. |
 | **REPORTS** | `docs/internal/` | Compliance reports and deep research. |
-| **CONNECTORS**| `services/engine/pkg/connector/` | Third-party ingestion logic. |
+| **CONNECTORS**| `services/refinery/pkg/connector/` | Third-party ingestion logic. |
 
 ### 2. Metadata Enrichment
 For each file in the domain, extract:
@@ -55,7 +55,7 @@ For each file in the domain, extract:
 
 ### Example: API Documentation Check
 - **Input**: `target_domain` = `CORE`.
-- **Action**: Map all files in `documentation/`. Match `API_REFERENCE.md` against the engine's current routes.
+- **Action**: Map all files in `documentation/`. Match `API_REFERENCE.md` against the refinery's current routes.
 
 ### Example: Connector Discovery
 - **Input**: `target_domain` = `CONNECTORS`.

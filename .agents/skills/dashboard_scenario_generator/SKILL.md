@@ -6,7 +6,7 @@ description: Demo Orchestrator for the Ocultar Enterprise Dashboard. Provisions 
 # Dashboard Scenario Generator
 
 ## Purpose
-To demonstrate the value of OCULTAR without needing live sensitive data. This skill allows Sales and Engineering teams to "inject" specific security scenarios into the dashboard to visualize how the system reacts to threats.
+To demonstrate the value of OCULTAR without needing live sensitive data. This skill allows Sales and Refineryering teams to "inject" specific security scenarios into the dashboard to visualize how the system reacts to threats.
 
 ## Role
 - **Category**: Orchestrator / Simulation

@@ -51,7 +51,7 @@
 | Requirement | Details |
 |---|---|
 | **Go** | 1.22+ |
-| **OCULTAR** | The core engine repo cloned and buildable (Sombra imports `github.com/Edu963/ocultar/pkg/engine`) |
+| **OCULTAR** | The core refinery repo cloned and buildable (Sombra imports `github.com/Edu963/ocultar/pkg/refinery`) |
 | **`OCU_MASTER_KEY`** | Same key used by OCULTAR — Sombra shares the vault |
 | **LLM API key(s)** | At least one: `OPENAI_API_KEY`, `GEMINI_API_KEY`, or a local Ollama endpoint |
 
@@ -195,7 +195,7 @@ POST /query
 
 Sombra will:
 1. Read the file
-2. Pass it through the OCULTAR engine (all PII → tokens)
+2. Pass it through the OCULTAR refinery (all PII → tokens)
 3. Send the sanitised content + your prompt to `gpt-4o`
 4. Rehydrate tokens in the response before returning it
 
@@ -286,16 +286,16 @@ Content-Type: application/json
 
 ## 8. How Sombra Integrates with OCULTAR
 
-Sombra imports and wraps the OCULTAR engine directly:
+Sombra imports and wraps the OCULTAR refinery directly:
 
 ```
 Client → POST /query
   → Sombra reads connector data (if any)
-  → Sombra calls engine.ProcessInterface() — same pipeline as OCULTAR
+  → Sombra calls refinery.ProcessInterface() — same pipeline as OCULTAR
       [Tier 0 Dictionary → Tier 1 Regex → Tier 1.1 Phone → Tier 1.2 Address → Tier 2 AI]
   → Sombra forwards sanitised data + prompt to the selected LLM
   → Sombra receives LLM response
-  → Sombra calls engine.DecryptToken() for each token in the response
+  → Sombra calls refinery.DecryptToken() for each token in the response
   → Client receives rehydrated response
 ```
 
@@ -309,10 +309,10 @@ Sombra and OCULTAR share the **same vault file** (`vault_path` in `sombra.yaml` 
 
 | Component | Key derivation |
 |---|---|
-| OCULTAR core engine | `SHA-256(OCU_MASTER_KEY)` |
+| OCULTAR core refinery | `SHA-256(OCU_MASTER_KEY)` |
 | Sombra gateway | `HKDF-SHA256(OCU_MASTER_KEY, OCU_SALT, "ocultar-aes-key")` |
 
-> ⚠️ Because Sombra uses HKDF and the core engine uses SHA-256, **the same PII will produce different ciphertexts in each component** — but the same *token* (because the token is derived from SHA-256 of the PII, not the ciphertext). Both components can look up and rehydrate each other's tokens correctly, as long as they point to the same vault file.
+> ⚠️ Because Sombra uses HKDF and the core refinery uses SHA-256, **the same PII will produce different ciphertexts in each component** — but the same *token* (because the token is derived from SHA-256 of the PII, not the ciphertext). Both components can look up and rehydrate each other's tokens correctly, as long as they point to the same vault file.
 
 ---
 

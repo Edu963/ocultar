@@ -48,4 +48,4 @@ The SPB ensures that "Security Latency" stays within acceptable human-interactiv
 - **`COLD_START_BIAS`**: If the first request is slow due to cache Misses, perform 5 warm-up runs before measuring.
 
 ## Postconditions
-- Artifact: Final performance snapshot must be saved to `services/engine/bench/results.json`.
+- Artifact: Final performance snapshot must be saved to `services/refinery/bench/results.json`.

@@ -26,7 +26,7 @@ Ensures that all code and documentation conform to the canonical names and struc
 
 ### Step 2 – Structural Validation
 - Verify that files are located in their canonical component paths.
-- **Example**: A connector must reside in `services/engine/pkg/connector/`.
+- **Example**: A connector must reside in `services/refinery/pkg/connector/`.
 
 ### Step 3 – Fix Generation
 - For every violation, provide a `sed` or `mv` command to remediate.

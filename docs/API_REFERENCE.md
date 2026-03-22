@@ -8,7 +8,7 @@
 ## Table of Contents
 
 1. [Environment Variables](#1-environment-variables)
-2. [Engine Package (`pkg/engine`)](#2-engine-package-pkgengine)
+2. [Refinery Package (`pkg/refinery`)](#2-refinery-package-pkgrefinery)
    - [Types & Interfaces](#21-types--interfaces)
    - [Constructor](#22-constructor)
    - [Methods](#23-methods)
@@ -36,18 +36,18 @@ All environment variables are read at startup by the `main` entrypoint. No varia
 | `OCU_PROXY_PORT` | Proxy mode | Port the proxy listener binds to. Defaults to `8080`. | `8080` |
 | `OCU_VAULT_PATH` | Optional | Override the DuckDB vault file path. Defaults to `vault.db`. Use `:memory:` for ephemeral operation. | `/data/vault.db` |
 | `OCU_PILOT_MODE` | Optional | Set to `true` to enforce a hard vault entry cap (pilot/trial limitation). | `true` |
-| `OCU_SALT` | Optional | Extra entropy injected into key derivation in the Sombra gateway (`github.com/Edu963/sombra`). Not used by the core engine. | `random-string` |
+| `OCU_SALT` | Optional | Extra entropy injected into key derivation in the Sombra gateway (`github.com/Edu963/sombra`). Not used by the core refinery. | `random-string` |
 
 ---
 
-## 2. Engine Package (`pkg/engine`)
+## 2. Refinery Package (`pkg/refinery`)
 
 ### 2.1 Types & Interfaces
 
-#### `Engine`
+#### `Refinery`
 
 ```go
-type Engine struct {
+type Refinery struct {
     Vault       vault.Provider
     MasterKey   []byte
     DryRun      bool
@@ -128,7 +128,7 @@ type DryRunReport struct {
 
 | Field | Description |
 |---|---|
-| `Mode` | `"dry-run"`, `"report"`, or `"serve"` depending on engine configuration. |
+| `Mode` | `"dry-run"`, `"report"`, or `"serve"` depending on refinery configuration. |
 | `FilesIn` | Number of files/payloads processed in the session. |
 | `Hits` | Map of PII type → list of truncated hashes (e.g. `{"EMAIL": ["af2101fb…"]}`). |
 | `TotalCount` | Sum of all PII hits across all types. |
@@ -138,19 +138,19 @@ type DryRunReport struct {
 
 ### 2.2 Constructor
 
-#### `NewEngine`
+#### `NewRefinery`
 
 ```go
-func NewEngine(v vault.Provider, key []byte) *Engine
+func NewRefinery(v vault.Provider, key []byte) *Refinery
 ```
 
-Creates an `Engine` with the given vault provider and master key. Initialises `VaultCount` from the vault's existing entry count. Sets `AuditLogger` to `NoopAuditLogger` and `AIScanner` to `NoopAIScanner` — replace them after construction for Enterprise mode.
+Creates an `Refinery` with the given vault provider and master key. Initialises `VaultCount` from the vault's existing entry count. Sets `AuditLogger` to `NoopAuditLogger` and `AIScanner` to `NoopAIScanner` — replace them after construction for Enterprise mode.
 
 **Parameters:**
 - `v` — vault backend (return value of `vault.New()`).
 - `key` — 32-byte AES key (SHA-256 hash of `OCU_MASTER_KEY`).
 
-**Returns:** `*Engine` — ready to use; never `nil`.
+**Returns:** `*Refinery` — ready to use; never `nil`.
 
 ---
 
@@ -159,7 +159,7 @@ Creates an `Engine` with the given vault provider and master key. Initialises `V
 #### `RefineString`
 
 ```go
-func (e *Engine) RefineString(input string, actor string, preScanMap map[string][]string) (string, error)
+func (e *Refinery) RefineString(input string, actor string, preScanMap map[string][]string) (string, error)
 ```
 
 Core redaction function. Orchestrates all detection tiers on a flat string.
@@ -171,8 +171,8 @@ Core redaction function. Orchestrates all detection tiers on a flat string.
 | 0.1 | Embedded Base64 Evasion | Inline in `RefineString` |
 | 0.5 | Dictionary Shield | `config.Global.Dictionaries` |
 | 1 | Dynamic Regex Shields | `config.Global.Regexes` (email, URL, custom) |
-| 1.1 | Phone Shield | `pkg/engine/phone_parser.go` (`libphonenumber`) |
-| 1.2 | Address Shield | `pkg/engine/address_parser.go` |
+| 1.1 | Phone Shield | `pkg/refinery/phone_parser.go` (`libphonenumber`) |
+| 1.2 | Address Shield | `pkg/refinery/address_parser.go` |
 | 1.5 | Greeting & Signature Shield | `greetingRegex` |
 | 2 | AI NER Scan | `AIScanner` (Enterprise only) |
 
@@ -190,7 +190,7 @@ Core redaction function. Orchestrates all detection tiers on a flat string.
 #### `ProcessInterface`
 
 ```go
-func (e *Engine) ProcessInterface(data interface{}, actor string) (interface{}, error)
+func (e *Refinery) ProcessInterface(data interface{}, actor string) (interface{}, error)
 ```
 
 Recursively traverses a JSON-decoded Go value (`map[string]interface{}`, `[]interface{}`, or `string`). Handles:
@@ -210,7 +210,7 @@ Recursively traverses a JSON-decoded Go value (`map[string]interface{}`, `[]inte
 #### `GenerateReport`
 
 ```go
-func (e *Engine) GenerateReport(filesScanned int) DryRunReport
+func (e *Refinery) GenerateReport(filesScanned int) DryRunReport
 ```
 
 Aggregates the in-session PII hit map (accumulated by `getOrSetSecureToken`) into a `DryRunReport`. Thread-safe.
@@ -223,7 +223,7 @@ Aggregates the in-session PII hit map (accumulated by `getOrSetSecureToken`) int
 #### `ResetHits`
 
 ```go
-func (e *Engine) ResetHits()
+func (e *Refinery) ResetHits()
 ```
 
 Clears the in-memory hit map. Call between requests in serve mode to prevent cross-contamination of reports. Thread-safe.
@@ -395,13 +395,13 @@ Implements `http.Handler`. Constructed via `NewHandler`.
 ### `NewHandler`
 
 ```go
-func NewHandler(eng *engine.Engine, v vault.Provider, masterKey []byte, targetURL string) (*Handler, error)
+func NewHandler(eng *refinery.Refinery, v vault.Provider, masterKey []byte, targetURL string) (*Handler, error)
 ```
 
 **Parameters:**
-- `eng` — shared engine instance.
+- `eng` — shared refinery instance.
 - `v` — vault provider for re-hydration lookups.
-- `masterKey` — decryption key (same as `engine.MasterKey`).
+- `masterKey` — decryption key (same as `refinery.MasterKey`).
 - `targetURL` — default upstream URL (value of `OCU_PROXY_TARGET`).
 
 **Returns:** `(*Handler, error)` — error if `targetURL` cannot be parsed.
@@ -509,7 +509,7 @@ The proxy (`docker-compose.proxy.yml`) exposes port `8080` by default.
 
 ```
 Client POST ──► [5 MB cap] ──► obfuscation check
-    ──► engine.ProcessInterface (Tier 0→2 redaction)
+    ──► refinery.ProcessInterface (Tier 0→2 redaction)
         → on error → 403 / 500 (fail-closed, never forwards un-redacted data)
     ──► forward sanitised body to upstream
     ──► read upstream response
@@ -521,7 +521,7 @@ Client POST ──► [5 MB cap] ──► obfuscation check
 
 ## 8. Error Reference
 
-### Engine Errors
+### Refinery Errors
 
 | Error string | Cause | Resolution |
 |---|---|---|
@@ -536,10 +536,10 @@ Client POST ──► [5 MB cap] ──► obfuscation check
 |---|---|
 | `200 OK` | Request processed and forwarded successfully. |
 | `400 Bad Request` | Body could not be parsed (returned by upstream, passed through). |
-| `403 Forbidden` | Engine blocked the request (trial limit, SSRF attempt, obfuscated payload). |
+| `403 Forbidden` | Refinery blocked the request (trial limit, SSRF attempt, obfuscated payload). |
 | `413 Request Entity Too Large` | Payload exceeds 5 MB. |
 | `429 Too Many Requests` | Concurrency semaphore full — retry after a short delay. |
-| `500 Internal Server Error` | Engine error during redaction. Un-redacted data was **not** forwarded. |
+| `500 Internal Server Error` | Refinery error during redaction. Un-redacted data was **not** forwarded. |
 | `502 Bad Gateway` | Upstream returned an error or connection failed. |
 
 ### Config / Startup Fatal Errors
@@ -553,7 +553,7 @@ Client POST ──► [5 MB cap] ──► obfuscation check
 | `[vault] vault_backend is 'postgres' but postgres_dsn is not set` | Missing `postgres_dsn` in `config.yaml`. |
 ## 9. Sombra Gateway Configuration
 
-The Sombra Gateway (`github.com/Edu963/sombra`) adds an extra layer of policy enforcement on top of the OCULTAR engine.
+The Sombra Gateway (`github.com/Edu963/sombra`) adds an extra layer of policy enforcement on top of the OCULTAR refinery.
 
 ### Connector Policy
 

@@ -50,7 +50,7 @@ Inside the folder, open the `scripts/` folder and run the launcher for your syst
 1. Right-click `scripts\setup-community.ps1`
 2. Select **Run with PowerShell**
 3. If a blue box pops up saying "Windows protected your PC", click **More info** then **Run anyway**. If prompted about execution policy, type `Y` and press Enter.
-4. The script automatically generates your encryption keys and starts the engine.
+4. The script automatically generates your encryption keys and starts the refinery.
 
 **Mac / Linux (Community & Enterprise):**
 1. Open your Terminal.
@@ -77,7 +77,7 @@ You should see the OCULTAR Live Dashboard with the input panel on the left.
 OCULTAR uses an **Offline Ed25519** model. To activate:
 1. Locate your `OCU_LICENSE_KEY` (provided by the Ocultar account team).
 2. Paste it into your `.env` file: `OCU_LICENSE_KEY=Signature.Payload`.
-3. Restart the engine. The dashboard will now unlock the **Risk Matrix** and **ROI Analytics**.
+3. Restart the refinery. The dashboard will now unlock the **Risk Matrix** and **ROI Analytics**.
 
 ### 2. Pilot "Proof of Value" (PoV)
 Every Enterprise pilot follows a structured 14-day lifecycle (managed by the `Pilot-Manager` skill):
@@ -94,7 +94,7 @@ Every Enterprise pilot follows a structured 14-day lifecycle (managed by the `Pi
 | Area | What it does |
 |---|---|
 | **Sidebar** | Navigate between Live Refinery, Identity Vault (future), Audit Logs (future) |
-| **System Status** (bottom-left) | Shows Lead Shield (regex engine) status and engine version |
+| **System Status** (bottom-left) | Shows Lead Shield (regex refinery) status and refinery version |
 | **Metrics Bar** | Live count of entities scrubbed, Privacy ROI, Vault reuse rate, Deep Scan health |
 
 ### The Refinery Controls
@@ -125,14 +125,14 @@ Every Enterprise pilot follows a structured 14-day lifecycle (managed by the `Pi
    Regards, [PERSON_5e4f3a2b]
    ```
 
-4. The **Egress Feed** (the live log panel) shows internal engine events:
+4. The **Egress Feed** (the live log panel) shows internal refinery events:
    - `REF_MATCH` — a PII type was intercepted
    - `VAULT_SAVE` — a new encrypted token was stored
    - `VAULT_LOCK` — the vault security handshake
 
 ### Testing with Large Files
 
-To process a large `.csv` or `.json` file directly through the engine (bypassing the browser):
+To process a large `.csv` or `.json` file directly through the refinery (bypassing the browser):
 
 ```bash
 curl -F "file=@my_large_data.csv" http://localhost:9090/api/refine/file > cleaned_data.csv

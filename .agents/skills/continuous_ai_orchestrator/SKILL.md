@@ -39,7 +39,7 @@ Map the `impact_matrix` to an **Execution Profile**:
 
 | Impact Domain | Profile | Mandatory Skills |
 | :--- | :--- | :--- |
-| **Engine / Sombra** | `CORE_SECURITY` | `ai-development-protocol`, `secret-scanner`, `security-advisory-scanner`, `red-team-evasion-scanner` |
+| **Refinery / Sombra** | `CORE_SECURITY` | `ai-development-protocol`, `secret-scanner`, `security-advisory-scanner`, `red-team-evasion-scanner` |
 | **PII / Policy** | `PRIVACY_COMPLIANCE`| `policy-schema-generator`, `policy-impact-simulator`, `compliance-integrity-suite` |
 | **Docs Only** | `DOCS_SYNC` | `compliance-docs-orchestrator` |
 | **Dashboard** | `UI_INTEGRITY` | `enterprise-dashboard-integrity-checker`, `ui-regression-orchestrator` |

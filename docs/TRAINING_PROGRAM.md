@@ -8,7 +8,7 @@ This course is designed to equip all internal team members—sales, marketing, d
 **Expected Outcomes**
 By the end of this course, you will be able to:
 1. Explain the fundamental problem OCULTAR solves and why our Zero-Egress architecture is unique.
-2. Understand the components of the platform, including the core engine, the Enterprise Dashboard, and the Sombra Gateway.
+2. Understand the components of the platform, including the core refinery, the Enterprise Dashboard, and the Sombra Gateway.
 3. Install and run OCULTAR and Sombra locally or via Docker.
 4. Test the system using actual sensitive data (PII) to see the live redaction and rehydration.
 5. Troubleshoot common setup and connectivity issues.
@@ -33,7 +33,7 @@ Unlike tools like AWS Macie or Google DLP, which require sending your data to *t
 
 OCULTAR is composed of several independent but cooperating components:
 
-1. **The Live Refinery (Engine):** The core processor that redacts PII using three tiers of defense:
+1. **The Live Refinery (Refinery):** The core processor that redacts PII using three tiers of defense:
    - *Tier 0 (Dictionary Shield):* Exact matches for VIPs and custom internal terms.
    - *Tier 1 (Lead Shield):* High-speed Regex (Phones, URLs, IBANs, Emails).
    - *Tier 2 (Deep Scan):* Local SLM (Small Language Model) for contextual NER (Named Entity Recognition).
@@ -100,7 +100,7 @@ You can access the Dashboard at `http://localhost:8080` (or the port defined in 
      -H "Content-Type: application/json" \
      -d '{"messages": [{"role": "user", "content": "My email is eduardo@test.com and phone is +33 6 12 34 56 78."}]}'
 
-   # For Enterprise Engine Testing (port 9090)
+   # For Enterprise Refinery Testing (port 9090)
    curl -X POST http://localhost:9090/api/refine \
      -d '{"messages": [{"role": "user", "content": "My email is eduardo@test.com and phone is +33 6 12 34 56 78."}]}'
    ```
@@ -190,6 +190,6 @@ Traditional exams are not used here. Instead, employees will prove operational c
 After completing this course, reference the following materials for in-depth technical knowledge:
 1. **PITCH.md**: For sales and marketing messaging on Value Proposition.
 2. **FAQ.md**: The definitive "cheat sheet" for answering complex client questions on zero-egress, pricing, and latency.
-3. **ARCHITECTURE.md**: For developers wanting to understand the Go Engine structure.
+3. **ARCHITECTURE.md**: For developers wanting to understand the Go Refinery structure.
 4. **SOMBRA_GUIDE.md**: Detailed instructions on configuring Multi-Model routing and connectors.
-5. **DEVELOPER_GUIDE.md**: Internal code standards, CI/CD checklist, and engine extension tutorials.
+5. **DEVELOPER_GUIDE.md**: Internal code standards, CI/CD checklist, and refinery extension tutorials.

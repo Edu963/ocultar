@@ -1,6 +1,6 @@
 # OCULTAR | Connectors Guide
 
-> **Audience:** DevOps engineers and developers who need to ingest data from external platforms (Slack, SharePoint, etc.) into OCULTAR.
+> **Audience:** DevOps refineryers and developers who need to ingest data from external platforms (Slack, SharePoint, etc.) into OCULTAR.
 
 ---
 
@@ -64,7 +64,7 @@ Connectors are configured via the environment variables (for basic usage) or via
 
 Every connector follows the **Refinery-First** principle:
 1. Data is fetched from the source (e.g., Slack API).
-2. Data is immediately passed to `pkg/engine.ProcessInterface`.
+2. Data is immediately passed to `pkg/refinery.ProcessInterface`.
 3. Only the **refined** (redacted) data is logged or forwarded.
 4. All secrets (API keys, tokens) stay within the secure OCULTAR environment.
 
@@ -76,7 +76,7 @@ To build a new connector, implement the `Connector` interface in `pkg/connector`
 type Connector interface {
     ID() string
     Type() string
-    Init(config map[string]interface{}, eng *engine.Engine) error
+    Init(config map[string]interface{}, eng *refinery.Refinery) error
     Start() error
     Stop() error
 }

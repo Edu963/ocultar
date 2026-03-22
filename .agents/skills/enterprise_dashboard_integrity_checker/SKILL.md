@@ -7,7 +7,7 @@ description: Production-grade validator for the Ocultar Enterprise Dashboard. En
 
 ## Purpose
 
-The EDIC ensures that the visual representation of compliance (the Dashboard) is technically accurate. It prevents "Green-Washing" by verifying that UI metrics are directly derived from the Engine's state.
+The EDIC ensures that the visual representation of compliance (the Dashboard) is technically accurate. It prevents "Green-Washing" by verifying that UI metrics are directly derived from the Refinery's state.
 
 ## Inputs / Outputs
 

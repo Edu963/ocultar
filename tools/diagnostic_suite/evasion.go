@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/Edu963/ocultar/pkg/config"
-	"github.com/Edu963/ocultar/pkg/engine"
+	"github.com/Edu963/ocultar/pkg/refinery"
 	"github.com/Edu963/ocultar/vault"
 )
 
@@ -27,7 +27,7 @@ func main() {
 	defer v.Close()
 
 	masterKey := []byte("01234567890123456789012345678901")
-	eng := engine.NewEngine(v, masterKey)
+	eng := refinery.NewRefinery(v, masterKey)
 
 	testCases := []AdversarialTestCase{
 		{
@@ -57,7 +57,7 @@ func main() {
 	}
 
 	fmt.Println("--- OCULTAR ADVERSARIAL DIAGNOSTIC REPORT ---")
-	fmt.Println("Target: Core Engine (Regex + Heuristics)")
+	fmt.Println("Target: Core Refinery (Regex + Heuristics)")
 	fmt.Println()
 
 	passCount := 0
