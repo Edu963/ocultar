@@ -15,10 +15,11 @@ type DetectionResult struct {
 	ValueHash  string   `json:"value_hash"`
 	Confidence float64  `json:"confidence"`
 	Method     []string `json:"method"`
-	Location   struct {
+	Location   string   `json:"location"` // Offset or field name
+	Range      struct {
 		Start int `json:"start"`
 		End   int `json:"end"`
-	} `json:"location"`
+	} `json:"-"` // Used internally for redaction
 }
 
 type Engine struct {
@@ -90,8 +91,9 @@ func (e *Engine) Scan(input string) []DetectionResult {
 					Confidence: 1.0,
 					Method:     method,
 				}
-				res.Location.Start = start
-				res.Location.End = end
+				res.Location = fmt.Sprintf("%d-%d", start, end)
+				res.Range.Start = start
+				res.Range.End = end
 				results = append(results, res)
 			}
 		}
@@ -101,7 +103,7 @@ func (e *Engine) Scan(input string) []DetectionResult {
 
 // Redact uses Scan to find PII and calls the tokenFunc to store/get a token,
 // then replaces the PII with the token in the returned string.
-func (e *Engine) Redact(input string, tokenFunc func(string, string, int, int) (string, error)) (string, error) {
+func (e *Engine) Redact(input string, tokenFunc func(DetectionResult) (string, error)) (string, error) {
 	detections := e.Scan(input)
 	if len(detections) == 0 {
 		return input, nil
@@ -109,11 +111,11 @@ func (e *Engine) Redact(input string, tokenFunc func(string, string, int, int) (
 
 	// Sort detections by start index, then longest first. If ties, prioritize contextual (ACCOUNT_NUMBER/PERSON)
 	sort.Slice(detections, func(i, j int) bool {
-		if detections[i].Location.Start != detections[j].Location.Start {
-			return detections[i].Location.Start < detections[j].Location.Start
+		if detections[i].Range.Start != detections[j].Range.Start {
+			return detections[i].Range.Start < detections[j].Range.Start
 		}
-		lenI := detections[i].Location.End - detections[i].Location.Start
-		lenJ := detections[j].Location.End - detections[j].Location.Start
+		lenI := detections[i].Range.End - detections[i].Range.Start
+		lenJ := detections[j].Range.End - detections[j].Range.Start
 		if lenI != lenJ {
 			return lenI > lenJ
 		}
@@ -131,11 +133,11 @@ func (e *Engine) Redact(input string, tokenFunc func(string, string, int, int) (
 	lastPos := 0
 	
 	for _, d := range detections {
-		if d.Location.Start < lastPos { // Skip overlaps
+		if d.Range.Start < lastPos { // Skip overlaps
 			continue
 		}
 		
-		token, err := tokenFunc(d.Value, d.Entity, d.Location.Start, d.Location.End)
+		token, err := tokenFunc(d)
 		if err != nil {
 			return "", err
 		}
@@ -145,9 +147,9 @@ func (e *Engine) Redact(input string, tokenFunc func(string, string, int, int) (
 			continue
 		}
 
-		out.WriteString(input[lastPos:d.Location.Start])
+		out.WriteString(input[lastPos:d.Range.Start])
 		out.WriteString(token)
-		lastPos = d.Location.End
+		lastPos = d.Range.End
 	}
 	out.WriteString(input[lastPos:])
 	return out.String(), nil

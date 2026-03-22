@@ -5,6 +5,8 @@ import (
 	"crypto/cipher"
 	"fmt"
 	"strconv"
+	
+	"github.com/Edu963/ocultar/internal/pii"
 )
 
 // ApplyBucketing generalises a given numeric string into a statistical range (e.g., age 34 -> "30-40")
@@ -24,7 +26,14 @@ func (e *Refinery) ApplyBucketing(numStr string, bucketSize int) (string, error)
 
 	if e.DryRun || e.Report {
 		e.hitsMutex.Lock()
-		e.Hits["BUCKET"] = append(e.Hits["BUCKET"], fmt.Sprintf("%d-%d", lower, upper))
+		e.Hits = append(e.Hits, pii.DetectionResult{
+			Entity:     "BUCKET",
+			Value:      numStr,
+			ValueHash:  sha256Hash(numStr),
+			Confidence: 1.0,
+			Method:     []string{"bucketing"},
+			Location:   fmt.Sprintf("val:%d-%d", lower, upper),
+		})
 		e.hitsMutex.Unlock()
 	}
 
@@ -66,7 +75,14 @@ func (e *Refinery) ApplyFPE(numericStr string) (string, error) {
 
 	if e.DryRun || e.Report {
 		e.hitsMutex.Lock()
-		e.Hits["FPE"] = append(e.Hits["FPE"], "[FPE_TOKEN]")
+		e.Hits = append(e.Hits, pii.DetectionResult{
+			Entity:     "FPE",
+			Value:      numericStr,
+			ValueHash:  sha256Hash(numericStr),
+			Confidence: 1.0,
+			Method:     []string{"fpe"},
+			Location:   "preserved-format",
+		})
 		e.hitsMutex.Unlock()
 	}
 

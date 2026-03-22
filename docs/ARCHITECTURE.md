@@ -116,6 +116,7 @@ sequenceDiagram
     Note over E: Tier 0.1 — Base64 Evasion Shield
     Note over E: Tier 0.5 — Dictionary Shield (protected_entities.json)
     Note over E: Tier 1 — Centralized Deterministic Pipeline (pii.Engine)
+    Note over E: EU Sovereign Detection Pack (v1) — Checksum Validation ✦
     Note over E: Tier 1.1 — Phone Shield (libphonenumber)
     Note over E: Tier 1.2 — Address Shield (heuristic parser)
     Note over E: Tier 1.5 — Greeting & Signature Shield
@@ -130,6 +131,7 @@ sequenceDiagram
     V-->>E: (true, nil) — inserted
 
     E-->>P: {messages:[{content:"Email [EMAIL_9c8f7a1b]"}]}
+    Note over P: 2. Generate Audit-Ready Detection Metadata
 
     P->>P: Set X-Ocultar-Redacted: true
     P->>U: POST /v1/chat/completions<br/>{messages:[{content:"Email [EMAIL_9c8f7a1b]"}]}

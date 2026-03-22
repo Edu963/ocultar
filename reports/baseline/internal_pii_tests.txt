@@ -1,0 +1,31 @@
+=== RUN   TestEngineEvasionResistance
+=== RUN   TestEngineEvasionResistance/Spaced_IBAN
+    engine_test.go:27: Scan results for "Konto DE89 3704 0044 0532 0130 00 is mine": [{Entity:IBAN Value:DE89 3704 0044 0532 0130 00 ValueHash:7f377fd57c2598c990f98d9cb062d09d604bca8dce2ac72cde2a39aaf7b10a8c Confidence:1 Method:[regex checksum] Location:{Start:6 End:33}}]
+    engine_test.go:34: Regex IBAN matched: "DE89 3704 0044 0532 0130 00"
+    engine_test.go:34: Regex CREDIT_CARD matched: "3704 0044 0532 0130 "
+=== RUN   TestEngineEvasionResistance/Mixed_Case_IBAN
+    engine_test.go:27: Scan results for "iban de89370400440532013000.": [{Entity:IBAN Value:de89370400440532013000 ValueHash:9cf685bd65e3490c3b76c1f9882ce77ad2b4fc9f360bcaf2820d2329c295e2dc Confidence:1 Method:[regex checksum] Location:{Start:5 End:27}}]
+    engine_test.go:34: Regex IBAN matched: "de89370400440532013000"
+=== RUN   TestEngineEvasionResistance/Credit_Card_with_Dashes
+    engine_test.go:27: Scan results for "Card 4111-1111-1111-1111": [{Entity:CREDIT_CARD Value:4111-1111-1111-1111 ValueHash:b3f846b293cec081f0740bdaaecbea387754943b9e2ff6d83b8b459d1bbb43ac Confidence:1 Method:[regex checksum] Location:{Start:5 End:24}}]
+    engine_test.go:34: Regex CREDIT_CARD matched: "4111-1111-1111-1111"
+=== RUN   TestEngineEvasionResistance/Boundary_Enforcement
+    engine_test.go:27: Scan results for "NotAnEU_VATGB1234567890Inside": []
+=== RUN   TestEngineEvasionResistance/Valid_EU_VAT
+    engine_test.go:27: Scan results for "VAT is GB123456789": [{Entity:PATIENT_ID Value:GB123456789 ValueHash:078953f58afcc3fde52d900651f55bbcb477af557838867d7a4afd5923ef4689 Confidence:1 Method:[regex] Location:{Start:7 End:18}}]
+    engine_test.go:34: Regex PATIENT_ID matched: "GB123456789"
+=== RUN   TestEngineEvasionResistance/Valid_BE_VAT
+    engine_test.go:27: Scan results for "VAT is BE0123456789": [{Entity:EU_VAT Value:BE0123456789 ValueHash:e3e8c9fd71dd1eeb17f89b01891aea0784364aaa19cc2eb4e312e87c5f3a701d Confidence:1 Method:[regex] Location:{Start:7 End:19}} {Entity:PATIENT_ID Value:BE0123456789 ValueHash:e3e8c9fd71dd1eeb17f89b01891aea0784364aaa19cc2eb4e312e87c5f3a701d Confidence:1 Method:[regex] Location:{Start:7 End:19}}]
+    engine_test.go:34: Regex EU_VAT matched: "BE0123456789"
+    engine_test.go:34: Regex PATIENT_ID matched: "BE0123456789"
+--- PASS: TestEngineEvasionResistance (0.00s)
+    --- PASS: TestEngineEvasionResistance/Spaced_IBAN (0.00s)
+    --- PASS: TestEngineEvasionResistance/Mixed_Case_IBAN (0.00s)
+    --- PASS: TestEngineEvasionResistance/Credit_Card_with_Dashes (0.00s)
+    --- PASS: TestEngineEvasionResistance/Boundary_Enforcement (0.00s)
+    --- PASS: TestEngineEvasionResistance/Valid_EU_VAT (0.00s)
+    --- PASS: TestEngineEvasionResistance/Valid_BE_VAT (0.00s)
+=== RUN   TestValidationLayer
+--- PASS: TestValidationLayer (0.00s)
+PASS
+ok  	github.com/Edu963/ocultar/internal/pii	0.003s

@@ -2,6 +2,9 @@
 
 This document provides a transparency disclosure of the PII types detected by the OCULTAR Refinery and their respective regulatory compliance mappings.
 
+> [!IMPORTANT]
+> **EU Sovereign Detection Pack (v1)** is now active. This pack provides deterministic coverage and checksum-backed validation for core EU and UK identifiers, satisfying GDPR Art. 9 and local sovereignty requirements (CNIL, AEPD, BDSG).
+
 ## 1. Detection Tiers
 
 The Refinery operates on a multi-tier defense-in-depth model:
