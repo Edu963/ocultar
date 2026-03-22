@@ -15,6 +15,25 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
 DIST_DIR = os.path.join(REPO_ROOT, "dist")
 MANIFEST_PATH = os.path.join(REPO_ROOT, "dist.manifest.yaml")
 
+def patch_binary_key(filepath):
+    """Replaces 64-zero dummy keys with a 64-byte placeholder in compiled binaries."""
+    if not os.path.exists(filepath):
+        return
+    try:
+        with open(filepath, "rb") as f:
+            data = f.read()
+            
+        dummy_key = b"0" * 64
+        if dummy_key in data:
+            # 64-byte exact replacement
+            placeholder = b"OCU_MASTER_KEY_PLACEHOLDER______________________________________"
+            data = data.replace(dummy_key, placeholder)
+            with open(filepath, "wb") as f:
+                f.write(data)
+            print(f"[*] Patched dummy key in binary: {filepath}")
+    except Exception as e:
+        print(f"[!] Warning: failed to patch binary {filepath}: {e}")
+
 def log(msg, color="blue"):
     colors = {"blue": "\033[0;34m", "green": "\033[0;32m", "red": "\033[0;31m", "nc": "\033[0m"}
     print(f"{colors.get(color, colors['nc'])}{msg}{colors['nc']}")
@@ -37,7 +56,9 @@ def build_component(comp, target_dir):
 
     if c_type == "go-binary":
         log(f"Building Go binary: {comp['name']}")
-        run(f"go build -o {dest} {src}", optional=optional)
+        # Use -trimpath to remove local absolute paths from the binary
+        run(f"go build -trimpath -o {dest} {src}", optional=optional)
+        patch_binary_key(dest)
     
     elif c_type == "npm-build":
         log(f"Building NPM package: {comp['name']}")
@@ -58,21 +79,39 @@ def build_component(comp, target_dir):
         for f in include:
             shutil.copy2(os.path.join(src, f), os.path.join(dest, f))
 
+def compress_distribution(dist_key, dist_cfg, target_dir):
+    format = dist_cfg.get("format")
+    name = dist_cfg.get("name", dist_key)
+    output_base = os.path.join(DIST_DIR, name)
+    
+    log(f"Compressing distribution {dist_key} to {format}...")
+    if format == "zip":
+        shutil.make_archive(output_base, 'zip', target_dir)
+    elif format == "tar.gz":
+        shutil.make_archive(output_base, 'gztar', target_dir)
+        # shutil.make_archive for gztar creates .tar.gz
+    else:
+        log(f"Warning: Unknown format {format} for {dist_key}", color="red")
+
 def generate_sbom(target_dir):
     log("Generating SBOM...")
     # Go SBOM
     res = subprocess.run("go list -json -m all", shell=True, capture_output=True, text=True, cwd=REPO_ROOT)
     if res.returncode == 0:
+        # Scrub internal paths from SBOM
+        clean_res = res.stdout.replace(REPO_ROOT, ".")
         with open(os.path.join(target_dir, "sbom_go.json"), "w") as f:
-            f.write(res.stdout)
+            f.write(clean_res)
     
     # NPM SBOM (simulated for now)
     web_dir = os.path.join(REPO_ROOT, "apps/web")
     if os.path.exists(web_dir):
         res = subprocess.run("npm list --json", shell=True, capture_output=True, text=True, cwd=web_dir)
         if res.returncode == 0:
+            # Scrub internal paths from NPM SBOM
+            clean_res = res.stdout.replace(REPO_ROOT, ".")
             with open(os.path.join(target_dir, "sbom_npm.json"), "w") as f:
-                f.write(res.stdout)
+                f.write(clean_res)
 
 def main():
     if not os.path.exists(MANIFEST_PATH):
@@ -110,6 +149,9 @@ def main():
         # Generate SBOM if security flags are present
         if manifest.get("security", {}).get("sanitization"):
             generate_sbom(target_dir)
+
+        # NEW: Compress the distribution
+        compress_distribution(dist_key, dist_cfg, target_dir)
 
 if __name__ == "__main__":
     main()

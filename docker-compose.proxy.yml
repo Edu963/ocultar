@@ -37,7 +37,7 @@ services:
     depends_on:
       - echo-upstream
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/healthz"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/health"]
       interval: 5s
       timeout: 3s
       retries: 10

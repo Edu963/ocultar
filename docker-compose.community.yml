@@ -1,0 +1,31 @@
+services:
+  echo-upstream:
+    image: ealen/echo-server:latest
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+      - ENABLE__ENVIRONMENT=false
+    ports:
+      - "8082:8080"
+
+  ocultar-proxy:
+    image: sombra-gateway:latest
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - OCU_PROXY_TARGET=http://echo-upstream:8080
+      - OCU_PROXY_PORT=8081
+      - OCU_MASTER_KEY=${OCU_MASTER_KEY}
+      - OCU_SALT=${OCU_SALT}
+    depends_on:
+      - echo-upstream
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+networks:
+  default:
+    name: ocultar-proxy-net
