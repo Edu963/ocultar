@@ -1,8 +1,8 @@
 # EU Sovereign Detection Pack (v1)
 
-## Sovereignty-First PII Engine
+## Sovereignty-First Refinery
 
-The **EU Sovereign Detection Pack (v1)** transforms Ocultar into a production-grade detection engine tailored for the European regulatory landscape. It combines high-performance regex patterns with algorithmic checksum validation to provide near-zero false positive rates for critical national identifiers.
+The **EU Sovereign Detection Pack (v1)** transforms Ocultar into a production-grade detection refinery tailored for the European regulatory landscape. It combines high-performance regex patterns with algorithmic checksum validation to provide near-zero false positive rates for critical national identifiers.
 
 ### Key Capabilities
 
