@@ -6,6 +6,10 @@ __pycache__/
 # Build artifacts
 dist/
 bin/
+ocultar-proxy
+*.tar.gz
+*.zip
+release-checksum.txt
 
 # Environment and Secrets
 .env
@@ -15,6 +19,14 @@ vault_data/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Test Outputs & Reports
+results.json
+*_test_output.txt
+*.log
+
+# Documentation Binaries
+*.pdf
 
 audit.log
 sombra.yaml
