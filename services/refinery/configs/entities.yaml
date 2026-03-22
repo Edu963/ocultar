@@ -1,0 +1,27 @@
+entities:
+  - name: IP_ADDRESS
+    canonical_type: IP_ADDRESS
+    tier: 1
+    action: STRIP
+    regex: '\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
+
+  - name: SE_PIN
+    canonical_type: SWEDEN_PERSONAL_IDENTITY_NUMBER
+    regex: '\b(18|19|20)?\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[-+]?\d{4}\b'
+    validation: Luhn
+    tier: 1
+    action: STRIP
+    
+  - name: DK_CPR
+    canonical_type: DENMARK_CPR_NUMBER
+    regex: '\b(?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2}[-]?\d{4}\b'
+    validation: Modulo11
+    tier: 1
+    action: STRIP
+    
+  - name: FI_HETU
+    canonical_type: FINLAND_NATIONAL_ID_NUMBER
+    regex: '\b(?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2}[A+-]\d{3}[0-9A-FHJ-NPR-Y]\b'
+    validation: Modulo31
+    tier: 1
+    action: STRIP

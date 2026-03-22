@@ -67,3 +67,55 @@ func TestCloudSecrets(t *testing.T) {
 		})
 	}
 }
+
+func TestIPAddress(t *testing.T) {
+	eng := pii.NewEngine()
+	input := "The server is at 192.168.1.1 and 10.0.0.255"
+	res := eng.Scan(input)
+
+	if len(res) != 2 {
+		t.Fatalf("Expected 2 IP hits, got %d", len(res))
+	}
+	for _, hit := range res {
+		if hit.Entity != "IP_ADDRESS" {
+			t.Errorf("Expected IP_ADDRESS, got %s", hit.Entity)
+		}
+	}
+}
+
+func TestNordicIDs(t *testing.T) {
+	eng := pii.NewEngine()
+	
+	cases := []struct {
+		name       string
+		input      string
+		expectType string
+		isValid    bool
+	}{
+		{"Valid SE PIN", "SE-PIN 19121212-1212 is here", "SE_PIN", true},
+		{"Invalid SE PIN", "19121212-1213", "SE_PIN", false},
+		{"Valid DK CPR", "111111-1118", "DK_CPR", true}, 
+		{"Invalid DK CPR", "111111-1111", "DK_CPR", false},
+        // FI HETU valid sample: 010101-001R
+        {"Valid FI HETU", "010101-001R", "FI_HETU", true},
+		{"Invalid FI HETU", "010101-001A", "FI_HETU", false},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			res := eng.Scan(tc.input)
+			t.Logf("Scan %s (%q): results: %+v", tc.name, tc.input, res)
+			if tc.isValid {
+				if len(res) == 0 {
+					t.Errorf("Expected valid %s to pass, got no hits", tc.name)
+				} else if res[0].Entity != tc.expectType {
+                    t.Errorf("Expected type %s, got %s", tc.expectType, res[0].Entity)
+                }
+			} else {
+				if len(res) > 0 && res[0].Entity == tc.expectType {
+					t.Errorf("Expected invalid %s to fail, but got hit", tc.name)
+				}
+			}
+		})
+	}
+}

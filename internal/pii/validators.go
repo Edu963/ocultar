@@ -13,7 +13,7 @@ func IsLuhnValid(s string) bool {
 			digits += string(r)
 		}
 	}
-	if len(digits) < 13 || len(digits) > 19 {
+	if len(digits) < 10 || len(digits) > 19 {
 		return false
 	}
 	sum := 0
@@ -165,6 +165,49 @@ func IsDESTIDValid(s string) bool {
 	return check == int(s[10]-'0')
 }
 
+// IsDKCPRValid validates Danish CPR using Modulo 11 with weights.
+func IsDKCPRValid(s string) bool {
+	s = Normalize(s)
+	if len(s) != 10 {
+		return false
+	}
+	weights := []int{4, 3, 2, 7, 6, 5, 4, 3, 2, 1}
+	sum := 0
+	for i := 0; i < 10; i++ {
+		sum += int(s[i]-'0') * weights[i]
+	}
+	return sum%11 == 0
+}
+
+// IsFIHETUValid validates Finnish HETU using Modulo 31.
+func IsFIHETUValid(s string) bool {
+	// Format: DDMMYY[+-A]ZZZX (X is checksum)
+	// We only validate the checksum character here.
+	if len(s) != 11 {
+		return false
+	}
+	table := "0123456789ABCDEFHJKLMNPRSTUVWXY"
+	// DDMMYY (6) + ZZZ (3) = 9 digits
+	numStr := s[0:6] + s[7:10]
+	num, err := strconv.Atoi(numStr)
+	if err != nil {
+		return false
+	}
+	return table[num%31] == s[10]
+}
+
+// IsSEPINValid validates Swedish Personal Identity Number using Luhn on the last 10 digits.
+func IsSEPINValid(s string) bool {
+	s = Normalize(s)
+	if len(s) == 12 {
+		s = s[2:] // Strip century
+	}
+	if len(s) != 10 {
+		return false
+	}
+	return IsLuhnValid(s)
+}
+
 // GetValidator returns the appropriate function for a given validation method
 func GetValidator(name ValidationMethod) Validator {
 	switch name {
@@ -182,6 +225,12 @@ func GetValidator(name ValidationMethod) Validator {
 		return IsPLPESELValid
 	case ValDESTID:
 		return IsDESTIDValid
+	case ValDKCPR:
+		return IsDKCPRValid
+	case ValFIHETU:
+		return IsFIHETUValid
+	case ValSEPIN:
+		return IsSEPINValid
 	default:
 		return nil
 	}
