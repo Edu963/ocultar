@@ -22,10 +22,19 @@ async def send_request(session, url, payload):
     if not ocu_master_key:
         raise ValueError("OCU_MASTER_KEY environment variable is not set. Please set it before running the benchmark.")
     headers = {"Authorization": f"Bearer {ocu_master_key}"}
+    
+    # Sombra Gateway expects form data
+    data = {
+        "connector": "file",
+        "model": "local-slm",
+        "prompt": payload["messages"][-1]["content"],
+        "source_id": "test.csv"
+    }
+
     try:
-        async with session.post(url, json=payload, headers=headers, timeout=5) as response:
-            await response.read()
+        async with session.post(url, data=data, headers=headers, timeout=120) as response:
             status_code = response.status
+            await response.read()
     except Exception as e:
         status_code = 500
     end = time.perf_counter()
@@ -86,8 +95,8 @@ async def main():
     print("Starting Competitive Performance Analysis Benchmark...")
     
     # Configuration
-    UPSTREAM_URL = "http://localhost:8082/" # Direct to Echo Server
-    PROXY_URL = "http://localhost:8081/"    # Through Sombra Proxy
+    UPSTREAM_URL = "http://127.0.0.1:8082/" # Direct to Echo Server
+    PROXY_URL = "http://127.0.0.1:8081/query"    # Through Sombra Proxy
     CONCURRENCY = 50
     TOTAL_REQUESTS = 1000
     
