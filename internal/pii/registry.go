@@ -16,6 +16,8 @@ const (
 	ValDKCPR  ValidationMethod = "DK_CPR"
 	ValFIHETU ValidationMethod = "FI_HETU"
 	ValSEPIN  ValidationMethod = "SE_PIN"
+	ValBRCPF  ValidationMethod = "BR_CPF"
+	ValCLRUT  ValidationMethod = "CL_RUT"
 )
 
 type EntityDef struct {
@@ -94,4 +96,8 @@ var Registry = []EntityDef{
 	// US
 	{Type: "US_PASSPORT", Pattern: regexp.MustCompile(`(?i)(?:\bpassport\b|\bppt\b)[^0-9]{1,15}?([0-9]{9})\b`), Validator: ValNone, MinLength: 9, Normalization: true, CaptureGroup: 1},
 	{Type: "US_DRIVERS_LICENSE_NUMBER", Pattern: regexp.MustCompile(`(?i)(?:\bdl\b|\bdriver['']?s?\s*lic(?:ense)?\b)[^A-Z0-9]{1,15}?([A-Z0-9-]{6,20})\b`), Validator: ValNone, MinLength: 6, Normalization: true, CaptureGroup: 1},
+
+	// LATAM Core (Phase 4A)
+	{Type: "BR_CPF", Pattern: regexp.MustCompile(`\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b`), Validator: ValBRCPF, MinLength: 11, Normalization: true},
+	{Type: "CL_RUT", Pattern: regexp.MustCompile(`\b(\d{1,2}(?:\.?\d{3}){2}-?[\dkK])\b`), Validator: ValCLRUT, MinLength: 8, Normalization: true},
 }

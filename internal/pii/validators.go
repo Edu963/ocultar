@@ -208,6 +208,84 @@ func IsSEPINValid(s string) bool {
 	return IsLuhnValid(s)
 }
 
+// IsBRCPFValid validates Brazil CPF using Dual Modulo 11.
+func IsBRCPFValid(s string) bool {
+	s = Normalize(s)
+	if len(s) != 11 {
+		return false
+	}
+	// All same digits are invalid
+	allSame := true
+	for i := 1; i < 11; i++ {
+		if s[i] != s[0] {
+			allSame = false
+			break
+		}
+	}
+	if allSame {
+		return false
+	}
+
+	// First digit
+	sum := 0
+	for i := 0; i < 9; i++ {
+		sum += int(s[i]-'0') * (10 - i)
+	}
+	remainder := (sum * 10) % 11
+	if remainder == 10 {
+		remainder = 0
+	}
+	if remainder != int(s[9]-'0') {
+		return false
+	}
+
+	// Second digit
+	sum = 0
+	for i := 0; i < 10; i++ {
+		sum += int(s[i]-'0') * (11 - i)
+	}
+	remainder = (sum * 10) % 11
+	if remainder == 10 {
+		remainder = 0
+	}
+	return remainder == int(s[10]-'0')
+}
+
+// IsCLRUTValid validates Chile RUT using Modulo 11.
+func IsCLRUTValid(s string) bool {
+	s = Normalize(s)
+	if len(s) < 8 || len(s) > 9 {
+		return false
+	}
+	body := s[:len(s)-1]
+	checkDigit := s[len(s)-1]
+	if checkDigit >= 'a' && checkDigit <= 'z' {
+		checkDigit -= 32 // To upper
+	}
+
+	sum := 0
+	multiplier := 2
+	for i := len(body) - 1; i >= 0; i-- {
+		sum += int(body[i]-'0') * multiplier
+		multiplier++
+		if multiplier > 7 {
+			multiplier = 2
+		}
+	}
+
+	expectedMod := 11 - (sum % 11)
+	var expectedDigit byte
+	if expectedMod == 11 {
+		expectedDigit = '0'
+	} else if expectedMod == 10 {
+		expectedDigit = 'K'
+	} else {
+		expectedDigit = byte('0' + expectedMod)
+	}
+
+	return expectedDigit == checkDigit
+}
+
 // GetValidator returns the appropriate function for a given validation method
 func GetValidator(name ValidationMethod) Validator {
 	switch name {
@@ -231,6 +309,10 @@ func GetValidator(name ValidationMethod) Validator {
 		return IsFIHETUValid
 	case ValSEPIN:
 		return IsSEPINValid
+	case ValBRCPF:
+		return IsBRCPFValid
+	case ValCLRUT:
+		return IsCLRUTValid
 	default:
 		return nil
 	}
