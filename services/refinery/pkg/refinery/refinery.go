@@ -17,6 +17,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/Edu963/ocultar/internal/pii"
 	"github.com/Edu963/ocultar/pkg/config"
 	"github.com/Edu963/ocultar/pkg/license"
 	"github.com/Edu963/ocultar/vault"
@@ -354,40 +355,6 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	refined := input
 	var err error
 
-	// TIER 0.05: [VULN-001] Noise-Stripping Sliding Window Evasion Shield
-	// This pass strips non-alphanumeric noise and scans for segmented patterns.
-	if len(trimmed) > 8 && (strings.ContainsAny(trimmed, "0123456789")) {
-		// 1. Create a normalized version: strip common 'noise' words and non-alnum
-		noiseWords := []string{"then", "is", "at", "and", "under", "with", "plus"}
-		normalized := strings.ToLower(trimmed)
-		for _, w := range noiseWords {
-			normalized = strings.ReplaceAll(normalized, " "+w+" ", " ")
-		}
-		// Strip all non-alphanumeric characters for the 'tight' scan
-		regAlnum := regexp.MustCompile(`[^a-zA-Z0-9]`)
-		tightBuffer := regAlnum.ReplaceAllString(normalized, "")
-
-		// 2. Scan the tightBuffer for high-risk patterns (SSN, CREDIT_CARD)
-		// SSN (compact): 9 digits
-		ssnCompact := regexp.MustCompile(`\d{9}`)
-		if ssnCompact.MatchString(tightBuffer) {
-			// If a compact SSN is found in the noise-stripped buffer, 
-			// we must fail-closed and redact the entire original string 
-			// or attempt a fuzzy match. For maximum security, we tokenise the whole sequence.
-			log.Printf("[VULN-001] Segmented SSN detected in normalized buffer.")
-			return e.getOrSetSecureToken(trimmed, "SSN", actor)
-		}
-
-		// CC (compact): 13-16 digits
-		ccCompact := regexp.MustCompile(`\d{13,16}`)
-		if m := ccCompact.FindString(tightBuffer); m != "" {
-			if isLuhnValid(m) {
-				log.Printf("[VULN-001] Segmented Credit Card detected in normalized buffer.")
-				return e.getOrSetSecureToken(trimmed, "CREDIT_CARD", actor)
-			}
-		}
-	}
-
 	// TIER 0.1: Embedded Base64 Evasion Shield
 	base64Matches := base64Regex.FindAllStringIndex(refined, -1)
 	if len(base64Matches) > 0 {
@@ -434,12 +401,25 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		}
 	}
 
-	// TIER 1: Dynamic Regex Shields
-	for _, regexRule := range config.Global.Regexes {
-		refined, err = e.applyRegexShield(refined, regexRule.Compiled, regexRule.Type, actor)
-		if err != nil {
-			return "", err
+	// TIER 1: Centralized Deterministic Pipeline (pii.Engine)
+	eng := pii.NewEngine()
+	tokens := tokenPattern.FindAllStringIndex(refined, -1)
+
+	refined, err = eng.Redact(refined, func(val, piiType string, start, end int) (string, error) {
+		overlap := false
+		for _, t := range tokens {
+			if start < t[1] && end > t[0] {
+				overlap = true
+				break
+			}
 		}
+		if overlap {
+			return val, nil // Skip replacement by returning original value
+		}
+		return e.getOrSetSecureToken(val, piiType, actor)
+	})
+	if err != nil {
+		return "", err
 	}
 
 	// TIER 1.1: Phone Shield (libphonenumber) - Fast-path: Only run if digits are present
@@ -462,6 +442,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		}
 	}
 
+
 	// TIER 1.5: Greetings & Signatures Shield
 	greetingMatches := greetingRegex.FindAllStringSubmatchIndex(refined, -1)
 	for _, match := range greetingMatches {
@@ -473,6 +454,36 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 				if err != nil {
 					return "", err
 				}
+			}
+		}
+	}
+
+	// TIER 1.6: [VULN-001] Noise-Stripping Sliding Window Evasion Shield (Safety Net)
+	// This pass strips non-alphanumeric noise AND tokens to scan for segmented patterns
+	// that escaped the specific matches above.
+	if strings.ContainsAny(refined, "0123456789") && !e.isFullyTokenised(refined) {
+		// 1. Strip tokens first so they don't interfere with digit counts
+		stripped := tokenPattern.ReplaceAllString(refined, " ")
+		noiseWords := []string{"then", "is", "at", "and", "under", "with", "plus"}
+		normalized := strings.ToLower(stripped)
+		for _, w := range noiseWords {
+			normalized = strings.ReplaceAll(normalized, " "+w+" ", " ")
+		}
+		regAlnum := regexp.MustCompile(`[^0-9]`) // Only interested in raw digits now
+		tightDigits := regAlnum.ReplaceAllString(normalized, "")
+
+		// High-fidelity Segmented SSN: exactly 9 digits.
+		// If we find exactly 9 digits hidden in the remaining text, we fail-closed.
+		if len(tightDigits) == 9 {
+			log.Printf("[VULN-001] Segmented SSN (9 digits) detected in noise-stripped buffer.")
+			return e.getOrSetSecureToken(refined, "SSN", actor)
+		}
+
+		// CC: 13-16 digits.
+		if len(tightDigits) >= 13 && len(tightDigits) <= 16 {
+			if isLuhnValid(tightDigits) {
+				log.Printf("[VULN-001] Segmented Credit Card detected in noise-stripped buffer.")
+				return e.getOrSetSecureToken(refined, "CREDIT_CARD", actor)
 			}
 		}
 	}
