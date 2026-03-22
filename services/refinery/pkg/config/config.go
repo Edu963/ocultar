@@ -42,6 +42,9 @@ type Settings struct {
 
 	// Governance: Regulatory Policy
 	RegulatoryPolicy map[string]interface{} `yaml:"-" json:"regulatory_policy"`
+
+	// AliasMapping (Task 1) - Maps internal IDs to Google InfoTypes
+	AliasMapping map[string]string `yaml:"-" json:"alias_mapping"`
 }
 
 var Global Settings
@@ -66,7 +69,31 @@ func initDefaultConfig() {
 	}
 	loadProtectedEntities()
 	LoadRegulatoryPolicy()
+	LoadAliasMapping()
 	CompileRegexes()
+}
+
+// LoadAliasMapping reads the Ocultar -> Google InfoType registry from configs/mapping.json
+func LoadAliasMapping() {
+	data, err := os.ReadFile("configs/mapping.json")
+	if err != nil {
+		// Try relative path from service root if not found at absolute root
+		data, err = os.ReadFile("services/refinery/configs/mapping.json")
+	}
+
+	if err != nil {
+		log.Printf("[WARN] Failed to read mapping.json: %v. CanonicalType will be empty.", err)
+		return
+	}
+
+	var mapping map[string]string
+	if err := json.Unmarshal(data, &mapping); err != nil {
+		log.Printf("[ERROR] Failed to parse mapping.json: %v", err)
+		return
+	}
+
+	Global.AliasMapping = mapping
+	log.Printf("[INFO] Alias Mapping loaded: %d entities mapped to Google InfoTypes.", len(mapping))
 }
 
 // LoadRegulatoryPolicy reads the centralized governance mapping from embedded security data.

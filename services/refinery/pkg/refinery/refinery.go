@@ -397,6 +397,9 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 
 	// TIER 1: Centralized Deterministic Pipeline (pii.Engine)
 	eng := pii.NewEngine()
+	if config.Global.AliasMapping != nil {
+		eng.SetMapping(config.Global.AliasMapping)
+	}
 	tokens := tokenPattern.FindAllStringIndex(refined, -1)
 
 	refined, err = eng.Redact(refined, func(d pii.DetectionResult) (string, error) {

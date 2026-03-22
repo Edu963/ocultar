@@ -25,6 +25,11 @@ type EntityDef struct {
 }
 
 var Registry = []EntityDef{
+	// Tier 0 Cloud Secrets (RAM Rule Patch)
+	{Type: "AWS_KEY", Pattern: regexp.MustCompile(`\bAKIA[0-9A-Z]{16}\b`), Validator: ValNone, MinLength: 20, Normalization: false},
+	{Type: "AWS_SECRET", Pattern: regexp.MustCompile(`\b[0-9a-zA-Z/+]{40}\b`), Validator: ValNone, MinLength: 40, Normalization: false},
+	{Type: "GCP_SERVICE_ACCOUNT", Pattern: regexp.MustCompile(`(?i)\b[a-z0-9-]+@[a-z0-9-]+\.iam\.gserviceaccount\.com\b`), Validator: ValNone, MinLength: 15, Normalization: false},
+
 	// Financial
 	{Type: "IBAN", Pattern: regexp.MustCompile(`(?i)\b[A-Z]{2}[0-9]{2}(?:[A-Z0-9]{11,30}|(?:[\s-][A-Z0-9]{4}){2,7}[\s-]?[A-Z0-9]{0,3})\b`), Validator: ValMod97, MinLength: 15, Normalization: true, CaptureGroup: 0},
 	{Type: "CREDIT_CARD", Pattern: regexp.MustCompile(`\b(?:4[0-9\s-]{12,19}|5[1-5][0-9\s-]{14,19}|6(?:011|5[0-9]{2})[0-9\s-]{12,19}|3[47][0-9\s-]{13,19}|3(?:0[0-5]|[68][0-9])[0-9\s-]{11,19}|(?:2131|1800|35\d{3})[0-9\s-]{11,19})\b`), Validator: ValLuhn, MinLength: 13, Normalization: true, CaptureGroup: 0},

@@ -10,13 +10,14 @@ import (
 
 // DetectionResult defines the structured output of a PII hit per Phase 4 requirements
 type DetectionResult struct {
-	Entity     string   `json:"entity"`
-	Value      string   `json:"-"` // Not serialized by default
-	ValueHash  string   `json:"value_hash"`
-	Confidence float64  `json:"confidence"`
-	Method     []string `json:"method"`
-	Location   string   `json:"location"` // Offset or field name
-	Range      struct {
+	Entity        string   `json:"entity"`
+	CanonicalType string   `json:"canonical_type,omitempty"`
+	Value         string   `json:"-"` // Not serialized by default
+	ValueHash     string   `json:"value_hash"`
+	Confidence    float64  `json:"confidence"`
+	Method        []string `json:"method"`
+	Location      string   `json:"location"` // Offset or field name
+	Range         struct {
 		Start int `json:"start"`
 		End   int `json:"end"`
 	} `json:"-"` // Used internally for redaction
@@ -24,10 +25,19 @@ type DetectionResult struct {
 
 type Engine struct {
 	registry []EntityDef
+	mapping  map[string]string
 }
 
 func NewEngine() *Engine {
-	return &Engine{registry: Registry}
+	return &Engine{
+		registry: Registry,
+		mapping:  make(map[string]string),
+	}
+}
+
+// SetMapping updates the alias registry for CanonicalType resolution
+func (e *Engine) SetMapping(m map[string]string) {
+	e.mapping = m
 }
 
 // Scan performs the exhaustive deterministic sweep with validation
@@ -90,6 +100,11 @@ func (e *Engine) Scan(input string) []DetectionResult {
 					ValueHash:  fmt.Sprintf("%x", h),
 					Confidence: 1.0,
 					Method:     method,
+				}
+				if e.mapping != nil {
+					if ct, ok := e.mapping[entity.Type]; ok {
+						res.CanonicalType = ct
+					}
 				}
 				res.Location = fmt.Sprintf("%d-%d", start, end)
 				res.Range.Start = start
