@@ -18,15 +18,20 @@ distributions:
         type: "npm-build"
         dest: "dashboard"
       - name: "docker-compose"
-        src: "./docker-compose.proxy.yml"
+        src: "./docker-compose.community.yml"
         type: "file"
         dest: "docker-compose.yml"
+      - name: "env-example"
+        src: "./.env.example"
+        type: "file"
+        dest: ".env.example"
       - name: "scripts"
         src: "./tools/scripts/scripts"
         type: "directory"
         include:
           - "setup-community.sh"
           - "setup-community.ps1"
+          - "integrity_validator.sh"
         dest: "scripts/"
 
   enterprise:
@@ -40,7 +45,7 @@ distributions:
         dest: "ocultar-enterprise"
         optional: true
       - name: "config-template"
-        src: "./configs/config.yaml"
+        src: "./services/engine/configs/config.yaml"
         type: "file"
         dest: "config.yaml"
       - name: "enterprise-scripts"
@@ -48,6 +53,7 @@ distributions:
         type: "directory"
         include:
           - "setup-enterprise.sh"
+          - "integrity_validator.sh"
         dest: "scripts/"
       - name: "mock-api"
         src: "./services/mock-api/main.go"
@@ -65,12 +71,12 @@ security:
 # Validation Profiles
 validation:
   community:
-    test_script: "scripts/integrity_validator.sh"
+    test_script: "scripts/setup-community.sh"
     distribution_type: "community"
     allowed_ports: [8081, 3000]
     required_signatures: ["ocultar-community.zip.sig"]
   enterprise:
-    test_script: "scripts/integrity_validator.sh"
+    test_script: "scripts/setup-enterprise.sh"
     distribution_type: "enterprise"
     allowed_ports: [8081, 3001]
     required_signatures: ["ocultar-enterprise.tar.gz.sig"]

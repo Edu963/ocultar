@@ -37,9 +37,8 @@ else
     echo "[✓] Existing .env file found."
 fi
 
-# 3. Pull and Start
-echo "[i] Pulling AI models & starting the OCULTAR vault... (This may take a few minutes on first run)"
-docker compose pull
+# 3. Start services
+echo "[i] Starting OCULTAR stack..."
 docker compose up -d
 
 # 4. Open dashboard
