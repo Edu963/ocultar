@@ -13,7 +13,7 @@ func IsLuhnValid(s string) bool {
 			digits += string(r)
 		}
 	}
-	if len(digits) < 10 || len(digits) > 19 {
+	if len(digits) < 9 || len(digits) > 19 {
 		return false
 	}
 	sum := 0

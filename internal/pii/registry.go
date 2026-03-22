@@ -44,8 +44,8 @@ var Registry = []EntityDef{
 
 	// France
 	{Type: "FR_NIR", Pattern: regexp.MustCompile(`\b[12]\s*\d{2}\s*(?:0[1-9]|1[0-2])\s*(?:2[AB]|\d{2})\s*\d{3}\s*\d{3}\s*\d{2}\b`), Validator: ValNone, MinLength: 15, Normalization: true},
-	{Type: "FR_SIREN", Pattern: regexp.MustCompile(`\b[0-9]{3}\s*[0-9]{3}\s*[0-9]{3}\b`), Validator: ValNone, MinLength: 9, Normalization: true},
-	{Type: "FR_SIRET", Pattern: regexp.MustCompile(`\b[0-9]{3}\s*[0-9]{3}\s*[0-9]{3}\s*[0-9]{5}\b`), Validator: ValNone, MinLength: 14, Normalization: true},
+	{Type: "FRANCE_SIREN_NUMBER", Pattern: regexp.MustCompile(`\b[0-9]{3}\s*[0-9]{3}\s*[0-9]{3}\b`), Validator: ValLuhn, MinLength: 9, Normalization: true},
+	{Type: "FRANCE_SIRET_NUMBER", Pattern: regexp.MustCompile(`\b[0-9]{3}\s*[0-9]{3}\s*[0-9]{3}\s*[0-9]{5}\b`), Validator: ValLuhn, MinLength: 14, Normalization: true},
 
 	// Spain
 	{Type: "ES_DNI_NIE", Pattern: regexp.MustCompile(`(?i)\b[XYZ]?\d{7,8}[A-Z]\b`), Validator: ValESDNI, MinLength: 9, Normalization: true},
@@ -90,4 +90,8 @@ var Registry = []EntityDef{
 	{Type: "HEALTH_ENTITY", Pattern: regexp.MustCompile(`(?i)(?:\b(ANESTHESIE|ANESTHESIA|ANäSTHESIE|ANESTESIA|CLINIQUE|CLINIC|KLINIK|CLINICA|PHARMACIE|PHARMACY|APOTHEKE|FARMACIA|CPAM|CAISSE PRIMAIRE|MUTUELLE|MUTUALITE|MUTUALIDAD|HOPITAL|HOSPITAL|KRANKENHAUS|OSPEDALE|SPITAL|MEDECIN|DOCTEUR|ARZT|MEDICO|DOTTORE|PSYCHOLOGUE|PSYCHOLOGIST|PSYCHIATRIE|PSYCHIATER|SOINS?|PFLEGE|RADIOLOGIE|RADIOLOGY|DENTISTE|DENTIST|ZAHNARZT|DENTISTA|OPTICIEN|OPTIKER|KINESITHERAPIE|PHYSIOTHERAPIE|PHYSIOTHERAPY|FISIOTERAPIA|LABORATOIRE|LABORATORIO)\b|C\.P\.A\.M\.|GROUPAMA GAN VIE|AESIO MUTUELLE|ADREA MUTUELLE)`), Validator: ValNone, MinLength: 4, Normalization: false, CaptureGroup: 0},
 	{Type: "TAX_REF", Pattern: regexp.MustCompile(`(?i)\bNN[A-Z]{2}[0-9A-Z]{10,35}\b`), Validator: ValNone, MinLength: 10, Normalization: false, CaptureGroup: 0},
 	{Type: "CREDITOR_REF", Pattern: regexp.MustCompile(`\b[A-Z]{2}[0-9]{2}[A-Z]{3}[0-9A-Z]{6,25}\b`), Validator: ValNone, MinLength: 10, Normalization: false, CaptureGroup: 0},
+	
+	// US
+	{Type: "US_PASSPORT", Pattern: regexp.MustCompile(`(?i)(?:\bpassport\b|\bppt\b)[^0-9]{1,15}?([0-9]{9})\b`), Validator: ValNone, MinLength: 9, Normalization: true, CaptureGroup: 1},
+	{Type: "US_DRIVERS_LICENSE_NUMBER", Pattern: regexp.MustCompile(`(?i)(?:\bdl\b|\bdriver['']?s?\s*lic(?:ense)?\b)[^A-Z0-9]{1,15}?([A-Z0-9-]{6,20})\b`), Validator: ValNone, MinLength: 6, Normalization: true, CaptureGroup: 1},
 }

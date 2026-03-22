@@ -30,6 +30,36 @@
       "validation": "Modulo31",
       "tier": 1,
       "action": "STRIP"
+    },
+    {
+      "name": "FRANCE_SIREN_NUMBER",
+      "canonical_type": "FRANCE_SIREN_NUMBER",
+      "regex": "\\b[0-9]{3}\\s*[0-9]{3}\\s*[0-9]{3}\\b",
+      "validation": "Luhn",
+      "tier": 1,
+      "action": "STRIP"
+    },
+    {
+      "name": "FRANCE_SIRET_NUMBER",
+      "canonical_type": "FRANCE_SIRET_NUMBER",
+      "regex": "\\b[0-9]{3}\\s*[0-9]{3}\\s*[0-9]{3}\\s*[0-9]{5}\\b",
+      "validation": "Luhn",
+      "tier": 1,
+      "action": "STRIP"
+    },
+    {
+      "name": "US_PASSPORT",
+      "canonical_type": "US_PASSPORT",
+      "regex": "(?i)(?:\\bpassport\\b|\\bppt\\b)[^0-9]{1,15}?([0-9]{9})\\b",
+      "tier": 1,
+      "action": "VAULT"
+    },
+    {
+      "name": "US_DRIVERS_LICENSE_NUMBER",
+      "canonical_type": "US_DRIVERS_LICENSE_NUMBER",
+      "regex": "(?i)(?:\\bdl\\b|\\bdriver['']?s?\\s*lic(?:ense)?\\b)[^A-Z0-9]{1,15}?([A-Z0-9-]{6,20})\\b",
+      "tier": 1,
+      "action": "VAULT"
     }
   ]
 }
