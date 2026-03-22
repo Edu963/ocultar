@@ -130,6 +130,33 @@ func TestValidationLayer(t *testing.T) {
 	if len(res) > 0 {
 		t.Errorf("Expected invalid Chile RUT to fail, got hit")
 	}
+
+	// Valid India Aadhaar
+	res = eng.Scan("361153152701")
+	if len(res) == 0 {
+		t.Errorf("Expected valid India Aadhaar to pass, got no hits")
+	}
+	// Invalid India Aadhaar
+	res = eng.Scan("361153152702")
+	if len(res) > 0 {
+		t.Errorf("Expected invalid India Aadhaar to fail, got hit")
+	}
+
+	// Valid Singapore ID (S)
+	res = eng.Scan("S1234567D")
+	if len(res) == 0 {
+		t.Errorf("Expected valid Singapore ID (S) to pass, got no hits")
+	}
+	// Valid Singapore ID (F)
+	res = eng.Scan("F1234567M")
+	if len(res) == 0 {
+		t.Errorf("Expected valid Singapore ID (F) to pass, got no hits")
+	}
+	// Invalid Singapore ID
+	res = eng.Scan("S1234567A")
+	if len(res) > 0 {
+		t.Errorf("Expected invalid Singapore ID to fail, got hit")
+	}
 }
 
 func BenchmarkEngineScan(b *testing.B) {
