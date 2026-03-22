@@ -1,6 +1,6 @@
 module github.com/Edu963/ocultar-proxy
 
-go 1.24.0
+go 1.25.8
 
 replace github.com/Edu963/ocultar => ../../services/refinery
 
