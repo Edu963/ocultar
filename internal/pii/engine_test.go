@@ -26,6 +26,9 @@ func TestEngineEvasionResistance(t *testing.T) {
 		{"Valid DE StId", "StId: 65929970489", "65929970489"},
 		{"Base64 Evasion", "Data: REU4OTM3MDQwMDQ0MDUzMjAxMzAwMA==", ""}, // Base64 should be handled by refinery, not raw engine
 		{"Multi-line PII", "FR_NIR is\n190017500100112", "190017500100112"},
+		{"Valid BR CPF", "CPF: 123.456.789-09", "123.456.789-09"},
+		{"Valid CL RUT", "RUT: 12.345.678-5", "12.345.678-5"},
+		{"Valid CL RUT with K", "RUT: 16.222.333-K", "16.222.333-K"},
 	}
 
 	for _, tc := range cases {
@@ -99,5 +102,41 @@ func TestValidationLayer(t *testing.T) {
 	res = eng.Scan("65929970489")
 	if len(res) == 0 {
 		t.Errorf("Expected valid DE Steuer-ID to pass, got no hits")
+	}
+
+	// Valid Brazil CPF
+	res = eng.Scan("12345678909")
+	if len(res) == 0 {
+		t.Errorf("Expected valid Brazil CPF to pass, got no hits")
+	}
+	// Invalid Brazil CPF
+	res = eng.Scan("12345678900")
+	if len(res) > 0 {
+		t.Errorf("Expected invalid Brazil CPF to fail, got hit")
+	}
+
+	// Valid Chile RUT
+	res = eng.Scan("123456785")
+	if len(res) == 0 {
+		t.Errorf("Expected valid Chile RUT to pass, got no hits")
+	}
+	// Valid Chile RUT with K
+	res = eng.Scan("16222333K")
+	if len(res) == 0 {
+		t.Errorf("Expected valid Chile RUT with K to pass, got no hits")
+	}
+	// Invalid Chile RUT
+	res = eng.Scan("123456780")
+	if len(res) > 0 {
+		t.Errorf("Expected invalid Chile RUT to fail, got hit")
+	}
+}
+
+func BenchmarkEngineScan(b *testing.B) {
+	eng := pii.NewEngine()
+	input := "Hello, my name is John Doe and my CPF is 123.456.789-09 and my RUT is 12.345.678-5. My email is john@example.com."
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		eng.Scan(input)
 	}
 }

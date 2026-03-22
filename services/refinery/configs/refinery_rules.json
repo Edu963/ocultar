@@ -60,6 +60,22 @@
       "regex": "(?i)(?:\\bdl\\b|\\bdriver['']?s?\\s*lic(?:ense)?\\b)[^A-Z0-9]{1,15}?([A-Z0-9-]{6,20})\\b",
       "tier": 1,
       "action": "VAULT"
+    },
+    {
+      "name": "BR_CPF",
+      "canonical_type": "BRAZIL_CPF_NUMBER",
+      "regex": "\\b\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}\\b",
+      "validation": "DualModulo11",
+      "tier": 1,
+      "action": "STRIP"
+    },
+    {
+      "name": "CL_RUT",
+      "canonical_type": "CHILE_RUT_NUMBER",
+      "regex": "\\b(\\d{1,2}(?:\\.?\\d{3}){2}-?[\\dkK])\\b",
+      "validation": "Modulo11",
+      "tier": 1,
+      "action": "STRIP"
     }
   ]
 }
