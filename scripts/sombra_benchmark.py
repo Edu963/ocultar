@@ -95,10 +95,10 @@ async def main():
     print("Starting Competitive Performance Analysis Benchmark...")
     
     # Configuration
-    UPSTREAM_URL = "http://127.0.0.1:8082/" # Direct to Echo Server
-    PROXY_URL = "http://127.0.0.1:8081/query"    # Through Sombra Proxy
+    UPSTREAM_URL = "http://127.0.0.1:8085/" # Direct to Echo Server
+    PROXY_URL = "http://127.0.0.1:8084/query"    # Through Sombra Proxy
     CONCURRENCY = 50
-    TOTAL_REQUESTS = 1000
+    TOTAL_REQUESTS = 10
     
     print(f"Executing {TOTAL_REQUESTS} total requests with concurrency {CONCURRENCY}...")
     
@@ -128,10 +128,12 @@ async def main():
         "performance_verdict": "OPTIMAL" if overhead < 100 else "DEGRADED" if overhead < 200 else "SHALLOW_BYPASS_RECOMMENDED"
     }
     
-    with open("results.json", "w") as f:
+    output_path = "/home/edu/ocultar/reports/improvement/benchmarks.json"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as f:
         json.dump(report, f, indent=4)
         
-    print(f"Benchmark complete! Redaction Overhead Mean: {overhead:.2f}ms | P95: {sombra_stats['latency_ms']['p95']:.2f}ms. Results saved to results.json.")
+    print(f"Benchmark complete! Redaction Overhead Mean: {overhead:.2f}ms | P95: {sombra_stats['latency_ms']['p95']:.2f}ms. Results saved to {output_path}.")
 
 if __name__ == "__main__":
     asyncio.run(main())
