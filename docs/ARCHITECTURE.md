@@ -115,7 +115,7 @@ sequenceDiagram
 
     Note over E: Tier 0.1 — Base64 Evasion Shield
     Note over E: Tier 0.5 — Dictionary Shield (protected_entities.json)
-    Note over E: Tier 1 — Regex Shields (EMAIL, URL, custom)
+    Note over E: Tier 1 — Centralized Deterministic Pipeline (pii.Engine)
     Note over E: Tier 1.1 — Phone Shield (libphonenumber)
     Note over E: Tier 1.2 — Address Shield (heuristic parser)
     Note over E: Tier 1.5 — Greeting & Signature Shield

@@ -1,0 +1,78 @@
+package pii
+
+import "regexp"
+
+type ValidationMethod string
+
+const (
+	ValNone  ValidationMethod = "NONE"
+	ValLuhn  ValidationMethod = "LUHN"
+	ValMod97 ValidationMethod = "MOD97"
+)
+
+type EntityDef struct {
+	Type          string
+	Pattern       *regexp.Regexp
+	Validator     ValidationMethod
+	MinLength     int
+	Normalization bool // If true, caller should strip spaces/dashes before validation
+	CaptureGroup  int  // If > 0, only this capture group is tokenized
+}
+
+var Registry = []EntityDef{
+	// Financial
+	{Type: "IBAN", Pattern: regexp.MustCompile(`(?i)\b[A-Z]{2}[0-9]{2}(?:[A-Z0-9]{11,30}|(?:[\s-][A-Z0-9]{4}){2,7}[\s-]?[A-Z0-9]{0,3})\b`), Validator: ValMod97, MinLength: 15, Normalization: true, CaptureGroup: 0},
+	{Type: "CREDIT_CARD", Pattern: regexp.MustCompile(`\b(?:4[0-9\s-]{12,19}|5[1-5][0-9\s-]{14,19}|6(?:011|5[0-9]{2})[0-9\s-]{12,19}|3[47][0-9\s-]{13,19}|3(?:0[0-5]|[68][0-9])[0-9\s-]{11,19}|(?:2131|1800|35\d{3})[0-9\s-]{11,19})\b`), Validator: ValLuhn, MinLength: 13, Normalization: true, CaptureGroup: 0},
+	{Type: "BIC", Pattern: regexp.MustCompile(`\b[A-Z]{6}[A-Z0-9]{2}(?:[A-Z0-9]{3})?\b`), Validator: ValNone, MinLength: 8, Normalization: false, CaptureGroup: 0},
+
+	// EU/UK VAT (Generic EU VAT)
+	{Type: "EU_VAT", Pattern: regexp.MustCompile(`(?i)\b(?:ATU[0-9]{8}|BE0[0-9]{9}|BG[0-9]{9,10}|CY[0-9]{8}[A-Z]|CZ[0-9]{8,10}|DE[0-9]{9}|DK[0-9]{8}|EE[0-9]{9}|EL[0-9]{9}|ES[A-Z0-9][0-9]{7}[A-Z0-9]|FI[0-9]{8}|FR[A-Z0-9]{2}[0-9]{9}|HR[0-9]{11}|HU[0-9]{8}|IE[0-9][A-Z0-9+*][0-9]{5}[A-Z]|IT[0-9]{11}|LT[0-9]{9,12}|LU[0-9]{8}|LV[0-9]{11}|MT[0-9]{8}|NL[0-9]{9}B[0-9]{2}|PL[0-9]{10}|PT[0-9]{9}|RO[0-9]{2,10}|SE[0-9]{12}|SI[0-9]{8}|SK[0-9]{10}|XI[0-9]{9})\b`), Validator: ValNone, MinLength: 6, Normalization: true},
+
+	// France
+	{Type: "FR_NIR", Pattern: regexp.MustCompile(`\b[12]\s*\d{2}\s*(?:0[1-9]|1[0-2])\s*(?:2[AB]|\d{2})\s*\d{3}\s*\d{3}\s*\d{2}\b`), Validator: ValNone, MinLength: 15, Normalization: true},
+	{Type: "FR_SIREN", Pattern: regexp.MustCompile(`\b[0-9]{3}\s*[0-9]{3}\s*[0-9]{3}\b`), Validator: ValNone, MinLength: 9, Normalization: true},
+	{Type: "FR_SIRET", Pattern: regexp.MustCompile(`\b[0-9]{3}\s*[0-9]{3}\s*[0-9]{3}\s*[0-9]{5}\b`), Validator: ValNone, MinLength: 14, Normalization: true},
+
+	// Spain
+	{Type: "ES_DNI_NIE", Pattern: regexp.MustCompile(`(?i)\b[XYZ]?\d{7,8}[A-Z]\b`), Validator: ValNone, MinLength: 9, Normalization: true},
+	{Type: "ES_CIF", Pattern: regexp.MustCompile(`(?i)\b[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]\b`), Validator: ValNone, MinLength: 9, Normalization: true},
+
+	// Germany
+	{Type: "DE_STEUER_ID", Pattern: regexp.MustCompile(`\b\d{2}\s*\d{3}\s*\d{3}\s*\d{3}\b|\b\d{11}\b`), Validator: ValNone, MinLength: 11, Normalization: true},
+
+	// Italy
+	{Type: "IT_CODICE_FISCALE", Pattern: regexp.MustCompile(`(?i)\b[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]\b`), Validator: ValNone, MinLength: 16, Normalization: true},
+
+	// Netherlands
+	{Type: "NL_BSN", Pattern: regexp.MustCompile(`\b\d{9}\b`), Validator: ValNone, MinLength: 9, Normalization: true},
+
+	// UK
+	{Type: "UK_NINO", Pattern: regexp.MustCompile(`(?i)\b[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z]\s*\d{2}\s*\d{2}\s*\d{2}\s*[A-D]\b`), Validator: ValNone, MinLength: 9, Normalization: true},
+	{Type: "UK_NHS", Pattern: regexp.MustCompile(`\b\d{3}\s*\d{3}\s*\d{4}\b`), Validator: ValNone, MinLength: 10, Normalization: true},
+
+	// Poland
+	{Type: "PL_PESEL", Pattern: regexp.MustCompile(`\b\d{11}\b`), Validator: ValNone, MinLength: 11, Normalization: true},
+
+	// Nordics
+	{Type: "SE_PIN", Pattern: regexp.MustCompile(`\b\d{6}[-+]?\d{4}\b|\b\d{8}[-+]?\d{4}\b`), Validator: ValNone, MinLength: 10, Normalization: true},
+	{Type: "DK_CPR", Pattern: regexp.MustCompile(`\b\d{6}[-]?\d{4}\b`), Validator: ValNone, MinLength: 10, Normalization: true},
+	{Type: "FI_HETU", Pattern: regexp.MustCompile(`(?i)\b\d{6}[A-Y+-]\d{3}[0-9A-FHJ-NPR-Y]\b`), Validator: ValNone, MinLength: 11, Normalization: true},
+
+	// Generic Entities
+	{Type: "EMAIL", Pattern: regexp.MustCompile(`(?i)\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b`), Validator: ValNone, MinLength: 5, Normalization: false, CaptureGroup: 0},
+	{Type: "URL", Pattern: regexp.MustCompile(`(?i)https?://[^\s"<>\{\}\[\]\\]+|\bwww\.[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}[^\s"<>\{\}\[\]\\]*`), Validator: ValNone, MinLength: 8, Normalization: false, CaptureGroup: 0},
+	{Type: "SSN", Pattern: regexp.MustCompile(`\b\d{3}-\d{2}-\d{4}\b`), Validator: ValNone, MinLength: 11, Normalization: false, CaptureGroup: 0},
+	{Type: "CREDENTIAL", Pattern: regexp.MustCompile(`(?i)\bpassword\s*[:=]\s*[^\s,]+`), Validator: ValNone, MinLength: 10, Normalization: false, CaptureGroup: 0},
+	{Type: "SECRET", Pattern: regexp.MustCompile(`(?i)\b(?:secret|key|token)\s*[:=]\s*[^\s,]+`), Validator: ValNone, MinLength: 8, Normalization: false, CaptureGroup: 0},
+	{Type: "PATIENT_ID", Pattern: regexp.MustCompile(`\b[A-Z]{2,3}[0-9]{6,10}\b`), Validator: ValNone, MinLength: 8, Normalization: false, CaptureGroup: 0},
+	{Type: "MEDICAL_RECORD", Pattern: regexp.MustCompile(`\bMRN[- ]?[0-9]{7,10}\b`), Validator: ValNone, MinLength: 10, Normalization: false, CaptureGroup: 0},
+
+	// Legacy Scrubber Specific Entity Extraction
+	{Type: "ACCOUNT_NUMBER", Pattern: regexp.MustCompile(`(?i)(compte[^n\[]*n[°o]|account[- _]?(?:number|no|nr)|num[eé]ro de compte|konto[- _]?(?:nr|nummer)|n[úu]mero de cuenta|conto corrente|n[°o]\b)\s*:?\s*([0-9]{6,20})\b`), Validator: ValNone, MinLength: 6, Normalization: false, CaptureGroup: 2},
+	{Type: "MEMO_TEXT", Pattern: regexp.MustCompile(`(?i)((?:VIR(?:\s+INST)?\s+vers|WEB\s+(?:MONSIEUR|MADAME|MME|MR|MS|MRS|HERR|FRAU|SEÑOR|SEÑORA)\s+)(?:[A-ZÀ-ÖØ-Ýa-zÀ-ÖØ-öø-ÿ\-\']+\s+){1,5})([A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ0-9 ,\.\-\'!\?\/\&\*\(\)]{3,}.*)$`), Validator: ValNone, MinLength: 3, Normalization: false, CaptureGroup: 2},
+	{Type: "PERSON", Pattern: regexp.MustCompile(`(?i)(?:VIR(?:\s+INST)?\s+vers\s+|(?:WEB|PISP-\w+)\s+(?:MONSIEUR|MADAME|MME|MR|MS|MRS|HERR|FRAU|SEÑOR|SEÑORA|SIGNOR|SIGNORA)?\s*|DE\s+(?:MONSIEUR|MADAME|MME|MR|MS|MRS|HERR|FRAU|SEÑOR|SEÑORA)\s+)((?:[A-ZÀ-ÖØ-Ý][A-Za-zÀ-ÖØ-öø-ÿ\-\']+(?:\s+|$)){1,4})`), Validator: ValNone, MinLength: 3, Normalization: false, CaptureGroup: 1},
+	{Type: "PERSON", Pattern: regexp.MustCompile(`(?i)(SUMUP\s*\*|SUMUP  \*|SumUp\s*\*|ZETTLE_?\*|SQ\s*\*|IZETTLE\s*\*|LYRA\s*\*)([A-ZÀ-ÖØ-Ýa-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ\s\-\.]{2,35})`), Validator: ValNone, MinLength: 3, Normalization: false, CaptureGroup: 2},
+	{Type: "HEALTH_ENTITY", Pattern: regexp.MustCompile(`(?i)(?:\b(ANESTHESIE|ANESTHESIA|ANäSTHESIE|ANESTESIA|CLINIQUE|CLINIC|KLINIK|CLINICA|PHARMACIE|PHARMACY|APOTHEKE|FARMACIA|CPAM|CAISSE PRIMAIRE|MUTUELLE|MUTUALITE|MUTUALIDAD|HOPITAL|HOSPITAL|KRANKENHAUS|OSPEDALE|SPITAL|MEDECIN|DOCTEUR|ARZT|MEDICO|DOTTORE|PSYCHOLOGUE|PSYCHOLOGIST|PSYCHIATRIE|PSYCHIATER|SOINS?|PFLEGE|RADIOLOGIE|RADIOLOGY|DENTISTE|DENTIST|ZAHNARZT|DENTISTA|OPTICIEN|OPTIKER|KINESITHERAPIE|PHYSIOTHERAPIE|PHYSIOTHERAPY|FISIOTERAPIA|LABORATOIRE|LABORATORIO)\b|C\.P\.A\.M\.|GROUPAMA GAN VIE|AESIO MUTUELLE|ADREA MUTUELLE)`), Validator: ValNone, MinLength: 4, Normalization: false, CaptureGroup: 0},
+	{Type: "TAX_REF", Pattern: regexp.MustCompile(`(?i)\bNN[A-Z]{2}[0-9A-Z]{10,35}\b`), Validator: ValNone, MinLength: 10, Normalization: false, CaptureGroup: 0},
+	{Type: "CREDITOR_REF", Pattern: regexp.MustCompile(`\b[A-Z]{2}[0-9]{2}[A-Z]{3}[0-9A-Z]{6,25}\b`), Validator: ValNone, MinLength: 10, Normalization: false, CaptureGroup: 0},
+}

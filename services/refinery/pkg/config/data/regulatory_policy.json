@@ -13,7 +13,16 @@
     "PERSON_FOUNDER": { "regulation": "BUSINESS_SECRETS", "article": "Internal", "description": "Executive identity protection" },
     "TRANSACTION_CODE": { "regulation": "BUSINESS_SECRETS", "article": "Internal", "description": "Proprietary financial transaction identifier" },
     "CREDIT_CARD": { "regulation": "PCI_DSS", "requirement": "Sec. 3", "description": "Protect stored cardholder data" },
-    "SSN": { "regulation": "GDPR", "article": "Art. 6", "description": "National identification numbers" }
+    "SSN": { "regulation": "GDPR", "article": "Art. 6", "description": "National identification numbers" },
+    "IBAN": { "regulation": "GDPR", "article": "Art. 32", "description": "Financial Identifier padding" },
+    "EU_VAT": { "regulation": "GDPR", "article": "Art. 4(1)", "description": "Tax Identification" },
+    "FR_NIR": { "regulation": "GDPR", "article": "Art. 9", "description": "French Social Security" },
+    "ES_DNI": { "regulation": "GDPR", "article": "Art. 4(1)", "description": "Spanish National ID" },
+    "DE_STEUER_ID": { "regulation": "GDPR", "article": "Art. 4(1)", "description": "German Tax ID" },
+    "IT_CODICE_FISCALE": { "regulation": "GDPR", "article": "Art. 4(1)", "description": "Italian Fiscal Code" },
+    "NL_BSN": { "regulation": "GDPR", "article": "Art. 4(1)", "description": "Dutch Citizen Service Number" },
+    "UK_NINO": { "regulation": "UK GDPR", "article": "Art. 4(1)", "description": "UK National Insurance Number" },
+    "UK_NHS": { "regulation": "UK GDPR", "article": "Art. 9", "description": "UK National Health Service" }
   },
   "default_posture": "FAIL_CLOSED"
 }

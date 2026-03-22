@@ -12,6 +12,11 @@ Welcome to the unified Ocultar Refinery ecosystem. This monorepo contains all co
 - `/business/` - Business strategy and roadmap
 - `/tools/` - Development and build tools
 
+## Key Features
+
+- **EU Sovereign Detection Pack (v1)**: Production-grade deterministic PII detection with mathematical checksum validation (Mod-97, Luhn) and evasion resistance (Tier 0). Fully compliant with GDPR Art 4 & 32. Covers all major EU + UK national identifiers (VAT, NIR, DNI, BSN, NINO, etc.).
+- **Zero-Egress Architecture**: PII is masked *before* ever leaving the trust boundary or hitting an LLM.
+
 ## Getting Started
 
 1.  **Environment Setup**:

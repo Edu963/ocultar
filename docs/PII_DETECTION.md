@@ -28,6 +28,15 @@ The Refinery operates on a multi-tier defense-in-depth model:
 | `[SSN_...]` | Identity | Social Security Numbers (US format). | GDPR, HIPAA, Tax Compliance |
 | `[CREDENTIAL_...]` | Security | Passwords and authentication secrets. | OWASP, PCI-DSS, ISO 27001 |
 | `[SECRET_...]` | Security | API keys, tokens, and cryptographic secrets. | OWASP, PCI-DSS, ISO 27001 |
+| `[IBAN_...]` | Financial | International Bank Account Numbers. | GDPR, PCI-DSS |
+| `[EU_VAT_...]` | Financial | EU and UK Value Added Tax numbers. | GDPR, Tax Compliance |
+| `[FR_NIR_...]` | Identity | French Social Security Numbers (NIR). | GDPR Art. 9, CNIL |
+| `[ES_DNI_...]` | Identity | Spanish National Identity Numbers (DNI/NIE/CIF). | LOPD, GDPR |
+| `[DE_STEUER_ID_...]` | Identity | German Tax Identification Numbers. | GDPR, BDSG |
+| `[IT_CODICE_FISCALE_...]` | Identity | Italian Fiscal Codes. | GDPR, Codice in materia di protezione dei dati personali |
+| `[NL_BSN_...]` | Identity | Dutch Citizen Service Numbers (BSN). | GDPR, UAVG |
+| `[UK_NINO_...]` | Identity | UK National Insurance Numbers. | UK GDPR, HMRC |
+| `[UK_NHS_...]` | Identity | UK National Health Service numbers. | UK GDPR, NHS Data Security |
 
 ## 3. Redaction Behavior
 
