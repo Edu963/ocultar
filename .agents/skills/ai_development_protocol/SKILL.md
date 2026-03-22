@@ -37,8 +37,8 @@ The AI Development Protocol is the authoritative orchestrator for the project li
 
 ### Step 2 — Impact Mapping
 **Dependency**: `change-impact-visualizer`
-- Map modified files to functional domains (Engine, UI, Policy, Docs).
-- **Validation**: If changes affect `services/engine/` but no test updates are present, flag as `WARNING`.
+- Map modified files to functional domains (Refinery, UI, Policy, Docs).
+- **Validation**: If changes affect `services/refinery/` but no test updates are present, flag as `WARNING`.
 
 ### Step 3 — Integrated Governance Sync
 **Dependency**: `compliance-docs-orchestrator`

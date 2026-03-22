@@ -36,7 +36,7 @@ Analyze active rules against Framework Benchmarks:
 - **PCI-DSS (Finance)**: Ensure `FAIL_CLOSED` for credit card categories.
 
 ### 2. Shadow PII Detection
-- Identify detected categories in the engine that lack a regulatory mapping.
+- Identify detected categories in the refinery that lack a regulatory mapping.
 - **Weight**: Each "Shadow Category" reduces `readiness_score` by 5 points.
 
 ### 3. Gap Analysis & Scoring

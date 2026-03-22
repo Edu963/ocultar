@@ -116,7 +116,7 @@ func (p *postgresProvider) Close() error {
 }
 
 // GetEncryptedByToken performs a reverse lookup by token string.
-// Satisfies the internal tokenLookup interface used by engine.DecryptToken.
+// Satisfies the internal tokenLookup interface used by refinery.DecryptToken.
 func (p *postgresProvider) GetEncryptedByToken(token string) (string, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

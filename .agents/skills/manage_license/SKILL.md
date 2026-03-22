@@ -40,7 +40,7 @@ The MLC manages the "Offline Root-of-Trust". It handles the generation, signing,
 - **Integrity Check**: Validate the generated token immediately via `license_validation_cli` before deployment.
 
 ### 3. Registry Update
-- Update `services/engine/pkg/license/license.go` with the new public key if rotated.
+- Update `services/refinery/pkg/license/license.go` with the new public key if rotated.
 - Deploy the token to the target `.env` file via `sed` or the configuration manager.
 
 ## Failure Handling

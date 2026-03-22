@@ -90,7 +90,7 @@ func (p *duckdbProvider) Close() error {
 
 // GetEncryptedByToken performs a reverse lookup: given a vault token string
 // (e.g. "[EMAIL_a1b2c3d4]"), it returns the encrypted_pii blob.
-// This satisfies the internal tokenLookup interface used by engine.DecryptToken.
+// This satisfies the internal tokenLookup interface used by refinery.DecryptToken.
 func (p *duckdbProvider) GetEncryptedByToken(token string) (string, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

@@ -9,8 +9,8 @@ distributions:
     name: "ocultar-community"
     format: "zip"
     components:
-      - name: "engine"
-        src: "./services/engine/cmd/main.go"
+      - name: "refinery"
+        src: "./services/refinery/cmd/main.go"
         type: "go-binary"
         dest: "ocultar"
       - name: "dashboard"
@@ -39,13 +39,13 @@ distributions:
     format: "tar.gz"
     extends: "community"
     components:
-      - name: "enterprise-engine"
-        src: "./enterprise/engine-extensions/cmd/ocultar-enterprise/main.go"
+      - name: "enterprise-refinery"
+        src: "./enterprise/refinery-extensions/cmd/ocultar-enterprise/main.go"
         type: "go-binary"
         dest: "ocultar-enterprise"
         optional: true
       - name: "config-template"
-        src: "./services/engine/configs/config.yaml"
+        src: "./services/refinery/configs/config.yaml"
         type: "file"
         dest: "config.yaml"
       - name: "enterprise-scripts"

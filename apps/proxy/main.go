@@ -20,7 +20,7 @@ import (
 	"os"
 
 	"github.com/Edu963/ocultar/pkg/config"
-	"github.com/Edu963/ocultar/pkg/engine"
+	"github.com/Edu963/ocultar/pkg/refinery"
 	"github.com/Edu963/ocultar/pkg/license"
 	"github.com/Edu963/ocultar/pkg/proxy"
 	"github.com/Edu963/ocultar/vault"
@@ -73,13 +73,13 @@ func main() {
 	}
 	defer vaultProvider.Close()
 
-	// ── Boot engine ───────────────────────────────────────────────────────────
+	// ── Boot refinery ───────────────────────────────────────────────────────────
 	pilotMode := license.Active.Tier == "community" ||
 		os.Getenv("OCU_PILOT_MODE") == "1" ||
 		os.Getenv("OCU_PILOT_MODE") == "true"
 
-	eng := engine.NewEngine(vaultProvider, masterKey)
-	eng.Serve = "proxy" // marks the engine as running in serve mode (enables hit tracking)
+	eng := refinery.NewRefinery(vaultProvider, masterKey)
+	eng.Serve = "proxy" // marks the refinery as running in serve mode (enables hit tracking)
 	eng.PilotMode = pilotMode
 
 	// ── Build proxy handler ───────────────────────────────────────────────────

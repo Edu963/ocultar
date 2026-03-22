@@ -17,7 +17,7 @@ The RID acts as the semantic bridge between legal requirements and technical con
 
 ### Outputs
 - `intent_manifest` (JSON): Structured technical requirements.
-- `unknown_entities` (List): Terms that do not map to known Engine categories.
+- `unknown_entities` (List): Terms that do not map to known Refinery categories.
 - `risk_weight` (Int): 1-10 (Potential architectural impact).
 
 ## Preconditions
@@ -56,12 +56,12 @@ Generate a valid JSON object matching this schema:
 ```
 
 ### 4. Integrity Validation
-- Check every `category` against the engine’s `Refinery Architecture Manager`.
+- Check every `category` against the refinery’s `Refinery Architecture Manager`.
 - **Fail-Safe**: If any `rule.action` is unknown, set it to `BLOCK`.
 
 ## Failure Handling
 - **`CITATIONAL_DRIFT`**: If the source contradicts existing base policy, flag for CISO review.
-- **`SCHEMA_VERSION_MISMATCH`**: Reject digests that target deprecated engine versions.
+- **`SCHEMA_VERSION_MISMATCH`**: Reject digests that target deprecated refinery versions.
 
 ## Postconditions
 - Output MUST be passed to `policy-schema-generator` for active rule updating.

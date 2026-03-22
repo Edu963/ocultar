@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "canonical_components": {
     "Refinery": {
-      "path": "services/engine/",
+      "path": "services/refinery/",
       "responsibility": "Core PII detection and redaction logic."
     },
     "Sombra": {
@@ -15,12 +15,12 @@
       "responsibility": "AES-256 encrypted storage for de-identified PII."
     },
     "Shield": {
-      "path": "services/engine/pkg/shield/",
+      "path": "services/refinery/pkg/shield/",
       "responsibility": "Deterministic protection for VIPs and sensitive entities."
     }
   },
   "forbidden_terms": {
-    "Engine": "Refinery",
-    "Souverain": "Ocultar"
+    "Refinery": "Refinery",
+    "Ocultar": "Ocultar"
   }
 }
