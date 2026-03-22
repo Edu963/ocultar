@@ -76,6 +76,22 @@
       "validation": "Modulo11",
       "tier": 1,
       "action": "STRIP"
+    },
+    {
+      "name": "INDIA_AADHAAR",
+      "canonical_type": "INDIA_AADHAAR_NUMBER",
+      "regex": "\\b\\d{12}\\b",
+      "validation": "Verhoeff",
+      "tier": 1,
+      "action": "STRIP"
+    },
+    {
+      "name": "SINGAPORE_ID",
+      "canonical_type": "SINGAPORE_NATIONAL_ID",
+      "regex": "(?i)\\b[STFGM]\\d{7}[A-Z]\\b",
+      "validation": "WeightedChecksum",
+      "tier": 1,
+      "action": "STRIP"
     }
   ]
 }

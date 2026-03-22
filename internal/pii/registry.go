@@ -18,6 +18,8 @@ const (
 	ValSEPIN  ValidationMethod = "SE_PIN"
 	ValBRCPF  ValidationMethod = "BR_CPF"
 	ValCLRUT  ValidationMethod = "CL_RUT"
+	ValIndiaAadhaar ValidationMethod = "INDIA_AADHAAR"
+	ValSingaporeID  ValidationMethod = "SG_ID"
 )
 
 type EntityDef struct {
@@ -100,4 +102,8 @@ var Registry = []EntityDef{
 	// LATAM Core (Phase 4A)
 	{Type: "BR_CPF", Pattern: regexp.MustCompile(`\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b`), Validator: ValBRCPF, MinLength: 11, Normalization: true},
 	{Type: "CL_RUT", Pattern: regexp.MustCompile(`\b(\d{1,2}(?:\.?\d{3}){2}-?[\dkK])\b`), Validator: ValCLRUT, MinLength: 8, Normalization: true},
+	
+	// APAC Financial (Phase 4B)
+	{Type: "INDIA_AADHAAR", Pattern: regexp.MustCompile(`\b\d{12}\b`), Validator: ValIndiaAadhaar, MinLength: 12, Normalization: true},
+	{Type: "SINGAPORE_ID", Pattern: regexp.MustCompile(`(?i)\b[STFGM]\d{7}[A-Z]\b`), Validator: ValSingaporeID, MinLength: 9, Normalization: true},
 }

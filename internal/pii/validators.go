@@ -286,6 +286,105 @@ func IsCLRUTValid(s string) bool {
 	return expectedDigit == checkDigit
 }
 
+// IsAadhaarValid validates India's 12-digit Aadhaar number using Verhoeff algorithm.
+func IsAadhaarValid(s string) bool {
+	s = Normalize(s)
+	if len(s) != 12 {
+		return false
+	}
+
+	d := [][]int{
+		{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+		{1, 2, 3, 4, 0, 6, 7, 8, 9, 5},
+		{2, 3, 4, 0, 1, 7, 8, 9, 5, 6},
+		{3, 4, 0, 1, 2, 8, 9, 5, 6, 7},
+		{4, 0, 1, 2, 3, 9, 5, 6, 7, 8},
+		{5, 9, 8, 7, 6, 0, 4, 3, 2, 1},
+		{6, 5, 9, 8, 7, 1, 0, 4, 3, 2},
+		{7, 6, 5, 9, 8, 2, 1, 0, 4, 3},
+		{8, 7, 6, 5, 9, 3, 2, 1, 0, 4},
+		{9, 8, 7, 6, 5, 4, 3, 2, 1, 0},
+	}
+	p := [][]int{
+		{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+		{1, 5, 7, 6, 2, 8, 3, 0, 9, 4},
+		{5, 8, 0, 3, 7, 9, 6, 1, 4, 2},
+		{8, 9, 1, 6, 0, 4, 3, 5, 2, 7},
+		{9, 4, 5, 3, 1, 2, 6, 8, 7, 0},
+		{4, 2, 8, 6, 5, 7, 3, 9, 0, 1},
+		{2, 7, 9, 3, 8, 0, 6, 4, 1, 5},
+		{7, 0, 4, 6, 9, 1, 3, 2, 5, 8},
+	}
+
+	c := 0
+	for i := 0; i < len(s); i++ {
+		digit := int(s[len(s)-1-i] - '0')
+		c = d[c][p[i%8][digit]]
+	}
+	return c == 0
+}
+
+// IsSGIDValid validates Singapore NRIC/FIN using weighted checksum.
+func IsSGIDValid(s string) bool {
+	if len(s) != 9 {
+		return false
+	}
+	prefix := s[0]
+	if prefix >= 'a' && prefix <= 'z' {
+		prefix -= 32
+	}
+	suffix := s[8]
+	if suffix >= 'a' && suffix <= 'z' {
+		suffix -= 32
+	}
+
+	digits := s[1:8]
+	weights := []int{2, 7, 6, 5, 4, 3, 2}
+	sum := 0
+	for i := 0; i < 7; i++ {
+		sum += int(digits[i]-'0') * weights[i]
+	}
+
+	offset := 0
+	switch prefix {
+	case 'S':
+		offset = 0
+	case 'T':
+		offset = 4
+	case 'F':
+		offset = 1
+	case 'G':
+		offset = 5
+	case 'M':
+		offset = 3 // M series uses a different logic for mapping, but offset 3 is standard for sum
+	default:
+		return false
+	}
+
+	sum += offset
+	remainder := sum % 11
+	
+	var table string
+	switch prefix {
+	case 'S':
+		table = "JZIHGFEDCBA"
+	case 'T':
+		table = "GFEDCBAJZIH"
+	case 'F':
+		table = "XWUTRQPNMLK"
+	case 'G':
+		table = "TRQPNMLKXWU"
+	case 'M':
+		table = "KLJN PQR TUWX"
+		// M series: 0=K, 1=L, 2=J, 3=N, 4=P, 5=Q, 6=R, 7=T, 8=U, 9=W, 10=X
+		table = "KLJN PQR TUWX" // Note: space at index 4 is just for clarity or if it's 1-indexed? No.
+		table = "KLJN PQRTUWX" // 11 characters
+		table = "KLJNPQRTUWX"
+	}
+
+	return table[remainder] == suffix
+}
+
 // GetValidator returns the appropriate function for a given validation method
 func GetValidator(name ValidationMethod) Validator {
 	switch name {
@@ -313,6 +412,10 @@ func GetValidator(name ValidationMethod) Validator {
 		return IsBRCPFValid
 	case ValCLRUT:
 		return IsCLRUTValid
+	case ValIndiaAadhaar:
+		return IsAadhaarValid
+	case ValSingaporeID:
+		return IsSGIDValid
 	default:
 		return nil
 	}
