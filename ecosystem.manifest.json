@@ -7,7 +7,7 @@
       "responsibility": "Core PII detection and redaction logic."
     },
     "Sombra": {
-      "path": "apps/gateway/",
+      "path": "apps/sombra/",
       "responsibility": "Agentic gateway and LLM proxy orchestration."
     },
     "Vault": {

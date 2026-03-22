@@ -65,7 +65,7 @@ graph TD
         SLM["Specialized SLM ✦\n(Clinical / General)\nllama.cpp / Qwen"]
         Dashboard["Dashboard\nindex.html\n:9090"]
         AuditLog["Audit System\npkg/audit\nTamper-proof logs"]
-        Connectors["Sombra Pro Connectors ✦\npkg/connector\nSlack / SharePoint"]
+        Connectors["Sombra Pro Connectors ✦\napps/sombra/pkg/connector\nSlack / SharePoint"]
     end
 
     subgraph "External"
