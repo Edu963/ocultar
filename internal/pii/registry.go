@@ -13,6 +13,9 @@ const (
 	ValNLBSN ValidationMethod = "NL_BSN"
 	ValPLPSL ValidationMethod = "PL_PESEL"
 	ValDESTID ValidationMethod = "DE_STID"
+	ValDKCPR  ValidationMethod = "DK_CPR"
+	ValFIHETU ValidationMethod = "FI_HETU"
+	ValSEPIN  ValidationMethod = "SE_PIN"
 )
 
 type EntityDef struct {
@@ -29,6 +32,7 @@ var Registry = []EntityDef{
 	{Type: "AWS_KEY", Pattern: regexp.MustCompile(`\bAKIA[0-9A-Z]{16}\b`), Validator: ValNone, MinLength: 20, Normalization: false},
 	{Type: "AWS_SECRET", Pattern: regexp.MustCompile(`\b[0-9a-zA-Z/+]{40}\b`), Validator: ValNone, MinLength: 40, Normalization: false},
 	{Type: "GCP_SERVICE_ACCOUNT", Pattern: regexp.MustCompile(`(?i)\b[a-z0-9-]+@[a-z0-9-]+\.iam\.gserviceaccount\.com\b`), Validator: ValNone, MinLength: 15, Normalization: false},
+	{Type: "IP_ADDRESS", Pattern: regexp.MustCompile(`\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b`), Validator: ValNone, MinLength: 7, Normalization: false},
 
 	// Financial
 	{Type: "IBAN", Pattern: regexp.MustCompile(`(?i)\b[A-Z]{2}[0-9]{2}(?:[A-Z0-9]{11,30}|(?:[\s-][A-Z0-9]{4}){2,7}[\s-]?[A-Z0-9]{0,3})\b`), Validator: ValMod97, MinLength: 15, Normalization: true, CaptureGroup: 0},
@@ -64,9 +68,10 @@ var Registry = []EntityDef{
 	{Type: "PL_PESEL", Pattern: regexp.MustCompile(`\b\d{11}\b`), Validator: ValPLPSL, MinLength: 11, Normalization: true},
 
 	// Nordics
-	{Type: "SE_PIN", Pattern: regexp.MustCompile(`\b\d{10,12}\b`), Validator: ValNone, MinLength: 10, Normalization: true},
-	{Type: "DK_CPR", Pattern: regexp.MustCompile(`\b\d{10}\b`), Validator: ValNone, MinLength: 10, Normalization: true},
-	{Type: "FI_HETU", Pattern: regexp.MustCompile(`(?i)\b\d{6}[A-Y+-]\d{3}[0-9A-FHJ-NPR-Y]\b`), Validator: ValNone, MinLength: 11, Normalization: true},
+	{Type: "FI_HETU", Pattern: regexp.MustCompile(`(?i)\b(?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2}[A+-]\d{3}[0-9A-FHJ-NPR-Y]\b`), Validator: ValFIHETU, MinLength: 11, Normalization: false},
+	{Type: "SE_PIN", Pattern: regexp.MustCompile(`\b(18|19|20)?\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[-+]?\d{4}\b`), Validator: ValSEPIN, MinLength: 10, Normalization: true},
+	{Type: "DK_CPR", Pattern: regexp.MustCompile(`\b(?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2}[-]?\d{4}\b`), Validator: ValDKCPR, MinLength: 10, Normalization: true},
+	{Type: "NO_FNR", Pattern: regexp.MustCompile(`\b(?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2}\s*\d{5}\b`), Validator: ValNone, MinLength: 11, Normalization: true},
 
 	// Generic Entities
 	{Type: "EMAIL", Pattern: regexp.MustCompile(`(?i)\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b`), Validator: ValNone, MinLength: 5, Normalization: false, CaptureGroup: 0},
