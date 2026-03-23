@@ -275,11 +275,12 @@ func IsCLRUTValid(s string) bool {
 
 	expectedMod := 11 - (sum % 11)
 	var expectedDigit byte
-	if expectedMod == 11 {
+	switch expectedMod {
+	case 11:
 		expectedDigit = '0'
-	} else if expectedMod == 10 {
+	case 10:
 		expectedDigit = 'K'
-	} else {
+	default:
 		expectedDigit = byte('0' + expectedMod)
 	}
 
