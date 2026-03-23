@@ -286,6 +286,54 @@ func IsCLRUTValid(s string) bool {
 	return expectedDigit == checkDigit
 }
 
+// IsESCIFValid validates Spanish CIF using documented check digit logic.
+func IsESCIFValid(s string) bool {
+	s = Normalize(s)
+	if len(s) != 9 {
+		return false
+	}
+	prefix := s[0]
+	if prefix >= 'a' && prefix <= 'z' {
+		prefix -= 32
+	}
+	
+	sum := 0
+	for i := 1; i < 8; i++ {
+		digit := int(s[i] - '0')
+		if i%2 != 0 {
+			digit *= 2
+			if digit > 9 {
+				digit -= 9
+			}
+		}
+		sum += digit
+	}
+	
+	control := (10 - (sum % 10)) % 10
+	suffix := s[8]
+	if suffix >= 'a' && suffix <= 'j' {
+		suffix -= 32
+	}
+
+	// Suffix types:
+	// - Numeric only: P, Q, R, S, W (non-standard but common)
+	// - Letter only: A, B, C, D, E, F, G, H
+	// - Both: others
+	
+	isLetterOnly := prefix == 'P' || prefix == 'Q' || prefix == 'R' || prefix == 'S' || prefix == 'W'
+	isNumericOnly := prefix == 'A' || prefix == 'B' || prefix == 'C' || prefix == 'D' || prefix == 'E' || prefix == 'F' || prefix == 'G' || prefix == 'H'
+	
+	if isLetterOnly {
+		return suffix == "ABCDEFGHIJ"[control]
+	}
+	if isNumericOnly {
+		return suffix == byte('0'+control)
+	}
+	
+	// Both allowed
+	return suffix == byte('0'+control) || suffix == "ABCDEFGHIJ"[control]
+}
+
 // IsAadhaarValid validates India's 12-digit Aadhaar number using Verhoeff algorithm.
 func IsAadhaarValid(s string) bool {
 	s = Normalize(s)
@@ -416,6 +464,8 @@ func GetValidator(name ValidationMethod) Validator {
 		return IsAadhaarValid
 	case ValSingaporeID:
 		return IsSGIDValid
+	case ValESCIF:
+		return IsESCIFValid
 	default:
 		return nil
 	}

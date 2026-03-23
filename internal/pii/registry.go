@@ -20,6 +20,7 @@ const (
 	ValCLRUT  ValidationMethod = "CL_RUT"
 	ValIndiaAadhaar ValidationMethod = "INDIA_AADHAAR"
 	ValSingaporeID  ValidationMethod = "SG_ID"
+	ValESCIF        ValidationMethod = "ES_CIF"
 )
 
 type EntityDef struct {
@@ -53,7 +54,7 @@ var Registry = []EntityDef{
 
 	// Spain
 	{Type: "ES_DNI_NIE", Pattern: regexp.MustCompile(`(?i)\b[XYZ]?\d{7,8}[A-Z]\b`), Validator: ValESDNI, MinLength: 9, Normalization: true},
-	{Type: "ES_CIF", Pattern: regexp.MustCompile(`(?i)\b[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]\b`), Validator: ValNone, MinLength: 9, Normalization: true},
+	{Type: "ES_CIF", Pattern: regexp.MustCompile(`(?i)\b[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]\b`), Validator: ValESCIF, MinLength: 9, Normalization: true},
 
 	// Germany
 	{Type: "DE_STEUER_ID", Pattern: regexp.MustCompile(`\b\d{11}\b`), Validator: ValDESTID, MinLength: 11, Normalization: true},

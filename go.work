@@ -5,6 +5,7 @@ use (
 	./apps/sombra
 	./enterprise/refinery-extensions
 	./internal/pii
+	./pkg/gateway
 	./services/refinery
 	./services/vault
 )
