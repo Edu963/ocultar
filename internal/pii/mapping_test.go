@@ -7,7 +7,7 @@ import (
 )
 
 func TestMappingAlias(t *testing.T) {
-	eng := pii.NewEngine()
+	eng := pii.NewRefinery()
 	mapping := map[string]string{
 		"EMAIL": "EMAIL_ADDRESS",
 		"AWS_KEY": "AWS_CREDENTIALS",
@@ -43,7 +43,7 @@ func TestMappingAlias(t *testing.T) {
 }
 
 func TestCloudSecrets(t *testing.T) {
-	eng := pii.NewEngine()
+	eng := pii.NewRefinery()
 	
 	cases := []struct {
 		name      string
@@ -69,7 +69,7 @@ func TestCloudSecrets(t *testing.T) {
 }
 
 func TestIPAddress(t *testing.T) {
-	eng := pii.NewEngine()
+	eng := pii.NewRefinery()
 	input := "The server is at 192.168.1.1 and 10.0.0.255"
 	res := eng.Scan(input)
 
@@ -84,7 +84,7 @@ func TestIPAddress(t *testing.T) {
 }
 
 func TestNordicIDs(t *testing.T) {
-	eng := pii.NewEngine()
+	eng := pii.NewRefinery()
 	
 	cases := []struct {
 		name       string

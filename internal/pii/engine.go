@@ -23,25 +23,25 @@ type DetectionResult struct {
 	} `json:"-"` // Used internally for redaction
 }
 
-type Engine struct {
+type Refinery struct {
 	registry []EntityDef
 	mapping  map[string]string
 }
 
-func NewEngine() *Engine {
-	return &Engine{
+func NewRefinery() *Refinery {
+	return &Refinery{
 		registry: Registry,
 		mapping:  make(map[string]string),
 	}
 }
 
 // SetMapping updates the alias registry for CanonicalType resolution
-func (e *Engine) SetMapping(m map[string]string) {
+func (e *Refinery) SetMapping(m map[string]string) {
 	e.mapping = m
 }
 
 // Scan performs the exhaustive deterministic sweep with validation
-func (e *Engine) Scan(input string) []DetectionResult {
+func (e *Refinery) Scan(input string) []DetectionResult {
 	var results []DetectionResult
 
 	for _, entity := range e.registry {
@@ -118,7 +118,7 @@ func (e *Engine) Scan(input string) []DetectionResult {
 
 // Redact uses Scan to find PII and calls the tokenFunc to store/get a token,
 // then replaces the PII with the token in the returned string.
-func (e *Engine) Redact(input string, tokenFunc func(DetectionResult) (string, error)) (string, error) {
+func (e *Refinery) Redact(input string, tokenFunc func(DetectionResult) (string, error)) (string, error) {
 	detections := e.Scan(input)
 	if len(detections) == 0 {
 		return input, nil

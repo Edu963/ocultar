@@ -6,7 +6,7 @@ import (
 )
 
 func TestEngineEvasionResistance(t *testing.T) {
-	eng := pii.NewEngine()
+	eng := pii.NewRefinery()
 
 	cases := []struct {
 		name       string
@@ -57,7 +57,7 @@ func TestEngineEvasionResistance(t *testing.T) {
 }
 
 func TestValidationLayer(t *testing.T) {
-	eng := pii.NewEngine()
+	eng := pii.NewRefinery()
 
 	// Invalid IBAN should hit nothing
 	res := eng.Scan("DE89370400440532013001") // Modified digit
@@ -132,12 +132,12 @@ func TestValidationLayer(t *testing.T) {
 	}
 
 	// Valid India Aadhaar
-	res = eng.Scan("361153152701")
+	res = eng.Scan("719543825004")
 	if len(res) == 0 {
 		t.Errorf("Expected valid India Aadhaar to pass, got no hits")
 	}
 	// Invalid India Aadhaar
-	res = eng.Scan("361153152702")
+	res = eng.Scan("361153152701")
 	if len(res) > 0 {
 		t.Errorf("Expected invalid India Aadhaar to fail, got hit")
 	}
@@ -155,12 +155,12 @@ func TestValidationLayer(t *testing.T) {
 	// Invalid Singapore ID
 	res = eng.Scan("S1234567A")
 	if len(res) > 0 {
-		t.Errorf("Expected invalid Singapore ID to fail, got hit")
+		t.Errorf("Expected invalid Singapore ID to fail, got hit: %+v", res)
 	}
 }
 
 func BenchmarkEngineScan(b *testing.B) {
-	eng := pii.NewEngine()
+	eng := pii.NewRefinery()
 	input := "Hello, my name is John Doe and my CPF is 123.456.789-09 and my RUT is 12.345.678-5. My email is john@example.com."
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

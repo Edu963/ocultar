@@ -395,8 +395,8 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		}
 	}
 
-	// TIER 1: Centralized Deterministic Pipeline (pii.Engine)
-	eng := pii.NewEngine()
+	// TIER 1: Centralized Deterministic Pipeline (pii.Refinery)
+	eng := pii.NewRefinery()
 	if config.Global.AliasMapping != nil {
 		eng.SetMapping(config.Global.AliasMapping)
 	}
