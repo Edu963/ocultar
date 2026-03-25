@@ -8,7 +8,7 @@
 ## Table of Contents
 
 1. [Environment Variables](#1-environment-variables)
-2. [Refinery Package (`pkg/refinery`)](#2-refinery-package-pkgrefinery)
+2. [Refinery Package (`internal/pii`)](#2. Refinery Package (`internal/pii`)
    - [Types & Interfaces](#21-types--interfaces)
    - [Constructor](#22-constructor)
    - [Methods](#23-methods)
@@ -40,7 +40,7 @@ All environment variables are read at startup by the `main` entrypoint. No varia
 
 ---
 
-## 2. Refinery Package (`pkg/refinery`)
+## 2. Refinery Package (`internal/pii`)
 
 ### 2.1 Types & Interfaces
 
@@ -141,14 +141,10 @@ type DryRunReport struct {
 #### `NewRefinery`
 
 ```go
-func NewRefinery(v vault.Provider, key []byte) *Refinery
+func NewRefinery() *Refinery
 ```
 
-Creates an `Refinery` with the given vault provider and master key. Initialises `VaultCount` from the vault's existing entry count. Sets `AuditLogger` to `NoopAuditLogger` and `AIScanner` to `NoopAIScanner` — replace them after construction for Enterprise mode.
-
-**Parameters:**
-- `v` — vault backend (return value of `vault.New()`).
-- `key` — 32-byte AES key (SHA-256 hash of `OCU_MASTER_KEY`).
+Creates a `Refinery` using the default `pii.Registry`.
 
 **Returns:** `*Refinery` — ready to use; never `nil`.
 
@@ -156,13 +152,21 @@ Creates an `Refinery` with the given vault provider and master key. Initialises 
 
 ### 2.3 Methods
 
-#### `RefineString`
+#### `Scan`
 
 ```go
-func (e *Refinery) RefineString(input string, actor string, preScanMap map[string][]string) (string, error)
+func (e *Refinery) Scan(input string) []DetectionResult
 ```
 
-Core redaction function. Orchestrates all detection tiers on a flat string.
+Core detection function. Performs exhaustive deterministic sweep with validation.
+
+#### `Redact`
+
+```go
+func (e *Refinery) Redact(input string, tokenFunc func(DetectionResult) (string, error)) (string, error)
+```
+
+Uses `Scan` to find PII and calls the `tokenFunc` to replace PII with tokens.
 
 **Pipeline order:**
 
@@ -401,7 +405,7 @@ func NewHandler(eng *refinery.Refinery, v vault.Provider, masterKey []byte, targ
 **Parameters:**
 - `eng` — shared refinery instance.
 - `v` — vault provider for re-hydration lookups.
-- `masterKey` — decryption key (same as `refinery.MasterKey`).
+- `masterKey` — decryption key.
 - `targetURL` — default upstream URL (value of `OCU_PROXY_TARGET`).
 
 **Returns:** `(*Handler, error)` — error if `targetURL` cannot be parsed.
