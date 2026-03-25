@@ -16,6 +16,7 @@ Welcome to the unified Ocultar Refinery ecosystem. This monorepo contains all co
 ## Key Features
 
 - **EU Sovereign Detection Pack (v1)**: Production-grade deterministic PII detection with mathematical checksum validation (Mod-97, Luhn, Mod-11, Mod-31). Fully compliant with GDPR Art 4 & 32. Covers all major EU + UK national identifiers (VAT, NIR, DNI, BSN, NINO, etc.) plus expanded support for Nordics (SE, DK, FI), France (SIREN/SIRET), US (Passports, DL), and **LATAM Core (BR_CPF, CL_RUT)**.
+- **Tier 0 — Dictionary Shield**: Integrated high-speed dictionary protection for VIPs, internal project codes, and corporate secrets.
 - **Zero-Egress Architecture**: PII is masked *before* ever leaving the trust boundary or hitting an LLM.
 
 ## Getting Started

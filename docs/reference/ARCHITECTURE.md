@@ -114,7 +114,7 @@ sequenceDiagram
     P->>E: ProcessInterface(body, actor)
 
     Note over E: Tier 0.1 — Base64 Evasion Shield
-    Note over E: Tier 0.5 — Dictionary Shield (protected_entities.json)
+    Note over E: Tier 0 — Dictionary Shield (protected_entities.json)
     Note over E: Tier 1 — Centralized Deterministic Pipeline (Refinery)
     Note over E: EU Sovereign Detection Pack (v1) — Checksum Validation ✦
     Note over E: Tier 1.1 — Phone Shield (libphonenumber)
