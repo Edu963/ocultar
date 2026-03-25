@@ -385,7 +385,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		refined = out.String()
 	}
 
-	// TIER 0.5: Dynamic Exclusion Dictionaries (VIPs, etc)
+	// TIER 0: Dynamic Exclusion Dictionaries (VIPs, etc)
 	for _, dictRule := range config.Global.Dictionaries {
 		for _, term := range dictRule.Terms {
 			refined, err = e.applyReplacement(refined, term, dictRule.Type, actor)
