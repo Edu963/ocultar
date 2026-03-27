@@ -8,10 +8,17 @@ Welcome to the unified Ocultar Refinery ecosystem. This monorepo contains all co
 - `/services/` - Core backend services (Refinery, Vault)
 - `/enterprise/` - Enterprise-only extensions
 - `/experiments/` - Research and prototypes
-- `/docs/` - Documentation (Architecture and API)
+- `/docs/` - Documentation
 - `/business/` - Business strategy and roadmap
 - `/tools/` - Development and build tools
 - `/security/` - Regulatory policies and integrity manifests
+
+### Key Hardening Features (v2.1.1+)
+- **Fail-Closed Proxy**: Replaced performance-shield load shedding with a strict semaphore-based queue.
+- **SSRF Protection**: Strict IP/DNS validation with rebinding protection for all egress targets.
+- **Secrets Enforcement**: Mandatory `OCU_MASTER_KEY` and `OCU_SALT` validation for production deployments.
+- **Enterprise Observability**: Integrated Prometheus metrics for real-time tracking of latency, queue depth, and PII hit rates.
+- **Zero-Bypass AI**: Tier 2 AI deep scan is now mandatory and strictly enforced (no silent bypasses).
 
 ## Key Features
 

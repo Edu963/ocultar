@@ -53,6 +53,21 @@ type Settings struct {
 
 	// Debug/Demo Mode: Include internal metadata in responses (e.g., ai_saw)
 	ShowDebugMetadata bool `yaml:"show_debug_metadata" json:"show_debug_metadata"`
+
+	// --- Hardening & Performance (Target: 100/100 Readiness) ---
+
+	// MaxConcurrency is the shared semaphore limit for the proxy and batch scans.
+	MaxConcurrency int `yaml:"max_concurrency" json:"max_concurrency"`
+	// QueueSize is the size of the wait queue before failing with 429 Too Many Requests.
+	QueueSize int `yaml:"queue_size" json:"queue_size"`
+	// RehydrateFallbackEnabled allows the proxy to return tokenized data if vault re-hydration fails.
+	RehydrateFallbackEnabled bool `yaml:"rehydrate_fallback_enabled" json:"rehydrate_fallback_enabled"`
+	// InferenceTimeout is the maximum time allowed for AI Deep Scan before failing closed.
+	InferenceTimeout string `yaml:"inference_timeout" json:"inference_timeout"`
+	// MaxPayloadSize is the maximum HTTP body size allowed (in bytes).
+	MaxPayloadSize int64 `yaml:"max_payload_size" json:"max_payload_size"`
+	// PrometheusEnabled enables the /metrics endpoint and internal instrumentation.
+	PrometheusEnabled bool `yaml:"prometheus_enabled" json:"prometheus_enabled"`
 }
 
 var Global Settings
@@ -78,6 +93,14 @@ func initDefaultConfig() {
 		CRMApiKey:          os.Getenv("CRM_API_KEY"),
 		SyncInterval:       "5m",
 		ShowDebugMetadata:  os.Getenv("OCULTAR_DEBUG") == "true",
+
+		// Hardening Defaults
+		MaxConcurrency:           50,
+		QueueSize:                100,
+		RehydrateFallbackEnabled: false, // Default to strict fail-closed (500)
+		InferenceTimeout:         "5s",
+		MaxPayloadSize:           5 * 1024 * 1024, // 5MB
+		PrometheusEnabled:        true,
 	}
 	loadProtectedEntities()
 	LoadRegulatoryPolicy()

@@ -8,11 +8,13 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/Edu963/ocultar/pkg/config"
 	"github.com/Edu963/ocultar/pkg/refinery"
 	"github.com/Edu963/ocultar/vault"
 )
@@ -34,6 +36,7 @@ type Handler struct {
 	target    *url.URL
 	transport http.RoundTripper
 	sem       chan struct{}
+	waitQueue chan struct{}
 }
 
 // NewHandler constructs a Handler pointed at the given upstream targetURL.
@@ -44,43 +47,61 @@ func NewHandler(eng *refinery.Refinery, v vault.Provider, masterKey []byte, targ
 	if err != nil {
 		return nil, fmt.Errorf("invalid OCU_PROXY_TARGET %q: %w", targetURL, err)
 	}
+
+	concurrency := config.Global.MaxConcurrency
+	if concurrency <= 0 {
+		concurrency = 15 // Legacy default
+	}
+
+	queueSize := config.Global.QueueSize
+	if queueSize <= 0 {
+		queueSize = 100
+	}
+
 	return &Handler{
 		eng:       eng,
 		vault:     v,
 		masterKey: masterKey,
 		target:    u,
 		transport: &http.Transport{
-			// Disable auto-decompression so we handle the body ourselves.
 			DisableCompression: true,
-			// Sensible timeouts for production traffic.
+			DialContext: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
 			ResponseHeaderTimeout: 120 * time.Second,
 		},
-		sem: make(chan struct{}, 15), // match postgres connection limit
+		sem:       make(chan struct{}, concurrency),
+		waitQueue: make(chan struct{}, queueSize),
 	}, nil
 }
 
-// ServeHTTP implements http.Handler. It:
-//  1. Reads the incoming request body.
-//  2. If the body is JSON, runs it through the OCULTAR refinery (PII → tokens).
-//  3. Forwards the sanitised request to the upstream target.
-//  4. Reads the upstream response body.
-//  5. If the response is JSON, scans for vault tokens and re-hydrates them.
-//  6. Returns the final response to the original caller.
+// ServeHTTP implements http.Handler.
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Rate limiting / concurrency control
+	start := time.Now()
+	
+	// ── 0. Concurrency & Queueing (Fail-Closed) ─────────────────────────────
+	select {
+	case h.waitQueue <- struct{}{}:
+		QueueLength.Inc()
+		defer func() {
+			<-h.waitQueue
+			QueueLength.Dec()
+		}()
+	default:
+		DroppedRequestsTotal.WithLabelValues("queue_full").Inc()
+		http.Error(w, "ocultar-proxy: too many requests (queue full)", http.StatusTooManyRequests)
+		return
+	}
+
 	select {
 	case h.sem <- struct{}{}:
 		defer func() { <-h.sem }()
-		// Performance Shield: If capacity > 85%, skip heavy Tier 2 AI to prevent latency thrashing.
-		load := float64(len(h.sem)) / float64(cap(h.sem))
-		if load > 0.85 {
-			h.eng.SkipDeepScan = true
-			log.Printf("[PERF-SHIELD] High load detected (%.2f%%). Bypassing Tier 2 Deep Scan.", load*100)
-		} else {
-			h.eng.SkipDeepScan = false
-		}
-	case <-time.After(5 * time.Second):
-		http.Error(w, "ocultar-proxy: too many requests (concurrency limit reached)", http.StatusTooManyRequests)
+	case <-time.After(10 * time.Second): // Wait up to 10s for a worker
+		DroppedRequestsTotal.WithLabelValues("timeout").Inc()
+		http.Error(w, "ocultar-proxy: internal timeout waiting for refinery worker", http.StatusServiceUnavailable)
+		return
+	case <-r.Context().Done():
 		return
 	}
 
@@ -90,18 +111,27 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ── 1. Read incoming body ────────────────────────────────────────────────
-	r.Body = http.MaxBytesReader(w, r.Body, 5*1024*1024) // 5MB limit
+	maxSize := config.Global.MaxPayloadSize
+	if maxSize <= 0 {
+		maxSize = 5 * 1024 * 1024
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxSize)
 	rawBody, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "ocultar-proxy: payload too large", http.StatusRequestEntityTooLarge)
+		DroppedRequestsTotal.WithLabelValues("payload_too_large").Inc()
+		http.Error(w, "ocultar-proxy: payload exceeded configured limit", http.StatusRequestEntityTooLarge)
 		return
 	}
 	defer r.Body.Close()
 
 	// ── 2. Redact PII from JSON body ─────────────────────────────────────────
+	refStart := time.Now()
 	sanitisedBody, redacted, err := h.redactBody(rawBody, actor)
+	RequestLatency.WithLabelValues("refinery_total").Observe(time.Since(refStart).Seconds())
+
 	if err != nil {
 		log.Printf("[PROXY-BLOCK] Refinery error: %v", err)
+		RequestsTotal.WithLabelValues(r.Method, "error", "false").Inc()
 		if strings.Contains(err.Error(), "trial limit reached") {
 			http.Error(w, "ocultar-proxy: trial limit reached (fail-closed)", http.StatusForbidden)
 		} else {
@@ -122,15 +152,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Copy request headers (skip hop-by-hop and our custom headers).
 	copyRequestHeaders(upstreamReq.Header, r.Header)
 	upstreamReq.Header.Set("Content-Type", r.Header.Get("Content-Type"))
 	if redacted {
 		upstreamReq.Header.Set(headerRedacted, "true")
 	}
 	upstreamReq.Header.Set("Content-Length", fmt.Sprintf("%d", len(sanitisedBody)))
-
-	log.Printf("[PROXY] → %s %s (body: %d bytes, redacted: %v)", r.Method, upstreamURL, len(sanitisedBody), redacted)
 
 	// ── 4. Forward to upstream ───────────────────────────────────────────────
 	resp, err := h.transport.RoundTrip(upstreamReq)
@@ -149,41 +176,44 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ── 6. Re-hydrate tokens in response ─────────────────────────────────────
+	rehyStart := time.Now()
 	finalBody, err := h.rehydrateBody(respBody, resp.Header.Get("Content-Type"))
+	RequestLatency.WithLabelValues("rehydration").Observe(time.Since(rehyStart).Seconds())
+
 	if err != nil {
 		log.Printf("[PROXY] re-hydration failed: %v", err)
-		http.Error(w, "ocultar-proxy: re-hydration failed (data loss protection)", http.StatusInternalServerError)
-		return
+		if config.Global.RehydrateFallbackEnabled {
+			log.Printf("[WARN] Re-hydration failed, falling back to tokenized response (Safety: ON)")
+			finalBody = respBody // Return tokens instead of leaking data or failing
+		} else {
+			http.Error(w, "ocultar-proxy: re-hydration failed (strict data loss protection)", http.StatusInternalServerError)
+			return
+		}
 	}
-
-	log.Printf("[PROXY] ← %d  (response: %d bytes)", resp.StatusCode, len(finalBody))
 
 	// ── 7. Write response back to the client ──────────────────────────────────
 	copyResponseHeaders(w.Header(), resp.Header)
-	// Adjust Content-Length if the body length changed after re-hydration.
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(finalBody)))
 	w.WriteHeader(resp.StatusCode)
-	if _, err := w.Write(finalBody); err != nil {
-		log.Printf("[PROXY] error writing response to client: %v", err)
-	}
+	w.Write(finalBody)
+
+	statusStr := fmt.Sprintf("%d", resp.StatusCode)
+	redactedStr := fmt.Sprintf("%v", redacted)
+	RequestsTotal.WithLabelValues(r.Method, statusStr, redactedStr).Inc()
+	RequestLatency.WithLabelValues("total").Observe(time.Since(start).Seconds())
 }
 
-// redactBody parses the body as JSON and runs it through the refinery's full
-// pipeline (Tier 0 → Tier 2). Returns the redacted body bytes, a boolean
-// indicating whether any PII was found and replaced, and any critical refinery error.
-// If the body is not valid JSON it is passed through the refinery line-by-line as
-// plain text, preserving the original Content-Type behaviour.
 func (h *Handler) redactBody(body []byte, actor string) ([]byte, bool, error) {
 	if len(body) == 0 {
 		return body, false, nil
 	}
 
-	// Obfuscation detection
 	bodyStr := string(body)
 	if strings.Contains(bodyStr, "%7B") && strings.Contains(bodyStr, "%22") {
 		return nil, false, fmt.Errorf("obfuscated payload detected: url-encoded JSON")
 	}
-	if strings.HasPrefix(strings.TrimSpace(bodyStr), "ey") && !strings.Contains(bodyStr, " ") && len(bodyStr) > 50 {
+	if (strings.HasPrefix(strings.TrimSpace(bodyStr), "ey") || strings.HasPrefix(strings.TrimSpace(bodyStr), "eyJ")) && 
+		!strings.Contains(bodyStr, " ") && len(bodyStr) > 50 {
 		return nil, false, fmt.Errorf("obfuscated payload detected: base64/JWT")
 	}
 
@@ -193,7 +223,6 @@ func (h *Handler) redactBody(body []byte, actor string) ([]byte, bool, error) {
 	dec.UseNumber()
 	var outBuf bytes.Buffer
 
-	// Try JSON streaming
 	if err := streamRefineJSON(dec, h.eng, actor, &outBuf); err == nil {
 		if _, err := dec.Token(); err == io.EOF {
 			report := h.eng.GenerateReport(1)
@@ -201,7 +230,6 @@ func (h *Handler) redactBody(body []byte, actor string) ([]byte, bool, error) {
 		}
 	}
 
-	// Plain-text / non-JSON path: process line by line.
 	lines := strings.Split(string(body), "\n")
 	for i, line := range lines {
 		if strings.TrimSpace(line) != "" {
@@ -216,10 +244,6 @@ func (h *Handler) redactBody(body []byte, actor string) ([]byte, bool, error) {
 	return []byte(strings.Join(lines, "\n")), report.TotalCount > 0, nil
 }
 
-// rehydrateBody scans the response body for vault tokens and replaces them
-// with the original PII values from the vault provider.
-// Non-JSON responses are scanned as raw text (tokens are plain ASCII so this
-// is safe for any Content-Type).
 func (h *Handler) rehydrateBody(body []byte, contentType string) ([]byte, error) {
 	if len(body) == 0 || !ContainsTokensInBody(body) {
 		return body, nil
@@ -239,7 +263,6 @@ func (h *Handler) rehydrateBody(body []byte, contentType string) ([]byte, error)
 		}
 	}
 
-	// Fallback: raw byte scan with the token regex.
 	res, err := RehydrateString(h.vault, h.masterKey, string(body))
 	if err != nil {
 		return nil, err
@@ -248,28 +271,60 @@ func (h *Handler) rehydrateBody(body []byte, contentType string) ([]byte, error)
 }
 
 // resolveTarget builds the full upstream URL from the incoming request.
-// A per-request override is accepted via the Ocultar-Target header,
-// but is validated against SSRF attacks.
+// It includes full RFC 1918, IPv6, and loopback protection with DNS rebinding safety.
 func (h *Handler) resolveTarget(r *http.Request) (string, error) {
 	base := h.target.String()
-	if override := r.Header.Get(headerTarget); override != "" {
-		parsed, err := url.Parse(override)
-		if err != nil {
-			return "", fmt.Errorf("invalid Ocultar-Target URL")
-		}
-		host := parsed.Hostname()
-		if host == "localhost" || host == "127.0.0.1" || strings.HasPrefix(host, "10.") || strings.HasPrefix(host, "192.168.") || strings.HasPrefix(host, "169.254.") {
-			return "", fmt.Errorf("SSRF blocked: internal target '%s' not allowed", host)
-		}
-		base = strings.TrimRight(override, "/")
+	targetHeader := r.Header.Get(headerTarget)
+	if targetHeader == "" {
+		return base + r.URL.RequestURI(), nil
 	}
-	path := r.URL.RequestURI() // includes query string
-	return base + path, nil
+
+	parsed, err := url.Parse(targetHeader)
+	if err != nil {
+		return "", fmt.Errorf("invalid Ocultar-Target URL")
+	}
+
+	host, _, err := net.SplitHostPort(parsed.Host)
+	if err != nil {
+		host = parsed.Host
+	}
+
+	// DNS Rebinding Protection: Resolve names to IPs and validate IPs
+	ips, err := net.LookupIP(host)
+	if err != nil {
+		// If it's already an IP, it will be validated by isPrivateIP
+		if ip := net.ParseIP(host); ip != nil {
+			ips = []net.IP{ip}
+		} else {
+			return "", fmt.Errorf("failed to resolve target host: %v", err)
+		}
+	}
+
+	for _, ip := range ips {
+		if isPrivateIP(ip) {
+			return "", fmt.Errorf("SSRF blocked: internal/private target '%s' (%s) not allowed", host, ip.String())
+		}
+	}
+
+	return strings.TrimRight(targetHeader, "/") + r.URL.RequestURI(), nil
 }
 
-// ── Header helpers ────────────────────────────────────────────────────────────
+func isPrivateIP(ip net.IP) bool {
+	if ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsMulticast() {
+		return true
+	}
 
-// hopByHopHeaders are headers that must NOT be forwarded between proxy hops.
+	// RFC 1918 (IPv4) & RFC 4193 (IPv6 Unique Local Address)
+	if ip4 := ip.To4(); ip4 != nil {
+		return ip4[0] == 10 ||
+			(ip4[0] == 172 && ip4[1] >= 16 && ip4[1] <= 31) ||
+			(ip4[0] == 192 && ip4[1] == 168)
+	}
+
+	// IPv6 ULA (fc00::/7)
+	return len(ip) == net.IPv6len && (ip[0]&0xfe) == 0xfc
+}
+
 var hopByHopHeaders = map[string]bool{
 	"Connection":          true,
 	"Keep-Alive":          true,
@@ -279,13 +334,12 @@ var hopByHopHeaders = map[string]bool{
 	"Trailers":            true,
 	"Transfer-Encoding":   true,
 	"Upgrade":             true,
-	// Our custom headers are consumed by the proxy itself.
-	headerTarget: true,
+	headerTarget:          true,
 }
 
 func copyRequestHeaders(dst, src http.Header) {
 	for k, vv := range src {
-		if hopByHopHeaders[k] {
+		if hopByHopHeaders[strings.Title(k)] || hopByHopHeaders[k] {
 			continue
 		}
 		for _, v := range vv {
@@ -296,7 +350,7 @@ func copyRequestHeaders(dst, src http.Header) {
 
 func copyResponseHeaders(dst, src http.Header) {
 	for k, vv := range src {
-		if hopByHopHeaders[k] {
+		if hopByHopHeaders[strings.Title(k)] || hopByHopHeaders[k] {
 			continue
 		}
 		for _, v := range vv {

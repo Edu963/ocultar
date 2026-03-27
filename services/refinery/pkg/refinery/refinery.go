@@ -16,6 +16,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/Edu963/ocultar/internal/pii"
 	"github.com/Edu963/ocultar/pkg/config"
@@ -83,7 +84,6 @@ type Refinery struct {
 	Report       bool
 	Serve        string
 	PilotMode    bool
-	SkipDeepScan bool
 	VaultCount   *atomic.Int64
 	AuditLogger  AuditLogger
 	AIScanner    AIScanner
@@ -206,7 +206,7 @@ func (e *Refinery) RefineBatch(items []interface{}, actor string) ([]interface{}
 func (e *Refinery) ProcessInterface(data interface{}, actor string) (interface{}, error) {
 	// 1. If it's a large complex object, extract all text and run SLM ONCE per record
 	var preScanMap map[string][]string
-	if e.AIScanner.IsAvailable() && !e.SkipDeepScan {
+	if e.AIScanner.IsAvailable() {
 		// Marshal the record to a flat string to scan it contextually in one go
 		textBytes, err := json.Marshal(data)
 		if err == nil {
@@ -345,12 +345,13 @@ func (e *Refinery) processInterfaceRecursive(data interface{}, actor string, pre
 }
 
 // RefineString is the core logic that orchestrates PII detection tiers (Regex, Dictionaries, SLM) on a single string.
+// Security is mandatory: Tier 2 (AI) is always prioritized if available.
 func (e *Refinery) RefineString(input string, actor string, preScanMap map[string][]string) (string, error) {
+	ProcessTotal.Inc()
 	if len(input) < 3 {
 		return input, nil
 	}
 
-	// Session Cache Lookup: if we've already refined this exact string in this batch, return it.
 	if cached, ok := e.SessionCache.Load(input); ok {
 		return cached.(string), nil
 	}
@@ -364,6 +365,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	var err error
 
 	// TIER 0.1: Embedded Base64 Evasion Shield
+	t0Start := time.Now()
 	base64Matches := base64Regex.FindAllStringIndex(refined, -1)
 	if len(base64Matches) > 0 {
 		var out strings.Builder
@@ -399,7 +401,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		refined = out.String()
 	}
 
-	// TIER 0: Dynamic Exclusion Dictionaries (VIPs, etc)
+	// TIER 0: Dynamic Exclusion Dictionaries
 	for _, dictRule := range config.Global.Dictionaries {
 		for _, term := range dictRule.Terms {
 			refined, err = e.applyReplacement(refined, term, dictRule.Type, actor)
@@ -408,8 +410,10 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 			}
 		}
 	}
+	TierLatency.WithLabelValues("tier0_dictionary").Observe(time.Since(t0Start).Seconds())
 
-	// TIER 1: Centralized Deterministic Pipeline (pii.Refinery)
+	// TIER 1: Centralized Deterministic Pipeline
+	t1Start := time.Now()
 	eng := pii.NewRefinery()
 	if config.Global.AliasMapping != nil {
 		eng.SetMapping(config.Global.AliasMapping)
@@ -425,17 +429,18 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 			}
 		}
 		if overlap {
-			return d.Value, nil // Skip replacement by returning original value
+			return d.Value, nil
 		}
+		DetectionTotal.WithLabelValues(d.Entity, "tier1_regex").Inc()
 		return e.getOrSetSecureResult(d, actor)
 	})
 	if err != nil {
 		return "", err
 	}
 
-	// TIER 1.1: Phone Shield (libphonenumber) - Fast-path: Only run if digits are present
 	if strings.ContainsAny(refined, "0123456789") {
 		refined, err = parseAndReplaceWithErr(refined, ParseAndReplacePhonesRaw, func(match string) (string, error) {
+			DetectionTotal.WithLabelValues("PHONE", "tier1_phone").Inc()
 			return e.getOrSetSecureToken(match, "PHONE", actor)
 		})
 		if err != nil {
@@ -443,9 +448,9 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		}
 	}
 
-	// TIER 1.2: Modular Address Shield - Fast-path: Only run if digits are present or keywords like 'Rue/St/Ave'
 	if len(refined) > 10 && (strings.ContainsAny(refined, "0123456789") || containsAnyLower(refined, "rue", "calle", "street", "ave", "road", "str.")) {
 		refined, err = parseAndReplaceWithErr(refined, ParseAndReplaceAddressesRaw, func(match string) (string, error) {
+			DetectionTotal.WithLabelValues("ADDRESS", "tier1_address").Inc()
 			return e.getOrSetSecureToken(match, "ADDRESS", actor)
 		})
 		if err != nil {
@@ -453,14 +458,13 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		}
 	}
 
-
-	// TIER 1.5: Greetings & Signatures Shield
 	greetingMatches := greetingRegex.FindAllStringSubmatchIndex(refined, -1)
 	for _, match := range greetingMatches {
 		if len(match) > 2 {
 			start, end := match[2], match[3]
 			nameStr := refined[start:end]
 			if !strings.HasPrefix(nameStr, "[") {
+				DetectionTotal.WithLabelValues("PERSON", "tier1_greeting").Inc()
 				refined, err = e.applyReplacement(refined, nameStr, "PERSON", actor)
 				if err != nil {
 					return "", err
@@ -469,41 +473,39 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		}
 	}
 
-	// TIER 1.6: [VULN-001] Noise-Stripping Sliding Window Evasion Shield (Safety Net)
-	// This pass strips non-alphanumeric noise AND tokens to scan for segmented patterns
-	// that escaped the specific matches above.
 	if strings.ContainsAny(refined, "0123456789") && !e.isFullyTokenised(refined) {
-		// 1. Strip tokens first so they don't interfere with digit counts
 		stripped := tokenPattern.ReplaceAllString(refined, " ")
 		noiseWords := []string{"then", "is", "at", "and", "under", "with", "plus"}
 		normalized := strings.ToLower(stripped)
 		for _, w := range noiseWords {
 			normalized = strings.ReplaceAll(normalized, " "+w+" ", " ")
 		}
-		regAlnum := regexp.MustCompile(`[^0-9]`) // Only interested in raw digits now
+		regAlnum := regexp.MustCompile(`[^0-9]`)
 		tightDigits := regAlnum.ReplaceAllString(normalized, "")
 
-		// High-fidelity Segmented SSN: exactly 9 digits.
-		// If we find exactly 9 digits hidden in the remaining text, we fail-closed.
 		if len(tightDigits) == 9 {
 			log.Printf("[VULN-001] Segmented SSN (9 digits) detected in noise-stripped buffer.")
+			DetectionTotal.WithLabelValues("SSN", "tier1_sliding_window").Inc()
 			return e.getOrSetSecureToken(refined, "SSN", actor)
 		}
 
-		// CC: 13-16 digits.
 		if len(tightDigits) >= 13 && len(tightDigits) <= 16 {
 			if isLuhnValid(tightDigits) {
 				log.Printf("[VULN-001] Segmented Credit Card detected in noise-stripped buffer.")
+				DetectionTotal.WithLabelValues("CREDIT_CARD", "tier1_sliding_window").Inc()
 				return e.getOrSetSecureToken(refined, "CREDIT_CARD", actor)
 			}
 		}
 	}
+	TierLatency.WithLabelValues("tier1_deterministic").Observe(time.Since(t1Start).Seconds())
 
-	// TIER 2: SLM NER Scan
+	// TIER 2: SLM NER Scan (Mandatory Phase)
+	t2Start := time.Now()
 	if preScanMap != nil {
 		for piiType, items := range preScanMap {
 			for _, item := range items {
 				if len(strings.TrimSpace(item)) > 2 && strings.Contains(refined, item) {
+					DetectionTotal.WithLabelValues(piiType, "tier2_slm_pre").Inc()
 					refined, err = e.applyReplacement(refined, item, piiType, actor)
 					if err != nil {
 						return "", err
@@ -511,7 +513,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 				}
 			}
 		}
-	} else if e.AIScanner.IsAvailable() && !e.SkipDeepScan && len(refined) > 15 && !e.isFullyTokenised(refined) {
+	} else if e.AIScanner.IsAvailable() && len(refined) > 15 && !e.isFullyTokenised(refined) {
 		piiMap, slmErr := e.AIScanner.ScanForPII(refined)
 		if slmErr != nil {
 			return "", fmt.Errorf("SLM inference failed: %w", slmErr)
@@ -519,6 +521,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		for piiType, items := range piiMap {
 			for _, item := range items {
 				if len(strings.TrimSpace(item)) > 2 {
+					DetectionTotal.WithLabelValues(piiType, "tier2_slm").Inc()
 					refined, err = e.applyReplacement(refined, item, piiType, actor)
 					if err != nil {
 						return "", err
@@ -527,14 +530,14 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 			}
 		}
 	}
+	TierLatency.WithLabelValues("tier2_ai").Observe(time.Since(t2Start).Seconds())
 
-	// TIER 3: Phase 1 Structural Heuristics (Zero-Egress Hardening)
+	// TIER 3: Structural Heuristics
 	refined, err = e.applyStructuralHeuristics(refined, actor)
 	if err != nil {
 		return "", err
 	}
 
-	// Update session cache before returning
 	e.SessionCache.Store(input, refined)
 
 	return refined, nil
