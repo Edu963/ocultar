@@ -1,18 +1,9 @@
 // Package main is the entry-point for the OCULTAR transparent HTTP proxy.
-//
-// Usage:
-//
-//	OCU_PROXY_TARGET=https://api.openai.com \
-//	OCU_PROXY_PORT=8080 \
-//	OCU_MASTER_KEY=your-secret \
-//	./proxy
-//
-// Configure your application to route HTTP traffic through http://localhost:8080
-// and all outgoing POST request bodies will be silently redacted.
 package main
 
 import (
 	"crypto/sha256"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -20,31 +11,46 @@ import (
 	"os"
 
 	"github.com/Edu963/ocultar/pkg/config"
-	"github.com/Edu963/ocultar/pkg/refinery"
 	"github.com/Edu963/ocultar/pkg/license"
 	"github.com/Edu963/ocultar/pkg/proxy"
+	"github.com/Edu963/ocultar/pkg/refinery"
 	"github.com/Edu963/ocultar/vault"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/crypto/hkdf"
 )
 
-const VERSION = "1.0.0"
+const VERSION = "1.1.0" // Hardened for Production
 
 const defaultSalt = "ocultar-v112-kdf-salt-fixed-16"
 
+var devMode bool
+
+func init() {
+	flag.BoolVar(&devMode, "dev", false, "Enable development mode (allows insecure defaults)")
+}
+
 func getSalt() string {
-	if s := os.Getenv("OCU_SALT"); s != "" {
-		return s
+	s := os.Getenv("OCU_SALT")
+	if s == "" {
+		if !devMode {
+			log.Fatalf("[FATAL] OCU_SALT is missing. Production environments MUST define a unique OCU_SALT.")
+		}
+		log.Printf("[WARN] OCU_SALT is not set — using built-in default salt. (Allowed ONLY in --dev mode)")
+		return defaultSalt
 	}
-	log.Printf("[WARN] OCU_SALT is not set — using built-in default salt. Set OCU_SALT in production.")
-	return defaultSalt
+	return s
 }
 
 func getMasterKey() []byte {
 	keyMaterial := os.Getenv("OCU_MASTER_KEY")
 	if keyMaterial == "" {
-		log.Printf("[WARN] OCU_MASTER_KEY is not set — using insecure dev key. Never deploy to production.")
+		if !devMode {
+			log.Fatalf("[FATAL] OCU_MASTER_KEY is missing. Production environments MUST define a high-entropy master key.")
+		}
+		log.Printf("[WARN] OCU_MASTER_KEY is not set — using insecure dev key. (Allowed ONLY in --dev mode)")
 		keyMaterial = "default-dev-key-32-chars-long-!!!"
 	}
+
 	salt := []byte(getSalt())
 	info := []byte("ocultar-aes-key")
 	r := hkdf.New(sha256.New, []byte(keyMaterial), salt, info)
@@ -56,7 +62,8 @@ func getMasterKey() []byte {
 }
 
 func main() {
-	log.Printf("OCULTAR Privacy Proxy v%s starting…", VERSION)
+	flag.Parse()
+	log.Printf("OCULTAR Privacy Proxy v%s starting (DevMode: %v)…", VERSION, devMode)
 
 	// ── Load config ───────────────────────────────────────────────────────────
 	cfg := proxy.LoadConfig()
@@ -79,7 +86,7 @@ func main() {
 		os.Getenv("OCU_PILOT_MODE") == "true"
 
 	eng := refinery.NewRefinery(vaultProvider, masterKey)
-	eng.Serve = "proxy" // marks the refinery as running in serve mode (enables hit tracking)
+	eng.Serve = "proxy"
 	eng.PilotMode = pilotMode
 
 	// ── Build proxy handler ───────────────────────────────────────────────────
@@ -89,7 +96,7 @@ func main() {
 	}
 
 	addr := ":" + cfg.Port
-	if cfg.Port[0] == ':' {
+	if cfg.Port != "" && cfg.Port[0] == ':' {
 		addr = cfg.Port
 	}
 
@@ -99,14 +106,23 @@ func main() {
 	fmt.Printf("│  Target    : %-38s │\n", cfg.TargetURL)
 	fmt.Printf("│  Vault     : %-38s │\n", cfg.VaultPath)
 	fmt.Printf("│  Pilot     : %-38v │\n", pilotMode)
+	fmt.Printf("│  DevMode   : %-38v │\n", devMode)
 	fmt.Printf("└──────────────────────────────────────────────────────┘\n")
 
 	mux := http.NewServeMux()
+	
+	// Health & Metrics
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok"}`))
+		w.Write([]byte(`{"status":"ok", "version":"` + VERSION + `"}`))
 	})
+	
+	if config.Global.PrometheusEnabled {
+		log.Printf("[INFO] Metrics enabled on /metrics")
+		mux.Handle("/metrics", promhttp.Handler())
+	}
+
 	mux.Handle("/", handler)
 
 	log.Fatal(http.ListenAndServe(addr, mux))
