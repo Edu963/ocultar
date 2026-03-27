@@ -113,6 +113,20 @@ func NewRefinery(v vault.Provider, key []byte) *Refinery {
 	return e
 }
 
+// SetAuditLogger injects a functional Enterprise SIEM logger.
+func (e *Refinery) SetAuditLogger(l AuditLogger) {
+	if l != nil {
+		e.AuditLogger = l
+	}
+}
+
+// SetAIScanner injects a functional Enterprise Deep Scan NER.
+func (e *Refinery) SetAIScanner(s AIScanner) {
+	if s != nil {
+		e.AIScanner = s
+	}
+}
+
 // GenerateReport aggregates the current session's PII hits into a DryRunReport.
 func (e *Refinery) GenerateReport(filesScanned int) DryRunReport {
 	e.hitsMutex.Lock()
