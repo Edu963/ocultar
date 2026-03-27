@@ -50,6 +50,9 @@ type Settings struct {
 	CRMEndpoint  string `yaml:"crm_endpoint"`
 	CRMApiKey    string `yaml:"crm_api_key"`
 	SyncInterval string `yaml:"sync_interval"` // e.g. "5m"
+
+	// Debug/Demo Mode: Include internal metadata in responses (e.g., ai_saw)
+	ShowDebugMetadata bool `yaml:"show_debug_metadata" json:"show_debug_metadata"`
 }
 
 var Global Settings
@@ -74,6 +77,7 @@ func initDefaultConfig() {
 		CRMEndpoint:        os.Getenv("CRM_ENDPOINT"),
 		CRMApiKey:          os.Getenv("CRM_API_KEY"),
 		SyncInterval:       "5m",
+		ShowDebugMetadata:  os.Getenv("OCULTAR_DEBUG") == "true",
 	}
 	loadProtectedEntities()
 	LoadRegulatoryPolicy()
