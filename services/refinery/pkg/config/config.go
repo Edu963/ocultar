@@ -45,6 +45,11 @@ type Settings struct {
 
 	// AliasMapping (Task 1) - Maps internal IDs to Google InfoTypes
 	AliasMapping map[string]string `yaml:"-" json:"alias_mapping"`
+
+	// CRM Sync Settings
+	CRMEndpoint  string `yaml:"crm_endpoint"`
+	CRMApiKey    string `yaml:"crm_api_key"`
+	SyncInterval string `yaml:"sync_interval"` // e.g. "5m"
 }
 
 var Global Settings
@@ -66,6 +71,9 @@ func initDefaultConfig() {
 		},
 		PresidioConfidence: 0.6,
 		DomainSnapshot:     "standard",
+		CRMEndpoint:        os.Getenv("CRM_ENDPOINT"),
+		CRMApiKey:          os.Getenv("CRM_API_KEY"),
+		SyncInterval:       "5m",
 	}
 	loadProtectedEntities()
 	LoadRegulatoryPolicy()
