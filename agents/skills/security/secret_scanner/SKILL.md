@@ -7,7 +7,7 @@ description: Proactively scans the repository and staging area for sensitive inf
 
 ## Purpose
 
-The SS is the primary gateway for preventing "Secret Sprawl". It ensures that credentials never touch the code or config files unless they are in an Ocultar-sanctioned Identity Vault.
+The SS is the primary gateway for preventing "Secret Sprawl". It ensures that credentials never touch the code or config files unless they are in an Ocultar-sanctioned Identity Vault. This skill is implemented by the `./tools/scripts/run_secret_scanner.sh` functional gate.
 
 ## Inputs / Outputs
 

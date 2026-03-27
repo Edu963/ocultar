@@ -7,7 +7,7 @@ description: Specialized security linter to detect unmasked PII leakage and unau
 
 ## Purpose
 
-Enforces the "Platinum Rule": **No unmasked PII ever leaves the client's VPC.** This skill acts as a static gate to block code that attempts to bypass the Sombra logic.
+Enforces the "Platinum Rule": **No unmasked PII ever leaves the client's VPC.** This skill acts as a static gate to block code that attempts to bypass the Sombra logic. This skill is implemented by the `./tools/scripts/run_zero_egress_validator.sh` functional gate.
 
 ## Inputs / Outputs
 
