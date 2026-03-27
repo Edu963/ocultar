@@ -3,11 +3,34 @@
 package inference
 
 /*
-#cgo CFLAGS: -I${SRCDIR}/llama_cpp/include
-#cgo LDFLAGS: -L${SRCDIR}/llama_cpp/lib -lllama -lstdc++
-#include <llama.h>
+#cgo CFLAGS: -I./llama_cpp/include
+#cgo LDFLAGS: -L./llama_cpp/lib -lllama -lstdc++
 #include <stdlib.h>
 #include <stdbool.h>
+
+// Inlined declarations for IDE visibility
+typedef int llama_token;
+struct llama_model;
+struct llama_context;
+struct llama_model_params { int n_gpu_layers; };
+struct llama_context_params { int n_ctx; };
+
+void llama_backend_init(void);
+void llama_backend_free(void);
+struct llama_model_params llama_model_default_params(void);
+struct llama_model * llama_load_model_from_file(const char * path_model, struct llama_model_params params);
+void llama_free_model(struct llama_model * model);
+struct llama_context_params llama_context_default_params(void);
+struct llama_context * llama_new_context_with_model(struct llama_model * model, struct llama_context_params params);
+void llama_free_context(struct llama_context * ctx);
+void llama_set_abort_callback(struct llama_context * ctx, bool (*callback)(void *), void * data);
+
+int llama_tokenize(struct llama_model * model, const char * text, int text_len, llama_token * tokens, int n_max_tokens, bool add_bos, bool special);
+int llama_decode(struct llama_context * ctx, llama_token * tokens, int n_tokens, int n_past, int n_threads);
+float * llama_get_logits(struct llama_context * ctx);
+int llama_token_to_piece(struct llama_model * model, llama_token token, char * buf, int length);
+llama_token llama_token_bos(const struct llama_model * model);
+llama_token llama_token_eos(const struct llama_model * model);
 
 // Forward declaration of the abort callback
 bool go_llama_abort_callback(void * data);
@@ -96,8 +119,8 @@ func (s *LlamaScanner) ScanForPII(text string) (map[string][]string, error) {
 
 	// 2. Tokenize Input
 	maxTokens := 2048
-	tokens := make([]C.llama_token, maxTokens)
-	nTokens := C.llama_tokenize(s.model, cPrompt, C.int(len(prompt)), &tokens[0], C.int(maxTokens), C.bool(true), C.bool(false))
+	tokens := make([]C.int, maxTokens)
+	nTokens := C.llama_tokenize(s.model, cPrompt, C.int(len(prompt)), (*C.int)(unsafe.Pointer(&tokens[0])), C.int(maxTokens), C.bool(true), C.bool(false))
 	if nTokens < 0 {
 		return nil, fmt.Errorf("failed to tokenize prompt")
 	}
@@ -108,7 +131,7 @@ func (s *LlamaScanner) ScanForPII(text string) (map[string][]string, error) {
 	C.llama_set_abort(s.ctx, unsafe.Pointer(&aborted))
 
 	// 4. Decode Inbound Prompt (Batch 0)
-	if n := C.llama_decode(s.ctx, &tokens[0], nTokens, 0, 4); n != 0 {
+	if n := C.llama_decode(s.ctx, (*C.int)(unsafe.Pointer(&tokens[0])), nTokens, 0, 4); n != 0 {
 		return nil, fmt.Errorf("initial decode failed")
 	}
 
@@ -133,7 +156,7 @@ func (s *LlamaScanner) ScanForPII(text string) (map[string][]string, error) {
 		// In a real implementation: perform top-k/top-p sampling here.
 		// For this wrapper, we assume the C layer returns the best token or we greedily pick.
 		// (Mock: we call decode with the last token to simulate state progression)
-		var nextToken C.llama_token = 3 // Dummy next token
+		var nextToken C.int = 3 // Dummy next token
 
 		if nextToken == eosToken {
 			break

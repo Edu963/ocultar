@@ -19,3 +19,8 @@ dictionaries:
 regexes:
   - type: "EMAIL"
     pattern: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+
+# Identity Synchronization (Enterprise)
+# crm_endpoint: "https://crm.corp.internal/api/v1/identities"
+# crm_api_key: "ocultar-sync-secret"
+# sync_interval: "1h"

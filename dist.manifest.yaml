@@ -32,6 +32,9 @@ distributions:
           - "setup-community.sh"
           - "setup-community.ps1"
           - "integrity_validator.sh"
+          - "run_secret_scanner.sh"
+          - "run_arch_linter.sh"
+          - "run_zero_egress_validator.sh"
         dest: "scripts/"
 
   enterprise:
@@ -54,6 +57,9 @@ distributions:
         include:
           - "setup-enterprise.sh"
           - "integrity_validator.sh"
+          - "run_secret_scanner.sh"
+          - "run_arch_linter.sh"
+          - "run_zero_egress_validator.sh"
         dest: "scripts/"
       - name: "mock-api"
         src: "./services/mock-api/main.go"
