@@ -644,44 +644,6 @@ func (e *Refinery) isFullyTokenised(s string) bool {
 	return regexp.MustCompile(`^[\s\p{P}\p{Z}>*_|\-=+#@~]+$`).MatchString(stripped)
 }
 
-// applyRegexShield applies a specific regex pattern to discover and redact PII, avoiding overlapping matches.
-func (e *Refinery) applyRegexShield(input string, re *regexp.Regexp, piiType string, actor string) (string, error) {
-	tokens := tokenPattern.FindAllStringIndex(input, -1)
-	matches := re.FindAllStringIndex(input, -1)
-
-	var out strings.Builder
-	lastPos := 0
-
-	for _, match := range matches {
-		start, end := match[0], match[1]
-
-		overlap := false
-		for _, t := range tokens {
-			if start < t[1] && end > t[0] {
-				overlap = true
-				break
-			}
-		}
-		if overlap {
-			continue
-		}
-
-		matchedStr := input[start:end]
-
-		out.WriteString(input[lastPos:start])
-
-		tok, err := e.getOrSetSecureToken(matchedStr, piiType, actor)
-		if err != nil {
-			return "", err
-		}
-
-		out.WriteString(tok)
-		lastPos = end
-	}
-	out.WriteString(input[lastPos:])
-	return out.String(), nil
-}
-
 // applyReplacement replaces exact target strings with vaulted tokens.
 func (e *Refinery) applyReplacement(line, target, piiType string, actor string) (string, error) {
 	target = strings.TrimSpace(target)

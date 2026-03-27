@@ -38,6 +38,7 @@ var Registry = []EntityDef{
 	{Type: "AWS_SECRET", Pattern: regexp.MustCompile(`\b[0-9a-zA-Z/+]{40}\b`), Validator: ValNone, MinLength: 40, Normalization: false},
 	{Type: "GCP_SERVICE_ACCOUNT", Pattern: regexp.MustCompile(`(?i)\b[a-z0-9-]+@[a-z0-9-]+\.iam\.gserviceaccount\.com\b`), Validator: ValNone, MinLength: 15, Normalization: false},
 	{Type: "IP_ADDRESS", Pattern: regexp.MustCompile(`\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b`), Validator: ValNone, MinLength: 7, Normalization: false},
+	{Type: "PROJECT_CODE", Pattern: regexp.MustCompile(`(?i)\bProject (Phoenix|Ouroboros|Titan)\b`), Validator: ValNone, MinLength: 10, Normalization: false},
 
 	// Financial
 	{Type: "IBAN", Pattern: regexp.MustCompile(`(?i)\b[A-Z]{2}[0-9]{2}(?:[A-Z0-9]{11,30}|(?:[\s-][A-Z0-9]{4}){2,7}[\s-]?[A-Z0-9]{0,3})\b`), Validator: ValMod97, MinLength: 15, Normalization: true, CaptureGroup: 0},
