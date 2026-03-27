@@ -356,7 +356,17 @@ Ocultar development is supported by a 16-step **Continuous AI Orchestrator**. Th
 - **`red-team-evasion-scanner`**: Proactively stress-tests your changes against obfuscation bypasses (Base64, URL-encoding).
 
 ### How to trigger
-Skills are triggered automatically by the agent during the task lifecycle. Ensure your local `.env` contains the necessary keys (`OCU_MASTER_KEY`, etc.) for the orchestrator to perform its full 16-step sequence.
+Skills are triggered automatically by the agent during the task lifecycle. Developers can also run the full suite manually via the orchestration pipeline:
+
+```bash
+./scripts/orchestrate.sh
+```
+
+### Security Gates
+The orchestrator executes the following functional gates located in `tools/scripts/`:
+- **`run_secret_scanner.sh`**: Scans for hardcoded API keys, tokens, and credentials using high-entropy regex pathfinding.
+- **`run_arch_linter.sh`**: Enforces strict package boundaries (e.g., preventing `gateway` from directly importing `internal/pii`).
+- **`run_zero_egress_validator.sh`**: Validates configuration manifests to ensure `ALLOW_ALL` policies are never committed.
 
 ---
 
@@ -365,9 +375,9 @@ Skills are triggered automatically by the agent during the task lifecycle. Ensur
 OCULTAR Enterprise supports high-scan PII detection using local Small Language Models (SLMs) via a **native CGO integration** with `llama.cpp`. This replaces the legacy Python-based relay and Ollama fallback logic.
 
 ### Architecture
-- **Direct Linkage**: The refinery links directly against `libllama.so` (or `.a`) using CGO.
-- **Performance**: Zero-latency inference — no HTTP overhead or Python process management.
-- **Fail-Closed**: A strict **5-second context timeout** is enforced via a C-land abort callback.
+- **Direct Linkage**: The refinery links directly against `libllama.a` using CGO.
+- **Performance**: Zero-latency inference — no HTTP overhead.
+- **Fail-Closed SLA**: A strict **5-second context timeout** is enforced. The Go layer passes an `aborted` flag to C-land via `llama_set_abort_callback`, ensuring that C execution terminates immediately upon timeout.
 
 ### Configuration
 Set the following environment variables to activate native scanning:

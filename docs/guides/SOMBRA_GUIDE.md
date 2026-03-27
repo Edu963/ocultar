@@ -151,6 +151,12 @@ sombra:
       config:
         workspace_id: "T12345"
         token: "xoxb-..."
+
+  # ── Identity Sync (Enterprise) ─────────────────────────────────────────────
+  # Automatically poll external CRM/LDAP providers for protected names/VIPs.
+  crm_endpoint: "https://crm.corp.internal/api/v1/identities"
+  crm_api_key: "ocultar-sync-secret"
+  sync_interval: "1h"
 ```
 
 ### Field Reference
@@ -248,6 +254,7 @@ The single orchestration endpoint:
 ```
 POST http://localhost:8081/query
 Content-Type: application/json
+Authorization: Bearer <user-id-or-token>
 ```
 
 ### Request Schema
