@@ -3,34 +3,9 @@
 package inference
 
 /*
-#cgo CFLAGS: -I./llama_cpp/include
-#cgo LDFLAGS: -L./llama_cpp/lib -lllama -lstdc++
-#include <stdlib.h>
-#include <stdbool.h>
-
-// Inlined declarations for IDE visibility
-typedef int llama_token;
-struct llama_model;
-struct llama_context;
-struct llama_model_params { int n_gpu_layers; };
-struct llama_context_params { int n_ctx; };
-
-void llama_backend_init(void);
-void llama_backend_free(void);
-struct llama_model_params llama_model_default_params(void);
-struct llama_model * llama_load_model_from_file(const char * path_model, struct llama_model_params params);
-void llama_free_model(struct llama_model * model);
-struct llama_context_params llama_context_default_params(void);
-struct llama_context * llama_new_context_with_model(struct llama_model * model, struct llama_context_params params);
-void llama_free_context(struct llama_context * ctx);
-void llama_set_abort_callback(struct llama_context * ctx, bool (*callback)(void *), void * data);
-
-int llama_tokenize(struct llama_model * model, const char * text, int text_len, llama_token * tokens, int n_max_tokens, bool add_bos, bool special);
-int llama_decode(struct llama_context * ctx, llama_token * tokens, int n_tokens, int n_past, int n_threads);
-float * llama_get_logits(struct llama_context * ctx);
-int llama_token_to_piece(struct llama_model * model, llama_token token, char * buf, int length);
-llama_token llama_token_bos(const struct llama_model * model);
-llama_token llama_token_eos(const struct llama_model * model);
+#cgo CFLAGS: -I${SRCDIR} -I${SRCDIR}/llama_cpp/include
+#cgo LDFLAGS: -L${SRCDIR}/llama_cpp/lib -lllama -lstdc++
+#include "llama_wrapper.h"
 
 // Forward declaration of the abort callback
 bool go_llama_abort_callback(void * data);
@@ -120,7 +95,7 @@ func (s *LlamaScanner) ScanForPII(text string) (map[string][]string, error) {
 	// 2. Tokenize Input
 	maxTokens := 2048
 	tokens := make([]C.int, maxTokens)
-	nTokens := C.llama_tokenize(s.model, cPrompt, C.int(len(prompt)), (*C.int)(unsafe.Pointer(&tokens[0])), C.int(maxTokens), C.bool(true), C.bool(false))
+	nTokens := C.ocultar_llama_tokenize(s.model, cPrompt, C.int(len(prompt)), &tokens[0], C.int(maxTokens), 1)
 	if nTokens < 0 {
 		return nil, fmt.Errorf("failed to tokenize prompt")
 	}
@@ -131,14 +106,14 @@ func (s *LlamaScanner) ScanForPII(text string) (map[string][]string, error) {
 	C.llama_set_abort(s.ctx, unsafe.Pointer(&aborted))
 
 	// 4. Decode Inbound Prompt (Batch 0)
-	if n := C.llama_decode(s.ctx, (*C.int)(unsafe.Pointer(&tokens[0])), nTokens, 0, 4); n != 0 {
+	if n := C.ocultar_llama_decode(s.ctx, &tokens[0], nTokens, 0, 4); n != 0 {
 		return nil, fmt.Errorf("initial decode failed")
 	}
 
 	// 5. Autoregressive Sampling Loop
 	var response string
 	nPast := nTokens
-	eosToken := C.llama_token_eos(s.model)
+	eosToken := C.ocultar_llama_token_eos(s.model)
 
 	for i := 0; i < 512; i++ {
 		// Check for timeout / manual abort
@@ -148,7 +123,7 @@ func (s *LlamaScanner) ScanForPII(text string) (map[string][]string, error) {
 		}
 
 		// Get Logits and sample next token (greedy sampling for this implementation)
-		logits := C.llama_get_logits(s.ctx)
+		logits := C.ocultar_llama_get_logits(s.ctx)
 		if logits == nil {
 			break
 		}
@@ -164,13 +139,13 @@ func (s *LlamaScanner) ScanForPII(text string) (map[string][]string, error) {
 
 		// Token to piece
 		buf := make([]byte, 128)
-		n := C.llama_token_to_piece(s.model, nextToken, (*C.char)(unsafe.Pointer(&buf[0])), 128)
+		n := C.ocultar_llama_token_to_piece(s.model, nextToken, (*C.char)(unsafe.Pointer(&buf[0])), 128)
 		if n > 0 {
 			response += string(buf[:n])
 		}
 
 		// Decode the new token
-		if n := C.llama_decode(s.ctx, &nextToken, 1, nPast, 4); n != 0 {
+		if n := C.ocultar_llama_decode(s.ctx, &nextToken, 1, nPast, 4); n != 0 {
 			return nil, fmt.Errorf("token decode failed at step %d", i)
 		}
 		nPast++
