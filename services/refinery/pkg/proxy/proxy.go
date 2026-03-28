@@ -197,6 +197,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// ── 7. Write response back to the client ──────────────────────────────────
 	copyResponseHeaders(w.Header(), resp.Header)
+	if redacted {
+		w.Header().Set(headerRedacted, "true")
+	}
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(finalBody)))
 	w.WriteHeader(resp.StatusCode)
 	w.Write(finalBody)
