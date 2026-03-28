@@ -29,15 +29,16 @@ services:
     restart: unless-stopped
     ports:
       - "8081:8081"
+      - "9090:9090" # Prometheus Metrics
     environment:
       - OCU_PROXY_TARGET=http://ocultar-echo-upstream:8080
       - OCU_PROXY_PORT=8081
-      - OCU_MASTER_KEY=${OCU_MASTER_KEY:-default-dev-key-32-chars-long-!!!}
-      - OCU_SALT=${OCU_SALT:-ocultar-v112-kdf-salt-fixed-16}
+      - OCU_MASTER_KEY=${OCU_MASTER_KEY:-"REQUIRED_32_BYTE_KEY"}
+      - OCU_SALT=${OCU_SALT:-"REQUIRED_16_BYTE_SALT"}
     depends_on:
       - echo-upstream
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/health"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/healthz"]
       interval: 5s
       timeout: 3s
       retries: 10

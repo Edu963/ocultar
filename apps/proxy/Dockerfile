@@ -30,5 +30,6 @@ COPY --from=builder /workspace/ocultar-proxy /app/ocultar-proxy
 COPY --from=builder /workspace/services/refinery/configs/ /app/configs/
 
 EXPOSE 8081
+EXPOSE 9090
 
 ENTRYPOINT ["/app/ocultar-proxy"]
