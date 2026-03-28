@@ -376,7 +376,8 @@ func streamRefineJSON(dec *json.Decoder, eng *refinery.Refinery, actor string, o
 	switch v := t.(type) {
 	case json.Delim:
 		out.WriteString(v.String())
-		if v == '{' {
+		switch v {
+		case '{':
 			first := true
 			for dec.More() {
 				if !first {
@@ -399,7 +400,7 @@ func streamRefineJSON(dec *json.Decoder, eng *refinery.Refinery, actor string, o
 				return err
 			}
 			out.WriteString(et.(json.Delim).String())
-		} else if v == '[' {
+		case '[':
 			first := true
 			for dec.More() {
 				if !first {
@@ -439,7 +440,8 @@ func streamRehydrateJSON(dec *json.Decoder, v vault.Provider, masterKey []byte, 
 	switch val := t.(type) {
 	case json.Delim:
 		out.WriteString(val.String())
-		if val == '{' {
+		switch val {
+		case '{':
 			first := true
 			for dec.More() {
 				if !first {
@@ -462,7 +464,7 @@ func streamRehydrateJSON(dec *json.Decoder, v vault.Provider, masterKey []byte, 
 				return err
 			}
 			out.WriteString(et.(json.Delim).String())
-		} else if val == '[' {
+		case '[':
 			first := true
 			for dec.More() {
 				if !first {
