@@ -46,7 +46,7 @@
 | **security_docs_generator** | Expert AI orchestrator for PII compliance and auditor-ready documentation. |
 | **shadow-api-scanner** | Proactively detects endpoints exposed at the network level that are NOT registered in Sombra's policy. |
 | **sombra-gateway-policy-enforcer** | Automatically injects policy hooks when new endpoints or features are added. Ensures all AI requests go through the Fail-Closed logic. |
-| **sombra-performance-benchmarker** | Monitor latency overhead introduced by the Refinery and optimize the execution pipeline, ensuring AI requests feel fast while preserving security. |
+| **sombra-performance-benchmarker** | Monitor latency overhead and queue saturation via Prometheus. Optimizes the execution pipeline ensuring AI requests feel fast while preserving 100% security integrity. |
 | **tier_compliance_checker** | Cross-references the active OCULTAR license with the Sombra gateway policy. Ensures Pro features are only enabled when backed by a valid Enterprise license. |
 | **ui-regression-orchestrator** | Runs headless browser tests to verify the "Zero-Egress" visual boundaries and UI integrity of the Ocultar Enterprise Dashboard. |
 | **zero-egress-validator** | Specialized security linter to detect unmasked PII leakage and unauthorized external network calls. |
