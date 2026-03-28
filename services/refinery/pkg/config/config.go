@@ -95,8 +95,8 @@ func initDefaultConfig() {
 		ShowDebugMetadata:  os.Getenv("OCULTAR_DEBUG") == "true",
 
 		// Hardening Defaults
-		MaxConcurrency:           50,
-		QueueSize:                100,
+		MaxConcurrency:           10,
+		QueueSize:                5,
 		RehydrateFallbackEnabled: false, // Default to strict fail-closed (500)
 		InferenceTimeout:         "5s",
 		MaxPayloadSize:           5 * 1024 * 1024, // 5MB

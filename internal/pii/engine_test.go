@@ -29,6 +29,7 @@ func TestEngineEvasionResistance(t *testing.T) {
 		{"Valid BR CPF", "CPF: 123.456.789-09", "123.456.789-09"},
 		{"Valid CL RUT", "RUT: 12.345.678-5", "12.345.678-5"},
 		{"Valid CL RUT with K", "RUT: 16.222.333-K", "16.222.333-K"},
+		{"Standard Email", "contact john.doe@example.com for info", "john.doe@example.com"},
 	}
 
 	for _, tc := range cases {
