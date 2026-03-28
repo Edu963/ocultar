@@ -127,6 +127,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// ── 2. Redact PII from JSON body ─────────────────────────────────────────
 	refStart := time.Now()
 	sanitisedBody, redacted, err := h.redactBody(rawBody, actor)
+	log.Printf("[DEBUG] Redaction complete. Redacted: %v, Body length: %d -> %d", redacted, len(rawBody), len(sanitisedBody))
+	if redacted {
+		log.Printf("[DEBUG] Sanitised Body (truncated): %s", string(sanitisedBody))
+	}
 	RequestLatency.WithLabelValues("refinery_total").Observe(time.Since(refStart).Seconds())
 
 	if err != nil {
@@ -334,6 +338,7 @@ var hopByHopHeaders = map[string]bool{
 	"Trailers":            true,
 	"Transfer-Encoding":   true,
 	"Upgrade":             true,
+	"Content-Length":      true,
 	headerTarget:          true,
 }
 

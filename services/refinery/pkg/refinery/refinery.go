@@ -92,7 +92,7 @@ type Refinery struct {
 	hitsMutex sync.Mutex
 
 	// SessionCache provides a fast-path for identical strings during a single batch/recursion run.
-	SessionCache sync.Map
+	sessionCache atomic.Pointer[sync.Map]
 }
 
 // NewRefinery constructs an Refinery using a vault.Provider as its storage backend.
@@ -109,6 +109,7 @@ func NewRefinery(v vault.Provider, key []byte) *Refinery {
 		AuditLogger: NoopAuditLogger{},
 		AIScanner:   NoopAIScanner{},
 	}
+	e.sessionCache.Store(&sync.Map{})
 	e.VaultCount.Store(count)
 	return e
 }
@@ -159,7 +160,7 @@ func (e *Refinery) ResetHits() {
 	e.hitsMutex.Lock()
 	defer e.hitsMutex.Unlock()
 	e.Hits = []pii.DetectionResult{}
-	e.SessionCache = sync.Map{}
+	e.sessionCache.Store(&sync.Map{})
 }
 
 // RefineBatch processes a slice of generic objects in parallel using a bounded worker pool.
@@ -352,7 +353,8 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		return input, nil
 	}
 
-	if cached, ok := e.SessionCache.Load(input); ok {
+	cache := e.sessionCache.Load()
+	if cached, ok := cache.Load(input); ok {
 		return cached.(string), nil
 	}
 
@@ -418,6 +420,14 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	if config.Global.AliasMapping != nil {
 		eng.SetMapping(config.Global.AliasMapping)
 	}
+	
+	// DEBUG LOG
+	detections := eng.Scan(refined)
+	log.Printf("[DEBUG] Tier 1 Scan found %d detections in string of length %d", len(detections), len(refined))
+	for _, d := range detections {
+		log.Printf("[DEBUG]   - Detection: [%s] %s", d.Entity, d.Value)
+	}
+
 	tokens := tokenPattern.FindAllStringIndex(refined, -1)
 
 	refined, err = eng.Redact(refined, func(d pii.DetectionResult) (string, error) {
@@ -538,7 +548,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		return "", err
 	}
 
-	e.SessionCache.Store(input, refined)
+	cache.Store(input, refined)
 
 	return refined, nil
 }

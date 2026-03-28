@@ -1,0 +1,32 @@
+[INFO] Mock LLM started on 9999
+--- STAGE 1: Functional Testing ---
+[INFO] Proxy ready
+[TEST] Running: Functional_Standard
+[PASS] Functional_Standard: Zero-Egress verified for Tier 1 PII
+--- STAGE 2: Adversarial Testing ---
+[TEST] Running: Adversarial_Obfuscation
+[PASS] Adversarial_Obfuscation: Zero-Egress verified for Tier 1 PII
+[INFO] Cleaning up...
+pkill: killing pid 2042 failed: Operation not permitted
+pkill: killing pid 75239 failed: Operation not permitted
+./security/verify_ocultar.sh: line 92: 280120 Killed                     python3 security/mock_llm.py $MOCK_LLM_PORT > /dev/null 2>&1
+./security/verify_ocultar.sh: line 92: 280140 Killed                     ./bin/ocultar-proxy $dev_flag > "$RES_DIR/proxy.log" 2>&1
+--- STAGE 3: SSRF Protection ---
+[INFO] Proxy ready
+[TEST] SSRF Protection
+[PASS] SSRF Protection: Blocked local access (Status: 403)
+--- STAGE 4: Load Testing ---
+[INFO] Flooding with safe requests (Concurrency 120)...
+[FAIL] Load Safety: No 429 detected (Queue size might be too large or requests too fast)
+--- STAGE 5: Failure Mode ---
+[INFO] Cleaning up...
+pkill: killing pid 2042 failed: Operation not permitted
+pkill: killing pid 75239 failed: Operation not permitted
+./security/verify_ocultar.sh: line 124: 280194 Killed                     python3 security/mock_llm.py $MOCK_LLM_PORT > /dev/null 2>&1
+./security/verify_ocultar.sh: line 124: 280195 Killed                     ./bin/ocultar-proxy $dev_flag > "$RES_DIR/proxy.log" 2>&1
+[TEST] Fail-Closed: Missing Master Key
+[PASS] Fail-Closed: Proxy refused to start without key
+[INFO] All tests completed. Review reports/verification for details.
+[INFO] Cleaning up...
+pkill: killing pid 2042 failed: Operation not permitted
+pkill: killing pid 75239 failed: Operation not permitted
