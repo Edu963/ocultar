@@ -2,7 +2,7 @@
 # This file defines the files and binaries included in Ocultar releases.
 # It is used by the client-package-updater skill and the build_release.sh script.
 
-version: "1.0"
+version: "2.1.1"
 
 distributions:
   community:
