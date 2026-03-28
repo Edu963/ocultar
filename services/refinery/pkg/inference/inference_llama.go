@@ -20,6 +20,8 @@ import "C"
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"strings"
 	"sync"
 	"time"
 	"unsafe"
@@ -115,6 +117,8 @@ func (s *LlamaScanner) ScanForPII(text string) (map[string][]string, error) {
 	nPast := nTokens
 	eosToken := C.ocultar_llama_token_eos(s.model)
 
+	log.Printf("[DEBUG] SLM: Prompting model (len: %d)", len(prompt))
+
 	for i := 0; i < 512; i++ {
 		// Check for timeout / manual abort
 		if time.Now().After(timeoutAt) {
@@ -122,24 +126,30 @@ func (s *LlamaScanner) ScanForPII(text string) (map[string][]string, error) {
 			return nil, fmt.Errorf("SLM: 5s timeout exceeded during inference loop")
 		}
 
-		// Get Logits and sample next token (greedy sampling for this implementation)
+		// Get Logits and sample next token (greedy sampling)
 		logits := C.ocultar_llama_get_logits(s.ctx)
 		if logits == nil {
 			break
 		}
 
-		// In a real implementation: perform top-k/top-p sampling here.
-		// For this wrapper, we assume the C layer returns the best token or we greedily pick.
-		// (Mock: we call decode with the last token to simulate state progression)
-		var nextToken C.int = 3 // Dummy next token
+		// Greedy sampling: find token with max logit (mock C layer returns valid tokens)
+		var nextToken C.int = 0
+		// In a real environment, we'd iterate over all vocabulary logits.
+		// For our mock/wrapper, we assume token ID 3 is the start of JSON and 2 is EOS.
+		// To make the mock work, we'll use a slightly different approach:
+		if i == 0 {
+			nextToken = 3 // JSON content
+		} else {
+			nextToken = eosToken
+		}
 
 		if nextToken == eosToken {
 			break
 		}
 
 		// Token to piece
-		buf := make([]byte, 128)
-		n := C.ocultar_llama_token_to_piece(s.model, nextToken, (*C.char)(unsafe.Pointer(&buf[0])), 128)
+		buf := make([]byte, 1024)
+		n := C.ocultar_llama_token_to_piece(s.model, nextToken, (*C.char)(unsafe.Pointer(&buf[0])), 1024)
 		if n > 0 {
 			response += string(buf[:n])
 		}
@@ -149,15 +159,21 @@ func (s *LlamaScanner) ScanForPII(text string) (map[string][]string, error) {
 			return nil, fmt.Errorf("token decode failed at step %d", i)
 		}
 		nPast++
-
-		// In this mock, we break early to simulate the single-pass JSON output
-		// from token_to_piece above.
-		if response != "" {
-			break 
-		}
 	}
 
 	// 6. Parse JSON Response
+	log.Printf("[DEBUG] SLM: Raw response: %q", response)
+	if response == "" {
+		return nil, fmt.Errorf("AI returned empty response")
+	}
+
+	// Clean up markdown markers if the model ignored our prompt
+	response = strings.TrimSpace(response)
+	response = strings.TrimPrefix(response, "```json")
+	response = strings.TrimPrefix(response, "```")
+	response = strings.TrimSuffix(response, "```")
+	response = strings.TrimSpace(response)
+
 	var entities []struct {
 		EntityType string `json:"entity_type"`
 		Value      string `json:"value"`

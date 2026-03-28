@@ -531,11 +531,14 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		for piiType, items := range piiMap {
 			for _, item := range items {
 				if len(strings.TrimSpace(item)) > 2 {
+					log.Printf("[DEBUG] Tier 2 SLM hit: %s (%s)", item, piiType)
 					DetectionTotal.WithLabelValues(piiType, "tier2_slm").Inc()
 					refined, err = e.applyReplacement(refined, item, piiType, actor)
 					if err != nil {
 						return "", err
 					}
+				} else if len(strings.TrimSpace(item)) > 2 {
+					log.Printf("[DEBUG] Tier 2 SLM skip (not in refined): %s", item)
 				}
 			}
 		}

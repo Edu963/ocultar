@@ -14,6 +14,7 @@ import (
 	"github.com/Edu963/ocultar/pkg/license"
 	"github.com/Edu963/ocultar/pkg/proxy"
 	"github.com/Edu963/ocultar/pkg/refinery"
+	"github.com/Edu963/ocultar/pkg/inference"
 	"github.com/Edu963/ocultar/vault"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/crypto/hkdf"
@@ -90,19 +91,25 @@ func main() {
 	eng.PilotMode = pilotMode
 
 	// ── Initialize Enterprise Components ──────────────────────────────────────
-	if license.IsEnterprise() {
+	if license.IsEnterprise() || os.Getenv("OCU_FORCE_ENTERPRISE") == "true" {
 		log.Printf("[INFO] Initializing Enterprise Security Tiers...")
 		// 1. SIEM Auditor
 		auditor := &refinery.NoopAuditLogger{} // Replace with real auditor if available
 		eng.SetAuditLogger(auditor)
 
 		// 2. Local SLM Scanner
-		slmHost := os.Getenv("SLM_HOST")
-		if slmHost == "" {
-			slmHost = "http://localhost:8080"
+		modelPath := os.Getenv("SLM_MODEL_PATH")
+		if modelPath != "" {
+			scanner, err := inference.NewLlamaScanner(modelPath)
+			if err != nil {
+				log.Printf("[WARN] Failed to initialize SLM scanner: %v. AI coverage will be limited.", err)
+			} else {
+				eng.SetAIScanner(scanner)
+				log.Printf("[INFO] Tier 2 AI (llama.cpp) active. Model: %s", modelPath)
+			}
+		} else {
+			log.Printf("[INFO] SLM_MODEL_PATH not set. Tier 2 AI scanning is disabled.")
 		}
-		// In a real scenario, we'd use a real AIScanner implementation.
-		// For now, I'll check if there's one in the codebase.
 	}
 	
 	// ── Build proxy handler ───────────────────────────────────────────────────
