@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"io"
 	"io/fs"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -37,10 +39,27 @@ func isTextFile(path string) bool {
 	ext := strings.ToLower(filepath.Ext(path))
 	switch ext {
 	// We only want to crawl text-based data files at rest. (S3/SQL integration comes later)
-	case ".txt", ".json", ".md", ".csv", ".yml", ".yaml", ".xml", ".html", ".log", ".sql":
+	case ".txt", ".json", ".md", ".csv", ".yml", ".yaml", ".xml", ".html", ".log", ".sql", ".pdf":
 		return true
 	}
 	return false
+}
+
+func extractText(path string) ([]byte, error) {
+	ext := strings.ToLower(filepath.Ext(path))
+	if ext == ".pdf" {
+		// Leverage existing system tool pdftotext for high-fidelity extraction
+		cmd := exec.Command("pdftotext", path, "-")
+		return cmd.Output()
+	}
+
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	return io.ReadAll(f)
 }
 
 func (c *Crawler) CrawlLocalDirectory(rootPath string) (HeatmapReport, error) {
@@ -69,14 +88,9 @@ func (c *Crawler) CrawlLocalDirectory(rootPath string) (HeatmapReport, error) {
 			return nil
 		}
 
-		f, err := os.Open(path)
+		content, err := extractText(path)
 		if err != nil {
-			return nil
-		}
-		defer f.Close()
-
-		content, err := io.ReadAll(f)
-		if err != nil {
+			log.Printf("[RECON-CRAWLER] Failed to extract text from %s: %v", path, err)
 			return nil
 		}
 
