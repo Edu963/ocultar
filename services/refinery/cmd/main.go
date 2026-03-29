@@ -19,6 +19,7 @@ import (
 	_ "github.com/Edu963/ocultar/pkg/connector/slack"
 	"github.com/Edu963/ocultar/pkg/refinery"
 	"github.com/Edu963/ocultar/pkg/identities"
+	"github.com/Edu963/ocultar/pkg/inference"
 	"github.com/Edu963/ocultar/pkg/license"
 	"github.com/Edu963/ocultar/pkg/recon"
 	"github.com/Edu963/ocultar/pkg/reporter"
@@ -108,15 +109,31 @@ func main() {
 	}
 	defer vaultProvider.Close()
 
-	pilotMode := license.Active.Tier == "community" || os.Getenv("OCU_PILOT_MODE") == "1" || os.Getenv("OCU_PILOT_MODE") == "true"
+	pilotMode := (license.Active.Tier == "community" && os.Getenv("OCU_FORCE_ENTERPRISE") != "true") || (os.Getenv("OCU_PILOT_MODE") == "1" || os.Getenv("OCU_PILOT_MODE") == "true")
 	if pilotMode {
 		fmt.Printf("⚠️  OCULTAR running in COMMUNITY MODE. ⚠️\n")
+	} else {
+		fmt.Printf("🚀 OCULTAR ENTERPRISE EDITION 🚀\n")
 	}
 
 	eng := refinery.NewRefinery(vaultProvider, masterKey)
 	eng.DryRun = *dryRun
 	eng.Report = *report
 	eng.PilotMode = pilotMode
+
+	// Enable Tier 2 AI if forced or licensed
+	if !pilotMode {
+		modelPath := os.Getenv("SLM_MODEL_PATH")
+		if modelPath != "" {
+			scanner, err := inference.NewLlamaScanner(modelPath)
+			if err != nil {
+				log.Printf("[WARN] Failed to initialize SLM scanner: %v", err)
+			} else {
+				eng.SetAIScanner(scanner)
+				log.Printf("[INFO] Tier 2 AI (llama.cpp) active. Model: %s", modelPath)
+			}
+		}
+	}
 	eng.AIScanner.SetDomain(config.Global.DomainSnapshot)
 
 	if *reconPath != "" {
