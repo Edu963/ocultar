@@ -60,7 +60,7 @@ const OverviewView = ({ tier, pricingParams, connectionStatus }) => (
       <StatusCard icon={<Clock className="text-amber-400" />} label="License" value={tier} />
     </section>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
       <FailClosedWrapper status={connectionStatus}>
         <FinancialImpactWidget params={pricingParams} tier={tier} />
       </FailClosedWrapper>
@@ -424,13 +424,19 @@ export default function App() {
   const isEnterprise = useMemo(() => tier === 'ENTERPRISE', [tier]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30">
-      <header className="border-b border-slate-800 h-16 flex items-center justify-between px-6 sticky top-0 bg-slate-950/80 backdrop-blur-md z-50">
-        <div className="flex items-center gap-4">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-blue-900/40">O</div>
-          <div>
-            <h1 className="font-bold text-lg tracking-tight">OCULTAR <span className="text-blue-500">Refinery</span></h1>
-            <p className="text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em]">Control Center</p>
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30 overflow-x-hidden">
+      {/* Background Decorative Element */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-20 transition-opacity">
+         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full" />
+         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-600/10 blur-[120px] rounded-full" />
+      </div>
+
+      <header className="border-b border-white/5 h-20 flex items-center justify-between px-8 sticky top-0 bg-slate-950/60 backdrop-blur-xl z-50">
+        <div className="flex items-center gap-5">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-400 rounded-xl flex items-center justify-center font-bold text-white shadow-xl shadow-blue-500/20 text-xl tracking-tighter">O</div>
+          <div className="border-l border-white/10 pl-5">
+            <h1 className="font-bold text-xl tracking-tight text-white flex items-center gap-2">OCULTAR <span className="text-blue-400 font-light opacity-80 decoration-blue-500/50 underline-offset-8 underline decoration-1">CONTROL_CENTER</span></h1>
+            <p className="text-[9px] text-slate-500 font-mono uppercase tracking-[0.3em] font-medium">Sovereign Data Refinery // v2.1</p>
           </div>
         </div>
         
@@ -480,13 +486,14 @@ export default function App() {
         {activeView === 'Dev' && <DeveloperView />}
       </main>
 
-      <footer className="border-t border-slate-800 p-8 mt-12">
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-[10px] text-slate-500">
-          <p>© 2026 OCULTAR Security. All Rights Reserved.</p>
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-500" /> ROI Verified via roi-accountant skill</span>
-            <span>Contract Version: v2.1.0</span>
-          </div>
+      <footer className="border-t border-white/5 py-8 mt-12 bg-slate-950/40 relative z-10">
+        <div className="max-w-7xl mx-auto px-8 flex justify-between items-center text-[10px] text-slate-500 font-mono uppercase tracking-widest">
+           <div className="flex items-center gap-6">
+             <span>© 2026 OCULTAR Security. All Rights Reserved.</span>
+             <div className="w-px h-3 bg-white/10" />
+             <span className="flex items-center gap-1.5 transition-colors hover:text-emerald-400 cursor-default"><ShieldCheck className="w-3 h-3 text-emerald-500/50" /> ROI Verified via roi-accountant skill</span>
+           </div>
+           <span className="opacity-50">Contract Version: v2.1.0-ENTERPRISE</span>
         </div>
       </footer>
     </div>

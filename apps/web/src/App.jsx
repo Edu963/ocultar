@@ -1,4 +1,3 @@
-import React, { useState, useEffect, useRef } from 'react';
 import ROIDashboardCard from './components/ROIDashboardCard';
 
 // --- Particle Background System ---
