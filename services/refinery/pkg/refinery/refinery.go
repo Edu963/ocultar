@@ -420,7 +420,22 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	if config.Global.AliasMapping != nil {
 		eng.SetMapping(config.Global.AliasMapping)
 	}
-	
+
+	// TIER 1.1 (PRIORITY): Phone detection runs FIRST — before the PII registry —
+	// so that digit sequences like "+34 612 345 678" are tokenized as [PHONE_...]
+	// before national-ID patterns (FRANCE_SIREN, DE_STEUER_ID, etc.) can claim them.
+	if strings.ContainsAny(refined, "0123456789") {
+		var phoneErr error
+		refined, phoneErr = parseAndReplaceWithErr(refined, ParseAndReplacePhonesRaw, func(match string) (string, error) {
+			DetectionTotal.WithLabelValues("PHONE", "tier1_phone").Inc()
+			log.Printf("[DEBUG] Tier 1.1 Phone hit: %s", match)
+			return e.getOrSetSecureToken(match, "PHONE", actor)
+		})
+		if phoneErr != nil {
+			return "", phoneErr
+		}
+	}
+
 	// DEBUG LOG
 	detections := eng.Scan(refined)
 	log.Printf("[DEBUG] Tier 1 Scan found %d detections in string of length %d", len(detections), len(refined))
@@ -448,15 +463,6 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		return "", err
 	}
 
-	if strings.ContainsAny(refined, "0123456789") {
-		refined, err = parseAndReplaceWithErr(refined, ParseAndReplacePhonesRaw, func(match string) (string, error) {
-			DetectionTotal.WithLabelValues("PHONE", "tier1_phone").Inc()
-			return e.getOrSetSecureToken(match, "PHONE", actor)
-		})
-		if err != nil {
-			return "", err
-		}
-	}
 
 	if len(refined) > 10 && (strings.ContainsAny(refined, "0123456789") || containsAnyLower(refined, "rue", "calle", "street", "ave", "road", "str.")) {
 		refined, err = parseAndReplaceWithErr(refined, ParseAndReplaceAddressesRaw, func(match string) (string, error) {

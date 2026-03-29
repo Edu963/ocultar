@@ -64,26 +64,41 @@ func ParseAndReplacePhones(input string, replaceFn func(match string) string) st
 	return out.String()
 }
 
+// broadPhoneRegex matches structurally valid phone sequences (7–15 digits, optional
+// leading + or 00, separated by spaces/dashes/dots) that libphonenumber may reject
+// as "unallocated" but which a human would clearly read as a phone number.
+var broadPhoneRegex = regexp.MustCompile(`^(?:\+|00)?[\d\s\-\.\(\)]{7,20}$`)
+
 // ParseAndReplacePhonesRaw is the underlying implementation that propagates errors.
 func ParseAndReplacePhonesRaw(input string) [][]int {
-	re := regexp.MustCompile(`(?:(?:\+|00)\s*)?\(?\d(?:[\s\-\.()]*\d){7,16}`)
+	re := regexp.MustCompile(`(?:(?:\+|00)\s*)?(\d(?:[\s\-\.()]*\d){7,16})`)
 	matches := re.FindAllStringIndex(input, -1)
 
 	var validMatches [][]int
 	for _, match := range matches {
 		matchedStr := input[match[0]:match[1]]
-		if regexp.MustCompile(`^\d{4}[-/.]\d{2}[-/.]\d{2}`).MatchString(matchedStr) {
-			continue
+		if regexp.MustCompile(`^\d{4}[-/.]?\d{2}[-/.]\d{2}`).MatchString(matchedStr) {
+			continue // skip ISO dates
 		}
-		valid := false
+
+		// Tier A: libphonenumber strict validation (most precise)
+		libValid := false
 		for _, region := range []string{"FR", "US", "CO", "DE", "GB", "ES", "AR", "MX", "BR", "CA", "IT", "CH"} {
 			num, err := phonenumbers.Parse(matchedStr, region)
 			if err == nil && phonenumbers.IsValidNumber(num) {
-				valid = true
+				libValid = true
 				break
 			}
 		}
-		if valid {
+		if libValid {
+			validMatches = append(validMatches, match)
+			continue
+		}
+
+		// Tier B: Broad "looks like a phone" fallback (Fail-Closed for placeholders)
+		// Count just the digits — any sequence of 7–15 digits with phone separators is suspicious.
+		digits := regexp.MustCompile(`\D`).ReplaceAllString(matchedStr, "")
+		if len(digits) >= 7 && len(digits) <= 15 && broadPhoneRegex.MatchString(strings.TrimSpace(matchedStr)) {
 			validMatches = append(validMatches, match)
 		}
 	}
