@@ -179,9 +179,21 @@ func CompileRegexes() {
 	}
 }
 
-// Load applies base rules for community edition.
+// Load applies base rules for community edition and then overrides with local config.yaml if present.
 func Load() {
 	initDefaultConfig()
+
+	data, err := os.ReadFile("configs/config.yaml")
+	if err == nil {
+		if err := yaml.Unmarshal(data, &Global); err != nil {
+			log.Printf("[ERROR] Failed to parse configs/config.yaml: %v", err)
+		} else {
+			log.Printf("[INFO] Configuration loaded from configs/config.yaml")
+			CompileRegexes()
+		}
+	} else if !os.IsNotExist(err) {
+		log.Printf("[WARN] Failed to read configs/config.yaml: %v", err)
+	}
 }
 
 // InitDefaults explicitly initializes the default rules primarily for testing purposes.

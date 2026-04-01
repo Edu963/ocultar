@@ -14,6 +14,14 @@ dictionaries:
     terms:
       - "John Doe"
       - "Jane Smith"
+  - type: "NDA_PROTECTED"
+    terms:
+      - "Saab"
+      - "Hypervisor"
+      - "Price"
+      - "Pricing"
+      - "Cost"
+      - "260327"
 
 # Regexes
 regexes:
