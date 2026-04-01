@@ -1,0 +1,5 @@
+SAAB AB also needs more than one type of tool in the toolbox and must move away from a "one-size-fits-all" approach of on-premises hypervisor solutions. Instead, SAAB AB needs a multi-tool strategy, selecting hypervisor solutions based on the specific capabilities required by the business.SAAB AB must establish a multi-vendor strategy to ensure compliance and cost optimization.
+Estimated Volumes:
+Production 735 Hosts 1470 Sockets 47052 CPU-cores
+Total recurring cost: $260,327 per year.
+Pricing is based on Appendix 1.
