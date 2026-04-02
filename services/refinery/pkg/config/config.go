@@ -201,9 +201,19 @@ func InitDefaults() {
 	initDefaultConfig()
 }
 
-func AddRegexRule(rule RegexRule) {
-	rule.Compiled = regexp.MustCompile(rule.Pattern)
+func ValidateRegex(pattern string) error {
+	_, err := regexp.Compile(pattern)
+	return err
+}
+
+func AddRegexRule(rule RegexRule) error {
+	comp, err := regexp.Compile(rule.Pattern)
+	if err != nil {
+		return err
+	}
+	rule.Compiled = comp
 	Global.Regexes = append(Global.Regexes, rule)
+	return nil
 }
 
 func RemoveRegexRule(ruleType string) {
@@ -234,7 +244,21 @@ func AddDictionaryTerm(dictType, term string) {
 	})
 }
 
+func UpdateSystemLimits(concurrency int, queue int) {
+	if concurrency > 0 {
+		Global.MaxConcurrency = concurrency
+	}
+	if queue > 0 {
+		Global.QueueSize = queue
+	}
+}
+
 func Save() error {
+	backupData, err := os.ReadFile("configs/config.yaml")
+	if err == nil {
+		os.WriteFile("configs/config.yaml.bak", backupData, 0644)
+	}
+
 	var protected []string
 	var saveDicts []DictRule
 
