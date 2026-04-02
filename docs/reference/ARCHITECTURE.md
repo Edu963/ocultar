@@ -56,16 +56,16 @@ graph TD
     end
 
     subgraph "OCULTAR Host (on-premise)"
-        Proxy["ocultar-proxy\n(Go HTTP/gRPC/Syslog)\npkg/proxy"]
-        Refinery["OCULTAR Refinery\n(Go library)\npkg/refinery\nRefineBatch ✦"]
-        Config["Config Loader\npkg/config\n configs/config.yaml"]
-        Vault_svc["Identity Vault\npkg/vault"]
+        Proxy["ocultar-proxy\n(Go HTTP/gRPC/Syslog)\nservices/refinery/pkg/proxy"]
+        Refinery["OCULTAR Refinery\n(Go library)\nservices/refinery/pkg/refinery\nRefineBatch ✦"]
+        Config["Config Loader\nservices/refinery/pkg/config\n configs/config.yaml"]
+        Vault_svc["Identity Vault\nservices/vault"]
         DDB[("DuckDB\nvault.db")]
         PG[("PostgreSQL ✦\nexternal HA cluster")]
         SLM["Specialized SLM ✦\n(Clinical / General)\nllama.cpp / Qwen"]
         Dashboard["Dashboard\nindex.html\n:9090"]
-        AuditLog["Audit System\npkg/audit\nTamper-proof logs"]
-        Connectors["Sombra Pro Connectors ✦\napps/sombra/pkg/connector\nSlack / SharePoint"]
+        AuditLog["Audit System\nservices/refinery/pkg/audit\nTamper-proof logs"]
+        Connectors["Sombra Pro Connectors ✦\napps/sombra/pkg/connector"]
     end
 
     subgraph "External"
@@ -211,11 +211,11 @@ graph LR
 
 ```mermaid
 graph TD
-    Config["pkg/config\n(zero internal deps)"]
-    License["pkg/license"]
-    Vault["pkg/vault"]
-    Refinery["pkg/refinery"]
-    Proxy["pkg/proxy"]
+    Config["services/refinery/pkg/config\n(zero internal deps)"]
+    License["services/refinery/pkg/license"]
+    Vault["services/vault"]
+    Refinery["services/refinery/pkg/refinery"]
+    Proxy["services/refinery/pkg/proxy"]
     Reporter["pkg/reporter"]
     DistCommunity["dist/community\n(main)"]
     DistEnterprise["dist/enterprise\n(main)"]
@@ -241,9 +241,9 @@ graph TD
 ```
 
 **Key architecture rules:**
-1. `pkg/config` has zero internal dependencies — it is the root of the dependency tree.
-2. `pkg/refinery` does **not** import `pkg/proxy` — the refinery knows nothing about HTTP.
-3. `pkg/vault` does **not** import `pkg/refinery` — storage is decoupled from redaction logic.
+1. `services/refinery/pkg/config` has zero internal dependencies — it is the root of the dependency tree.
+2. `services/refinery/pkg/refinery` does **not** import `services/refinery/pkg/proxy` — the refinery knows nothing about HTTP.
+3. `services/vault` does **not** import `services/refinery/pkg/refinery` — storage is decoupled from redaction logic.
 
 ---
 
@@ -324,7 +324,7 @@ Single file at `vault.db`. Zero external dependencies. Supports concurrent reads
 
 ### PostgreSQL (Enterprise ✦)
 
-Same schema created at startup via `CREATE TABLE IF NOT EXISTS`. Connection string via `postgres_dsn` in `config.yaml`. Connection pool capped at 15 (`sync.Semaphore` in `pkg/proxy`) to prevent exhaustion.
+Same schema created at startup via `CREATE TABLE IF NOT EXISTS`. Connection string via `postgres_dsn` in `config.yaml`. Connection pool capped at 15 (`sync.Semaphore` in `services/refinery/pkg/proxy`) to prevent exhaustion.
 
 ---
 

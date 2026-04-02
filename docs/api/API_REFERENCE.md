@@ -13,9 +13,9 @@
    - [Constructor](#22-constructor)
    - [Methods](#23-methods)
    - [Cryptography Helpers](#24-cryptography-helpers)
-3. [Vault Package (`pkg/vault`)](#3-vault-package-pkgvault)
-4. [Config Package (`pkg/config`)](#4-config-package-pkgconfig)
-5. [Proxy Package (`pkg/proxy`)](#5-proxy-package-pkgproxy)
+3. [Vault Package (`services/vault`)](#3-vault-package-servicesvault)
+4. [Config Package (`services/refinery/pkg/config`)](#4-config-package-servicesrefinerypkgconfig)
+5. [Proxy Package (`services/refinery/pkg/proxy`)](#5-proxy-package-servicesrefinerypkgproxy)
 6. [HTTP Endpoints](#6-http-endpoints)
    - [POST /api/refine](#61-post-apirefine)
    - [POST /api/refine/file](#62-post-apirefinefile)
@@ -284,7 +284,7 @@ Used internally by the proxy re-hydration layer. Not intended for direct use.
 
 ---
 
-## 3. Vault Package (`pkg/vault`)
+## 3. Vault Package (`services/vault`)
 
 ### `Provider` interface
 
@@ -323,7 +323,7 @@ Selects and constructs the correct backend:
 
 ---
 
-## 4. Config Package (`pkg/config`)
+## 4. Config Package (`services/refinery/pkg/config`)
 
 ### `Settings` struct
 
@@ -386,7 +386,7 @@ type DictRule struct {
 
 ---
 
-## 5. Proxy Package (`pkg/proxy`)
+## 5. Proxy Package (`services/refinery/pkg/proxy`)
 
 ### `Handler`
 
