@@ -193,6 +193,9 @@
             <div id="phase6" class="phase" onclick="runPhase(6)">
                 <div class="phase-name">PHASE 6: GATEWAY</div>
             </div>
+            <div id="phase7" class="phase" onclick="runPhase(7)">
+                <div class="phase-name">PHASE 7: DASHBOARD</div>
+            </div>
         </div>
         <div class="terminal" id="terminal">
             <div id="output"></div>
@@ -239,6 +242,10 @@
             6: {
                 text: "Now let's orchestrate it all using Sombra Gateway. User -> Sombra -> OCULTAR (Redacts) -> OpenAI -> Responses -> OCULTAR (Rehydrates) -> User.",
                 insight: "Full E2E mastery. The user sees their prompt, but the cloud only sees harmless tokens."
+            },
+            7: {
+                text: "Security is only half the story. The Ocultar Governance Dashboard provides executives with real-time ROI tracking, shadow API alerts, and automated audit logs for the CISO.",
+                insight: "Real-time visibility into cost savings and regulatory compliance status across the entire AI ecosystem."
             }
         };
 
@@ -319,6 +326,14 @@
                 append('Building Sombra Gateway...', 'out');
                 await run('cd apps/sombra && go build -o sombra main.go');
                 append('Demo completed!', 'cmd');
+            } else if (n === 7) {
+                append('Launching Enterprise Governance Dashboard...', 'out');
+                append('> cd apps/dashboard && npm run dev', 'cmd');
+                await new Promise(r => setTimeout(r, 1000));
+                append('VITE v7.3.1  ready in 358 ms', 'out');
+                append('➜  Local:   http://localhost:5173/', 'out');
+                append('Opening dashboard in new tab...', 'out');
+                window.open('http://localhost:5173', '_blank');
             }
             
             currentPhase.classList.add('done');
