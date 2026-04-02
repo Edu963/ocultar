@@ -539,6 +539,146 @@ const ConfigView = () => {
     );
 };
 
+const AutomationView = () => {
+    const [commands, setCommands] = useState([]);
+    const [selectedCmd, setSelectedCmd] = useState(null);
+    const [inputs, setInputs] = useState({});
+    const [logs, setLogs] = useState('');
+    const [isRunning, setIsRunning] = useState(false);
+    const [history, setHistory] = useState([]);
+
+    useEffect(() => {
+        fetch('http://localhost:18081/api/automation/commands')
+            .then(res => res.json())
+            .then(data => setCommands(data || []))
+            .catch(err => console.error(err));
+        
+        fetchHistory();
+    }, []);
+
+    const fetchHistory = () => {
+        fetch('http://localhost:18081/api/automation/history')
+            .then(res => res.json())
+            .then(data => setHistory(data || []))
+            .catch(err => console.error(err));
+    };
+
+    const handleRun = async () => {
+        if (!selectedCmd) return;
+        setIsRunning(true);
+        setLogs('Starting execution: ' + selectedCmd.name + '\n');
+        
+        try {
+            const response = await fetch('http://localhost:18081/api/automation/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command_id: selectedCmd.id, inputs })
+            });
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                setLogs(prev => prev + decoder.decode(value, { stream: true }));
+            }
+        } catch (error) {
+            setLogs(prev => prev + '\nError: ' + error.message);
+        } finally {
+            setIsRunning(false);
+            fetchHistory();
+        }
+    };
+
+    return (
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-6xl mx-auto space-y-8">
+            <h2 className="text-2xl font-bold flex items-center gap-3"><Terminal className="text-emerald-400" /> Automation Control Plane</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="space-y-6 md:col-span-1 border-r border-slate-800 pr-6">
+                    <h3 className="text-sm border-b border-slate-800 pb-2 text-slate-400 font-bold uppercase tracking-widest">Available Capabilities</h3>
+                    <div className="space-y-3">
+                        {commands.map(cmd => (
+                            <button 
+                                key={cmd.id} 
+                                onClick={() => { setSelectedCmd(cmd); setInputs({}); setLogs(''); }}
+                                className={`w-full text-left p-3 rounded-lg border transition-all ${selectedCmd?.id === cmd.id ? 'bg-emerald-600/20 border-emerald-500/50 text-emerald-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'}`}
+                            >
+                                <div className="text-xs font-bold font-mono">{cmd.name}</div>
+                                <div className="text-[10px] mt-1 opacity-80">{cmd.description}</div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="space-y-6 md:col-span-2">
+                    {selectedCmd ? (
+                        <>
+                            <div className="flex justify-between items-center bg-slate-950 p-4 rounded-lg border border-slate-800">
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-sm font-bold text-slate-200">{selectedCmd.name}</h3>
+                                    <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">{selectedCmd.command} {selectedCmd.args.join(' ')}</span>
+                                </div>
+                                <button 
+                                    onClick={handleRun} 
+                                    disabled={isRunning}
+                                    className={`px-4 py-2 rounded text-xs font-bold transition-all ${isRunning ? 'bg-slate-800 text-slate-600' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'}`}
+                                >
+                                    {isRunning ? 'EXECUTING...' : 'RUN COMMAND'}
+                                </button>
+                            </div>
+
+                            {selectedCmd.inputs.length > 0 && (
+                                <div className="space-y-4 bg-slate-950/50 p-4 rounded-lg border border-slate-800">
+                                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Required Variables</h4>
+                                    {selectedCmd.inputs.map(input => (
+                                        <div key={input.name}>
+                                            <label className="block text-xs text-slate-400 mb-1 font-mono">{input.name} {input.required && <span className="text-red-400">*</span>}</label>
+                                            <input 
+                                                type="text" 
+                                                placeholder={input.description}
+                                                className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs font-mono focus:ring-1 focus:ring-emerald-500 outline-none"
+                                                value={inputs[input.name] || ''}
+                                                onChange={e => setInputs({...inputs, [input.name]: e.target.value})}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="h-96 bg-black border border-slate-800 rounded-lg p-4 overflow-y-auto font-mono text-[11px] text-emerald-400 whitespace-pre-wrap leading-relaxed shadow-inner">
+                                {logs || 'Awaiting command execution...'}
+                                {isRunning && <span className="animate-pulse w-2 h-4 bg-emerald-400 inline-block align-middle ml-1"></span>}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="h-full flex flex-col items-center justify-center opacity-30 border-2 border-dashed border-slate-800 rounded-xl p-8">
+                            <Terminal className="w-16 h-16 mb-4" />
+                            <p className="text-sm font-mono text-center">Select a capability from the registry to begin.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+            
+            {history?.length > 0 && (
+                <div className="pt-8 border-t border-slate-800">
+                    <h3 className="text-xs border-b border-slate-800 pb-2 mb-4 text-slate-400 font-bold uppercase tracking-widest">Execution History ({history.length})</h3>
+                    <div className="space-y-2">
+                        {history.map(h => (
+                            <div key={h.run_id} className="flex justify-between items-center text-[10px] p-2 bg-slate-950 rounded border border-slate-800 font-mono">
+                                <span className={h.status === 'success' ? 'text-emerald-400' : h.status === 'failure' ? 'text-red-400' : 'text-blue-400'}>[{h.status.toUpperCase()}]</span>
+                                <span className="text-slate-300">{h.command_id}</span>
+                                <span className="text-slate-500">{new Date(h.start_time).toLocaleTimeString()}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 // --- MAIN APP ---
 
 export default function App() {
@@ -620,6 +760,7 @@ export default function App() {
           <NavItem active={activeView === 'Docs'} onClick={() => setActiveView('Docs')} icon={<BookOpen className="w-4 h-4" />} label="Docs" />
           <NavItem active={activeView === 'FAQ'} onClick={() => setActiveView('FAQ')} icon={<HelpCircle className="w-4 h-4" />} label="FAQ" />
           <NavItem active={activeView === 'Dev'} onClick={() => setActiveView('Dev')} icon={<Code2 className="w-4 h-4" />} label="Developer" />
+          <NavItem active={activeView === 'Automation'} onClick={() => setActiveView('Automation')} icon={<Terminal className="w-4 h-4" />} label="Automation" />
           <NavItem active={activeView === 'Config'} onClick={() => setActiveView('Config')} icon={<Settings2 className="w-4 h-4" />} label="Config" />
         </nav>
 
@@ -659,6 +800,7 @@ export default function App() {
         {activeView === 'Docs' && <DocumentationView />}
         {activeView === 'FAQ' && <FAQView />}
         {activeView === 'Dev' && <DeveloperView />}
+        {activeView === 'Automation' && <AutomationView />}
         {activeView === 'Config' && <ConfigView />}
       </main>
 

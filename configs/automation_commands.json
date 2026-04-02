@@ -1,0 +1,51 @@
+{
+  "commands": {
+    "run_security_scan": {
+      "id": "run_security_scan",
+      "name": "Run Semantic Scanner",
+      "description": "Execute the tier 2 AI semantic security validation suite under adversarial conditions.",
+      "command": "bash",
+      "args": ["./scripts/semantic.sh"],
+      "inputs": []
+    },
+    "provision_llm": {
+      "id": "provision_llm",
+      "name": "Provision Local LLM",
+      "description": "Fetch necessary llama.cpp headers and build static libraries for local SLM testing.",
+      "command": "bash",
+      "args": ["./scripts/provision_llama.sh"],
+      "inputs": []
+    },
+    "run_orchestrator": {
+      "id": "run_orchestrator",
+      "name": "System Orchestrator",
+      "description": "Run the full build, unit tests, and semantic security gates.",
+      "command": "bash",
+      "args": ["./scripts/orchestrate.sh"],
+      "inputs": []
+    },
+    "run_sombra_benchmark": {
+      "id": "run_sombra_benchmark",
+      "name": "Sombra Load Benchmark",
+      "description": "Execute competitive performance analysis against the Sombra proxy.",
+      "command": "python3",
+      "args": ["./scripts/sombra_benchmark.py"],
+      "inputs": [
+        {
+          "name": "OCU_MASTER_KEY",
+          "type": "text",
+          "required": true,
+          "description": "Master key for accessing Sombra endpoints"
+        }
+      ]
+    },
+    "run_diagnostic_suite": {
+      "id": "run_diagnostic_suite",
+      "name": "Adversarial Diagnostic Suite",
+      "description": "Run red-team evasion tests (Base64, Homoglyph, Prompt Injection, Splitting) directly via Go.",
+      "command": "go",
+      "args": ["run", "tools/diagnostic_suite/evasion.go"],
+      "inputs": []
+    }
+  }
+}
