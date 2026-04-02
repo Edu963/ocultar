@@ -13,7 +13,7 @@ The SS is the primary gateway for preventing "Secret Sprawl". It ensures that cr
 
 ### Inputs
 - `scan_scope` (Git Diff | Path).
-- `approved_storage`: List of paths allowed to contain secrets. (Default: `["services/refinery/configs/secrets.json"]`).
+- `approved_storage`: List of paths allowed to contain secrets. (Default: `["configs/config.yaml"]`, `.env.example`).
 
 ### Outputs
 - `scanner_verdict` (Enum): `SAFE` | `BLOCK_COMMIT`.
@@ -39,7 +39,7 @@ The SS is the primary gateway for preventing "Secret Sprawl". It ensures that cr
 
 ### 3. Verification Gate (Pre-commit)
 - If `scanner_verdict` == `BLOCK_COMMIT`:
-    - **Instruction**: "Secret detected in `{{file}}`. Secrets MUST be moved to `services/refinery/configs/secrets.json` or the Ocultar Identity Vault."
+    - **Instruction**: "Secret detected in `{{file}}`. Secrets MUST be moved to the Ocultar Identity Vault or the encrypted `configs/config.yaml` block. **Never ship `license.key` or raw GGUF secrets.**"
 
 ## Failure Handling
 - **`AMBIGUOUS_STRING`**: If a string looks like a secret but is a test asset, instruct the developer to add it to `.secretignore`.

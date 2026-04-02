@@ -12,7 +12,7 @@ This skill generates a comprehensive list of all software components, dependenci
 **MANDATORY** during the release process, specifically:
 - After `client-package-updater` has finalized the manifest.
 - Before `artifact-signer` signs the final package.
-- Whenever a new third-party dependency (Go or NPM) is added.
+- Whenever a new third-party dependency (Go, **CGO/llama.cpp**, or NPM) is added.
 
 ## Instructions
 

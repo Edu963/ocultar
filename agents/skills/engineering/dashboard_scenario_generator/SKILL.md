@@ -18,6 +18,8 @@ To demonstrate the value of OCULTAR without needing live sensitive data. This sk
 - **Finance Breach**: Simulate 10,000 IBAN leaks blocked by the Refinery.
 - **Healthcare Leak**: Simulate patient records being intercepted at the Sombra Gateway.
 - **M&A Leak**: Simulate internal project codenames (e.g., "Project Nightshade") being filtered from a chatbot.
+- **SLM Timeout**: Simulate an AI inference delay (>5s) to trigger fail-closed redaction.
+- **Queue Saturation**: Simulate 500 concurrent requests to verify throttle behavior.
 
 ### 2. Provision Mock-API
 - Call the `Mock-API` endpoint: `POST /api/scenario`.

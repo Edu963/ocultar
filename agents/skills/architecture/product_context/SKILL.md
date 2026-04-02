@@ -13,7 +13,7 @@ This skill ensures that every proposed change or response aligns with Ocultar's 
 
 ### Inputs:
 - `proposal` (String/Diff): The intended code change, architectural design, or response.
-- `functional_domain` (Enum): [API | Core-Logic | Storage | Connector | Documentation]
+- `functional_domain` (Enum): [API | Core-Logic | Storage | Connector | Dashboard | Documentation]
 
 ### Outputs:
 - `alignment_report` (Artifact): A report containing:
@@ -32,7 +32,7 @@ This skill ensures that every proposed change or response aligns with Ocultar's 
 
 ### 2. Fail-Closed Security
 - **Constraint**: System failure or latency (>5s) must result in a blocked request, never a leak.
-- **Validation**: Ensure all detection calls are wrapped in timeouts and default to "Redact All" or "Block" on error.
+- **Validation**: Ensure all detection calls are wrapped in timeouts (e.g., 5s for Tier 2 SLM) and default to "Redact All" or "Block" on error.
 - **Failure Handling**: Verdict **MUST** be MODIFY if error handling is "Fail-Open".
 
 ### 3. Pure Refinery (Source Agnosticism)
@@ -49,6 +49,7 @@ Ensure the following terms are used with 100% precision:
 - **Shield**: The deterministic "Tier 0" protection layer (Dictionaries/VIPs).
 - **Vault**: The AES-256 encrypted storage for original PII.
 - **Sombra**: The agentic gateway orchestrating secure LLM traffic.
+- **Tier 2 AI**: Local SLM (llama.cpp) for high-fidelity semantic NER.
 
 ---
 

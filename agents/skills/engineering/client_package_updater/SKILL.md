@@ -12,7 +12,8 @@ This skill ensures that the **Ocultar Distribution Manifest** (currently impleme
 **MANDATORY** whenever a change affects:
 - **Core Binaries**: New `main.go` entry points or renamed service commands.
 - **Enterprise Extensions**: Any addition to the `enterprise/` directory that must be bundled separately.
-- **Static Assets**: Updates to the `apps/web` dashboard or new public icons/locales.
+- **Static Assets**: Updates to the `apps/dashboard` UI or new public icons/locales.
+- **AI Models**: New GGUF weights or configuration in the `models/` directory.
 - **Configuration Templates**: New keys in `configs/config.yaml` or `.env.example`.
 - **Deployment Scripts**: Modifications to `docker-compose.proxy.yml` or `setup-community.sh`.
 - **Documentation**: New `/docs/*.md` guides that must be included in the `.zip` or `.tar.gz`.
@@ -27,7 +28,7 @@ This skill ensures that the **Ocultar Distribution Manifest** (currently impleme
 Identify the specific category of the change:
 - **Binary Change**: Does `go build` output a new filename?
 - **Logic Change**: Does a new service require a new port mapping in `docker-compose.yml`?
-- **Asset Change**: Has the `apps/web/dist` structure changed?
+- **Asset Change**: Has the `apps/dashboard/dist` structure changed?
 
 ### 2. Manifest Synchronization
 The **Ocultar Distribution Manifest** (`dist.manifest.yaml`) is the single source of truth for all releases.
@@ -66,8 +67,8 @@ The **Ocultar Distribution Manifest** (`dist.manifest.yaml`) is the single sourc
 **Action**: Update `build_release.sh` to ensure `enterprise/connectors` is built and the .so/.go binary is included in `ocultar-enterprise.tar.gz`.
 
 ### Example 2: Dashboard Redesign
-**Input**: Moved frontend build artifacts to `apps/web/out`.
-**Action**: Update the `npm run build` step and the `cp -r` path in `build_release.sh` to match the new `out` directory.
+**Input**: Moved frontend build artifacts to `apps/dashboard/dist`.
+**Action**: Update the `npm run build` step and the `cp -r` path in `build_release.sh` to match the new `dist` directory.
 
 ### Example 3: Deployment Script Update
 **Input**: Added `scripts/harden-linux.sh`.

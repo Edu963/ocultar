@@ -38,7 +38,8 @@ PRSR acts as the ultimate quality gate (Step 11). It ensures that no change to d
 - Compare hits.
 - **Regressions**:
     - **Tier 0 (SSN, Keys)**: 1 missed hit = `FAIL`.
-    - **Tier 1 (Phone, Email)**: >1% degradation = `FAIL`.
+    - **Tier 1 (Phone, Email, Nordic/LATAM IDs)**: >1% degradation = `FAIL`.
+    - **Tier 2 (AI Semantic Accuracy)**: Recall must be > 95% for standard datasets.
 
 ### 3. State Registration
 - Commit results to `ecosystem-state-tracker`.

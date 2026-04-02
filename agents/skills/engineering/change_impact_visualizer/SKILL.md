@@ -25,9 +25,10 @@ The CIV (Step 12) prevents "Security Drift" during refactoring. It analyzes the 
 
 ### 1. Component Attribution
 - Map every changed file to its core component:
-    - `pkg/refinery` -> **Refinery Tier**.
+    - `pkg/refinery` -> **Refinery & Local SLM**.
     - `pkg/vault` -> **Identity Vault**.
     - `apps/sombra` -> **Gateway Layer**.
+    - `apps/dashboard` -> **Operational Control Plane**.
 
 ### 2. Regulatory Impact Check
 - For changes in **Vault** or **Refinery**:

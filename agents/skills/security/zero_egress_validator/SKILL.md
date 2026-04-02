@@ -7,7 +7,7 @@ description: Specialized security linter to detect unmasked PII leakage and unau
 
 ## Purpose
 
-Enforces the "Platinum Rule": **No unmasked PII ever leaves the client's VPC.** This skill acts as a static gate to block code that attempts to bypass the Sombra logic. This skill is implemented by the `./tools/scripts/run_zero_egress_validator.sh` functional gate.
+Enforces the "Platinum Rule": **No unmasked PII ever leaves the client's VPC.** This skill acts as a static gate to block code that attempts to bypass the Sombra logic or disables **Tier 2 AI (Local SLM)** without authorization.
 
 ## Inputs / Outputs
 
@@ -36,6 +36,7 @@ Identify outbound communication that bypasses Ocultar hooks:
 For every hit in Step 1, verify variable names against the PII category list.
 - **Violation**: If variables like `user_ssn`, `raw_prompt`, or `unmasked_payload` are passed to external IPs.
 - **Logic**: If `uri` is NOT in the "Approved Internal Domains", the data MUST be piped through `Refinery.Refine()` first.
+- **SSRF Guard**: Verify that any dynamic Upstream Overrides are validated against the internal SSRF protection list.
 
 ### 3. Verdict Generation
 - `FAIL`: Unmasked PII sent to external domain.

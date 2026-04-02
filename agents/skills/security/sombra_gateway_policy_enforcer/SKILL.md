@@ -7,7 +7,7 @@ description: Automatically injects policy hooks when new endpoints or features a
 
 ## Purpose
 
-The SGPE acts as the "Architectural Linter" for the Gateway layer. It ensures that every code path that handles AI payloads (Prompt or Response) is explicitly bound to a Refinery hook, preventing accidental unmasked egress.
+The SGPE acts as the "Architectural Linter" for the Gateway layer. It ensures that every code path that handles AI payloads (Prompt or Response) is explicitly bound to a Refinery hook and the **Hardened Concurrency Queue**, preventing accidental unmasked egress or service instability.
 
 ## Inputs / Outputs
 
@@ -32,7 +32,8 @@ The SGPE acts as the "Architectural Linter" for the Gateway layer. It ensures th
 
 ### 2. Hook Validation
 - For every path identified:
-    - **Requirement**: Must call `Refinery.Refine()` or `Protocol.FailClosedHandler()`.
+    - **Requirement**: Must call `Refinery.Refine()` and be wrapped in the `ConcurrencySemaphore` or `HardenedQueue`.
+    - **Routing**: Ensure **Multi-model router** selections are logged in the audit trail.
     - **Policy**: If the hook is missing or commented out, flag as `BYPASS_DETECTED`.
 
 ### 3. Fail-Closed Verification

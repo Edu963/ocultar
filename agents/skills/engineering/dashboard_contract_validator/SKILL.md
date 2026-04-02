@@ -11,7 +11,7 @@ This skill prevents breaking changes in the API from reaching the dashboard. It 
 ## Role
 - **Category**: Integration Validator
 - **Phase**: CI/CD / Pre-Release
-- **Ecosystem Fit**: Acts as a bridge between `services/refinery` and `apps/web`.
+- **Ecosystem Fit**: Acts as a bridge between `services/refinery` and `apps/dashboard`.
 
 ## Inputs / Outputs
 
@@ -39,6 +39,7 @@ This skill prevents breaking changes in the API from reaching the dashboard. It 
 - **Check**: Confirm the presence and type of:
     - [ ] `vault_entries` (integer)
     - [ ] `slm_status` (string: "Online"|"Offline")
+    - [ ] `queue_depth` (integer)
     - [ ] `slm_host` (string: URL)
 
 ### 2. Validate ROI Schema (Enterprise Only)
@@ -48,7 +49,9 @@ This skill prevents breaking changes in the API from reaching the dashboard. It 
     - [ ] `savings` (number)
 - **Validation**: If license is missing, verify the API returns `403 Forbidden`.
 
-### 3. Validate Refine Schema
+### 3. Validate Configuration Schema
+- **Action**: Call `GET /api/config/regex`.
+- **Check**: Verify the list of customer-defined PII types.
 - **Action**: Call `POST /api/refine` with a sample JSON payload.
 - **Check**:
     - [ ] `refined` (string)

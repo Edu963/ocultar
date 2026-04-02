@@ -12,7 +12,7 @@ The SPB ensures that "Security Latency" stays within acceptable human-interactiv
 ## Inputs / Outputs
 
 ### Inputs
-- `latency_threshold_ms`: Max acceptable overhead (Default: `100ms`).
+- `latency_threshold_ms`: Max acceptable overhead (Default: `100ms` for Tier 0/1, `5000ms` for Tier 2).
 - `sample_payload`: Path to a representative AI request.
 - `tier_depth`: `0` (Dict), `1` (Regex), `2` (SLM).
 
@@ -34,6 +34,7 @@ The SPB ensures that "Security Latency" stays within acceptable human-interactiv
     - **Tier 0 (Dictionary)**: Constant time $O(1)$ lookup.
     - **Tier 1 (Regex)**: Pattern matching time.
     - **Tier 2 (SLM)**: Inference time.
+    - **Queue Delay**: Duration spent in the Hardened Concurrency Queue.
 
 ### 2. Threshold Violation Analysis
 - If total latency > `latency_threshold_ms`:
