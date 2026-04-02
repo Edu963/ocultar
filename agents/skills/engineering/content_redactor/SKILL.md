@@ -17,7 +17,7 @@ The Content Redactor ensures that the final "deliverable" (the package the clien
 
 ### 1. Enforce Distribution Policies
 - Verify that every file in the distribution list complies with the `dist.manifest.yaml`.
-- **Blacklist Enforcement**: Ensure `.env`, `.git`, `.DS_Store`, and `node_modules` (if not bundled) are purged.
+- **Blacklist Enforcement**: Ensure `.env`, `.git`, `license.key`, `.DS_Store`, and `node_modules` (if not bundled) are purged.
 
 ### 2. Dynamic Redaction
 - Scan the compiled/bundled content for any lingering safe-placeholders (e.g., `YOUR_API_KEY_HERE`) to ensure they haven't been replaced by actual keys during a botched build.

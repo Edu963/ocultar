@@ -32,8 +32,8 @@ Identify the subtrees related to the `target_domain`:
 
 | Domain | Root Path | Primary Purpose |
 | :--- | :--- | :--- |
-| **CORE** | `documentation/` | Technical specifications and setup guides. |
-| **DOCS** | `docs/` | Operational workflows and deployment logs. |
+| **CORE** | `docs/` | Technical specifications (`TECH_DOCS.md`) and setup guides. |
+| **DASHBOARD**| `apps/dashboard/` | Operational control plane and telemetry UI. |
 | **PILOT** | `docs/pilot/` | Onboarding materials and pilot playbooks. |
 | **REPORTS** | `docs/internal/` | Compliance reports and deep research. |
 | **CONNECTORS**| `services/refinery/pkg/connector/` | Third-party ingestion logic. |
@@ -55,7 +55,7 @@ For each file in the domain, extract:
 
 ### Example: API Documentation Check
 - **Input**: `target_domain` = `CORE`.
-- **Action**: Map all files in `documentation/`. Match `API_REFERENCE.md` against the refinery's current routes.
+- **Action**: Map all files in `docs/`. Match `TECH_DOCS.md` against the refinery's current routes.
 
 ### Example: Connector Discovery
 - **Input**: `target_domain` = `CONNECTORS`.

@@ -7,7 +7,7 @@ description: Production-grade orchestrator for the "Tier 0" Dictionary Shield. M
 
 ## Purpose
 
-The DSM manages the "Platinum List" of protected entities. It ensures that critical strings are synchronized across all refinery nodes with 100% parity, acting as the ultimate fail-safe for PII leakage.
+The DSM manages the "Platinum List" of protected entities. It ensures that critical strings are synchronized across all refinery nodes with 100% parity, using the **Operational Dashboard's Shield Manager** as the primary control interface.
 
 ## Inputs / Outputs
 
@@ -28,10 +28,10 @@ The DSM manages the "Platinum List" of protected entities. It ensures that criti
 ## Instructions
 
 ### 1. Atomic Add & Sync
-- **Staging**: Update `apps/sombra/configs/protected_entities.json`.
-- **Propagation**: Copy to `refinery-extensions` and `services/refinery`.
-- **Validation**: Calculate SHA-256 for all three files.
-- **Integrity**: If hashes differ, attempt **RE-SYNC** once.
+- **Staging**: Update `configs/config.yaml` (dictionaries block).
+- **Propagation**: Hot-reload memory structures via `POST /api/config/dictionary`.
+- **Validation**: Verify entity presence in the **Shield Manager** UI.
+- **Integrity**: If sync fails, revert `configs/config.yaml` to last-known-good.
 
 ### 2. Fail-Safe Rollback
 - If Re-sync fails:

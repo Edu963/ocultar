@@ -41,6 +41,8 @@ This skill automates the visual and functional verification of the Ocultar dashb
 ### 2. Risk Matrix Interactivity
 - **Action**: Click on a regulatory tile (e.g., GDPR).
 - **Check**: Confirm that the audit logs are correctly filtered to show only GDPR-related PII hits.
+- **Documentation**: Verify the Documentation and FAQ tabs populate with canonical markdown.
+- **Shield Manager**: Verify the dynamic Regex/Dictionary forms submit correctly.
 
 ### 3. ROI Calculator Alignment
 - **Action**: Adjust the sliders in the ROI module.

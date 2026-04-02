@@ -31,6 +31,7 @@ Do NOT use this skill for minor internal commits or experimental changes.
    - Source code required to run the application
    - Configuration templates
    - Runtime assets
+   - **Local SLM Models** (`models/*.gguf`)
    - Installation scripts
 3. Exclude unnecessary files such as:
    - development artifacts
@@ -39,7 +40,7 @@ Do NOT use this skill for minor internal commits or experimental changes.
    - test data not required for production
 4. Validate that required dependencies and runtime files are included.
 5. Perform Zero-Egress Check: Ensure no hardcoded external URLs or unauthorized phone-home scripts are present in the final binaries or scripts.
-6. PII Leakage Scan: Run the `security-sanitizer` specifically on the final staging directory to ensure no local PII (e.g., from developer testing) is captured in the archive.
+6. PII Leakage Scan: Run the `security-sanitizer` specifically on the final staging directory to ensure no local PII (e.g., from developer testing) or `license.key` files are captured in the archive.
 7. **SBOM Generation**: Invoke the `sbom-generator` skill to capture all included dependencies and licenses.
 8. Create a versioned archive using a consistent naming format.
 9. **Artifact Signing**: Invoke the `artifact-signer` skill to generate detached Ed25519 signatures for the final archives.

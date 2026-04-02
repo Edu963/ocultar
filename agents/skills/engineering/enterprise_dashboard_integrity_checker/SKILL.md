@@ -14,7 +14,7 @@ The EDIC ensures that the visual representation of compliance (the Dashboard) is
 ### Inputs
 - `dashboard_url`: Endpoint for verification.
 - `active_license`: Verification token.
-- `api_truth_endpoint`: Sombra metrics API.
+- `api_truth_endpoint`: Sombra metrics API (`/api/metrics`).
 
 ### Outputs
 - `integrity_status`: `VERIFIED` | `STALE_DATA` | `LICENSE_BYPASS`.
@@ -27,10 +27,12 @@ The EDIC ensures that the visual representation of compliance (the Dashboard) is
 ### 1. Licensed Feature Lockdown
 - Verify that "Enterprise-Only" tabs are gated by the `active_license`.
 - **Violation**: If Tier 0 metrics are visible on a `COMMUNITY` tier, trigger an instant security incident.
+- **Verification**: Ensure the **Vault Inspector** and **Shield Manager** UI components are active for Enterprise licenses.
 
 ### 2. The "Metrics Truth" Check
 - Query the `api_truth_endpoint` for a specific count (e.g., `total_redact_events`).
 - Compare against the number displayed in the Dashboard UI.
+- **Data Fidelity**: Verify specific counts for `slm_inference_count` and `queue_saturation_events`.
 - **Drift**: If delta > 1%, mark as `STALE_DATA`.
 
 ### 3. Visual Regulatory Alignment
