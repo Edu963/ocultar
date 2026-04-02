@@ -51,12 +51,12 @@ const formatter = new Intl.NumberFormat('en-US', {
 
 // --- COMPONENTS ---
 
-const OverviewView = ({ tier, pricingParams, connectionStatus }) => (
+const OverviewView = ({ tier, pricingParams, connectionStatus, systemStatus, metrics, vaultStats, auditLogs }) => (
   <div className="space-y-6 relative">
     <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <StatusCard icon={<ShieldCheck className="text-blue-400" />} label="Enforcement" value="STRICT" />
-      <StatusCard icon={<Zap className="text-emerald-400" />} label="P95 Latency" value="42ms" />
-      <StatusCard icon={<Eye className="text-purple-400" />} label="Scan Coverage" value="99.8%" />
+      <StatusCard icon={<Zap className="text-emerald-400" />} label="P95 Latency" value={metrics?.latency_per_tier?.regex || "42ms"} />
+      <StatusCard icon={<Eye className="text-purple-400" />} label="Scan Coverage" value={metrics?.redaction_rate ? `${(metrics.redaction_rate * 100).toFixed(1)}%` : "99.8%"} />
       <StatusCard icon={<Clock className="text-amber-400" />} label="License" value={tier} />
     </section>
 
@@ -68,16 +68,16 @@ const OverviewView = ({ tier, pricingParams, connectionStatus }) => (
         <ShadowApiWidget tier={tier} />
       </FailClosedWrapper>
       <FailClosedWrapper status={connectionStatus}>
-        <PerformanceWidget />
+        <PerformanceWidget metrics={metrics} />
       </FailClosedWrapper>
       <FailClosedWrapper status={connectionStatus}>
         <PolicySimulatorWidget tier={tier} />
       </FailClosedWrapper>
       <FailClosedWrapper status={connectionStatus}>
-        <AnonymizationWidget tier={tier} />
+        <AnonymizationWidget tier={tier} vaultStats={vaultStats} />
       </FailClosedWrapper>
       <FailClosedWrapper status={connectionStatus}>
-        <AuditLedgerWidget tier={tier} />
+        <AuditLedgerWidget tier={tier} auditLogs={auditLogs} />
       </FailClosedWrapper>
     </div>
   </div>
@@ -271,58 +271,40 @@ const ROICalculatorView = ({ params, setParams }) => {
   );
 };
 
-const DocumentationView = () => (
-  <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-4xl mx-auto">
-    <div className="flex justify-between items-center mb-10">
-      <h2 className="text-3xl font-bold flex items-center gap-3">
-        <BookOpen className="text-blue-400 w-8 h-8" /> Technical Documentation
-      </h2>
-      <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">v2.1 canonical</span>
-    </div>
-    
-    <div className="space-y-12">
-      <DocSection title="CORE Infrastructure | Refinery-First Principle">
-        <p className="text-slate-400 text-sm leading-relaxed">
-          The OCULTAR Refinery ensures that sensitive data is sanitized at the absolute entry point of your VPC. 
-          By integrating the `Refinery.Refine()` hook before any external network calls, we prevent unmasked PII from ever hitting build logs or AI provider APIs. 
-          This is the foundation of our <span className="text-blue-400 font-mono">Zero-Trust AI</span> architecture.
-        </p>
-        <div className="mt-4 p-4 bg-slate-950 border border-slate-800 rounded-lg">
-           <h5 className="text-[10px] font-bold text-slate-500 uppercase mb-2">Technical specs [CORE Domain]</h5>
-           <ul className="text-xs text-slate-400 space-y-2 font-mono">
-              <li className="flex items-center gap-2"><ChevronRight className="w-3 h-3 text-blue-500" /> API_REFERENCE.md: Full endpoint schemas</li>
-              <li className="flex items-center gap-2"><ChevronRight className="w-3 h-3 text-blue-500" /> ARCHITECTURE.md: Service mesh topology</li>
-           </ul>
-        </div>
-      </DocSection>
+const DocumentationView = () => {
+  const [docs, setDocs] = useState(null);
+  
+  useEffect(() => {
+    fetch('http://localhost:8080/api/docs')
+      .then(r => r.json())
+      .then(d => setDocs(d))
+      .catch(e => console.error(e));
+  }, []);
 
-      <DocSection title="SECURITY | The Platinum Rule">
-        <p className="text-slate-400 text-sm leading-relaxed">
-          <strong>No unmasked PII ever leaves the client's VPC.</strong> This is enforced by the Zero-Egress Validator (ZEV), 
-          which proactively scans outbound communication (fetch, axios, net.Dial) for suspicious PII variable names. 
-          If a violation is detected during the linting phase or at runtime, the execution is halted immediately.
-        </p>
-      </DocSection>
-
-      <DocSection title="CONNECTORS | 3rd Party Ingestion">
-        <p className="text-slate-400 text-sm leading-relaxed">
-          Connectors are the bridge between your data sources and the Refinery. Located in `services/refinery/pkg/connector/`, 
-          they implement the core transformation logic required to prepare telemetry for LLM consumption while maintaining Zero-Egress boundaries.
-        </p>
-        <div className="grid grid-cols-2 gap-4 mt-4">
-           <div className="p-3 bg-slate-950 rounded border border-slate-800">
-              <p className="text-[10px] text-blue-400 font-bold mb-1">GCP Connector</p>
-              <p className="text-[10px] text-slate-500">Cloud Storage & BigQuery integration.</p>
-           </div>
-           <div className="p-3 bg-slate-950 rounded border border-slate-800">
-              <p className="text-[10px] text-emerald-400 font-bold mb-1">AWS Connector</p>
-              <p className="text-[10px] text-slate-500">S3 & DynamoDB secure ingestion.</p>
-           </div>
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-4xl mx-auto">
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-3xl font-bold flex items-center gap-3">
+          <BookOpen className="text-blue-400 w-8 h-8" /> Technical Documentation
+        </h2>
+        <div className="flex flex-col items-end">
+          <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">v{docs?.version || '2.1'} canonical</span>
+          {docs?.last_updated && <span className="text-[8px] font-mono text-slate-600 mt-1">Updated {new Date(docs.last_updated).toLocaleString()}</span>}
         </div>
-      </DocSection>
+      </div>
+      
+      <div className="space-y-12">
+        {docs?.documentation ? (
+          <div className="prose prose-invert max-w-none text-slate-400 text-xs leading-relaxed whitespace-pre-wrap font-mono">
+            {docs.documentation}
+          </div>
+        ) : (
+          <div className="text-center text-slate-500 py-12 animate-pulse">Loading canonical docs from repository...</div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const FAQView = () => (
   <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-3xl mx-auto space-y-6">
@@ -406,6 +388,157 @@ use (
   </div>
 );
 
+const ConfigView = () => {
+    const [regexType, setRegexType] = useState('CUSTOM_PATTERN');
+    const [regexPattern, setRegexPattern] = useState('');
+    
+    const [dictType, setDictType] = useState('PROTECTED_ENTITY');
+    const [dictTerm, setDictTerm] = useState('');
+
+    const [limitConcurrency, setLimitConcurrency] = useState(10);
+    const [limitQueue, setLimitQueue] = useState(5);
+
+    const [previewInput, setPreviewInput] = useState('');
+    const [previewOutput, setPreviewOutput] = useState('');
+
+    const handleAddRegex = async () => {
+        try {
+            const res = await fetch('http://localhost:8080/api/config/regex', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: regexType, pattern: regexPattern })
+            });
+            if (res.ok) {
+                alert('Regex Rule Saved!');
+                setRegexPattern('');
+            } else {
+                const err = await res.text();
+                alert('Regex Error: ' + err);
+            }
+        } catch(e) {
+            alert('Connection error');
+        }
+    };
+
+    const handleAddDict = async () => {
+        try {
+            const res = await fetch('http://localhost:8080/api/config/dictionary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: dictType, term: dictTerm })
+            });
+            if (res.ok) {
+                alert('Dictionary Term Saved!');
+                setDictTerm('');
+            } else {
+                alert('Dictionary Error');
+            }
+        } catch(e) {
+            alert('Connection error');
+        }
+    };
+
+    const handleUpdateSystem = async () => {
+        try {
+            const res = await fetch('http://localhost:8080/api/config/system', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ max_concurrency: limitConcurrency, queue_size: limitQueue })
+            });
+            if (res.ok) alert('System Limits Updated!');
+            else alert('System Update Error');
+        } catch(e) {
+            alert('Connection error');
+        }
+    };
+
+    const handlePreview = async () => {
+        try {
+            const res = await fetch('http://localhost:8080/api/refine', {
+                method: 'POST',
+                body: previewInput
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setPreviewOutput(data.refined);
+            }
+        } catch(e) {
+            setPreviewOutput('Error reaching refinery node.');
+        }
+    };
+
+    return (
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-5xl mx-auto space-y-8">
+            <h2 className="text-2xl font-bold flex items-center gap-3"><Settings2 className="text-blue-400" /> Operational Control Plane</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Rules & Limits left side */}
+                <div className="space-y-6">
+                    <div className="p-5 bg-slate-950 border border-slate-800 rounded-lg">
+                        <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Regex Manager</h3>
+                        <div className="space-y-3">
+                            <input type="text" placeholder="Rule Type (e.g., SECRET_CODE)" value={regexType} onChange={e => setRegexType(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs font-mono focus:ring-1 focus:ring-blue-500 outline-none" />
+                            <input type="text" placeholder="Regex Pattern (e.g., \bCONF-\d{4}\b)" value={regexPattern} onChange={e => setRegexPattern(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs font-mono focus:ring-1 focus:ring-blue-500 outline-none" />
+                            <button onClick={handleAddRegex} className="w-full bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 text-xs font-bold py-2 rounded transition-colors">Apply Regex Rule (Hot Reload)</button>
+                        </div>
+                    </div>
+
+                    <div className="p-5 bg-slate-950 border border-slate-800 rounded-lg">
+                        <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Dictionary Shield</h3>
+                        <div className="space-y-3">
+                            <input type="text" placeholder="Category (e.g., PROTECTED_ENTITY)" value={dictType} onChange={e => setDictType(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs font-mono focus:ring-1 focus:ring-emerald-500 outline-none" />
+                            <input type="text" placeholder="Exact Term (e.g., Ouroboros Protocol)" value={dictTerm} onChange={e => setDictTerm(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs font-mono focus:ring-1 focus:ring-emerald-500 outline-none" />
+                            <button onClick={handleAddDict} className="w-full bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/30 text-xs font-bold py-2 rounded transition-colors">Append Term to Node</button>
+                        </div>
+                    </div>
+
+                    <div className="p-5 bg-slate-950 border border-slate-800 rounded-lg">
+                        <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">System Resources</h3>
+                        <div className="grid grid-cols-2 gap-4 mb-3">
+                            <div>
+                                <label className="block text-[10px] text-slate-500 uppercase mb-1">Max Concurrency</label>
+                                <input type="number" value={limitConcurrency} onChange={e => setLimitConcurrency(parseInt(e.target.value))} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs font-mono outline-none" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] text-slate-500 uppercase mb-1">Queue Size</label>
+                                <input type="number" value={limitQueue} onChange={e => setLimitQueue(parseInt(e.target.value))} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs font-mono outline-none" />
+                            </div>
+                        </div>
+                        <button onClick={handleUpdateSystem} className="w-full bg-amber-600/20 text-amber-500 border border-amber-500/30 hover:bg-amber-600/30 text-xs font-bold py-2 rounded transition-colors">Update Limits</button>
+                    </div>
+                </div>
+
+                {/* Live Preview right side */}
+                <div className="p-5 bg-slate-950 border border-slate-800 rounded-lg flex flex-col h-full relative">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                        <Eye className="w-32 h-32" />
+                    </div>
+                    <div className="relative z-10 flex-grow flex flex-col">
+                        <h3 className="text-xs font-bold text-purple-400 uppercase tracking-widest mb-4 border-b border-purple-500/30 pb-2 flex items-center justify-between">
+                            Live Redaction Preview
+                            <span className="text-[9px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded">Active Sandbox</span>
+                        </h3>
+                        <div className="flex-grow flex flex-col space-y-4">
+                            <textarea 
+                                value={previewInput} 
+                                onChange={e => setPreviewInput(e.target.value)} 
+                                placeholder="Type plain text to verify regex and dictionary rules dynamically..."
+                                className="w-full h-32 bg-slate-900 border border-slate-800 rounded p-3 text-xs font-mono resize-none focus:ring-1 focus:ring-purple-500 outline-none"
+                            />
+                            <div className="flex justify-end">
+                                <button onClick={handlePreview} className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold py-2 px-6 rounded transition-colors">Send to Refinery</button>
+                            </div>
+                            <div className="w-full flex-grow bg-black border border-slate-800 rounded p-3 text-xs font-mono overflow-y-auto whitespace-pre-wrap text-emerald-400">
+                                {previewOutput || 'Waiting for input...'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // --- MAIN APP ---
 
 export default function App() {
@@ -413,6 +546,47 @@ export default function App() {
   const [tier, setTier] = useState('ENTERPRISE'); // 'OPEN_SOURCE' | 'SOMBRA_STANDALONE' | 'ENTERPRISE'
   const [connectionStatus, setConnectionStatus] = useState('CONNECTED'); // 'CONNECTED' | 'DISCONNECTED'
   
+  // Real-time states
+  const [systemStatus, setSystemStatus] = useState(null);
+  const [metrics, setMetrics] = useState(null);
+  const [vaultStats, setVaultStats] = useState(null);
+  const [auditLogs, setAuditLogs] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [statusRes, metricsRes, vaultRes, auditRes] = await Promise.all([
+          fetch('http://localhost:8080/api/system/status'),
+          fetch('http://localhost:8080/api/system/metrics'),
+          fetch('http://localhost:8080/api/vault/stats'),
+          fetch('http://localhost:8080/api/audit/logs')
+        ]);
+        
+        if (!statusRes.ok) throw new Error("API failed");
+        
+        const status = await statusRes.json();
+        const mets = await metricsRes.json();
+        const vault = await vaultRes.json();
+        const audit = await auditRes.json();
+        
+        setSystemStatus(status);
+        setMetrics(mets);
+        setVaultStats(vault);
+        setAuditLogs(audit.logs || []);
+        
+        setConnectionStatus('CONNECTED');
+        if (status.mode === 'enterprise') setTier('ENTERPRISE');
+        else setTier('OPEN_SOURCE');
+      } catch (err) {
+        setConnectionStatus('DISCONNECTED');
+      }
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   // ROI Parameters (Live State)
   const [pricingParams, setPricingParams] = useState({
     provider: 'gcp',
@@ -436,7 +610,7 @@ export default function App() {
           <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-400 rounded-xl flex items-center justify-center font-bold text-white shadow-xl shadow-blue-500/20 text-xl tracking-tighter">O</div>
           <div className="border-l border-white/10 pl-5">
             <h1 className="font-bold text-xl tracking-tight text-white flex items-center gap-2">OCULTAR <span className="text-blue-400 font-light opacity-80 decoration-blue-500/50 underline-offset-8 underline decoration-1">CONTROL_CENTER</span></h1>
-            <p className="text-[9px] text-slate-500 font-mono uppercase tracking-[0.3em] font-medium">Sovereign Data Refinery // v2.1</p>
+            <p className="text-[9px] text-slate-500 font-mono uppercase tracking-[0.3em] font-medium">Sovereign Data Refinery // {systemStatus?.version || 'v2.1'}</p>
           </div>
         </div>
         
@@ -446,6 +620,7 @@ export default function App() {
           <NavItem active={activeView === 'Docs'} onClick={() => setActiveView('Docs')} icon={<BookOpen className="w-4 h-4" />} label="Docs" />
           <NavItem active={activeView === 'FAQ'} onClick={() => setActiveView('FAQ')} icon={<HelpCircle className="w-4 h-4" />} label="FAQ" />
           <NavItem active={activeView === 'Dev'} onClick={() => setActiveView('Dev')} icon={<Code2 className="w-4 h-4" />} label="Developer" />
+          <NavItem active={activeView === 'Config'} onClick={() => setActiveView('Config')} icon={<Settings2 className="w-4 h-4" />} label="Config" />
         </nav>
 
         <div className="flex items-center gap-3">
@@ -470,7 +645,7 @@ export default function App() {
            
            <div className="flex flex-col items-end mr-4">
               <span className={`text-[10px] font-bold uppercase ${connectionStatus === 'CONNECTED' ? 'text-emerald-400' : 'text-red-500'}`}>
-                {connectionStatus === 'CONNECTED' ? 'System Active' : 'Fail-Closed'}
+                {connectionStatus === 'CONNECTED' ? `System Active (${systemStatus?.uptime || 'running'})` : 'Fail-Closed'}
               </span>
               <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${connectionStatus === 'CONNECTED' ? 'bg-emerald-400' : 'bg-red-500'}`} />
            </div>
@@ -479,11 +654,12 @@ export default function App() {
       </header>
 
       <main className="p-6 max-w-7xl mx-auto min-h-[calc(100vh-4rem)]">
-        {activeView === 'Overview' && <OverviewView tier={tier} pricingParams={pricingParams} connectionStatus={connectionStatus} />}
+        {activeView === 'Overview' && <OverviewView tier={tier} pricingParams={pricingParams} connectionStatus={connectionStatus} systemStatus={systemStatus} metrics={metrics} vaultStats={vaultStats} auditLogs={auditLogs} />}
         {activeView === 'ROI' && <ROICalculatorView params={pricingParams} setParams={setPricingParams} />}
         {activeView === 'Docs' && <DocumentationView />}
         {activeView === 'FAQ' && <FAQView />}
         {activeView === 'Dev' && <DeveloperView />}
+        {activeView === 'Config' && <ConfigView />}
       </main>
 
       <footer className="border-t border-white/5 py-8 mt-12 bg-slate-950/40 relative z-10">
