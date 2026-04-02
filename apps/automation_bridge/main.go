@@ -197,6 +197,31 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(historyList)
 }
 
+func docsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	content, err := os.ReadFile("../../docs/TECH_DOCS.md")
+	if err != nil {
+		http.Error(w, "Docs not found", http.StatusNotFound)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"version":       "2.1",
+		"documentation": string(content),
+	})
+}
+
+func faqHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	content, err := os.ReadFile("../../docs/reference/FAQ.md")
+	if err != nil {
+		http.Error(w, "FAQ not found", http.StatusNotFound)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"faq": string(content),
+	})
+}
+
 func main() {
 	if err := loadConfig(); err != nil {
 		log.Fatalf("Failed to load automation config: %v", err)
@@ -205,6 +230,8 @@ func main() {
 	http.HandleFunc("/api/automation/commands", corsMiddleware(commandsHandler))
 	http.HandleFunc("/api/automation/run", corsMiddleware(runHandler))
 	http.HandleFunc("/api/automation/history", corsMiddleware(historyHandler))
+	http.HandleFunc("/api/docs", corsMiddleware(docsHandler))
+	http.HandleFunc("/api/faq", corsMiddleware(faqHandler))
 
 	port := "18081"
 	log.Printf("CLI Bridge Service running on port %s", port)

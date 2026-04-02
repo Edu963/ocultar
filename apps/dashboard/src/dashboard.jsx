@@ -275,7 +275,7 @@ const DocumentationView = () => {
   const [docs, setDocs] = useState(null);
   
   useEffect(() => {
-    fetch('http://localhost:8080/api/docs')
+    fetch('http://localhost:18081/api/docs')
       .then(r => r.json())
       .then(d => setDocs(d))
       .catch(e => console.error(e));
@@ -306,31 +306,32 @@ const DocumentationView = () => {
   );
 };
 
-const FAQView = () => (
-  <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-3xl mx-auto space-y-6">
-    <h2 className="text-2xl font-bold mb-6 flex items-center gap-3"><HelpCircle className="text-emerald-400" /> Architecture & Security FAQ</h2>
-    
-    <FAQItem 
-      question="What is PII Tiering (Tier 0 vs Tier 1)?" 
-      answer="Tier 0 represents mission-critical PII (SSN, Passport, Secret Keys) that requires MANDATORY vaulting or stripping. Tier 1 represents contextual PII (Email, IP) that can be pseudonymized based on policy." 
-    />
-    
-    <FAQItem 
-      question="What happens if the Refinery is unreachable?" 
-      answer="OCULTAR follows a 'Fail-Closed' model. If the Sombra gateway cannot verify a payload or the Refinery is down, the request is terminated immediately by the kernel-level hook to prevent unmasked egress." 
-    />
+const FAQView = () => {
+  const [faq, setFaq] = useState(null);
+  
+  useEffect(() => {
+    fetch('http://localhost:18081/api/faq')
+      .then(r => r.json())
+      .then(d => setFaq(d))
+      .catch(e => console.error(e));
+  }, []);
 
-    <FAQItem 
-      question="How does the Audit Ledger ensure immutability?" 
-      answer="Every sanitization event is signed using Ed25519. This signature is verified at boot time and periodically during runtime to ensure no 'Shadow PII' has been injected into the logs." 
-    />
-
-    <FAQItem 
-      question="How does Dictionary Shield pruning work?" 
-      answer="When the dictionary exceeds 50MB, the RAM (Refinery Architecture Manager) triggers a pruning cycle based on 'Least Frequently Matched' (LFM) entities to prevent OOM risks." 
-    />
-  </div>
-);
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-4xl mx-auto space-y-6">
+      <h2 className="text-2xl font-bold mb-6 flex items-center gap-3"><HelpCircle className="text-emerald-400" /> Architecture & Security FAQ</h2>
+      
+      <div className="space-y-12">
+        {faq?.faq ? (
+          <div className="prose prose-invert max-w-none text-slate-400 text-xs leading-relaxed whitespace-pre-wrap font-mono">
+            {faq.faq}
+          </div>
+        ) : (
+          <div className="text-center text-slate-500 py-12 animate-pulse">Loading FAQ canonical source...</div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const DeveloperView = () => (
   <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-4xl mx-auto space-y-8">
