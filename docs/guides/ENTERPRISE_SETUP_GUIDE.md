@@ -81,8 +81,8 @@ OCU_LICENSE_KEY=<your enterprise license key>
 ```bash
 source .env
 
-# Start the dashboard on port 9091 (use 9090 for Community to avoid conflicts)
-./ocultar-enterprise --serve 9091
+# Start the dashboard on port 3030
+./ocultar-enterprise --serve 3030
 ```
 
 Or for batch file processing from the CLI:
@@ -99,7 +99,7 @@ Or for batch file processing from the CLI:
 
 ### Step 3 — Open the Enterprise Dashboard
 
-Navigate to **http://localhost:9091/index_v2.html**
+Navigate to **http://localhost:3030/index_v2.html**
 
 The Enterprise dashboard shows:
 - **Extraction Breakdown** — entity counts by type
@@ -329,7 +329,7 @@ Satisfies **GDPR Article 32(1)(d)** — logging of all processing events without
 
 The compliance dashboard is available in **Deployment Mode A** (standalone binary) at:
 
-**http://localhost:9091/index_v2.html**
+**http://localhost:3030/index_v2.html**
 
 ### Running an Audit
 

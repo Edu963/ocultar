@@ -79,10 +79,10 @@ validation:
   community:
     test_script: "scripts/setup-community.sh"
     distribution_type: "community"
-    allowed_ports: [8081, 3000]
+    allowed_ports: [8081, 3030]
     required_signatures: ["ocultar-community.zip.sig"]
   enterprise:
     test_script: "scripts/setup-enterprise.sh"
     distribution_type: "enterprise"
-    allowed_ports: [8081, 3001]
+    allowed_ports: [8081, 3030]
     required_signatures: ["ocultar-enterprise.tar.gz.sig"]

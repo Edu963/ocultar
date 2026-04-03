@@ -492,6 +492,48 @@ curl -F "file=@my_data.csv" http://localhost:9090/api/refine/file > cleaned.csv
 
 ---
 
+### 6.3 `GET /api/config`
+
+Returns the full current configuration (`config.yaml` state).
+
+### 6.4 `GET /api/config/regex`
+
+Returns the list of active Regex rules, including their `canonical_mapping` (Google InfoType).
+
+### 6.5 `POST /api/config/regex`
+
+Adds or updates a Regex rule. Persists to `config.yaml`.
+**Body**: `{"type": "CUSTOM_ID", "pattern": "\\b[0-9]{5}\\b"}`
+
+### 6.6 `DELETE /api/config/regex`
+
+Removes a Regex rule.
+**Body**: `{"type": "CUSTOM_ID"}`
+
+### 6.7 `GET /api/config/dictionary`
+
+Returns all dictionary categories and their terms.
+
+### 6.8 `POST /api/config/dictionary`
+
+Adds a term to a dictionary category.
+**Body**: `{"type": "VIP", "term": "Internal Project Name"}`
+
+### 6.9 `DELETE /api/config/dictionary`
+
+Removes a category (and all its terms).
+**Body**: `{"type": "VIP"}`
+
+### 6.10 `GET /api/config/mapping`
+
+Returns the **Canonical Entity Registry**: a complete mapping of all OCULTAR internal identifiers to Google Cloud DLP InfoTypes.
+
+### 6.11 `GET /api/config/system`
+
+Returns system-level limits (`max_concurrency`, `queue_size`).
+
+---
+
 ## 7. HTTP Proxy Mode
 
 The proxy (`docker-compose.proxy.yml`) exposes port `8080` by default.

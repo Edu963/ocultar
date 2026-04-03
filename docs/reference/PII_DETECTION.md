@@ -40,8 +40,23 @@ The Refinery operates on a multi-tier defense-in-depth model:
 | `[NL_BSN_...]` | Identity | Dutch Citizen Service Numbers (BSN). | GDPR, UAVG |
 | `[UK_NINO_...]` | Identity | UK National Insurance Numbers. | UK GDPR, HMRC |
 | `[UK_NHS_...]` | Identity | UK National Health Service numbers. | UK GDPR, NHS Data Security |
+| `[AWS_KEY_...]` | Security | AWS Access Key IDs. | SOC2, PCI-DSS |
 
-## 3. Redaction Behavior
+## 3. Canonical InfoType Mapping (Google Cloud DLP)
+
+For enterprise compliance parity, OCULTAR internal types are mapped to **Google Cloud InfoTypes**. This registry is visible in the Operational Dashboard and available via `/api/config/mapping`.
+
+| Ocultar ID | Google InfoType Equivalent |
+|---|---|
+| `EMAIL` | `EMAIL_ADDRESS` |
+| `SSN` | `US_SOCIAL_SECURITY_NUMBER` |
+| `IBAN` | `IBAN_CODE` |
+| `CREDIT_CARD` | `CREDIT_CARD_NUMBER` |
+| `IP_ADDRESS` | `IP_ADDRESS` |
+| `LOCATION` | `LOCATION` |
+| ... | (Full list of 30+ mappings in Registry) |
+
+## 4. Redaction Behavior
 
 OCULTAR always uses **deterministic pseudonymization**:
 - **Same Input = Same Token**: Preserves relational integrity for data science and AI context.

@@ -63,7 +63,7 @@ Inside the folder, open the `scripts/` folder and run the launcher for your syst
 
 Once setup completes, open your web browser and go to:
 
-👉 **http://localhost:3000**
+👉 **http://localhost:3030**
 
 You should see the OCULTAR Live Dashboard with the input panel on the left.
 

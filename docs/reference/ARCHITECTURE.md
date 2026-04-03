@@ -63,7 +63,7 @@ graph TD
         DDB[("DuckDB\nvault.db")]
         PG[("PostgreSQL ✦\nexternal HA cluster")]
         SLM["Specialized SLM ✦\n(Clinical / General)\nllama.cpp / Qwen"]
-        Dashboard["Dashboard\nindex.html\n:9090"]
+        Dashboard["Dashboard\nindex.html\n:3030"]
         AuditLog["Audit System\nservices/refinery/pkg/audit\nTamper-proof logs"]
         Connectors["Sombra Pro Connectors ✦\napps/sombra/pkg/connector"]
     end
