@@ -258,6 +258,11 @@ const Dashboard = () => {
                             label="Risk Compliance Radar" 
                             onClick={() => handleOpenModal('Risk Radar Data', '/audit/risk')}
                           />
+                          <OpButton 
+                            icon={<Activity className="w-4 h-4" />} 
+                            label="Canonical Entity Registry" 
+                            onClick={() => handleOpenModal('Canonical Entity Mapping', '/config/mapping')}
+                          />
                       </div>
                   </div>
               </div>
