@@ -566,6 +566,12 @@ func startServer(eng *refinery.Refinery, servePort string) {
 			} else {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 			}
+		} else if r.Method == http.MethodGet {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"max_concurrency": config.Global.MaxConcurrency,
+				"queue_size":      config.Global.QueueSize,
+			})
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
