@@ -104,7 +104,7 @@ def generate_sbom(target_dir):
             f.write(clean_res)
     
     # NPM SBOM (simulated for now)
-    web_dir = os.path.join(REPO_ROOT, "apps/web")
+    web_dir = os.path.join(REPO_ROOT, "apps/dashboard")
     if os.path.exists(web_dir):
         res = subprocess.run("npm list --json", shell=True, capture_output=True, text=True, cwd=web_dir)
         if res.returncode == 0:

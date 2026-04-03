@@ -16,6 +16,7 @@ services:
     environment:
       - OCU_PROXY_TARGET=http://echo-upstream:8080
       - OCU_PROXY_PORT=8081
+      - SOMBRA_PORT=8081
       - OCU_MASTER_KEY=${OCU_MASTER_KEY}
       - OCU_SALT=${OCU_SALT}
     depends_on:

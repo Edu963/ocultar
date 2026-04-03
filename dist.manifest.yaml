@@ -14,7 +14,7 @@ distributions:
         type: "go-binary"
         dest: "ocultar"
       - name: "dashboard"
-        src: "./apps/web"
+        src: "./apps/dashboard"
         type: "npm-build"
         dest: "dashboard"
       - name: "docker-compose"

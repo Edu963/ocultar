@@ -1,4 +1,11 @@
-FROM golang:1.24-bookworm AS builder
+FROM node:22-bookworm AS dashboard-builder
+WORKDIR /dashboard
+COPY apps/dashboard/package*.json ./
+RUN npm install
+COPY apps/dashboard/ ./
+RUN npm run build
+
+FROM golang:1.25-bookworm AS builder
 
 # Install build dependencies for DuckDB/CGO
 RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ libc6-dev && rm -rf /var/lib/apt/lists/*
@@ -28,6 +35,9 @@ WORKDIR /app
 COPY --from=builder /workspace/ocultar-proxy /app/ocultar-proxy
 # Copy config from refinery
 COPY --from=builder /workspace/services/refinery/configs/ /app/configs/
+
+# Copy dashboard assets
+COPY --from=dashboard-builder /dashboard/dist/ /app/dashboard/
 
 EXPOSE 8081
 EXPOSE 9090
