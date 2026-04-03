@@ -180,10 +180,30 @@ const Dashboard = () => {
         
         {/* Metrics Row */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <MetricCard icon={<Activity className="w-4 h-4 text-blue-500" />} label="Requests / Hour" value={metrics.requests.toLocaleString()} />
-            <MetricCard icon={<Shield className="w-4 h-4 text-emerald-500" />} label="PII Detections" value={metrics.detections.toLocaleString()} />
-            <MetricCard icon={<Zap className="w-4 h-4 text-amber-500" />} label="Refinery Latency" value={metrics.latency} />
-            <MetricCard icon={<Terminal className="w-4 h-4 text-purple-500" />} label="Worker Queue" value={metrics.queue} />
+            <MetricCard 
+                icon={<Activity className="w-4 h-4 text-blue-500" />} 
+                label="Requests / Hour" 
+                value={metrics.requests.toLocaleString()} 
+                description="Total throughput across all active security connectors."
+            />
+            <MetricCard 
+                icon={<Shield className="w-4 h-4 text-emerald-500" />} 
+                label="PII Detections" 
+                value={metrics.detections.toLocaleString()} 
+                description="Sensitive entities identified and tokenized by policy."
+            />
+            <MetricCard 
+                icon={<Zap className="w-4 h-4 text-amber-500" />} 
+                label="Refinery Latency" 
+                value={metrics.latency} 
+                description="Processing overhead for regex and local SLM inference."
+            />
+            <MetricCard 
+                icon={<Terminal className="w-4 h-4 text-purple-500" />} 
+                label="Worker Queue" 
+                value={metrics.queue} 
+                description="Pending redaction tasks awaiting availability in the refinery."
+            />
         </section>
 
         {activeTab === 'overview' && (
@@ -195,6 +215,7 @@ const Dashboard = () => {
                       <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                           <ArrowRight className="w-4 h-4 text-blue-500" /> Live Refinery Test
                       </h3>
+                      <p className="text-[10px] text-slate-400 mb-4 -mt-2">Instantly validate redaction policies against sample text or logs.</p>
                       <textarea 
                           value={testInput}
                           onChange={e => setTestInput(e.target.value)}
@@ -220,6 +241,7 @@ const Dashboard = () => {
                       <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                           <Settings className="w-4 h-4 text-slate-500" /> System Control
                       </h3>
+                      <p className="text-[10px] text-slate-400 mb-4 -mt-2">Real-time enforcement audit and configuration management.</p>
                       <div className="space-y-2">
                           <OpButton 
                             icon={<Lock className="w-4 h-4" />} 
@@ -243,9 +265,12 @@ const Dashboard = () => {
               {/* Right Column: Live Audit Logs */}
               <div className="lg:col-span-8 flex flex-col h-full bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden">
                   <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-slate-50/50">
-                      <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-blue-500" /> Secure Audit Trail
-                      </h3>
+                      <div>
+                        <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-blue-500" /> Secure Audit Trail
+                        </h3>
+                        <p className="text-[9px] text-slate-400 font-mono mt-1">Immutable journal of all redaction events and policy matches.</p>
+                      </div>
                       <div className="flex gap-2">
                           <span className="text-[10px] text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 font-mono">ED25519_SIGNED</span>
                       </div>
@@ -276,9 +301,14 @@ const Dashboard = () => {
 
         {activeTab === 'config' && (
            <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-8 animate-in slide-in-from-top-4 duration-300">
-              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                 <Settings className="w-6 h-6 text-slate-700" />
-                 <h2 className="text-xl font-bold text-slate-900">Configuration Plane</h2>
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                 <div className="flex items-center gap-3">
+                    <Settings className="w-6 h-6 text-slate-700" />
+                    <div>
+                        <h2 className="text-xl font-bold text-slate-900">Configuration Plane</h2>
+                        <p className="text-xs text-slate-500 mt-1">Direct visibility into the OCULTAR runtime environment and security policy state.</p>
+                    </div>
+                 </div>
               </div>
               <div className="h-[500px] bg-slate-50 border border-slate-200 rounded p-4 overflow-auto font-mono text-xs">
                  {!configData ? (
@@ -352,13 +382,16 @@ const Dashboard = () => {
   );
 };
 
-const MetricCard = ({ icon, label, value }) => (
+const MetricCard = ({ icon, label, value, description }) => (
   <div className="bg-white border border-slate-200 shadow-sm p-5 rounded-xl hover:shadow-md transition-all group flex flex-col justify-between">
     <div className="flex items-center gap-3 mb-4">
         <div className="w-8 h-8 rounded bg-slate-50 border border-slate-100 flex items-center justify-center opacity-80 group-hover:opacity-100 group-hover:bg-slate-100 transition-all transform duration-300">
           {icon}
         </div>
-        <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest leading-none">{label}</span>
+        <div className="flex flex-col">
+            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest leading-none">{label}</span>
+            {description && <span className="text-[8.5px] text-slate-400 font-normal leading-relaxed mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">{description}</span>}
+        </div>
     </div>
     <div className="text-2xl font-bold text-slate-900 tabular-nums tracking-tight">{value}</div>
   </div>

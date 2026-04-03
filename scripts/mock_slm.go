@@ -18,6 +18,15 @@ func main() {
 			},
 		})
 	})
+	http.HandleFunc("/scan", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		// Return an empty map of PII for the mock, indicating nothing was found by Tier 2
+		json.NewEncoder(w).Encode(map[string][]string{})
+	})
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
