@@ -333,7 +333,7 @@ const FAQView = () => {
   );
 };
 
-const DeveloperView = () => (
+const DeveloperView = ({ onOpenPlayground }) => (
   <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-4xl mx-auto space-y-8">
     <div className="flex flex-col gap-2">
       <h2 className="text-2xl font-bold flex items-center gap-3"><Code2 className="text-purple-400" /> Integration & Workspace</h2>
@@ -342,9 +342,17 @@ const DeveloperView = () => (
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div className="space-y-4">
-        <h4 className="text-sm font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
-          <Terminal className="w-3 h-3" /> The Connector Interface
-        </h4>
+        <div className="flex justify-between items-center mb-2">
+            <h4 className="text-sm font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                <Terminal className="w-3 h-3" /> The Connector Interface
+            </h4>
+            <button 
+                onClick={() => onOpenPlayground(`type Connector interface {\n    Refine(ctx context.Context, p []byte) ([]byte, error)\n    FailClosedHandler(err error)\n}`)}
+                className="text-[9px] bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 px-2 py-1 rounded border border-blue-500/20 font-bold transition-all"
+            >
+                RUN IN PLAYGROUND
+            </button>
+        </div>
         <p className="text-[10px] text-slate-500 leading-relaxed">
           Implement this interface in `services/refinery/pkg/connector/` to add new data sources.
         </p>
@@ -361,9 +369,17 @@ const DeveloperView = () => (
         </pre>
       </div>
       <div className="space-y-4">
-        <h4 className="text-sm font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
-          <Network className="w-3 h-3" /> go.work Configuration
-        </h4>
+        <div className="flex justify-between items-center mb-2">
+            <h4 className="text-sm font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                <Network className="w-3 h-3" /> go.work Configuration
+            </h4>
+            <button 
+                onClick={() => onOpenPlayground(`go 1.22\n\nuse (\n    .\n    ./services/refinery\n    ./services/sombra\n    ./internal/audit\n    ./pkg/crypto\n)`)}
+                className="text-[9px] bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 px-2 py-1 rounded border border-blue-500/20 font-bold transition-all"
+            >
+                RUN IN PLAYGROUND
+            </button>
+        </div>
         <p className="text-[10px] text-slate-500 leading-relaxed">
           Multi-module development setup for local refinery testing.
         </p>
@@ -389,6 +405,116 @@ use (
   </div>
 );
 
+const PlaygroundView = ({ onNavigateToConfig, initialInput }) => {
+    const [input, setInput] = useState(initialInput || '');
+    const [output, setOutput] = useState('');
+    const [isRefining, setIsRefining] = useState(false);
+    const [templates, setTemplates] = useState([]);
+    const [selectedTemplate, setSelectedTemplate] = useState('');
+
+    useEffect(() => {
+        fetch('http://localhost:8080/api/content')
+            .then(res => res.json())
+            .then(data => setTemplates(data.templates || []))
+            .catch(err => console.error("Failed to fetch templates", err));
+    }, []);
+
+    const handleRefine = async () => {
+        if (!input.trim()) return;
+        setIsRefining(true);
+        try {
+            const res = await fetch('http://localhost:8080/api/refine', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: input }) 
+            });
+            const data = await res.json();
+            setOutput(data.refined || JSON.stringify(data, null, 2));
+        } catch (e) {
+            setOutput("Error: " + e.message);
+        } finally {
+            setIsRefining(false);
+        }
+    };
+
+    const applyTemplate = (t) => {
+        setSelectedTemplate(t.id);
+        setInput(t.content);
+        setOutput('');
+    };
+
+    return (
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold flex items-center gap-3"><Zap className="text-purple-400" /> PII Discovery Playground</h2>
+                <div className="flex gap-2">
+                    {templates.map(t => (
+                        <button 
+                            key={t.id} 
+                            onClick={() => applyTemplate(t)}
+                            className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-all ${selectedTemplate === t.id ? 'bg-purple-600 border-purple-500 text-white' : 'bg-slate-850 border-slate-800 text-slate-400 hover:border-slate-600'}`}
+                        >
+                            {t.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[500px]">
+                {/* Input Pane */}
+                <div className="flex flex-col space-y-4">
+                    <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500 tracking-widest">
+                        <span>Raw Payload (Unredacted)</span>
+                        {input && <button onClick={() => setInput('')} className="hover:text-red-400">Clear</button>}
+                    </div>
+                    <textarea 
+                        value={input}
+                        onChange={e => setInput(e.target.value)}
+                        placeholder="Paste your logs, JSON payloads, or PII-heavy text here..."
+                        className="flex-grow bg-slate-950 border border-slate-800 rounded-lg p-4 text-xs font-mono resize-none focus:ring-1 focus:ring-purple-500 outline-none shadow-inner"
+                    />
+                    <button 
+                        onClick={handleRefine}
+                        disabled={isRefining || !input}
+                        className={`w-full py-4 rounded-lg font-bold text-sm tracking-widest transition-all ${isRefining ? 'bg-slate-800 text-slate-600' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-xl shadow-purple-900/20'}`}
+                    >
+                        {isRefining ? 'PROCESSING...' : 'RUN DISCOVERY PIPELINE'}
+                    </button>
+                </div>
+
+                {/* Output Pane */}
+                <div className="flex flex-col space-y-4">
+                    <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500 tracking-widest">
+                        <span>Sovereign Output (Redacted)</span>
+                        {output && <span className="text-emerald-400">Clean</span>}
+                    </div>
+                    <div className="flex-grow bg-black border border-slate-800 rounded-lg p-4 text-xs font-mono overflow-auto whitespace-pre-wrap text-emerald-400 shadow-inner relative group">
+                        {output || <div className="h-full flex items-center justify-center opacity-20 italic">Validated output will appear here...</div>}
+                        {output && (
+                            <button 
+                                onClick={() => navigator.clipboard.writeText(output)}
+                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-slate-800 hover:bg-slate-700 p-1.5 rounded transition-all text-slate-300"
+                            >
+                                <Lock className="w-3 h-3" />
+                            </button>
+                        )}
+                    </div>
+                    <div className="p-4 bg-slate-850/50 rounded-lg border border-slate-800 flex items-center justify-between">
+                         <div className="flex items-center gap-3">
+                            <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-200">Zero-Leaking Guarantee</p>
+                                <p className="text-[9px] text-slate-500">Output is cryptographically secured via Sombra Vault.</p>
+                            </div>
+                         </div>
+                         <button onClick={onNavigateToConfig} className="text-[10px] font-bold text-slate-400 hover:text-white flex items-center gap-1 transition-colors">Adjust Rules <ChevronRight className="w-3 h-3" /></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const ConfigView = () => {
     const [regexType, setRegexType] = useState('CUSTOM_PATTERN');
     const [regexPattern, setRegexPattern] = useState('');
@@ -398,9 +524,6 @@ const ConfigView = () => {
 
     const [limitConcurrency, setLimitConcurrency] = useState(10);
     const [limitQueue, setLimitQueue] = useState(5);
-
-    const [previewInput, setPreviewInput] = useState('');
-    const [previewOutput, setPreviewOutput] = useState('');
 
     const handleAddRegex = async () => {
         try {
@@ -453,23 +576,8 @@ const ConfigView = () => {
         }
     };
 
-    const handlePreview = async () => {
-        try {
-            const res = await fetch('http://localhost:8080/api/refine', {
-                method: 'POST',
-                body: previewInput
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setPreviewOutput(data.refined);
-            }
-        } catch(e) {
-            setPreviewOutput('Error reaching refinery node.');
-        }
-    };
-
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-5xl mx-auto space-y-8">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h2 className="text-2xl font-bold flex items-center gap-3"><Settings2 className="text-blue-400" /> Operational Control Plane</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -506,33 +614,6 @@ const ConfigView = () => {
                             </div>
                         </div>
                         <button onClick={handleUpdateSystem} className="w-full bg-amber-600/20 text-amber-500 border border-amber-500/30 hover:bg-amber-600/30 text-xs font-bold py-2 rounded transition-colors">Update Limits</button>
-                    </div>
-                </div>
-
-                {/* Live Preview right side */}
-                <div className="p-5 bg-slate-950 border border-slate-800 rounded-lg flex flex-col h-full relative">
-                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                        <Eye className="w-32 h-32" />
-                    </div>
-                    <div className="relative z-10 flex-grow flex flex-col">
-                        <h3 className="text-xs font-bold text-purple-400 uppercase tracking-widest mb-4 border-b border-purple-500/30 pb-2 flex items-center justify-between">
-                            Live Redaction Preview
-                            <span className="text-[9px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded">Active Sandbox</span>
-                        </h3>
-                        <div className="flex-grow flex flex-col space-y-4">
-                            <textarea 
-                                value={previewInput} 
-                                onChange={e => setPreviewInput(e.target.value)} 
-                                placeholder="Type plain text to verify regex and dictionary rules dynamically..."
-                                className="w-full h-32 bg-slate-900 border border-slate-800 rounded p-3 text-xs font-mono resize-none focus:ring-1 focus:ring-purple-500 outline-none"
-                            />
-                            <div className="flex justify-end">
-                                <button onClick={handlePreview} className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold py-2 px-6 rounded transition-colors">Send to Refinery</button>
-                            </div>
-                            <div className="w-full flex-grow bg-black border border-slate-800 rounded p-3 text-xs font-mono overflow-y-auto whitespace-pre-wrap text-emerald-400">
-                                {previewOutput || 'Waiting for input...'}
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -684,6 +765,7 @@ const AutomationView = () => {
 
 export default function App() {
   const [activeView, setActiveView] = useState('Overview');
+  const [playgroundInput, setPlaygroundInput] = useState('');
   const [tier, setTier] = useState('ENTERPRISE'); // 'OPEN_SOURCE' | 'SOMBRA_STANDALONE' | 'ENTERPRISE'
   const [connectionStatus, setConnectionStatus] = useState('CONNECTED'); // 'CONNECTED' | 'DISCONNECTED'
   
@@ -760,7 +842,8 @@ export default function App() {
           <NavItem active={activeView === 'ROI'} onClick={() => setActiveView('ROI')} icon={<DollarSign className="w-4 h-4" />} label="ROI Analytics" />
           <NavItem active={activeView === 'Docs'} onClick={() => setActiveView('Docs')} icon={<BookOpen className="w-4 h-4" />} label="Docs" />
           <NavItem active={activeView === 'FAQ'} onClick={() => setActiveView('FAQ')} icon={<HelpCircle className="w-4 h-4" />} label="FAQ" />
-          <NavItem active={activeView === 'Dev'} onClick={() => setActiveView('Dev')} icon={<Code2 className="w-4 h-4" />} label="Developer" />
+           <NavItem active={activeView === 'Dev'} onClick={() => setActiveView('Dev')} icon={<Code2 className="w-4 h-4" />} label="Developer" />
+          <NavItem active={activeView === 'Playground'} onClick={() => setActiveView('Playground')} icon={<Zap className="w-4 h-4" />} label="Playground" />
           <NavItem active={activeView === 'Automation'} onClick={() => setActiveView('Automation')} icon={<Terminal className="w-4 h-4" />} label="Automation" />
           <NavItem active={activeView === 'Config'} onClick={() => setActiveView('Config')} icon={<Settings2 className="w-4 h-4" />} label="Config" />
         </nav>
@@ -800,7 +883,8 @@ export default function App() {
         {activeView === 'ROI' && <ROICalculatorView params={pricingParams} setParams={setPricingParams} />}
         {activeView === 'Docs' && <DocumentationView />}
         {activeView === 'FAQ' && <FAQView />}
-        {activeView === 'Dev' && <DeveloperView />}
+         {activeView === 'Dev' && <DeveloperView onOpenPlayground={(text) => { setPlaygroundInput(text); setActiveView('Playground'); }} />}
+        {activeView === 'Playground' && <PlaygroundView initialInput={playgroundInput} onNavigateToConfig={() => setActiveView('Config')} />}
         {activeView === 'Automation' && <AutomationView />}
         {activeView === 'Config' && <ConfigView />}
       </main>
