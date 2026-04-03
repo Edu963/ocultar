@@ -275,6 +275,19 @@ func printReport(eng *refinery.Refinery, filesScanned int) {
 }
 
 // startServer initializes and starts the local HTTP dashboard and API endpoints.
+func corsHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
 func startServer(eng *refinery.Refinery, servePort string) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/index_v2.html" {
@@ -787,7 +800,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		port = ":" + port
 	}
 	fmt.Printf("OCULTAR REST API running on http://localhost%s\n", port)
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(http.ListenAndServe(port, corsHandler(http.DefaultServeMux)))
 }
 
 func readLastLines(path string, count int) ([]string, error) {
