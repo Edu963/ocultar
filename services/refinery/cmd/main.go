@@ -472,7 +472,18 @@ func startServer(eng *refinery.Refinery, servePort string) {
 			w.WriteHeader(http.StatusOK)
 		} else if r.Method == http.MethodGet {
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(config.Global.Regexes)
+			type RuleWithMapping struct {
+				config.RegexRule
+				CanonicalMapping string `json:"canonical_mapping,omitempty"`
+			}
+			var results []RuleWithMapping
+			for _, r := range config.Global.Regexes {
+				results = append(results, RuleWithMapping{
+					RegexRule:        r,
+					CanonicalMapping: config.Global.AliasMapping[r.Type],
+				})
+			}
+			json.NewEncoder(w).Encode(results)
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -495,7 +506,18 @@ func startServer(eng *refinery.Refinery, servePort string) {
 			}
 		} else if r.Method == http.MethodGet {
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(config.Global.Dictionaries)
+			type DictWithMapping struct {
+				config.DictRule
+				CanonicalMapping string `json:"canonical_mapping,omitempty"`
+			}
+			var results []DictWithMapping
+			for _, d := range config.Global.Dictionaries {
+				results = append(results, DictWithMapping{
+					DictRule:         d,
+					CanonicalMapping: config.Global.AliasMapping[d.Type],
+				})
+			}
+			json.NewEncoder(w).Encode(results)
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
