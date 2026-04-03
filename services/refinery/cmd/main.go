@@ -463,6 +463,56 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		}
 	})
 
+	http.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+		
+		vaultStatus := "offline"
+		if eng.Vault != nil {
+			vaultStatus = "online"
+		}
+		
+		slmStatus := "offline"
+		if eng.AIScanner != nil && eng.AIScanner.IsAvailable() {
+			slmStatus = "online"
+		}
+
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status": "healthy",
+			"vault": map[string]string{"status": vaultStatus},
+			"slm": map[string]string{"status": slmStatus},
+			"version": VERSION,
+		})
+	})
+
+	http.HandleFunc("/api/content", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+		
+		// Sample templates for the playground
+		templates := []map[string]string{
+			{
+				"id": "support_ticket",
+				"name": "Customer Support Ticket",
+				"content": "Hi, this is John Doe (john.doe@example.com). I need help with my account ending in 1234. My phone is +34 612 345 678.",
+			},
+			{
+				"id": "database_row",
+				"name": "Database Record (JSON)",
+				"content": `{"user_id": 45, "email": "admin@company.net", "last_login_ip": "1.2.3.4"}`,
+			},
+			{
+				"id": "medical_note",
+				"name": "Medical Consultation",
+				"content": "Patient: Jane Smith. Treatment started at New York City Hospital for diabetes. Follow-up with Dr. House.",
+			},
+		}
+
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"templates": templates,
+		})
+	})
+
 	http.HandleFunc("/api/config/system", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		if r.Method == http.MethodPost {
