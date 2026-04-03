@@ -10,7 +10,9 @@ import {
   ArrowRight,
   Eye,
   FileText,
-  X
+  X,
+  Trash2,
+  Plus
 } from 'lucide-react';
 
 const OCULTAR_API = 'http://localhost:8080/api';
@@ -29,6 +31,11 @@ const Dashboard = () => {
   const [modalData, setModalData] = useState(null);
   
   const [configData, setConfigData] = useState(null);
+  
+  // New state for CRUD
+  const [modalEndpoint, setModalEndpoint] = useState('');
+  const [newRegex, setNewRegex] = useState({ type: '', pattern: '' });
+  const [newDictTerm, setNewDictTerm] = useState({ type: '', term: '' });
 
   // 1. Fetch System Status
   const fetchStatus = async () => {
@@ -133,6 +140,7 @@ const Dashboard = () => {
   const handleOpenModal = async (title, endpoint) => {
     setIsModalOpen(true);
     setModalTitle(title);
+    setModalEndpoint(endpoint);
     setModalData(null); // Clear previous data
     try {
       const res = await fetch(`${OCULTAR_API}${endpoint}`);
@@ -140,6 +148,47 @@ const Dashboard = () => {
       setModalData(data);
     } catch (e) {
       setModalData({ error: 'Failed to retrieve data.' });
+    }
+  };
+
+  const handleDelete = async (type, endpoint) => {
+    try {
+      await fetch(`${OCULTAR_API}${endpoint}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type })
+      });
+      handleOpenModal(modalTitle, modalEndpoint); // Refresh
+    } catch (e) {
+      console.error("Delete failed", e);
+    }
+  };
+
+  const handleAddRegex = async () => {
+    try {
+      await fetch(`${OCULTAR_API}/config/regex`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newRegex)
+      });
+      setNewRegex({ type: '', pattern: '' });
+      handleOpenModal(modalTitle, modalEndpoint); // Refresh
+    } catch (e) {
+      console.error("Add failed", e);
+    }
+  };
+
+  const handleAddDictTerm = async () => {
+    try {
+      await fetch(`${OCULTAR_API}/config/dictionary`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newDictTerm)
+      });
+      setNewDictTerm({ ...newDictTerm, term: '' });
+      handleOpenModal(modalTitle, modalEndpoint); // Refresh
+    } catch (e) {
+      console.error("Add failed", e);
     }
   };
 
@@ -359,16 +408,89 @@ const Dashboard = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 overflow-auto bg-white flex-grow">
+            <div className="p-0 overflow-auto bg-white flex-grow">
               {!modalData ? (
-                <div className="text-slate-500 text-sm animate-pulse flex items-center gap-2">
+                <div className="p-6 text-slate-500 text-sm animate-pulse flex items-center gap-2">
                   <div className="w-4 h-4 block border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin"></div>
                   Retrieving policy data...
                 </div>
+              ) : Array.isArray(modalData) ? (
+                <div className="flex flex-col">
+                  {/* List of existing items */}
+                  <div className="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
+                    {modalData.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between px-6 py-3 hover:bg-slate-50 transition-colors">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-800 text-xs">{item.type}</span>
+                            {item.canonical_mapping && (
+                                <span className="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 font-medium">Mapped: {item.canonical_mapping}</span>
+                            )}
+                          </div>
+                          <code className="text-[10px] text-slate-500 truncate max-w-md">
+                            {item.pattern || (item.terms ? item.terms.join(', ') : '')}
+                          </code>
+                        </div>
+                        <button 
+                          onClick={() => handleDelete(item.type, modalEndpoint)}
+                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-all"
+                          title="Remove Rule"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {modalData.length === 0 && <div className="p-6 text-slate-400 italic text-xs">No entries configured.</div>}
+                  </div>
+
+                  {/* Add Form */}
+                  <div className="p-6 bg-slate-50 border-t border-slate-100">
+                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Add New {modalTitle.includes('Regex') ? 'Regex Rule' : 'Dictionary Term'}</h4>
+                    {modalTitle.includes('Regex') ? (
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" placeholder="Type (e.g. SSN)" 
+                          className="flex-1 text-[11px] p-2 border border-slate-200 rounded focus:border-blue-500 outline-none font-mono"
+                          value={newRegex.type} onChange={e => setNewRegex({...newRegex, type: e.target.value})}
+                        />
+                        <input 
+                          type="text" placeholder="Pattern (e.g. \b\d{3}...)" 
+                          className="flex-[2] text-[11px] p-2 border border-slate-200 rounded focus:border-blue-500 outline-none font-mono"
+                          value={newRegex.pattern} onChange={e => setNewRegex({...newRegex, pattern: e.target.value})}
+                        />
+                        <button 
+                          onClick={handleAddRegex}
+                          className="px-3 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors"
+                        ><Plus className="w-4 h-4" /></button>
+                      </div>
+                    ) : modalTitle.includes('Dictionaries') ? (
+                      <div className="flex gap-2">
+                         <input 
+                          type="text" placeholder="Category (e.g. VIP)" 
+                          className="flex-1 text-[11px] p-2 border border-slate-200 rounded focus:border-blue-500 outline-none font-mono"
+                          value={newDictTerm.type} onChange={e => setNewDictTerm({...newDictTerm, type: e.target.value})}
+                        />
+                        <input 
+                          type="text" placeholder="New Term (e.g. John Doe)" 
+                          className="flex-[2] text-[11px] p-2 border border-slate-200 rounded focus:border-blue-500 outline-none font-mono"
+                          value={newDictTerm.term} onChange={e => setNewDictTerm({...newDictTerm, term: e.target.value})}
+                        />
+                        <button 
+                          onClick={handleAddDictTerm}
+                          className="px-3 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors"
+                        ><Plus className="w-4 h-4" /></button>
+                      </div>
+                    ) : (
+                      <div className="text-[10px] text-slate-400 italic">Advanced configuration is restricted to Read-Only in this view.</div>
+                    )}
+                  </div>
+                </div>
               ) : (
-                <pre className="text-xs font-mono text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 border border-slate-200 rounded">
-                  {JSON.stringify(modalData, null, 2)}
-                </pre>
+                <div className="p-6">
+                  <pre className="text-xs font-mono text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 border border-slate-200 rounded">
+                    {JSON.stringify(modalData, null, 2)}
+                  </pre>
+                </div>
               )}
             </div>
           </div>
