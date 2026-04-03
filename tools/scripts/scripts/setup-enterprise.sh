@@ -49,11 +49,11 @@ echo "[✓] OCULTAR Enterprise Engine is running!"
 echo "[i] Launching dashboard..."
 
 if command -v xdg-open &> /dev/null; then
-    xdg-open http://localhost:9090
+    xdg-open http://localhost:3030
 elif command -v open &> /dev/null; then
-    open http://localhost:9090
+    open http://localhost:3030
 else
     echo "================================================="
-    echo " -> Please open http://localhost:9090 in your browser."
+    echo " -> Please open http://localhost:3030 in your browser."
     echo "================================================="
 fi
