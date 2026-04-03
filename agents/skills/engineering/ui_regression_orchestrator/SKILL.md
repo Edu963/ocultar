@@ -34,15 +34,14 @@ This skill automates the visual and functional verification of the Ocultar dashb
 
 ## Instructions
 
-### 1. Zero-Egress Boundary Verification
+### 1. Visual Integrity Verification
 - **Action**: Launch the browser and navigate to the dashboard.
-- **Check**: Verify that the "Zero-Egress Zone" (Particles/Canvas) is rendering without errors and that the dashed boundary is visible.
+- **Check**: Verify the high-contrast light theme (slate-50 background) is rendering cleanly without dark-mode artifacting.
 
-### 2. Risk Matrix Interactivity
-- **Action**: Click on a regulatory tile (e.g., GDPR).
-- **Check**: Confirm that the audit logs are correctly filtered to show only GDPR-related PII hits.
+### 2. Operational Controls Interactivity
+- **Action**: Click on "Regex Enforcement Rules" or "Identity Dictionaries".
+- **Check**: Confirm the modal overlay retrieves and displays live JSON payload data from the `/api/config/*` endpoints.
 - **Documentation**: Verify the Documentation and FAQ tabs populate with canonical markdown.
-- **Shield Manager**: Verify the dynamic Regex/Dictionary forms submit correctly.
 
 ### 3. ROI Calculator Alignment
 - **Action**: Adjust the sliders in the ROI module.
