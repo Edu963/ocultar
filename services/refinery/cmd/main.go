@@ -26,6 +26,7 @@ import (
 	"github.com/Edu963/ocultar/pkg/reporter"
 	"github.com/Edu963/ocultar/vault"
 	"golang.org/x/crypto/hkdf"
+	"path/filepath"
 )
 
 const VERSION = "1.14"
@@ -289,16 +290,37 @@ func corsHandler(h http.Handler) http.Handler {
 }
 
 func startServer(eng *refinery.Refinery, servePort string) {
+	// Serve static files from the "dashboard" directory if it exists, otherwise root
+	staticDir := "dashboard"
+	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
+		staticDir = "."
+	}
+
+	fs := http.FileServer(http.Dir(staticDir))
+	http.Handle("/assets/", fs)
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Specific file routes for legacy or multi-page support
 		if r.URL.Path == "/index_v2.html" {
-			http.ServeFile(w, r, "index_v2.html")
+			http.ServeFile(w, r, filepath.Join(staticDir, "index_v2.html"))
 			return
 		}
-		if r.URL.Path != "/" && r.URL.Path != "/index.html" {
+
+		// API routes are handled elsewhere by DefaultServeMux (longest prefix match)
+		// but we ensure we don't serve index.html for them if they fall through
+		if strings.HasPrefix(r.URL.Path, "/api/") {
 			http.NotFound(w, r)
 			return
 		}
-		http.ServeFile(w, r, "index.html")
+
+		// Fail-safe for missing assets: don't serve index.html for missing /assets/ files
+		if strings.HasPrefix(r.URL.Path, "/assets/") {
+			fs.ServeHTTP(w, r)
+			return
+		}
+
+		// Fallback to index.html for SPA routing
+		http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
 	})
 
 	http.HandleFunc("/api/config", func(w http.ResponseWriter, r *http.Request) {

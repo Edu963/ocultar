@@ -57,7 +57,7 @@ echo -e "[*] Configuration: Script=$SETUP_SCRIPT, Ports=$ALLOWED_PORTS"
 # 3. Setup Gating
 echo -e "[*] Simulating Clean-Room Setup..."
 TMP_DIR=$(mktemp -d -t ocultar_val_XXXXXX)
-# trap 'echo "Cleaning up $TMP_DIR..."; rm -rf "$TMP_DIR"' EXIT
+trap 'echo "Cleaning up $TMP_DIR..."; rm -rf "$TMP_DIR"; docker ps -a --filter "name=ocultar_val_" --format "{{.ID}}" | xargs -r docker rm -f' EXIT
 
 echo -e "[*] Unpacking artifact to $TMP_DIR..."
 if [[ "$ARTIFACT_PATH" == *.zip ]]; then
@@ -81,7 +81,7 @@ bash "$SETUP_SCRIPT" > setup.log 2>&1 || {
 }
 
 # Assume port 8081 for health check for now
-HEALTH_URL="http://localhost:8081/health"
+HEALTH_URL="http://localhost:8081/healthz"
 echo -e "[*] Waiting for services at $HEALTH_URL..."
 
 MAX_RETRIES=30
