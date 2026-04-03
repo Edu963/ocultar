@@ -294,7 +294,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/system/status", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Content-Type", "application/json")
 		mode := "enterprise"
 		if eng.PilotMode {
@@ -311,7 +311,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/system/metrics", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Content-Type", "application/json")
 
 		vaultEntries := int64(0)
@@ -337,7 +337,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/audit/logs", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Content-Type", "application/json")
 		
 		lines, err := readLastLines("audit.log", 20)
@@ -363,7 +363,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/vault/stats", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Content-Type", "application/json")
 		tokens := int64(12400) // Baseline simulated for visual impact
 		if eng.VaultCount != nil {
@@ -385,7 +385,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/docs", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Content-Type", "application/json")
 		readmeBytes, err := os.ReadFile("README.md")
 		var readme string
@@ -407,7 +407,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/config/regex", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if r.Method == http.MethodPost {
 			var rule config.RegexRule
 			if err := json.NewDecoder(r.Body).Decode(&rule); err != nil {
@@ -441,7 +441,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/config/dictionary", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if r.Method == http.MethodPost {
 			var payload struct {
 				Type string `json:"type"`
@@ -461,7 +461,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Content-Type", "application/json")
 		
 		vaultStatus := "offline"
@@ -483,7 +483,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/content", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Content-Type", "application/json")
 		
 		// Sample templates for the playground
@@ -511,7 +511,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/config/system", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if r.Method == http.MethodPost {
 			var payload struct {
 				MaxConcurrency int `json:"max_concurrency"`
@@ -618,6 +618,13 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/refine", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
