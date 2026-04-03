@@ -470,6 +470,9 @@ func startServer(eng *refinery.Refinery, servePort string) {
 				eng.AuditLogger.Log("admin", "DEL_REGEX", "SUCCESS", payload.Type)
 			}
 			w.WriteHeader(http.StatusOK)
+		} else if r.Method == http.MethodGet {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(config.Global.Regexes)
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -490,6 +493,9 @@ func startServer(eng *refinery.Refinery, servePort string) {
 			} else {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 			}
+		} else if r.Method == http.MethodGet {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(config.Global.Dictionaries)
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -587,6 +593,18 @@ func startServer(eng *refinery.Refinery, servePort string) {
 	})
 
 	http.HandleFunc("/api/audit/risk", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"status": "active",
+				"k_anonymity_threshold": 3,
+				"l_diversity_threshold": 2,
+				"description": "Risk compliance radar monitoring dataset guarantees.",
+				"regulatory_policy": config.Global.RegulatoryPolicy,
+			})
+			return
+		}
+
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
