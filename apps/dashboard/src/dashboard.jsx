@@ -55,8 +55,8 @@ const OverviewView = ({ tier, pricingParams, connectionStatus, systemStatus, met
   <div className="space-y-6 relative">
     <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <StatusCard icon={<ShieldCheck className="text-blue-400" />} label="Enforcement" value="STRICT" />
-      <StatusCard icon={<Zap className="text-emerald-400" />} label="P95 Latency" value={metrics?.latency_per_tier?.regex || "42ms"} />
-      <StatusCard icon={<Eye className="text-purple-400" />} label="Scan Coverage" value={metrics?.redaction_rate ? `${(metrics.redaction_rate * 100).toFixed(1)}%` : "99.8%"} />
+      <StatusCard icon={<Zap className="text-emerald-400" />} label="P95 Latency" value={metrics?.latency_per_tier?.regex || "N/A"} />
+      <StatusCard icon={<Eye className="text-purple-400" />} label="Scan Coverage" value={metrics?.redaction_rate ? `${(metrics.redaction_rate * 100).toFixed(1)}%` : "N/A"} />
       <StatusCard icon={<Clock className="text-amber-400" />} label="License" value={tier} />
     </section>
 
@@ -868,11 +868,11 @@ const PerformanceWidget = () => (
   <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
     <div className="flex justify-between items-center mb-6">
       <h3 className="text-slate-200 font-semibold flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400" /> Latency Profiler</h3>
-      <span className="text-xs font-mono text-blue-400 font-bold">P95: 42ms</span>
+      <span className="text-xs font-mono text-blue-400 font-bold">P95: {metrics?.latency_per_tier?.regex || "N/A"}</span>
     </div>
     <div className="space-y-4">
-       <PerformanceBar label="Regex Engine" value="65" ms="28" color="bg-blue-500" />
-       <PerformanceBar label="Dict Lookup" value="15" ms="6" color="bg-emerald-500" />
+       <PerformanceBar label="Engine" value={metrics?.latency_per_tier?.regex ? 80 : 0} ms={metrics?.latency_per_tier?.regex || "--"} color="bg-blue-500" />
+       <PerformanceBar label="Vault" value={metrics?.latency_per_tier?.dict ? 20 : 0} ms={metrics?.latency_per_tier?.dict || "--"} color="bg-emerald-500" />
     </div>
   </div>
 );
@@ -944,10 +944,7 @@ const AuditLedgerWidget = ({ tier }) => {
   const [verifying, setVerifying] = useState(null);
   const isEnterprise = tier === 'ENTERPRISE';
 
-  const logs = [
-    { id: 1, event: 'PII_VAULT_SUCCESS', category: 'SSN', status: 'VERIFIED', time: '2 mins ago', sig: 'ed25519_5b3a...f2e1' },
-    { id: 2, event: 'EGRESS_BLOCKED', category: 'CREDIT_CARD', status: 'VERIFIED', time: '15 mins ago', sig: 'ed25519_a1c2...990b' }
-  ];
+  const logs = auditLogs;
 
   const handleVerify = (logId) => {
     setVerifying(logId);
