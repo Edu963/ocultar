@@ -864,7 +864,7 @@ const ShadowApiWidget = ({ tier }) => {
   );
 };
 
-const PerformanceWidget = () => (
+const PerformanceWidget = ({ metrics }) => (
   <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
     <div className="flex justify-between items-center mb-6">
       <h3 className="text-slate-200 font-semibold flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400" /> Latency Profiler</h3>
@@ -918,7 +918,7 @@ const PolicySimulatorWidget = ({ tier }) => {
     );
 };
 
-const AnonymizationWidget = ({ tier }) => {
+const AnonymizationWidget = ({ tier, vaultStats }) => {
     const isEnterprise = tier === 'ENTERPRISE';
     return (
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 relative overflow-hidden">
@@ -940,7 +940,7 @@ const AnonymizationWidget = ({ tier }) => {
     );
 };
 
-const AuditLedgerWidget = ({ tier }) => {
+const AuditLedgerWidget = ({ tier, auditLogs }) => {
   const [verifying, setVerifying] = useState(null);
   const isEnterprise = tier === 'ENTERPRISE';
 
@@ -974,26 +974,26 @@ const AuditLedgerWidget = ({ tier }) => {
           </tr>
         </thead>
         <tbody>
-          {logs.map(log => (
-            <tr key={log.id} className="border-b border-slate-800/50 group/row hover:bg-slate-800/30 transition-colors">
+          {logs.map((log, idx) => (
+            <tr key={idx} className="border-b border-slate-800/50 group/row hover:bg-slate-800/30 transition-colors">
               <td className="py-3 px-2">
                 <div className="flex flex-col">
-                  <span className="text-slate-200 font-mono">{log.event}</span>
-                  <span className="text-[8px] text-slate-600">{log.time}</span>
+                  <span className="text-slate-200 font-mono">{log.action}: {log.result}</span>
+                  <span className="text-[8px] text-slate-600">{new Date(log.timestamp).toLocaleString()}</span>
                 </div>
               </td>
-              <td className="py-3 px-2"><span className="bg-slate-850 border border-slate-800 px-1.5 py-0.5 rounded text-[8px] text-blue-400 font-mono">{log.category}</span></td>
+              <td className="py-3 px-2"><span className="bg-slate-850 border border-slate-800 px-1.5 py-0.5 rounded text-[8px] text-blue-400 font-mono">{log.compliance_mapping}</span></td>
               <td className="py-3 px-2 text-right">
                 <button 
-                  onClick={() => handleVerify(log.id)}
-                  disabled={verifying === log.id || !isEnterprise}
+                  onClick={() => handleVerify(idx)}
+                  disabled={verifying === idx || !isEnterprise}
                   className={`px-2 py-1 rounded border font-mono text-[9px] transition-all ${
-                    verifying === log.id 
+                    verifying === idx 
                       ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 animate-pulse' 
                       : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20'
                   } ${!isEnterprise ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {verifying === log.id ? 'VERIFYING...' : 'ED25519_VERIFIED'}
+                  {verifying === idx ? 'VERIFYING...' : 'ED25519_VERIFIED'}
                 </button>
               </td>
             </tr>
