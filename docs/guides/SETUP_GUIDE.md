@@ -63,7 +63,7 @@ Inside the folder, open the `scripts/` folder and run the launcher for your syst
 
 Once setup completes, open your web browser and go to:
 
-👉 **http://localhost:9090**
+👉 **http://localhost:3000**
 
 You should see the OCULTAR Live Dashboard with the input panel on the left.
 
@@ -101,7 +101,7 @@ Every Enterprise pilot follows a structured 14-day lifecycle (managed by the `Pi
 
 - **Lead Shield (Regex)** — Toggle for structural PII detection (emails, phones, IBANs, addresses, URLs).
 - **Deep AI Scrub (SLM)** — Toggle for contextual NER (names in prose, company names). Requires local AI to be running.
-- **Biometric Blur** — Advanced biometric protection (roadmapped).
+- **Operational Controls** — Direct access to Regex Enforcement, Identity Dictionaries, and Risk Compliance data.
 
 ### Step-by-Step: Run a Test
 
@@ -114,7 +114,7 @@ Every Enterprise pilot follows a structured 14-day lifecycle (managed by the `Pi
    Regards, Sarah Connor
    ```
 
-2. Click **Run Batch Refinery**.
+2. Click **Execute Redaction**.
 
 3. The **Clean Asset** panel on the right will instantly show redacted output:
 
@@ -135,7 +135,7 @@ Every Enterprise pilot follows a structured 14-day lifecycle (managed by the `Pi
 To process a large `.csv` or `.json` file directly through the refinery (bypassing the browser):
 
 ```bash
-curl -F "file=@my_large_data.csv" http://localhost:9090/api/refine/file > cleaned_data.csv
+curl -F "file=@my_large_data.csv" http://localhost:8080/api/refine/file > cleaned_data.csv
 ```
 
 OCULTAR streams the cleaned output directly into `cleaned_data.csv`.
@@ -158,7 +158,7 @@ This safely stops all containers and frees resources.
 
 | Symptom | Fix |
 |---|---|
-| Browser shows nothing at `localhost:9090` | Ensure Docker Desktop is running. Wait 30 seconds after setup, then refresh. |
+| Browser shows nothing at `localhost:3000` | Ensure Docker Desktop is running. Wait 30 seconds after setup, then refresh. |
 | Dashboard loads but refinement fails | Check that the local AI container started: `docker compose logs ocultar-ai` |
 | Windows PowerShell script blocked | Open PowerShell as Administrator, run `Set-ExecutionPolicy RemoteSigned`, then retry. |
 ### SharePoint Connector Environment Variables

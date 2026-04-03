@@ -15,12 +15,7 @@ The Community edition runs the regex + phone + address refinery (Tiers 0–1.5).
 bash scripts/setup-community.sh
 
 # If running from source (community build):
-./dist/community/ocultar --serve 9090
-```
-
-### Step 2 — Open the dashboard
-
-Navigate to: **http://localhost:9090**
+Navigate to: **http://localhost:3000**
 
 ### Step 3 — Paste test data
 
@@ -43,7 +38,7 @@ Sarah Connor
 
 ### Step 4 — Run and verify
 
-Click **Run Batch Refinery**. The **Clean Asset** panel should show all of the above replaced with tokens like `[EMAIL_a1b2c3]`, `[PHONE_9e8f7a]`, `[IBAN_...]`, `[ADDRESS_...]`, `[PERSON_...]`.
+Click **Execute Redaction**. The **Clean Asset** panel should show all of the above replaced with tokens like `[EMAIL_a1b2c3]`, `[PHONE_9e8f7a]`, `[IBAN_...]`, `[ADDRESS_...]`, `[PERSON_...]`.
 
 ---
 
