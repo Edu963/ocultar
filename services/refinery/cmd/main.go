@@ -159,16 +159,13 @@ func main() {
 
 	// Enable Tier 2 AI if forced or licensed
 	if !pilotMode {
-		modelPath := os.Getenv("SLM_MODEL_PATH")
-		if modelPath != "" {
-			scanner, err := inference.NewLlamaScanner(modelPath)
-			if err != nil {
-				log.Printf("[WARN] Failed to initialize SLM scanner: %v", err)
-			} else {
-				eng.SetAIScanner(scanner)
-				log.Printf("[INFO] Tier 2 AI (llama.cpp) active. Model: %s", modelPath)
-			}
+		sidecarURL := os.Getenv("SLM_SIDECAR_URL")
+		if sidecarURL == "" {
+			sidecarURL = "http://localhost:8085"
 		}
+		scanner := inference.NewRemoteScanner(sidecarURL)
+		eng.SetAIScanner(scanner)
+		log.Printf("[INFO] Tier 2 AI active via SLM sidecar: %s", sidecarURL)
 	}
 	eng.AIScanner.SetDomain(config.Global.DomainSnapshot)
 

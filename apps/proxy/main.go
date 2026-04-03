@@ -98,18 +98,13 @@ func main() {
 		eng.SetAuditLogger(auditor)
 
 		// 2. Local SLM Scanner
-		modelPath := os.Getenv("SLM_MODEL_PATH")
-		if modelPath != "" {
-			scanner, err := inference.NewLlamaScanner(modelPath)
-			if err != nil {
-				log.Printf("[WARN] Failed to initialize SLM scanner: %v. AI coverage will be limited.", err)
-			} else {
-				eng.SetAIScanner(scanner)
-				log.Printf("[INFO] Tier 2 AI (llama.cpp) active. Model: %s", modelPath)
-			}
-		} else {
-			log.Printf("[INFO] SLM_MODEL_PATH not set. Tier 2 AI scanning is disabled.")
+		sidecarURL := os.Getenv("SLM_SIDECAR_URL")
+		if sidecarURL == "" {
+			sidecarURL = "http://localhost:8085"
 		}
+		scanner := inference.NewRemoteScanner(sidecarURL)
+		eng.SetAIScanner(scanner)
+		log.Printf("[INFO] Tier 2 AI (Remote Sidecar) active on %s", sidecarURL)
 	}
 	
 	// ── Build proxy handler ───────────────────────────────────────────────────
