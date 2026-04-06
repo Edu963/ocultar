@@ -66,6 +66,11 @@ distributions:
         type: "go-binary"
         dest: "mock-api"
         optional: true
+      - name: "slm-engine"
+        src: "./apps/slm-engine/main.go"
+        type: "go-binary"
+        dest: "slm-engine"
+        optional: true
 
 # Mandatory Security Checks for all components
 security:
