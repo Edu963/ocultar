@@ -1,12 +1,12 @@
-# Ocultar Monorepo
+# Ocultar Monorepo (Open-Core)
 
-Welcome to the unified Ocultar Refinery ecosystem. This monorepo contains all core services, applications, and enterprise extensions.
+Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refinery, all 6 integrated applications, and enterprise security tiers.
 
 ## Structure
 
 - `/apps/` - Core applications (Sombra, SLM Engine, Dashboard, Proxy, Automation Bridge, Web)
-- `/services/` - Core backend services (Refinery, Vault)
-- `/enterprise/` - Enterprise-only extensions
+- `/services/` - Core backend logic (Refinery, Vault)
+- `/enterprise/` - Enterprise security extensions & licensing logic
 - `/experiments/` - Research and prototypes
 - `/docs/` - Documentation
 - `/business/` - Business strategy and roadmap
