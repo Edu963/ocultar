@@ -19,13 +19,27 @@ services:
       - SOMBRA_PORT=8081
       - OCU_MASTER_KEY=${OCU_MASTER_KEY}
       - OCU_SALT=${OCU_SALT}
+      - OCU_LICENSE_KEY=${OCU_LICENSE_KEY}
+      - SLM_SIDECAR_URL=http://slm-engine:8085
+      - SLM_MODEL_PATH=models/qwen-1.5b-q4_k_m.gguf
     depends_on:
       - echo-upstream
+      - slm-engine
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/healthz"]
       interval: 5s
       timeout: 3s
       retries: 10
+
+  slm-engine:
+    build:
+      context: .
+      dockerfile: apps/slm-engine/Dockerfile
+    restart: unless-stopped
+    environment:
+      - SLM_MODEL_PATH=/app/models/qwen-1.5b-q4_k_m.gguf
+    volumes:
+      - ./models:/app/models
 
 networks:
   default:
