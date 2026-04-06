@@ -4,7 +4,7 @@ Welcome to the unified Ocultar Refinery ecosystem. This monorepo contains all co
 
 ## Structure
 
-- `/apps/` - User-facing applications (Proxy, Sombra, Web)
+- `/apps/` - Core applications (Sombra, SLM Engine, Dashboard, Proxy, Automation Bridge, Web)
 - `/services/` - Core backend services (Refinery, Vault)
 - `/enterprise/` - Enterprise-only extensions
 - `/experiments/` - Research and prototypes

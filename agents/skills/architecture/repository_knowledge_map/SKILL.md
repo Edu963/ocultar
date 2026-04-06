@@ -32,10 +32,14 @@ Identify the subtrees related to the `target_domain`:
 
 | Domain | Root Path | Primary Purpose |
 | :--- | :--- | :--- |
-| **CORE** | `docs/` | Technical specifications (`TECH_DOCS.md`) and setup guides. |
+| **SOMBRA** | `apps/sombra/` | Agentic data gateway and PII redaction orchestrator. |
+| **SLM_ENGINE**| `apps/slm-engine/` | Local AI inference engine for PII detection. |
 | **DASHBOARD**| `apps/dashboard/` | Operational control plane and telemetry UI. |
+| **PROXY** | `apps/proxy/` | Secure transparent proxy for LLM traffic. |
+| **BRIDGE** | `apps/automation_bridge/` | CLI orchestration and documentation server. |
+| **WEB** | `apps/web/` | Public-facing portal and marketing interface. |
+| **CORE** | `docs//` | Technical specifications (TECH_DOCS.md) and setup guides. |
 | **PILOT** | `docs/pilot/` | Onboarding materials and pilot playbooks. |
-| **REPORTS** | `docs/internal/` | Compliance reports and deep research. |
 | **CONNECTORS**| `services/refinery/pkg/connector/` | Third-party ingestion logic. |
 
 ### 2. Metadata Enrichment

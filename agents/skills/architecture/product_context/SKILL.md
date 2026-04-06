@@ -13,7 +13,7 @@ This skill ensures that every proposed change or response aligns with Ocultar's 
 
 ### Inputs:
 - `proposal` (String/Diff): The intended code change, architectural design, or response.
-- `functional_domain` (Enum): [API | Core-Logic | Storage | Connector | Dashboard | Documentation]
+- `functional_domain` (Enum): [Gateway | SLM-Engine | Dashboard | Proxy | Bridge | Web | Core-Logic | Storage | Documentation]
 
 ### Outputs:
 - `alignment_report` (Artifact): A report containing:
@@ -45,11 +45,14 @@ This skill ensures that every proposed change or response aligns with Ocultar's 
 # Terminology & Identity Enforcement
 
 Ensure the following terms are used with 100% precision:
-- **Refinery**: The end-to-end PII processing pipeline.
-- **Shield**: The deterministic "Tier 0" protection layer (Dictionaries/VIPs).
-- **Vault**: The AES-256 encrypted storage for original PII.
-- **Sombra**: The agentic gateway orchestrating secure LLM traffic.
-- **Tier 2 AI**: Local SLM (llama.cpp) for high-fidelity semantic NER.
+- **Sombra**: The primary agentic gateway (`apps/sombra`) orchestrating secure LLM traffic and policy enforcement.
+- **SLM Engine**: The local high-performance model (`apps/slm-engine`) for Tier 2 AI-based PII detection.
+- **Dashboard**: The internal operational control plane (`apps/dashboard`) for system telemetry and management.
+- **Secure Proxy**: The transparent "Shield" layer (`apps/proxy`) for instant application protection.
+- **Automation Bridge**: The CLI orchestration service (`apps/automation_bridge`) for remote management and documentation.
+- **Web Portal**: The public-facing user interface and marketing platform (`apps/web`).
+- **Refinery**: The end-to-end PII processing pipeline (logic shared across services).
+- **Vault**: The AES-256 encrypted storage for original PII tokens.
 
 ---
 
