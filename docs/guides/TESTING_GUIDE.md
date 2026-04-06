@@ -4,7 +4,7 @@ This guide helps you test OCULTAR in all three modes: Community CLI/Dashboard, E
 
 ---
 
-## Part 1: Community Edition — Dashboard Test
+## Part 1: Community Tier — Dashboard Test
 
 The Community edition runs the regex + phone + address refinery (Tiers 0–1.5).
 
@@ -42,7 +42,7 @@ Click **Execute Redaction**. The **Clean Asset** panel should show all of the ab
 
 ---
 
-## Part 2: Enterprise Edition — Compliance Audit Dashboard
+## Part 2: Enterprise Tier — Compliance Audit Dashboard
 
 The Enterprise edition adds SLM deep-scan (contextual NER) and the SIEM audit log.
 

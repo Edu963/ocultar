@@ -13,10 +13,11 @@ The `build_release.sh` script compiles and packages both editions in one step:
 ```
 
 Output in `dist/`:
-- `dist/ocultar-community.zip` — Community Edition: Docker Compose setup + browser dashboard + `scripts/` launchers
-- `dist/ocultar-enterprise.tar.gz` — Enterprise Edition: Enterprise binary + `configs/config.yaml` template + license generator
+- `dist/ocultar-community.zip` — Community Tier: Docker Compose setup + browser dashboard + `scripts/` launchers
+- `dist/ocultar-enterprise.tar.gz` — Enterprise Tier: Pre-configured binary + `configs/config.yaml` template + license generator
 
 > [!NOTE]
+> Yes. The Enterprise Tier is specifically designed for air-gapped support, allowing local SLM-based PII detection and on-premise vault management without any external internet requirements.
 > These archives are generated automatically by `build_release.sh` and are **not tracked in version control** to prevent "dirty" repository loops. They are intended for client distribution only.
 
 ---
@@ -92,8 +93,8 @@ The project uses a `go.work` file to manage a multi-module workspace:
 ```
 go.work
 ├── . (github.com/Edu963/ocultar)        ← shared pkg/ library
-├── ./dist/community                        ← Community Edition main
-├── ./dist/enterprise                       ← Enterprise Edition main
+├── ./dist/community                    ← Community Tier Entry point
+├── ./dist/enterprise                   ← Enterprise Tier Entry point
 └── ../sombra (github.com/Edu963/sombra)   ← Sombra Gateway
 ```
 

@@ -1,4 +1,4 @@
-# OCULTAR Enterprise Edition — Complete Setup & Usage Guide
+# OCULTAR Enterprise Tier — Complete Setup & Usage Guide
 
 > **Audience:** Technical leads and operators deploying OCULTAR Enterprise for the first time, or graduating from Community to Enterprise.
 
@@ -22,18 +22,14 @@
 
 ---
 
-## 1. Community vs Enterprise: What's Different
-
-| Feature | Community | Enterprise |
+| Feature | Community (Pilot) | Enterprise (Enforcement) |
 |---|---|---|
-| Regex PII detection (Email, URL, Phone, Address) | ✅ | ✅ |
+| **Operational Mode** | **Audit / Pilot** | **Full Redaction** |
+| Regex PII detection | ✅ | ✅ |
 | Dictionary Shield (Tier 0) | ✅ | ✅ |
-| Local AI NER scan (Tier 2, Qwen 1.5B) | ❌ | ✅ |
-| Custom regex rules (`configs/config.yaml`) | ❌ | ✅ |
-| Custom dictionary terms (`configs/config.yaml`) | ❌ | ✅ |
-| PostgreSQL HA vault clustering | ❌ | ✅ |
-| SIEM-compatible audit log (`audit.log`) | ❌ | ✅ |
-| Compliance dashboard (`/index_v2.html`) | ❌ | ✅ |
+| Local AI NER scan (Tier 2) | ❌ | ✅ |
+| Custom engine rules (`config.yaml`) | ❌ | ✅ |
+| SIEM-compatible audit log | ❌ | ✅ |
 | `OCU_LICENSE_KEY` required | ❌ | ✅ |
 
 ---

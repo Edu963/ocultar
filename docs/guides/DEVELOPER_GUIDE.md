@@ -50,8 +50,8 @@ ocultar/                          ← root — shared library (github.com/Edu963
 │   └── riskreport/   main.go       ← standalone report generator
 │
 ├── dist/                           ← distribution entrypoints (buildable mains)
-│   ├── community/    main.go       ← Community Edition binary
-│   └── enterprise/   main.go       ← Enterprise Edition binary
+│   ├── community/    main.go       ← Entry point for Community Tier environment
+│   └── enterprise/   main.go       ← Entry point for Enterprise Tier environment
 │
 ├── ocultar-enterprise/           ← Enterprise-only sub-module
 │   └── pkg/audit/                  ← SIEM audit logger

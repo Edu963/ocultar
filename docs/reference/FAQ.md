@@ -111,7 +111,7 @@ Rules can be updated via the `config.yaml` file (for Regex and Dictionaries) or 
 Ocultar is delivered as clean, versioned release artifacts (e.g., `.tar` or `.zip` archives) built by specialized AI agents that ensure all secrets are sanitized before delivery.
 
 ### Does Ocultar support air-gapped environments?
-Yes. The Enterprise Edition is specifically designed for air-gapped support, allowing local SLM-based PII detection and on-premise vault management without any external internet requirements.
+Yes. The Enterprise Tier is specifically designed for air-gapped support, allowing local SLM-based PII detection and on-premise vault management without any external internet requirements.
 
 ---
 

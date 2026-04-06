@@ -60,7 +60,8 @@ Ensure the following terms are used with 100% precision:
 
 ### Step 1 – Identity Audit
 - Scan the `proposal` for naming inconsistencies.
-- **Action**: Correct any mentions of "Proxy" to "Sombra" or "Refinery" to "Refinery" where appropriate.
+- **Guardrail**: Ensure the term **"Tier"** is used instead of **"Edition"** when referring to Community or Enterprise levels.
+- **Action**: Correct any mentions of "Community Edition" to "Community Tier" and "Enterprise Edition" to "Enterprise Tier".
 
 ### Step 2 – Guardrail Validation
 - Analyze the `proposal` against the **Zero-Egress** and **Fail-Closed** guardrails.

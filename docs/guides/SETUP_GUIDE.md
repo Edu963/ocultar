@@ -6,7 +6,7 @@ This guide covers how to package OCULTAR for a client, how to run it locally, an
 
 ## Part 1: For the Sender (Packaging for a Client)
 
-**Your Goal:** Package OCULTAR's Community Edition and send it to a client.
+**Your Goal:** Package OCULTAR for a client deployment.
 
 ### Step 1 — Build the release
 
@@ -17,12 +17,12 @@ Open a terminal in the `ocultar/` folder and run:
 ```
 
 This compiles and packages both editions. It creates:
-- `dist/ocultar-community.zip` — for Community clients
-- `dist/ocultar-enterprise.tar.gz` — for Enterprise clients
+- `dist/ocultar-community.zip` — Default binary (Community Tier)
+- `dist/ocultar-enterprise.tar.gz` — Enterprise-ready binary (ready for OCU_LICENSE_KEY)
 
 ### Step 2 — Send the right file
 
-Send only `ocultar-community.zip` to your Community client. Use WeTransfer, Google Drive, or SharePoint if the file is too large for email.
+Send the `ocultar-community.zip` to your client for a standard pilot.
 
 ---
 
@@ -52,10 +52,10 @@ Inside the folder, open the `scripts/` folder and run the launcher for your syst
 3. If a blue box pops up saying "Windows protected your PC", click **More info** then **Run anyway**. If prompted about execution policy, type `Y` and press Enter.
 4. The script automatically generates your encryption keys and starts the refinery.
 
-**Mac / Linux (Community & Enterprise):**
+**Mac / Linux:**
 1. Open your Terminal.
-2. Drag and drop `scripts/setup-community.sh` (or `setup-enterprise.sh` for the Enterprise edition) into the Terminal and press **Enter**.
-3. The script handles all keys, networking, and build steps for you.
+2. Drag and drop `scripts/setup-community.sh` into the Terminal and press **Enter**.
+3. For **Enterprise Tier** activation, proceed to Part 2.5 after setup.
 
 > **First run note:** The setup pulls a local AI model (~1.2 GB) and builds the local binary. This takes a few minutes once. Every subsequent run starts instantly.
 
