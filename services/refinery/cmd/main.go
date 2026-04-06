@@ -146,7 +146,7 @@ func main() {
 	if pilotMode {
 		fmt.Printf("⚠️  OCULTAR running in COMMUNITY MODE. ⚠️\n")
 	} else {
-		fmt.Printf("🚀 OCULTAR ENTERPRISE EDITION 🚀\n")
+		fmt.Printf("🚀 OCULTAR ENTERPRISE TIER 🚀\n")
 	}
 
 	eng := refinery.NewRefinery(vaultProvider, masterKey)
