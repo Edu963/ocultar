@@ -32,9 +32,7 @@ services:
       retries: 10
 
   slm-engine:
-    build:
-      context: .
-      dockerfile: apps/slm-engine/Dockerfile
+    image: slm-engine:latest
     restart: unless-stopped
     environment:
       - SLM_MODEL_PATH=/app/models/qwen-1.5b-q4_k_m.gguf
