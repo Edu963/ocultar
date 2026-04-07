@@ -1,0 +1,6 @@
+[
+  {"id": 1, "name": "Sarah Connor", "email": "sarah.o@cyberdyne.com", "iban": "DE89370400440532013000", "region": "North America", "dept": "R&D"},
+  {"id": 2, "name": "John Connor", "email": "j.connor@resistance.mil", "iban": "DE89370400440532013001", "region": "North America", "dept": "R&D"},
+  {"id": 3, "name": "Kyle Reese", "email": "k.reese@techcom.mil", "iban": "DE89370400440532013002", "region": "North America", "dept": "Tactical"},
+  {"id": 4, "name": "Marcus Wright", "email": "m.wright@sky.net", "iban": "DE89370400440532013003", "region": "Europe", "dept": "Test"}
+]
