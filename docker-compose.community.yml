@@ -20,6 +20,7 @@ services:
       - OCU_MASTER_KEY=${OCU_MASTER_KEY}
       - OCU_SALT=${OCU_SALT}
       - OCU_LICENSE_KEY=${OCU_LICENSE_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - SLM_SIDECAR_URL=http://slm-engine:8085
       - SLM_MODEL_PATH=models/qwen-1.5b-q4_k_m.gguf
     depends_on:
