@@ -668,6 +668,73 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		json.NewEncoder(w).Encode(report)
 	})
 
+	http.HandleFunc("/api/pilot/riskreport", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var req struct {
+			DatasetPath string `json:"dataset_path"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+			return
+		}
+
+		if req.DatasetPath == "" {
+			http.Error(w, "dataset_path is required", http.StatusBadRequest)
+			return
+		}
+
+		// Robust file lookup for demo/pilot environments
+		datasetFile := req.DatasetPath
+		if _, err := os.Stat(datasetFile); os.IsNotExist(err) {
+			// Try root-relative if running from services/refinery
+			altPath := filepath.Join("../../", req.DatasetPath)
+			if _, err := os.Stat(altPath); err == nil {
+				datasetFile = altPath
+			} else {
+				// Try one level up just in case
+				altPath = filepath.Join("../", req.DatasetPath)
+				if _, err := os.Stat(altPath); err == nil {
+					datasetFile = altPath
+				}
+			}
+		}
+
+		// Read dataset from disk
+		data, err := os.ReadFile(datasetFile)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Failed to read dataset: %v (Checked: %s and alternates)", err, req.DatasetPath), http.StatusInternalServerError)
+			return
+		}
+
+		var dataset []map[string]interface{}
+		if err := json.Unmarshal(data, &dataset); err != nil {
+			http.Error(w, fmt.Sprintf("Failed to parse JSON: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		// Defaults for demo pilot
+		qi := []string{"region", "dept"}
+		sa := []string{"name", "iban", "email"}
+
+		report := audit.AnalyzeDatasetRisk(dataset, qi, sa)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(report)
+	})
+
 	http.HandleFunc("/api/reveal", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
