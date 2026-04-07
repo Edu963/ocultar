@@ -28,7 +28,7 @@ The Refinery operates on a multi-tier defense-in-depth model:
 | `[SENSITIVE_EVENT_...]` | Special Category | Sensitive life events (Divorce, Marriage, Medical treatments). | GDPR Art. 9 |
 | `[TRANSACTION_CODE_...]` | Financial | Account numbers, transaction IDs, financial triggers. | PCI-DSS, GDPR |
 | `[INTERNAL_PROJECT_...]` | Business Secret | Proprietary project names or internal code names. | Trade Secret Protection |
-| `[SSN_...]` | Identity | Social Security Numbers (US format). | GDPR, HIPAA, Tax Compliance |
+| `[SSN_...]` | Identity | Social Security Numbers. Supports both hyphenated (`XXX-XX-XXXX`) and raw 9-digit (`XXXXXXXXX`) formats. Utilizes contextual triggers to ensure high-fidelity detection. | GDPR, HIPAA, Tax Compliance |
 | `[CREDENTIAL_...]` | Security | Passwords and authentication secrets. | OWASP, PCI-DSS, ISO 27001 |
 | `[SECRET_...]` | Security | API keys, tokens, and cryptographic secrets. | OWASP, PCI-DSS, ISO 27001 |
 | `[IBAN_...]` | Financial | International Bank Account Numbers. | GDPR, PCI-DSS |
