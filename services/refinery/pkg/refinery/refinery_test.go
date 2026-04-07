@@ -69,6 +69,21 @@ func TestFalseNegativeKPI(t *testing.T) {
 			Input:         "Email david.smith@company.net with phone 12345678",
 			StrictPattern: `\[EMAIL_\[PHONE_`, // Verify no nested tokens are generated
 		},
+		{
+			Name:          "SSN Contextual Raw (VULN FIX)",
+			Input:         "My social security number is 641625567 .",
+			StrictPattern: `641625567`,
+		},
+		{
+			Name:          "SSN Hyphenated (VULN FIX)",
+			Input:         "My ssn is 661-65-6676 .",
+			StrictPattern: `661-65-6676`,
+		},
+		{
+			Name:          "SSN should not be PHONE",
+			Input:         "SSN: 641625567",
+			StrictPattern: `\[PHONE_`,
+		},
 	}
 
 	// 3. Execute the pipeline and assert Zero Leaks
