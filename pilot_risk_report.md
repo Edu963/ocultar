@@ -9,8 +9,8 @@
 
 | Field | Value |
 | :--- | :--- |
-| **Report ID** | OCU-9A1DA4E1 |
-| **Generated** | 07 April 2026, 03:31 UTC |
+| **Report ID** | OCU-A106A2FF |
+| **Generated** | 07 April 2026, 03:39 UTC |
 | **Dataset Scope** | `datasets/leaky_demo.json` |
 | **Records Analysed** | 4 |
 | **Methodology Version** | v3.0 |
@@ -110,7 +110,7 @@ This section demonstrates the measurable impact of the OCULTAR Enterprise pipeli
 
 **What changes:**
 - **The raw dataset as-is, transmitted directly to an LLM API or stored in a vector database. All PII fields are exposed in plaintext.**
-- **After OCULTAR&#39;s tokenization and format-preserving encryption pipeline. All PII replaced with reversible vault tokens. Dataset becomes K=∞ Anonymous.**
+- **After OCULTAR's tokenization and format-preserving encryption pipeline. All PII replaced with reversible vault tokens. Dataset becomes K=∞ Anonymous.**
 
 > The projected 95% risk reduction and 98% VaR reduction are based on OCULTAR's K=∞ Tokenization model, where all PII is replaced with reversible vault-encrypted references. Residual exposure represents standard operational overhead.
 
@@ -139,5 +139,5 @@ This report applies the following analytical frameworks:
 
 ---
 
-*OCULTAR Enterprise v1.14 | Methodology v3.0 | Report ID: OCU-9A1DA4E1*
+*OCULTAR Enterprise v1.14 | Methodology v3.0 | Report ID: OCU-A106A2FF*
 *This report was generated automatically. Findings are based on the dataset provided at time of analysis.*
