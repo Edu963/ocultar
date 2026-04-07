@@ -11,22 +11,26 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
+
+	htmltmpl "html/template"
+	texttmpl "text/template"
 
 	"github.com/Edu963/ocultar/pkg/audit"
 	"github.com/Edu963/ocultar/pkg/config"
 	"github.com/Edu963/ocultar/pkg/connector"
 	_ "github.com/Edu963/ocultar/pkg/connector/slack"
-	"github.com/Edu963/ocultar/pkg/refinery"
 	"github.com/Edu963/ocultar/pkg/identities"
 	"github.com/Edu963/ocultar/pkg/inference"
 	"github.com/Edu963/ocultar/pkg/license"
 	"github.com/Edu963/ocultar/pkg/recon"
+	"github.com/Edu963/ocultar/pkg/refinery"
 	"github.com/Edu963/ocultar/pkg/reporter"
 	"github.com/Edu963/ocultar/vault"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/hkdf"
-	"path/filepath"
 )
 
 const VERSION = "1.14"
@@ -731,6 +735,36 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		sa := []string{"name", "iban", "email"}
 
 		report := audit.AnalyzeDatasetRisk(dataset, qi, sa)
+		
+		// Map to full report for template generation
+		meta := reportMeta{
+			ReportID:           strings.ToUpper(uuid.New().String()[:8]),
+			GeneratedAt:        time.Now().UTC().Format("02 January 2006, 15:04 UTC"),
+			DatasetScope:       datasetFile,
+			MethodologyVersion: reportVersion,
+			EngineVersion:      engineVersion,
+			TotalRecords:       len(dataset),
+		}
+		before, after := buildScenarios(report)
+		fullRpt := fullReport{Meta: meta, Risk: report, Before: before, After: after}
+
+		// Generate on-disk Markdown
+		mdTmpl := texttmpl.Must(texttmpl.New("md").Parse(mdTemplate))
+		mdFile, _ := os.Create("pilot_risk_report.md")
+		if mdFile != nil {
+			mdTmpl.Execute(mdFile, fullRpt)
+			mdFile.Close()
+		}
+
+		// Generate on-disk HTML
+		funcMap := htmltmpl.FuncMap{ "lower": strings.ToLower, "pct": func(score float64) int { return int(score * 10) } }
+		htmlTmpl := htmltmpl.Must(htmltmpl.New("html").Funcs(funcMap).Parse(htmlTemplate))
+		htmlFile, _ := os.Create("pilot_risk_report.html")
+		if htmlFile != nil {
+			htmlTmpl.Execute(htmlFile, fullRpt)
+			htmlFile.Close()
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(report)
 	})
@@ -970,3 +1004,265 @@ func readLastLines(path string, count int) ([]string, error) {
 	}
 	return lines, nil
 }
+
+// --- Risk Report Generator Integration ---
+
+const reportVersion = "3.1"
+const engineVersion = "v1.14"
+
+type reportMeta struct {
+	ReportID           string
+	GeneratedAt        string
+	DatasetScope       string
+	MethodologyVersion string
+	EngineVersion      string
+	TotalRecords       int
+}
+
+type fullReport struct {
+	Meta   reportMeta
+	Risk   audit.RiskReport
+	Before scenarioSummary
+	After  scenarioSummary
+}
+
+type scenarioSummary struct {
+	Label       string
+	RiskLevel   string
+	RiskScore   string
+	VaRRange    string
+	AIStatus    string
+	Description string
+}
+
+func buildScenarios(r audit.RiskReport) (scenarioSummary, scenarioSummary) {
+	before := scenarioSummary{
+		Label:     "Scenario A — Current State (No Protection)",
+		RiskLevel: r.OverallRiskLevel,
+		RiskScore: fmt.Sprintf("%.1f / 10", r.OverallRiskScore),
+		VaRRange: fmt.Sprintf("€%.0f – €%.0f (estimated)", r.Exposure.VaRMin, r.Exposure.VaRMax),
+		AIStatus:    r.AI.Status,
+		Description: "The raw dataset as-is, transmitted directly to an LLM API or stored in a vector database. All PII fields are exposed in plaintext.",
+	}
+
+	afterScoreMin := r.OverallRiskScore * 0.05
+	afterScoreMax := r.OverallRiskScore * 0.15
+	afterVaRMin := r.Exposure.VaRMin * 0.02
+	afterVaRMax := r.Exposure.VaRMin * 0.08
+
+	after := scenarioSummary{
+		Label:     "Scenario B — After OCULTAR Processing",
+		RiskLevel: "LOW",
+		RiskScore: fmt.Sprintf("%.1f – %.1f / 10 (projected)", afterScoreMin, afterScoreMax),
+		VaRRange: fmt.Sprintf("€%.0f – €%.0f (projected residual)", afterVaRMin, afterVaRMax),
+		AIStatus: "ALLOW",
+		Description: "After OCULTAR tokenization and format-preserving encryption pipeline. Direct identifiers are removed.",
+	}
+	return before, after
+}
+
+const mdTemplate = `# OCULTAR Data Risk Assessment Report
+
+> **CONFIDENTIAL — For Authorised Recipients Only**
+> This report constitutes a technical risk and privacy assessment based on automated analysis. It is informational in nature and does not constitute legal advice or a regulatory compliance determination. Distribution is restricted to named stakeholders.
+
+---
+
+## Report Metadata
+
+| Field | Value |
+| :--- | :--- |
+| **Report ID** | OCU-{{.Meta.ReportID}} |
+| **Generated** | {{.Meta.GeneratedAt}} |
+| **Dataset Scope** | ` + "`" + `{{.Meta.DatasetScope}}` + "`" + ` |
+| **Records Analysed** | {{.Meta.TotalRecords}} |
+| **Methodology Version** | v{{.Meta.MethodologyVersion}} |
+| **Engine** | OCULTAR Enterprise {{.Meta.EngineVersion}} |
+
+---
+
+## Executive Risk Summary
+
+{{if eq .Risk.OverallRiskLevel "CRITICAL"}}> [!CAUTION]
+> **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
+> **Compliance Likelihood: {{if .Risk.IsGDPRCompliant}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ High Non-Compliance Likelihood (External Processing Scenarios){{end}}**{{end}}
+{{if eq .Risk.OverallRiskLevel "HIGH"}}> [!WARNING]
+> **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
+> **Compliance Likelihood: {{if .Risk.IsGDPRCompliant}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ High Non-Compliance Likelihood (External Processing Scenarios){{end}}**{{end}}
+{{if eq .Risk.OverallRiskLevel "MEDIUM"}}> [!IMPORTANT]
+> **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
+> **Compliance Likelihood: {{if .Risk.IsGDPRCompliant}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ Elevated Risk — Review Recommended{{end}}**{{end}}
+{{if eq .Risk.OverallRiskLevel "LOW"}}> [!NOTE]
+> **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
+> **Compliance Likelihood: ✅ Meets Common Pseudonymization Thresholds**{{end}}
+
+The dataset identified in this report contains an estimated **{{.Risk.ViolatingRecords}} records** that fall below commonly cited EU pseudonymization thresholds. In its current state, this data **{{if .Risk.IsGDPRCompliant}}satisfies commonly cited thresholds for use{{else}}presents elevated risk for use{{end}} with external AI systems and LLM APIs** without prior sanitisation.
+
+The estimated financial exposure associated with unauthorised disclosure of this dataset is in the range of **€{{printf "%.0f" .Risk.Exposure.VaRMin}} – €{{printf "%.0f" .Risk.Exposure.VaRMax}}** (simulated estimate based on industry breach benchmarks). This range encompasses regulatory exposure modelling, operational incident response costs, and a risk multiplier derived from the dataset's anonymization profile. Actual impact may vary significantly based on enforcement context and organisational factors.
+
+---
+
+## Risk Scorecard
+
+| Category | Score | Level | Business Implication |
+| :--- | :---: | :---: | :--- |
+| **Identifiability Risk** | {{printf "%.1f" .Risk.Identifiability.Score}}/10 | {{.Risk.Identifiability.Label}} | {{.Risk.Identifiability.Implication}} |
+| **Financial Sensitivity** | {{printf "%.1f" .Risk.FinancialSensitivity.Score}}/10 | {{.Risk.FinancialSensitivity.Label}} | {{.Risk.FinancialSensitivity.Implication}} |
+| **Re-identification Risk** | {{printf "%.1f" .Risk.ReidentificationRisk.Score}}/10 | {{.Risk.ReidentificationRisk.Label}} | {{.Risk.ReidentificationRisk.Implication}} |
+| **Compliance Readiness** | {{printf "%.1f" .Risk.ComplianceReadiness.Score}}/10 | {{.Risk.ComplianceReadiness.Label}} | {{.Risk.ComplianceReadiness.Implication}} |
+| **Overall** | **{{printf "%.1f" .Risk.OverallRiskScore}}/10** | **{{.Risk.OverallRiskLevel}}** | Weighted composite score (Identifiability 35%, Financial 25%, Re-id 25%, Compliance 15%) |
+
+---
+
+## Technical Metrics — Interpreted
+
+### K-Anonymity
+**Raw Score:** {{.Risk.KAnonymity}}
+
+{{.Risk.KAnonymityInterpretation}}
+
+> **Industry Benchmark:** Common industry frameworks suggest a minimum K-score of 3–5 for basic pseudonymization. This is a technical benchmark, not a mandatory legal threshold—contextual factors, processing purpose, and applicable exemptions determine actual compliance obligations.
+
+### L-Diversity
+**Raw Score:** {{.Risk.LDiversity}}
+
+{{.Risk.LDiversityInterpretation}}
+
+> **Industry Benchmark:** An L-Diversity score of ≥2 is commonly recommended to mitigate homogeneity attacks, as referenced in ISO/IEC 29101 (Privacy Architecture Framework). This is an industry guideline; applicable legal thresholds depend on jurisdictional context.
+
+---
+
+## Financial Exposure Model
+
+The **Value at Risk (VaR)** range below is computed using a three-component methodology anchored to industry breach cost benchmarks. All figures are **simulated estimates** and should not be interpreted as predicted fine amounts or contractual commitments.
+
+### VaR Components
+
+| Component | Methodology | Min Estimate | Max Estimate |
+| :--- | :--- | ---: | ---: |
+| **Regulatory Exposure** | Dataset Risk Score ({{printf "%.2f" .Risk.DatasetRiskScore}}) × anchor range (€10,000–€100,000) | **€{{printf "%.0f" .Risk.Exposure.RegulatoryExposureMin}}** | **€{{printf "%.0f" .Risk.Exposure.RegulatoryExposureMax}}** |
+| **Operational Cost** | €100–€300 × {{.Risk.TotalRecords}} records (industry benchmark range) | **€{{printf "%.0f" .Risk.Exposure.OperationalCostMin}}** | **€{{printf "%.0f" .Risk.Exposure.OperationalCostMax}}** |
+| **Risk Multiplier** | Derived from K={{.Risk.KAnonymity}}, L={{.Risk.LDiversity}} profile | **{{printf "%.1f" .Risk.Exposure.RiskMultiplierMin}}×** | **{{printf "%.1f" .Risk.Exposure.RiskMultiplierMax}}×** |
+| | | | |
+| **Total Value at Risk (Estimated)** | | **€{{printf "%.0f" .Risk.Exposure.VaRMin}}** | **€{{printf "%.0f" .Risk.Exposure.VaRMax}}** |
+
+> **Assumptions & Methodology Note:**
+> {{.Risk.Exposure.AssumptionsNote}}
+
+---
+
+## AI & LLM Exposure Assessment
+
+### Decision: {{.Risk.AI.Status}}
+
+| Parameter | Assessment |
+| :--- | :--- |
+| **External LLM API Safety** | {{.Risk.AI.LLMExposure}} risk |
+| **Internal Copilot Safety** | {{if eq .Risk.AI.Status "ALLOW"}}✅ Permitted with monitoring{{else if eq .Risk.AI.Status "SANITIZE_FIRST"}}⚠️ Permitted after OCULTAR processing{{else}}🚫 Not recommended without sanitisation{{end}} |
+| **Vector DB / RAG Indexing** | {{if .Risk.AI.RAGSafe}}✅ Estimated safe for indexing{{else}}🚫 Not recommended without prior processing{{end}} |
+
+**RAG & Vector Database Guidance:**
+{{.Risk.AI.RAGGuidance}}
+
+**Recommended Action:**
+{{.Risk.AI.Recommendation}}
+
+---
+
+## Before / After Simulation
+
+This section demonstrates the modelled impact of the OCULTAR Enterprise pipeline on your dataset's risk profile. Figures are projected estimates based on typical processing outcomes.
+
+| Metric | {{.Before.Label}} | {{.After.Label}} |
+| :--- | :--- | :--- |
+| **Risk Level** | 🔴 {{.Before.RiskLevel}} | 🟢 {{.After.RiskLevel}} |
+| **Risk Score** | {{.Before.RiskScore}} | {{.After.RiskScore}} |
+| **Financial Exposure (VaR)** | {{.Before.VaRRange}} | {{.After.VaRRange}} |
+| **AI / LLM Status** | {{.Before.AIStatus}} | {{.After.AIStatus}} |
+
+**What changes:**
+- **Before:** {{.Before.Description}}
+- **After:** {{.After.Description}}
+
+---
+
+## Assumptions
+
+The following assumptions underpin all quantitative estimates in this report:
+
+| Assumption | Value / Range | Basis |
+| :--- | :--- | :--- |
+| **Regulatory anchor (low)** | €10,000 | Simulation baseline |
+| **Regulatory anchor (high)** | €100,000 | Simulation ceiling |
+| **Operational cost per record** | €100–€300 | Industry study range |
+| **Pseudonymization threshold** | K≥3, L≥2 | Common benchmark |
+
+---
+
+## Remediation Plan
+
+{{.Risk.Recommendation}}
+
+---
+
+## Appendix: Methodology & Standards
+
+This report applies the following analytical frameworks:
+
+- **K-Anonymity** (Sweeney, 2002)
+- **L-Diversity** (Machanavajjhala et al., 2006)
+- **GDPR Article 5(1)(f)**
+- **ISO/IEC 29101**
+
+> This report was generated automatically by OCULTAR Enterprise {{.Meta.EngineVersion}}. technical assessment only.
+
+---
+
+*OCULTAR Enterprise {{.Meta.EngineVersion}} | Methodology v{{.Meta.MethodologyVersion}} | Report ID: OCU-{{.Meta.ReportID}}*
+*Generated: {{.Meta.GeneratedAt}}*
+`
+
+const htmlTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCULTAR Risk Report — OCU-{{.Meta.ReportID}}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+  body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a; padding: 40px; }
+  .section { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; margin-bottom: 24px; }
+  h1 { font-size: 24px; margin-bottom: 12px; }
+  h2 { font-size: 18px; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #1e40af; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 12px; background: #f1f5f9; font-size: 11px; text-transform: uppercase; }
+  td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+  .badge-critical { background: #fef2f2; color: #dc2626; }
+  .badge-low { background: #f0fdf4; color: #16a34a; }
+</style>
+</head>
+<body>
+  <div class="section">
+    <h1>OCULTAR Risk Assessment</h1>
+    <p>Report ID: OCU-{{.Meta.ReportID}} | Generated: {{.Meta.GeneratedAt}}</p>
+  </div>
+  <div class="section">
+    <h2>Executive Summary</h2>
+    <p>Overall Risk: <strong>{{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)</strong></p>
+    <p>Financial Exposure: <strong>€{{printf "%.0f" .Risk.Exposure.VaRMin}} - €{{printf "%.0f" .Risk.Exposure.VaRMax}}</strong></p>
+  </div>
+  <div class="section">
+    <h2>Risk Comparison</h2>
+    <table>
+      <thead><tr><th>Metric</th><th>Before</th><th>After</th></tr></thead>
+      <tbody>
+        <tr><td>Risk Level</td><td>{{.Before.RiskLevel}}</td><td>{{.After.RiskLevel}}</td></tr>
+        <tr><td>Risk Score</td><td>{{.Before.RiskScore}}</td><td>{{.After.RiskScore}}</td></tr>
+        <tr><td>VaR Range</td><td>{{.Before.VaRRange}}</td><td>{{.After.VaRRange}}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
+`
