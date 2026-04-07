@@ -672,6 +672,39 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		json.NewEncoder(w).Encode(report)
 	})
 
+	http.HandleFunc("/api/pilot/upload", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		err := r.ParseMultipartForm(10 << 20) // 10MB limit
+		if err != nil {
+			http.Error(w, "File too large", http.StatusBadRequest)
+			return
+		}
+
+		file, handler, err := r.FormFile("dataset")
+		if err != nil {
+			http.Error(w, "Error retrieving file", http.StatusBadRequest)
+			return
+		}
+		defer file.Close()
+
+		// Save to uploads
+		filename := fmt.Sprintf("%d_%s", time.Now().Unix(), handler.Filename)
+		dstPath := filepath.Join("pilot_data/uploads", filename)
+		dst, _ := os.Create(dstPath)
+		if dst != nil {
+			io.Copy(dst, file)
+			dst.Close()
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"filename": filename, "original_name": handler.Filename})
+	})
+
 	http.HandleFunc("/api/pilot/riskreport", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
@@ -737,8 +770,9 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		report := audit.AnalyzeDatasetRisk(dataset, qi, sa)
 		
 		// Map to full report for template generation
+		reportID := strings.ToUpper(uuid.New().String()[:8])
 		meta := reportMeta{
-			ReportID:           strings.ToUpper(uuid.New().String()[:8]),
+			ReportID:           reportID,
 			GeneratedAt:        time.Now().UTC().Format("02 January 2006, 15:04 UTC"),
 			DatasetScope:       datasetFile,
 			MethodologyVersion: reportVersion,
@@ -748,9 +782,13 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		before, after := buildScenarios(report)
 		fullRpt := fullReport{Meta: meta, Risk: report, Before: before, After: after}
 
+		// Ensure reports dir exists
+		os.MkdirAll("pilot_data/reports", 0755)
+
 		// Generate on-disk Markdown
 		mdTmpl := texttmpl.Must(texttmpl.New("md").Parse(mdTemplate))
-		mdFile, _ := os.Create("pilot_risk_report.md")
+		mdPath := filepath.Join("pilot_data/reports", "report_"+reportID+".md")
+		mdFile, _ := os.Create(mdPath)
 		if mdFile != nil {
 			mdTmpl.Execute(mdFile, fullRpt)
 			mdFile.Close()
@@ -759,14 +797,73 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		// Generate on-disk HTML
 		funcMap := htmltmpl.FuncMap{ "lower": strings.ToLower, "pct": func(score float64) int { return int(score * 10) } }
 		htmlTmpl := htmltmpl.Must(htmltmpl.New("html").Funcs(funcMap).Parse(htmlTemplate))
-		htmlFile, _ := os.Create("pilot_risk_report.html")
+		htmlPath := filepath.Join("pilot_data/reports", "report_"+reportID+".html")
+		htmlFile, _ := os.Create(htmlPath)
 		if htmlFile != nil {
 			htmlTmpl.Execute(htmlFile, fullRpt)
 			htmlFile.Close()
 		}
 
+		// Update History Registry
+		type historyItem struct {
+			ID           string  `json:"id"`
+			Timestamp    string  `json:"timestamp"`
+			DatasetName  string  `json:"dataset_name"`
+			OverallRisk  string  `json:"overall_risk"`
+			RiskScore    float64 `json:"risk_score"`
+			TotalRecords int     `json:"total_records"`
+		}
+		var history []historyItem
+		histRaw, _ := os.ReadFile("pilot_data/history.json")
+		json.Unmarshal(histRaw, &history)
+		
+		history = append(history, historyItem{
+			ID:           reportID,
+			Timestamp:    meta.GeneratedAt,
+			DatasetName:  filepath.Base(datasetFile),
+			OverallRisk:  report.OverallRiskLevel,
+			RiskScore:    report.OverallRiskScore,
+			TotalRecords: len(dataset),
+		})
+		histUpdated, _ := json.MarshalIndent(history, "", "  ")
+		os.WriteFile("pilot_data/history.json", histUpdated, 0644)
+
+		response := map[string]interface{}{
+			"report":    report,
+			"report_id": reportID,
+		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(report)
+		json.NewEncoder(w).Encode(response)
+	})
+
+	http.HandleFunc("/api/pilot/history", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json")
+		content, _ := os.ReadFile("pilot_data/history.json")
+		if len(content) == 0 {
+			w.Write([]byte(`[]`))
+			return
+		}
+		w.Write(content)
+	})
+
+	http.HandleFunc("/api/pilot/report", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		id := r.URL.Query().Get("id")
+		if id == "" {
+			http.Error(w, "Report ID missing", http.StatusBadRequest)
+			return
+		}
+
+		path := filepath.Join("pilot_data/reports", "report_"+id+".html")
+		content, err := os.ReadFile(path)
+		if err != nil {
+			http.Error(w, "Report not found", http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/html")
+		w.Write(content)
 	})
 
 	http.HandleFunc("/api/reveal", func(w http.ResponseWriter, r *http.Request) {
