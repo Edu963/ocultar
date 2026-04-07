@@ -1,4 +1,6 @@
+import { useState, useEffect, useRef } from 'react';
 import ROIDashboardCard from './components/ROIDashboardCard';
+import logo from './assets/images/image.webp';
 
 // --- Particle Background System ---
 const CanvasBackground = () => {
@@ -168,7 +170,7 @@ export default function App() {
                 <section className="min-h-screen flex flex-col items-center justify-center text-center pt-24 pb-[30vh]">
                     <div className="max-w-[800px] w-full mb-12 mix-blend-multiply opacity-90 transition-opacity hover:opacity-100">
                         <img 
-                            src="/src/assets/images/image.webp" 
+                            src={logo} 
                             alt="OCULTAR LOGO" 
                             className="w-full h-auto"
                             style={{ mixBlendMode: 'multiply' }}
