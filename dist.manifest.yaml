@@ -71,6 +71,16 @@ distributions:
         type: "go-binary"
         dest: "slm-engine"
         optional: true
+      - name: "riskreport"
+        src: "./services/refinery/cmd/riskreport/main.go"
+        type: "go-binary"
+        dest: "riskreport"
+        optional: true
+      - name: "leaky-demo"
+        src: "./datasets/leaky_demo.json"
+        type: "file"
+        dest: "datasets/leaky_demo.json"
+        optional: true
 
 # Mandatory Security Checks for all components
 security:
