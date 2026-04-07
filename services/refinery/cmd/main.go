@@ -836,6 +836,74 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		json.NewEncoder(w).Encode(response)
 	})
 
+	http.HandleFunc("/api/pilot-assessment", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var dataset []map[string]interface{}
+		var email, company string
+
+		if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+			r.ParseMultipartForm(100 * 1024) // 100KB limit
+			email = r.FormValue("email")
+			company = r.FormValue("company")
+			file, _, err := r.FormFile("dataset")
+			if err == nil {
+				defer file.Close()
+				data, _ := io.ReadAll(file)
+				json.Unmarshal(data, &dataset)
+			}
+		} else {
+			var req struct {
+				Email   string                   `json:"email"`
+				Company string                   `json:"company"`
+				Dataset []map[string]interface{} `json:"dataset"`
+			}
+			if err := json.NewDecoder(r.Body).Decode(&req); err == nil {
+				email = req.Email
+				company = req.Company
+				dataset = req.Dataset
+			}
+		}
+
+		if email == "" {
+			http.Error(w, "Email is required", http.StatusBadRequest)
+			return
+		}
+
+		// Stateless assessment
+		qi := []string{"region", "dept", "age_group"}
+		sa := []string{"name", "email", "iban", "salary"}
+		report := audit.AnalyzeDatasetRisk(dataset, qi, sa)
+
+		// Store Lead
+		type lead struct {
+			Email     string    `json:"email"`
+			Company   string    `json:"company"`
+			Timestamp time.Time `json:"timestamp"`
+			RiskLevel string    `json:"risk_level"`
+		}
+		os.MkdirAll("pilot_data", 0755)
+		var leads []lead
+		leadRaw, _ := os.ReadFile("pilot_data/leads.json")
+		json.Unmarshal(leadRaw, &leads)
+		leads = append(leads, lead{Email: email, Company: company, Timestamp: time.Now(), RiskLevel: report.OverallRiskLevel})
+		leadUpdated, _ := json.MarshalIndent(leads, "", "  ")
+		os.WriteFile("pilot_data/leads.json", leadUpdated, 0644)
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{"status": "success", "report": report})
+	})
+
 	http.HandleFunc("/api/pilot/history", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "application/json")
@@ -1182,18 +1250,18 @@ const mdTemplate = `# OCULTAR Data Risk Assessment Report
 
 {{if eq .Risk.OverallRiskLevel "CRITICAL"}}> [!CAUTION]
 > **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
-> **Compliance Likelihood: {{if .Risk.IsGDPRCompliant}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ High Non-Compliance Likelihood (External Processing Scenarios){{end}}**{{end}}
+> **Compliance Likelihood: {{if .Risk.IsGDPRPseudonymized}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ High Non-Compliance Likelihood (External Processing Scenarios){{end}}**{{end}}
 {{if eq .Risk.OverallRiskLevel "HIGH"}}> [!WARNING]
 > **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
-> **Compliance Likelihood: {{if .Risk.IsGDPRCompliant}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ High Non-Compliance Likelihood (External Processing Scenarios){{end}}**{{end}}
+> **Compliance Likelihood: {{if .Risk.IsGDPRPseudonymized}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ High Non-Compliance Likelihood (External Processing Scenarios){{end}}**{{end}}
 {{if eq .Risk.OverallRiskLevel "MEDIUM"}}> [!IMPORTANT]
 > **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
-> **Compliance Likelihood: {{if .Risk.IsGDPRCompliant}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ Elevated Risk — Review Recommended{{end}}**{{end}}
+> **Compliance Likelihood: {{if .Risk.IsGDPRPseudonymized}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ Elevated Risk — Review Recommended{{end}}**{{end}}
 {{if eq .Risk.OverallRiskLevel "LOW"}}> [!NOTE]
 > **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
 > **Compliance Likelihood: ✅ Meets Common Pseudonymization Thresholds**{{end}}
 
-The dataset identified in this report contains an estimated **{{.Risk.ViolatingRecords}} records** that fall below commonly cited EU pseudonymization thresholds. In its current state, this data **{{if .Risk.IsGDPRCompliant}}satisfies commonly cited thresholds for use{{else}}presents elevated risk for use{{end}} with external AI systems and LLM APIs** without prior sanitisation.
+The dataset identified in this report contains an estimated **{{.Risk.ViolatingRecords}} records** that fall below commonly cited EU pseudonymization thresholds. In its current state, this data **{{if .Risk.IsGDPRPseudonymized}}satisfies commonly cited thresholds for use{{else}}presents elevated risk for use{{end}} with external AI systems and LLM APIs** without prior sanitisation.
 
 The estimated financial exposure associated with unauthorised disclosure of this dataset is in the range of **€{{printf "%.0f" .Risk.Exposure.VaRMin}} – €{{printf "%.0f" .Risk.Exposure.VaRMax}}** (simulated estimate based on industry breach benchmarks). This range encompasses regulatory exposure modelling, operational incident response costs, and a risk multiplier derived from the dataset's anonymization profile. Actual impact may vary significantly based on enforcement context and organisational factors.
 
@@ -1324,41 +1392,93 @@ const htmlTemplate = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OCULTAR Risk Report — OCU-{{.Meta.ReportID}}</title>
+<title>OCULTAR Risk Assessment — OCU-{{.Meta.ReportID}}</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-  body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a; padding: 40px; }
-  .section { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; margin-bottom: 24px; }
-  h1 { font-size: 24px; margin-bottom: 12px; }
-  h2 { font-size: 18px; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #1e40af; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --critical: #dc2626; --high: #ea580c; --medium: #d97706; --low: #16a34a;
+    --bg: #f8fafc; --surface: #ffffff; --border: #e2e8f0;
+    --text: #0f172a; --muted: #64748b; --accent: #1e40af;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; padding: 40px 24px; }
+  .container { max-width: 960px; margin: 0 auto; }
+  .report-header { background: var(--text); color: white; padding: 40px; border-radius: 12px; margin-bottom: 32px; position: relative; overflow: hidden; }
+  .report-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+  .meta-item label { display: block; font-size: 10px; text-transform: uppercase; opacity: 0.5; }
+  .meta-item span { font-size: 13px; font-weight: 500; }
+  .risk-banner { border-radius: 10px; padding: 24px 28px; margin-bottom: 28px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--border); }
+  .risk-banner.CRITICAL { background: #fef2f2; border-color: #fecaca; }
+  .risk-banner.HIGH { background: #fff7ed; border-color: #fed7aa; }
+  .risk-banner.MEDIUM { background: #fffbeb; border-color: #fde68a; }
+  .risk-banner.LOW { background: #f0fdf4; border-color: #bbf7d0; }
+  .risk-dial { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: white; flex-shrink: 0; }
+  .CRITICAL .risk-dial { background: var(--critical); }
+  .HIGH .risk-dial { background: var(--high); }
+  .MEDIUM .risk-dial { background: var(--medium); }
+  .LOW .risk-dial { background: var(--low); }
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px; margin-bottom: 20px; }
+  .section h2 { font-size: 14px; font-weight: 700; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); color: var(--accent); text-transform: uppercase; }
   table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; padding: 12px; background: #f1f5f9; font-size: 11px; text-transform: uppercase; }
-  td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
-  .badge { display: inline-block; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
-  .badge-critical { background: #fef2f2; color: #dc2626; }
-  .badge-low { background: #f0fdf4; color: #16a34a; }
+  th { text-align: left; padding: 10px; background: var(--bg); font-size: 11px; text-transform: uppercase; color: var(--muted); }
+  td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+  .badge { padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 600; }
+  .badge-critical { background: #fef2f2; color: var(--critical); }
+  .badge-low { background: #f0fdf4; color: var(--low); }
+  .footer { text-align: center; margin-top: 40px; font-size: 11px; color: var(--muted); }
 </style>
 </head>
 <body>
-  <div class="section">
-    <h1>OCULTAR Risk Assessment</h1>
-    <p>Report ID: OCU-{{.Meta.ReportID}} | Generated: {{.Meta.GeneratedAt}}</p>
-  </div>
-  <div class="section">
-    <h2>Executive Summary</h2>
-    <p>Overall Risk: <strong>{{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)</strong></p>
-    <p>Financial Exposure: <strong>€{{printf "%.0f" .Risk.Exposure.VaRMin}} - €{{printf "%.0f" .Risk.Exposure.VaRMax}}</strong></p>
-  </div>
-  <div class="section">
-    <h2>Risk Comparison</h2>
-    <table>
-      <thead><tr><th>Metric</th><th>Before</th><th>After</th></tr></thead>
-      <tbody>
-        <tr><td>Risk Level</td><td>{{.Before.RiskLevel}}</td><td>{{.After.RiskLevel}}</td></tr>
-        <tr><td>Risk Score</td><td>{{.Before.RiskScore}}</td><td>{{.After.RiskScore}}</td></tr>
-        <tr><td>VaR Range</td><td>{{.Before.VaRRange}}</td><td>{{.After.VaRRange}}</td></tr>
-      </tbody>
-    </table>
+  <div class="container">
+    <div class="report-header">
+      <h1>OCULTAR Risk Assessment</h1>
+      <div class="meta-grid">
+        <div class="meta-item"><label>Report ID</label><span>OCU-{{.Meta.ReportID}}</span></div>
+        <div class="meta-item"><label>Generated</label><span>{{.Meta.GeneratedAt}}</span></div>
+        <div class="meta-item"><label>Engine</label><span>{{.Meta.EngineVersion}}</span></div>
+      </div>
+    </div>
+
+    <div class="risk-banner {{.Risk.OverallRiskLevel}}">
+      <div class="risk-dial">{{printf "%.1f" .Risk.OverallRiskScore}}</div>
+      <div>
+        <h2 style="font-size:18px; margin-bottom:4px;">{{.Risk.OverallRiskLevel}} Risk — {{if .Risk.IsGDPRPseudonymized}}✅ PSEUDONYMIZED{{else}}⚠️ NON-COMPLIANT{{end}}</h2>
+        <p style="font-size:13px; opacity:0.7;">Estimated financial exposure: <strong>€{{printf "%.0f" .Risk.Exposure.VaRMin}} - €{{printf "%.0f" .Risk.Exposure.VaRMax}}</strong></p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Risk Scorecard</h2>
+      <table>
+        <thead><tr><th>Category</th><th>Score</th><th>Level</th><th>Business Implication</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Identifiability</td>
+            <td>{{printf "%.1f" .Risk.Identifiability.Score}}</td>
+            <td><span class="badge badge-{{lower .Risk.Identifiability.Label}}">{{.Risk.Identifiability.Label}}</span></td>
+            <td>{{.Risk.Identifiability.Implication}}</td>
+          </tr>
+          <tr>
+            <td>Financial Exposure</td>
+            <td>{{printf "%.1f" .Risk.FinancialSensitivity.Score}}</td>
+            <td><span class="badge badge-{{lower .Risk.FinancialSensitivity.Label}}">{{.Risk.FinancialSensitivity.Label}}</span></td>
+            <td>{{.Risk.FinancialSensitivity.Implication}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>AI Usage Recommendation</h2>
+      <p style="margin-bottom:12px;"><strong>Decision:</strong> {{.Risk.AI.Status}}</p>
+      <blockquote>{{.Risk.AI.Recommendation}}</blockquote>
+    </div>
+
+    <div class="footer">
+      Generated automatically by OCULTAR Enterprise. Methodology v{{.Meta.MethodologyVersion}}<br>
+      © 2026 OCULTAR Security. All rights reserved.
+    </div>
   </div>
 </body>
 </html>
