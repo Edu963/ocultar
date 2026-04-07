@@ -82,6 +82,7 @@ var Registry = []EntityDef{
 	// Generic Entities
 	{Type: "EMAIL", Pattern: regexp.MustCompile(`(?i)\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b`), Validator: ValNone, MinLength: 5, Normalization: false, CaptureGroup: 0},
 	{Type: "URL", Pattern: regexp.MustCompile(`(?i)https?://[^\s"<>\{\}\[\]\\]+|\bwww\.[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}[^\s"<>\{\}\[\]\\]*`), Validator: ValNone, MinLength: 8, Normalization: false, CaptureGroup: 0},
+	{Type: "SSN", Pattern: regexp.MustCompile(`(?i)(?:\bssn\b[:\s]*|\bsocial\s+security(?:\s+number)?(?:\s+is)?[:\s]*)\b(\d{3}-\d{2}-\d{4}|\d{9})\b`), Validator: ValNone, MinLength: 9, Normalization: true, CaptureGroup: 1},
 	{Type: "SSN", Pattern: regexp.MustCompile(`\b\d{3}-\d{2}-\d{4}\b`), Validator: ValNone, MinLength: 11, Normalization: false, CaptureGroup: 0},
 	{Type: "CREDENTIAL", Pattern: regexp.MustCompile(`(?i)\bpassword\s*[:=]\s*[^\s,]+`), Validator: ValNone, MinLength: 10, Normalization: false, CaptureGroup: 0},
 	{Type: "SECRET", Pattern: regexp.MustCompile(`(?i)\b(?:secret|key|token)\s*[:=]\s*[^\s,]+`), Validator: ValNone, MinLength: 8, Normalization: false, CaptureGroup: 0},

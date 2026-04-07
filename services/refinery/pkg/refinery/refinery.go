@@ -421,30 +421,11 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		eng.SetMapping(config.Global.AliasMapping)
 	}
 
-	// TIER 1.1 (PRIORITY): Phone detection runs FIRST — before the PII registry —
-	// so that digit sequences like "+34 612 345 678" are tokenized as [PHONE_...]
-	// before national-ID patterns (FRANCE_SIREN, DE_STEUER_ID, etc.) can claim them.
-	if strings.ContainsAny(refined, "0123456789") {
-		var phoneErr error
-		refined, phoneErr = parseAndReplaceWithErr(refined, ParseAndReplacePhonesRaw, func(match string) (string, error) {
-			DetectionTotal.WithLabelValues("PHONE", "tier1_phone").Inc()
-			log.Printf("[DEBUG] Tier 1.1 Phone hit: %s", match)
-			return e.getOrSetSecureToken(match, "PHONE", actor)
-		})
-		if phoneErr != nil {
-			return "", phoneErr
-		}
-	}
-
-	// DEBUG LOG
+	// Scan first to identify structured PII (SSN, Credit Cards, etc.)
 	detections := eng.Scan(refined)
-	log.Printf("[DEBUG] Tier 1 Scan found %d detections in string of length %d", len(detections), len(refined))
-	for _, d := range detections {
-		log.Printf("[DEBUG]   - Detection: [%s] %s", d.Entity, d.Value)
-	}
+	log.Printf("[DEBUG] Tier 1 Scan found %d detections", len(detections))
 
 	tokens := tokenPattern.FindAllStringIndex(refined, -1)
-
 	refined, err = eng.Redact(refined, func(d pii.DetectionResult) (string, error) {
 		overlap := false
 		for _, t := range tokens {
@@ -461,6 +442,21 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	})
 	if err != nil {
 		return "", err
+	}
+
+	// TIER 1.1 (FALLBACK): Phone detection runs AFTER the PII registry scan.
+	// This ensures that digit sequences already claimed by national IDs/SSNs
+	// are not misidentified as phone numbers.
+	if strings.ContainsAny(refined, "0123456789") && !e.isFullyTokenised(refined) {
+		var phoneErr error
+		refined, phoneErr = parseAndReplaceWithErr(refined, ParseAndReplacePhonesRaw, func(match string) (string, error) {
+			DetectionTotal.WithLabelValues("PHONE", "tier1_phone").Inc()
+			log.Printf("[DEBUG] Tier 1.1 Phone hit: %s", match)
+			return e.getOrSetSecureToken(match, "PHONE", actor)
+		})
+		if phoneErr != nil {
+			return "", phoneErr
+		}
 	}
 
 
@@ -489,30 +485,6 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		}
 	}
 
-	if strings.ContainsAny(refined, "0123456789") && !e.isFullyTokenised(refined) {
-		stripped := tokenPattern.ReplaceAllString(refined, " ")
-		noiseWords := []string{"then", "is", "at", "and", "under", "with", "plus"}
-		normalized := strings.ToLower(stripped)
-		for _, w := range noiseWords {
-			normalized = strings.ReplaceAll(normalized, " "+w+" ", " ")
-		}
-		regAlnum := regexp.MustCompile(`[^0-9]`)
-		tightDigits := regAlnum.ReplaceAllString(normalized, "")
-
-		if len(tightDigits) == 9 {
-			log.Printf("[VULN-001] Segmented SSN (9 digits) detected in noise-stripped buffer.")
-			DetectionTotal.WithLabelValues("SSN", "tier1_sliding_window").Inc()
-			return e.getOrSetSecureToken(refined, "SSN", actor)
-		}
-
-		if len(tightDigits) >= 13 && len(tightDigits) <= 16 {
-			if isLuhnValid(tightDigits) {
-				log.Printf("[VULN-001] Segmented Credit Card detected in noise-stripped buffer.")
-				DetectionTotal.WithLabelValues("CREDIT_CARD", "tier1_sliding_window").Inc()
-				return e.getOrSetSecureToken(refined, "CREDIT_CARD", actor)
-			}
-		}
-	}
 	TierLatency.WithLabelValues("tier1_deterministic").Observe(time.Since(t1Start).Seconds())
 
 	// TIER 2: SLM NER Scan (Mandatory Phase)
