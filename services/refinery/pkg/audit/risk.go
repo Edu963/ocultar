@@ -56,9 +56,9 @@ type RiskReport struct {
 	// --- Core Privacy Metrics ---
 	KAnonymity       int  `json:"k_anonymity"`
 	LDiversity       int  `json:"l_diversity"`
-	IsGDPRCompliant  bool `json:"is_gdpr_anonymous"` // Heuristic assessment only
-	ViolatingRecords int  `json:"violating_records"`
-	TotalRecords     int  `json:"total_records"`
+	IsGDPRPseudonymized bool `json:"is_gdpr_pseudonymized"` // Heuristic assessment only
+	ViolatingRecords   int  `json:"violating_records"`
+	TotalRecords       int  `json:"total_records"`
 
 	// --- Derived Risk Scoring ---
 	DatasetRiskScore float64 `json:"dataset_risk_score"` // 0.0–1.0 normalised composite
@@ -175,7 +175,7 @@ func computeComplianceReadiness(isCompliant bool, violating, total int) Category
 			Score: 1.5,
 			Label: "LOW",
 			Implication: "Dataset satisfies commonly cited K-Anonymity and L-Diversity thresholds for statistical pseudonymization. " +
-				"This is a technical heuristic and does not constitute a legal determination of GDPR compliance.",
+				"This is a technical heuristic simulation and does not constitute a legal determination of regulatory compliance.",
 		}
 	}
 	ratio := float64(violating) / float64(total)
@@ -284,8 +284,8 @@ func computeAIReadiness(k int, isCompliant bool, sensitiveRatio float64) AIReadi
 	} else {
 		status = "BLOCK"
 		llmExposure = "CRITICAL"
-		ragGuidance = "Blocked for RAG indexing. Embedding raw PII (names, IBANs, emails) into a vector database creates queryable re-identification surfaces that are difficult to retroactively remove. This assessment is based on the detected K-Anonymity and L-Diversity levels."
-		rec = "Do not transmit this dataset to any external API or internal AI copilot system without first running the full OCULTAR redaction pipeline. This recommendation is based on technical risk assessment, not a legal determination."
+		ragGuidance = "The current anonymization profile is estimated to be insufficient for secure RAG indexing. Embedding high-density PII (names, identifiers) into a vector database creates permanent, queryable re-identification surfaces. This assessment is based on detected K-Anonymity and L-Diversity levels under industry standard models."
+		rec = "Do not transmit this dataset to any external API or internal AI copilot system without first running the full OCULTAR redaction pipeline. This recommendation is based on a simulated technical risk assessment, not a legal mandate."
 	}
 
 	return AIReadiness{
@@ -408,7 +408,7 @@ func AnalyzeDatasetRisk(dataset []map[string]interface{}, quasiIdentifiers []str
 	return RiskReport{
 		KAnonymity:               minK,
 		LDiversity:               minL,
-		IsGDPRCompliant:          isCompliant,
+		IsGDPRPseudonymized:      isCompliant,
 		ViolatingRecords:         violatingRecords,
 		TotalRecords:             total,
 		DatasetRiskScore:         datasetRiskScore,

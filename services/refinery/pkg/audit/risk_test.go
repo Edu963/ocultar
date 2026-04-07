@@ -30,8 +30,8 @@ func TestAnalyzeDatasetRisk(t *testing.T) {
 		t.Errorf("Expected L=2, got %d", report.LDiversity)
 	}
 
-	if !report.IsGDPRCompliant {
-		t.Errorf("Expected dataset to be GDPR compliant")
+	if !report.IsGDPRPseudonymized {
+		t.Errorf("Expected dataset to meet pseudonymization thresholds")
 	}
 
 	if report.ViolatingRecords != 0 {
@@ -47,8 +47,8 @@ func TestAnalyzeDatasetRisk(t *testing.T) {
 	if report2.KAnonymity != 1 {
 		t.Errorf("Expected K=1 after adding outlier, got %d", report2.KAnonymity)
 	}
-	if report2.IsGDPRCompliant {
-		t.Errorf("Expected dataset to immediately fail compliance testing")
+	if report2.IsGDPRPseudonymized {
+		t.Errorf("Expected dataset to fail pseudonymization thresholds after adding outlier")
 	}
 	if report2.ViolatingRecords != 1 {
 		t.Errorf("Expected 1 violating record, got %d", report2.ViolatingRecords)
