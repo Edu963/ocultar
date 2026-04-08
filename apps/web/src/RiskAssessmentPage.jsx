@@ -53,7 +53,7 @@ export default function RiskAssessmentPage() {
             formData.append('company', company);
             
             if (inputType === 'paste') {
-                formData.append('dataset', new Blob([pastedData], { type: 'application/json' }));
+                formData.append('dataset', new Blob([pastedData], { type: 'application/json' }), 'data.json');
             } else {
                 formData.append('dataset', file);
             }
