@@ -932,7 +932,12 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{"status": "success", "report": report, "report_id": reportID})
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status":      "success",
+			"report":      report,
+			"report_id":   reportID,
+			"full_report": fullRpt,
+		})
 	})
 
 	http.HandleFunc("/api/pilot/history", func(w http.ResponseWriter, r *http.Request) {

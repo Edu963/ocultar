@@ -64,10 +64,12 @@ export default function RiskAssessmentPage() {
             });
             const data = await res.json();
             if (data.status === 'success') {
-                if (data.report_id) {
-                    data.report.report_id = data.report_id;
-                }
-                setReport(data.report);
+                const combinedReport = {
+                    ...data.report,
+                    report_id: data.report_id,
+                    full: data.full_report
+                };
+                setReport(combinedReport);
                 setStep(4);
             } else {
                 alert(data.error || 'Failed to analyze data');
@@ -248,23 +250,130 @@ export default function RiskAssessmentPage() {
                                     <span className="text-3xl font-bold text-red-600 font-hero">€{Math.round(report.financial_exposure.var_min_eur).toLocaleString()} – €{Math.round(report.financial_exposure.var_max_eur).toLocaleString()}</span>
                                 </div>
                                 <p className="text-[10px] text-dim leading-relaxed uppercase font-tech">
-                                    Based on industry breach cost benchmarks and regulatory simulation anchors.
+                                    Total Value at Risk based on industry metrics.
                                 </p>
                             </div>
                             
                             <div className="p-8 border border-black/10 bg-white/40 space-y-4">
-                                <h3 className="font-tech text-xs uppercase text-dim">AI Usage Recommendation</h3>
+                                <h3 className="font-tech text-xs uppercase text-dim">AI Readiness</h3>
                                 <div className="flex items-center gap-3">
                                     <div className={`p-2 ${report.ai_readiness.status === 'ALLOW' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
                                         <Shield className="w-5 h-5" />
                                     </div>
-                                    <span className="font-bold uppercase text-sm font-hero">{report.ai_readiness.status === 'ALLOW' ? 'Safe to Use' : 'Requires Sanitization'}</span>
+                                    <span className="font-bold uppercase text-sm font-hero">{report.ai_readiness.status}</span>
                                 </div>
                                 <p className="text-xs text-dim leading-relaxed">
                                     {report.ai_readiness.recommendation}
                                 </p>
                             </div>
                         </div>
+
+                        {/* --- FULL REPORT NATIVE RENDER --- */}
+                        {report.full && (
+                            <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-1000">
+                                
+                                {/* 1. RISK SCORECARD */}
+                                <div className="space-y-6">
+                                    <h2 className="text-xl font-bold uppercase font-hero border-b border-black/10 pb-4">Risk Scorecard v{report.full.Meta.MethodologyVersion}</h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        {[
+                                            { label: "Identifiability", score: report.full.Risk.Identifiability.Score, detail: report.full.Risk.Identifiability.Label },
+                                            { label: "Financial", score: report.full.Risk.FinancialSensitivity.Score, detail: report.full.Risk.FinancialSensitivity.Label },
+                                            { label: "Re-id Risk", score: report.full.Risk.ReidentificationRisk.Score, detail: report.full.Risk.ReidentificationRisk.Label },
+                                            { label: "Compliance", score: report.full.Risk.ComplianceReadiness.Score, detail: report.full.Risk.ComplianceReadiness.Label }
+                                        ].map((stat) => (
+                                            <div key={stat.label} className="border border-black/10 p-6 flex flex-col gap-2">
+                                                <span className="font-tech text-[10px] uppercase text-dim">{stat.label}</span>
+                                                <span className="text-2xl font-bold font-hero">{stat.score.toFixed(1)}/10</span>
+                                                <span className={`text-[9px] font-bold uppercase px-2 py-0.5 w-fit ${stat.score > 7 ? 'bg-red-100 text-red-600' : stat.score > 4 ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
+                                                    {stat.detail}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* 2. FINANCIAL EXPOSURE BREAKDOWN */}
+                                <div className="space-y-6">
+                                    <h2 className="text-xl font-bold uppercase font-hero border-b border-black/10 pb-4">Exposure Components</h2>
+                                    <div className="overflow-x-auto border border-black/10">
+                                        <table className="w-full text-left font-tech text-[11px]">
+                                            <thead>
+                                                <tr className="bg-black/5 uppercase">
+                                                    <th className="p-4">Component</th>
+                                                    <th className="p-4">Methodology</th>
+                                                    <th className="p-4 text-right">Min Est.</th>
+                                                    <th className="p-4 text-right">Max Est.</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-black/10">
+                                                <tr>
+                                                    <td className="p-4 font-bold">Regulatory</td>
+                                                    <td className="p-4 text-dim">Risk Score Multiplier</td>
+                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.Exposure.RegulatoryExposureMin).toLocaleString()}</td>
+                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.Exposure.RegulatoryExposureMax).toLocaleString()}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="p-4 font-bold">Operational</td>
+                                                    <td className="p-4 text-dim">Recovery Cost Benchmarks</td>
+                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.Exposure.OperationalCostMin).toLocaleString()}</td>
+                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.Exposure.OperationalCostMax).toLocaleString()}</td>
+                                                </tr>
+                                                <tr className="bg-black/5 font-bold">
+                                                    <td className="p-4 text-xs">TOTAL VaR</td>
+                                                    <td className="p-4 text-dim">Combined Aggregation</td>
+                                                    <td className="p-4 text-right text-xs">€{Math.round(report.full.Risk.Exposure.VaRMin).toLocaleString()}</td>
+                                                    <td className="p-4 text-right text-xs text-red-600">€{Math.round(report.full.Risk.Exposure.VaRMax).toLocaleString()}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                {/* 3. SIMULATION MATRIX */}
+                                <div className="space-y-6">
+                                    <div className="flex justify-between items-center border-b border-black/10 pb-4">
+                                        <h2 className="text-xl font-bold uppercase font-hero">Ocultar Transformation Simulation</h2>
+                                        <div className="flex gap-2">
+                                            <div className="bg-red-500 w-2 h-2 rounded-full animate-pulse"></div>
+                                            <div className="bg-green-500 w-2 h-2 rounded-full"></div>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-black/10">
+                                        {[report.full.Before, report.full.After].map((scenario, idx) => (
+                                            <div key={scenario.Label} className={`p-8 space-y-6 ${idx === 0 ? 'border-r border-black/10' : 'bg-black/5'}`}>
+                                                <div className="flex justify-between items-center">
+                                                    <span className={`font-tech text-xs uppercase font-bold ${idx === 0 ? 'text-red-500' : 'text-green-600'}`}>{scenario.Label}</span>
+                                                    <span className="text-[10px] font-tech text-dim uppercase">{scenario.RiskLevel}</span>
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between border-b border-black/5 pb-2">
+                                                        <span className="font-tech text-[10px] text-dim uppercase">Exposure Range</span>
+                                                        <span className="font-bold text-sm tracking-tight">{scenario.VaRRange}</span>
+                                                    </div>
+                                                    <div className="flex justify-between border-b border-black/5 pb-2">
+                                                        <span className="font-tech text-[10px] text-dim uppercase">Status</span>
+                                                        <span className="font-bold text-sm tracking-tight uppercase">{scenario.AIStatus}</span>
+                                                    </div>
+                                                </div>
+                                                <p className="text-xs text-dim leading-relaxed h-12 overflow-hidden">{scenario.Description}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* 4. REMEDIATION PLAN */}
+                                <div className="bg-yellow-50 border border-yellow-200 p-8 space-y-4">
+                                    <div className="flex items-center gap-3 text-yellow-800">
+                                        <AlertTriangle className="w-5 h-5" />
+                                        <h3 className="font-bold uppercase font-hero">Immediate Remediation Plan</h3>
+                                    </div>
+                                    <div className="font-tech text-xs text-yellow-900 leading-relaxed whitespace-pre-wrap">
+                                        {report.full.Risk.Recommendation}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* CONVERSION LAYER */}
                         <div className="bg-black text-white p-12 text-center space-y-8 relative overflow-hidden">
