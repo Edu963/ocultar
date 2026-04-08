@@ -386,15 +386,14 @@ export default function RiskAssessmentPage() {
                                     Your high-fidelity compliance mapping, re-identification probability heatmaps, and a multi-stage remediation plan have been compiled inside your secure vault.
                                 </p>
                                 <div className="flex flex-col md:flex-row gap-4 justify-center pt-8">
-                                    {report.report_id ? (
-                                        <a href={`/api/pilot/report?id=${report.report_id}`} target="_blank" rel="noopener noreferrer" className="bg-white text-black px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:scale-105 transition-all">
-                                            Open High-Fidelity Report
-                                        </a>
-                                    ) : (
-                                        <a href="#pilot" className="border border-white/20 bg-white/5 backdrop-blur-md px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:bg-white/10 transition-all">
-                                            Book Enterprise Demo
+                                    {report.report_id && (
+                                        <a href={`/api/pilot/report?id=${report.report_id}`} target="_blank" rel="noopener noreferrer" className="border border-white/20 bg-white/5 backdrop-blur-md px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:bg-white/10 transition-all">
+                                            View PDF/HTML Report
                                         </a>
                                     )}
+                                    <a href="mailto:sales@ocultar.dev?subject=Enterprise%20Trial%20Request" className="bg-white text-black px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+                                        Activate 2-Week Enterprise Trial
+                                    </a>
                                 </div>
                             </div>
                         </div>
