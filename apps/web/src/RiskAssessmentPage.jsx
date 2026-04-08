@@ -237,8 +237,8 @@ export default function RiskAssessmentPage() {
                             </div>
                             <div className="text-right space-y-1">
                                 <div className="text-[10px] font-tech uppercase opacity-60">Compliance Status</div>
-                                <div className={`text-xs font-bold px-3 py-1 rounded-full uppercase ${report.is_gdpr_pseudonymized ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                                    {report.is_gdpr_pseudonymized ? 'Pseudonymized' : 'Non-Compliant'}
+                                <div className={`text-xs font-bold px-3 py-1 rounded-full uppercase ${report.is_gdpr_pseudonymized ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-600'}`}>
+                                    {report.is_gdpr_pseudonymized ? 'Heuristic Pseudonymization' : 'Elevated Risk Profile'}
                                 </div>
                             </div>
                         </div>
@@ -250,7 +250,7 @@ export default function RiskAssessmentPage() {
                                     <span className="text-3xl font-bold text-red-600 font-hero">€{Math.round(report.financial_exposure.var_min_eur).toLocaleString()} – €{Math.round(report.financial_exposure.var_max_eur).toLocaleString()}</span>
                                 </div>
                                 <p className="text-[10px] text-dim leading-relaxed uppercase font-tech">
-                                    Total Value at Risk based on industry metrics.
+                                    Simulated exposure based on industry simulation anchors.
                                 </p>
                             </div>
                             
@@ -320,8 +320,8 @@ export default function RiskAssessmentPage() {
                                                     <td className="p-4 text-right">€{Math.round(report.full.Risk.financial_exposure.operational_cost_max_eur).toLocaleString()}</td>
                                                 </tr>
                                                 <tr className="bg-black/5 font-bold">
-                                                    <td className="p-4 text-xs">TOTAL VaR</td>
-                                                    <td className="p-4 text-dim">Combined Aggregation</td>
+                                                    <td className="p-4 text-xs font-hero">PROJECTED VaR</td>
+                                                    <td className="p-4 text-dim">Simulated Aggregate Range</td>
                                                     <td className="p-4 text-right text-xs">€{Math.round(report.full.Risk.financial_exposure.var_min_eur).toLocaleString()}</td>
                                                     <td className="p-4 text-right text-xs text-red-600">€{Math.round(report.full.Risk.financial_exposure.var_max_eur).toLocaleString()}</td>
                                                 </tr>
