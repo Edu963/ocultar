@@ -1,52 +1,157 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=JetBrains+Mono:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  /* Design System: Technical Artifact / Zero-Egress Refinery */
-  --bg-primary: #FAFAFA;
-  --text-primary: #000000;
-  --text-dim: rgba(0, 0, 0, 0.5);
-  --border-stark: 1px solid #000000;
+  /* Modern Minimalist SaaS Palette */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #FAFAFA;
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+  --border-color: #E5E7EB;
+  --accent-color: #000000;
+  --accent-foreground: #FFFFFF;
   
   /* Typography */
-  --font-hero: 'Space Grotesk', sans-serif;
-  --font-tech: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: 'Outfit', var(--font-sans);
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  border-radius: 0 !important; /* Forces brutalist sharp edges */
 }
 
 html, body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-tech);
-  line-height: 1.5;
-  overflow-x: hidden;
+  font-family: var(--font-sans);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Base UI Elements */
-a {
-  color: inherit;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
+/* Typography Hierarchy */
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
-a:hover {
-  opacity: 0.7;
+h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.1;
+  color: var(--text-primary);
 }
 
-hr {
-  border: none;
-  border-top: var(--border-stark);
-  margin: 2rem 0;
+h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.2;
 }
 
-/* Performance Optimized Canvas */
+h3 {
+  font-size: 1.5rem;
+  line-height: 1.4;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+  cursor: pointer;
+  font-size: 0.9375rem;
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+  color: var(--accent-foreground);
+  border: 1px solid var(--accent-color);
+}
+
+.btn-primary:hover {
+  background-color: #222;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--text-primary);
+}
+
+/* Cards */
+.card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  padding: 2rem;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--text-muted);
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+}
+
+/* Navigation */
+nav {
+  backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Utilities */
+.text-gradient {
+  background: linear-gradient(135deg, #000 0%, #666 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.max-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-padding {
+  padding: 8rem 0;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Canvas background - more subtle */
 #zero-egress-canvas {
   position: fixed;
   top: 0;
@@ -55,127 +160,30 @@ hr {
   height: 100vh;
   z-index: -10;
   pointer-events: none;
-  mix-blend-mode: multiply;
+  opacity: 0.05;
 }
 
-/* Typography Hierarchy */
-@layer base {
-  h1, h2, h3, h4 {
-    font-family: var(--font-hero);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-  }
-
-  h1 {
-    font-size: clamp(4rem, 15vw, 12rem);
-    line-height: 0.85;
-  }
-
-  h2 {
-    font-size: clamp(2rem, 5vw, 4rem);
-    line-height: 1;
-    margin-bottom: 2rem;
-  }
-}
-
-.mono-label {
-  font-family: var(--font-tech);
+/* Hero Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
   font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
-/* Brutalist Container */
-.system-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
+/* Grid Layouts */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
 }
 
-/* Section Spacing */
-section {
-  width: 100%;
-  border-bottom: var(--border-stark);
+/* Hide original crude elements */
+.terminal-block, .mono-label {
+  display: none !important;
 }
-
-section:last-of-type {
-  border-bottom: none;
-}
-
-/* Page Wrapper (Flexbox Layout) */
-.page-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 24px;
-}
-
-/* Technical Blocks */
-.terminal-block {
-  border: var(--border-stark);
-  padding: 1.5rem;
-  font-family: var(--font-tech);
-  font-size: 0.875rem;
-  background: transparent;
-  position: relative;
-  overflow: hidden;
-}
-
-.terminal-block::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: var(--text-primary);
-  opacity: 0.1;
-}
-
-/* Buttons (Text/Outline only) */
-.btn-stark {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  border: var(--border-stark);
-  text-transform: uppercase;
-  font-family: var(--font-tech);
-  font-weight: 600;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  background: transparent;
-}
-
-.btn-stark:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-  opacity: 1;
-}
-
-/* Responsive Utilities */
-@media (max-width: 768px) {
-  section {
-    padding: 6rem 0;
-  }
-  .system-container {
-    padding: 0 1.5rem;
-  }
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--text-primary);
-}
-
