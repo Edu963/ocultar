@@ -94,12 +94,22 @@ h2 {
 
 /* Section Spacing */
 section {
-  padding: 10rem 0;
+  width: 100%;
   border-bottom: var(--border-stark);
 }
 
 section:last-of-type {
   border-bottom: none;
+}
+
+/* Page Wrapper (Flexbox Layout) */
+.page-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
 }
 
 /* Technical Blocks */

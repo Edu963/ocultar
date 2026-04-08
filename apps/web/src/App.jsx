@@ -118,7 +118,7 @@ export default function App() {
 
 function AppContent() {
     return (
-        <div className="selection:bg-black selection:text-white relative bg-[#FAFAFA] min-h-screen">
+        <div className="selection:bg-black selection:text-white relative bg-[#FAFAFA] min-h-screen flex flex-col">
             <CanvasBackground />
 
             {/* Navigation */}
@@ -134,38 +134,42 @@ function AppContent() {
                 </div>
             </nav>
 
-            <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/risk-assessment" element={<RiskAssessmentPage />} />
-            </Routes>
+            <div className="flex-grow pt-32 pb-20">
+                <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/risk-assessment" element={<RiskAssessmentPage />} />
+                </Routes>
+            </div>
 
             {/* Common Footer */}
-            <footer className="py-20 border-t border-black space-y-12 px-6 max-w-[1400px] mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-start gap-12">
-                    <div className="space-y-4">
-                        <div className="font-bold text-lg uppercase tracking-widest">OCULTAR</div>
-                        <div className="font-tech text-[10px] text-dim">BUILD_2026.04.07 // ENTERPRISE_PILOT_MODE</div>
+            <footer className="py-20 border-t border-black px-6 w-full mt-auto">
+                <div className="max-w-[900px] mx-auto space-y-12">
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-12">
+                        <div className="space-y-4">
+                            <div className="font-bold text-lg uppercase tracking-widest">OCULTAR</div>
+                            <div className="font-tech text-[10px] text-dim">BUILD_2026.04.07 // ENTERPRISE_PILOT_MODE</div>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-12 font-tech text-[10px] uppercase">
+                            <div className="space-y-3">
+                                <span className="text-dim">Network</span>
+                                <a href="https://ocultar.dev/docs" className="block hover:line-through">Documentation</a>
+                                <Link to="/risk-assessment" className="block hover:line-through">Risk Pilot</Link>
+                                <a href="#faq" className="block hover:line-through">FAQ</a>
+                            </div>
+                            <div className="space-y-3">
+                                <span className="text-dim">Systems</span>
+                                <a href="/#roi" className="block hover:line-through">ROI Calculator</a>
+                                <a href="/#pilot" className="block hover:line-through">Pilot Program</a>
+                            </div>
+                            <div className="space-y-3">
+                                <span className="text-dim">Contact</span>
+                                <a href="mailto:sales@ocultar.dev" className="block hover:line-through">sales@ocultar.dev</a>
+                            </div>
+                        </div>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-12 font-tech text-[10px] uppercase">
-                        <div className="space-y-3">
-                            <span className="text-dim">Network</span>
-                            <a href="https://ocultar.dev/docs" className="block hover:line-through">Documentation</a>
-                            <Link to="/risk-assessment" className="block hover:line-through">Risk Pilot</Link>
-                            <a href="#faq" className="block hover:line-through">FAQ</a>
-                        </div>
-                        <div className="space-y-3">
-                            <span className="text-dim">Systems</span>
-                            <a href="/#roi" className="block hover:line-through">ROI Calculator</a>
-                            <a href="/#pilot" className="block hover:line-through">Pilot Program</a>
-                        </div>
-                        <div className="space-y-3">
-                            <span className="text-dim">Contact</span>
-                            <a href="mailto:sales@ocultar.dev" className="block hover:line-through">sales@ocultar.dev</a>
-                        </div>
+                    <div className="pt-8 border-t border-black/10 font-tech text-[9px] text-dim text-center uppercase tracking-[0.2em]">
+                        &copy; 2026 OCULTAR Security // FAIL_CLOSED OR NOTHING
                     </div>
-                </div>
-                <div className="pt-8 border-t border-black/10 font-tech text-[9px] text-dim text-center uppercase tracking-[0.2em]">
-                    &copy; 2026 OCULTAR Security // FAIL_CLOSED OR NOTHING
                 </div>
             </footer>
         </div>
@@ -186,14 +190,14 @@ function LandingPage() {
         new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
 
     return (
-        <main className="system-container">
+        <div className="page-wrapper">
             {/* 1. HERO */}
-            <section className="min-h-screen flex flex-col items-center justify-center text-center pt-24 pb-[30vh]">
-                <div className="max-w-[800px] w-full mb-12 mix-blend-multiply opacity-90 transition-opacity hover:opacity-100">
-                    <img src={logo} alt="OCULTAR LOGO" className="w-full h-auto" style={{ mixBlendMode: 'multiply' }} />
+            <section className="min-h-[60vh] flex flex-col items-center justify-center text-center py-20 border-none">
+                <div className="w-full mb-12 mix-blend-multiply opacity-90 transition-opacity hover:opacity-100">
+                    <img src={logo} alt="OCULTAR LOGO" className="max-w-[600px] mx-auto w-full h-auto" style={{ mixBlendMode: 'multiply' }} />
                 </div>
                 <div className="max-w-3xl space-y-6">
-                    <h2 className="text-2xl md:text-4xl tracking-tight">Zero Egress. Zero Cloud. Total Sovereignty.</h2>
+                    <h2 className="text-2xl md:text-4xl tracking-tight uppercase font-hero font-bold">Zero Egress. Zero Cloud. Total Sovereignty.</h2>
                     <p className="font-tech text-sm md:text-lg text-dim">All data flows refined locally before external interaction.</p>
                     <Link to="/risk-assessment" className="inline-block mt-8 bg-black text-white px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:scale-105 transition-all">
                         Run Free Risk Audit
@@ -202,62 +206,62 @@ function LandingPage() {
             </section>
 
             {/* 2. ARCHITECTURE / PIPELINE */}
-            <section id="how-it-works" className="space-y-16">
+            <section id="how-it-works" className="py-20 space-y-12 border-b border-black">
                 <div className="flex justify-between items-end border-b border-black pb-4">
-                    <h2 className="text-2xl font-bold uppercase">Architecture / Pipeline</h2>
+                    <h2 className="text-2xl font-bold uppercase font-hero">Architecture / Pipeline</h2>
                 </div>
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-8 py-12">
-                    <div className="w-full lg:w-[30%] border border-black p-12 min-h-[350px] flex flex-col items-center justify-center text-center">
-                        <span className="font-bold text-lg mb-4">[ INPUT DATA ]</span>
+                    <div className="w-full lg:w-[30%] border border-black p-8 min-h-[300px] flex flex-col items-center justify-center text-center">
+                        <span className="font-bold mb-4 text-sm">[ INPUT DATA ]</span>
                         <span className="font-tech text-xs text-dim leading-relaxed">Raw logs, Prompts, <br /> JSON</span>
                     </div>
                     <div className="text-2xl opacity-50">→</div>
-                    <div className="w-full lg:w-[32%] border border-black border-dashed p-8 relative min-h-[400px] flex flex-col justify-center gap-12 bg-white/40">
+                    <div className="w-full lg:w-[32%] border border-black border-dashed p-8 relative min-h-[350px] flex flex-col justify-center gap-8 bg-white/40">
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FAFAFA] border border-black px-3 py-0.5 text-[10px] font-bold tracking-widest uppercase">Zero-Egress Zone</div>
                         <div className="text-center space-y-2">
-                            <span className="font-bold block uppercase text-sm">Live Refinery</span>
+                            <span className="font-bold block uppercase text-xs">Live Refinery</span>
                             <span className="font-tech text-[10px] text-dim block">Regex → NLP → SLM Cascade</span>
                         </div>
                         <div className="w-16 h-px bg-black/20 mx-auto"></div>
                         <div className="text-center space-y-2">
-                            <span className="font-bold block uppercase text-sm">Identity Vault</span>
+                            <span className="font-bold block uppercase text-xs">Identity Vault</span>
                             <span className="font-tech text-[10px] text-dim block">AES-256-GCM / Deterministic</span>
                         </div>
                         <div className="w-16 h-px bg-black/20 mx-auto"></div>
                         <div className="text-center space-y-2">
-                            <span className="font-bold block uppercase text-sm">Sombra Gateway</span>
+                            <span className="font-bold block uppercase text-xs">Sombra Gateway</span>
                             <span className="font-tech text-[10px] text-dim block">Fail-Closed Proxy Routing</span>
                         </div>
                     </div>
                     <div className="text-2xl opacity-50">→</div>
-                    <div className="w-full lg:w-[30%] border border-black p-12 min-h-[350px] flex flex-col items-center justify-center text-center">
-                        <span className="font-bold text-lg mb-4">[ EXTERNAL AI ]</span>
+                    <div className="w-full lg:w-[30%] border border-black p-8 min-h-[300px] flex flex-col items-center justify-center text-center">
+                        <span className="font-bold mb-4 text-sm">[ EXTERNAL AI ]</span>
                         <span className="font-tech text-xs text-dim leading-relaxed">Tokenized output <br /> only</span>
                     </div>
                 </div>
             </section>
 
             {/* 3. WHY THIS EXISTS */}
-            <section className="max-w-6xl border-l-[6px] border-black pl-12 py-20 space-y-10">
-                <h2 className="text-5xl md:text-7xl font-bold tracking-tighter leading-[0.9] max-w-4xl">
+            <section className="py-20 border-l-[6px] border-black pl-8 space-y-10 border-b border-black">
+                <h2 className="text-4xl md:text-6xl font-bold tracking-tighter leading-[0.9] font-hero">
                     EVERY AI REQUEST LEAKS CONTEXT. <br />LOGS. PROMPTS. METADATA.
                 </h2>
-                <div className="bg-black text-white px-6 py-3 inline-block font-tech text-lg md:text-xl">
+                <div className="bg-black text-white px-6 py-3 inline-block font-tech text-md md:text-lg">
                     We remove the risk surface entirely.
                 </div>
-                <ul className="font-tech text-sm space-y-4 pt-4 uppercase tracking-tight opacity-80">
-                    <li className="flex items-center gap-3"><span>[✓]</span> NO SAAS DEPENDENCY</li>
-                    <li className="flex items-center gap-3"><span>[✓]</span> NO EXTERNAL TRUST BOUNDARY</li>
-                    <li className="flex items-center gap-3"><span>[✓]</span> NO PROBABILISTIC COMPLIANCE</li>
+                <ul className="font-tech text-xs space-y-4 pt-4 uppercase tracking-tight opacity-80">
+                    <li key="why1" className="flex items-center gap-3"><span>[✓]</span> NO SAAS DEPENDENCY</li>
+                    <li key="why2" className="flex items-center gap-3"><span>[✓]</span> NO EXTERNAL TRUST BOUNDARY</li>
+                    <li key="why3" className="flex items-center gap-3"><span>[✓]</span> NO PROBABILISTIC COMPLIANCE</li>
                 </ul>
             </section>
 
             {/* 4. SYSTEM STREAMS */}
-            <section className="space-y-12">
+            <section className="py-20 space-y-12 border-b border-black">
                 <div className="flex justify-between items-end border-b border-black pb-4">
-                    <h2 className="text-2xl font-bold uppercase">System Streams</h2>
+                    <h2 className="text-2xl font-bold uppercase font-hero">System Streams</h2>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div className="space-y-8">
                         <TerminalBlock
                             title="SYS::DATA_REFINEMENT_ENGINE"
@@ -284,12 +288,12 @@ function LandingPage() {
             </section>
 
             {/* 5. VALUE REALIZATION */}
-            <section id="roi" className="space-y-12">
+            <section id="roi" className="py-20 space-y-12 border-b border-black">
                 <div className="flex justify-between items-end border-b border-black pb-4">
-                    <h2 className="text-2xl font-bold uppercase">Value Realization</h2>
+                    <h2 className="text-2xl font-bold uppercase font-hero">Value Realization</h2>
                     <span className="mono-label tracking-widest text-[9px]">Live_Telemetry</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-6">
                         <p className="font-tech text-sm text-dim leading-relaxed">
                             Real-time quantification of capital retention achieved via zero-egress architecture.
@@ -305,52 +309,48 @@ function LandingPage() {
             </section>
 
             {/* 6. DEPLOYMENT MODES */}
-            <section className="space-y-12">
+            <section className="py-20 space-y-12 border-b border-black">
                 <div className="flex justify-between items-center border-b border-black pb-4">
-                    <h2 className="text-2xl font-bold uppercase">Deployment Modes</h2>
+                    <h2 className="text-2xl font-bold uppercase font-hero">Deployment Modes</h2>
                     <span className="mono-label">config_blocks.yml</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-black">
-                    <div className="p-8 border-r border-black space-y-4">
-                        <span className="font-bold text-sm uppercase">[ Community ]</span>
-                        <ul className="font-tech text-xs space-y-1 text-dim">
-                            <li>- local binary</li><li>- duckdb</li><li>- http proxy</li>
+                    <div key="community" className="p-8 border-r border-black space-y-4">
+                        <span className="font-bold text-xs uppercase">[ Community ]</span>
+                        <ul className="font-tech text-[10px] space-y-1 text-dim">
+                            <li key="c1">- local binary</li><li key="c2">- duckdb</li><li key="c3">- http proxy</li>
                         </ul>
                     </div>
-                    <div className="p-8 border-r border-black bg-black text-white space-y-4">
-                        <span className="font-bold text-sm uppercase">[ Sombra ]</span>
-                        <ul className="font-tech text-xs space-y-1 opacity-70">
-                            <li>- gateway</li><li>- connectors</li><li>- advanced routing</li>
+                    <div key="sombra" className="p-8 border-r border-black bg-black text-white space-y-4">
+                        <span className="font-bold text-xs uppercase">[ Sombra ]</span>
+                        <ul className="font-tech text-[10px] space-y-1 opacity-70">
+                            <li key="s1">- gateway</li><li key="s2">- connectors</li><li key="s3">- advanced routing</li>
                         </ul>
                     </div>
-                    <div className="p-8 space-y-4">
-                        <span className="font-bold text-sm uppercase">[ Enterprise ]</span>
-                        <ul className="font-tech text-xs space-y-1 text-dim">
-                            <li>- postgres vaulting</li><li>- rbac / sso</li><li>- risk matrix monitoring</li>
+                    <div key="enterprise" className="p-8 space-y-4">
+                        <span className="font-bold text-xs uppercase">[ Enterprise ]</span>
+                        <ul className="font-tech text-[10px] space-y-1 text-dim">
+                            <li key="e1">- postgres vaulting</li><li key="e2">- rbac / sso</li><li key="e3">- risk matrix monitoring</li>
                         </ul>
                     </div>
                 </div>
             </section>
 
             {/* 7. QUANTIFY RISK */}
-            <section className="space-y-12">
+            <section className="py-20 space-y-12 border-b border-black">
                 <div className="text-center max-w-2xl mx-auto space-y-4">
-                    <h2 className="text-4xl font-bold uppercase">Quantify Risk</h2>
-                    <p className="text-dim font-tech text-sm">Compute estimated annual exposure based on current AI integration scale.</p>
+                    <h2 className="text-3xl font-bold uppercase font-hero">Quantify Risk</h2>
+                    <p className="text-dim font-tech text-xs">Compute estimated annual exposure based on current AI integration scale.</p>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-black">
                     <div className="p-8 space-y-8 border-b lg:border-b-0 lg:border-r border-black">
                         <div className="space-y-4">
                             <label className="mono-label block text-[10px]">Monthly AI/API Requests</label>
                             <input type="number" value={apiUsage} onChange={(e) => setApiUsage(Number(e.target.value))} className="w-full border border-black p-2 font-tech text-sm bg-transparent outline-none focus:bg-white" />
-                            <div className="flex justify-between font-tech text-[10px] text-dim">
-                                <span>Scale: Enterprise Grade</span><span>Default: 100k/mo</span>
-                            </div>
                         </div>
                         <div className="space-y-4">
                             <label className="mono-label block text-[10px]">PII Exposure Probability (%)</label>
                             <input type="number" value={piiPercent} onChange={(e) => setPiiPercent(Number(e.target.value))} className="w-full border border-black p-2 font-tech text-sm bg-transparent outline-none focus:bg-white" />
-                            <div className="text-right font-tech text-[10px] text-dim">{piiPercent}% Risk Variable</div>
                         </div>
                         <div className="space-y-4">
                             <label className="mono-label block text-[10px]">Estimated Compliance Risk Cost (Per Record)</label>
@@ -366,26 +366,22 @@ function LandingPage() {
                             <span className="mono-label text-[10px]">Projected Savings (OCULTAR)</span>
                             <div className="text-3xl font-bold tabular-nums text-green-600">{formatCurrency(ocultarSavings)}</div>
                         </div>
-                        <div className="pt-4 border-t border-black/10 flex justify-between items-center">
-                            <span className="font-tech text-[10px] uppercase">Risk Reduction</span>
-                            <span className="font-bold underline decoration-2 underline-offset-4">99.2%</span>
-                        </div>
                     </div>
                 </div>
             </section>
 
             {/* 8. INITIALIZE DEPLOYMENT */}
             <section id="pilot" className="py-24 border-t border-black space-y-16">
-                <h2 className="text-center text-4xl font-bold uppercase tracking-tight">Initialize Deployment</h2>
-                <div className="flex flex-col md:flex-row justify-center gap-8 max-w-5xl mx-auto">
-                    <div className="flex-1 border border-black p-10 space-y-8 bg-white/40">
+                <h2 className="text-center text-4xl font-bold uppercase tracking-tight font-hero">Initialize Deployment</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="border border-black p-8 space-y-6 bg-white/40">
                         <div className="space-y-2">
                             <h3 className="font-bold uppercase text-sm">Community / Self-Serve</h3>
                             <p className="text-[10px] text-dim leading-relaxed">Download binary. Run locally in minutes. DuckDB included.</p>
                         </div>
                         <div className="font-tech text-xs pt-4 border-t border-black/10">{`> curl -sL https://ocultar.dev/install | bash`}</div>
                     </div>
-                    <div className="flex-1 border border-black p-10 space-y-8 bg-white/40">
+                    <div className="border border-black p-8 space-y-6 bg-white/40">
                         <div className="space-y-2">
                             <h3 className="font-bold uppercase text-sm">Enterprise Pilot</h3>
                             <p className="text-[10px] text-dim leading-relaxed">Deploy in your infra in &lt;48h. Measure ROI + risk reduction.</p>
@@ -396,9 +392,9 @@ function LandingPage() {
             </section>
 
             {/* 9. DEVELOPER ENTRY */}
-            <section className="space-y-8 pb-12">
+            <section className="py-20 space-y-8">
                 <div className="flex justify-between items-end border-b border-black pb-4">
-                    <h2 className="text-2xl font-bold uppercase">Developer Entry</h2>
+                    <h2 className="text-2xl font-bold uppercase font-hero">Developer Entry</h2>
                     <span className="mono-label">api::v1</span>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -413,6 +409,6 @@ function LandingPage() {
                     />
                 </div>
             </section>
-        </main>
+        </div>
     );
 }
