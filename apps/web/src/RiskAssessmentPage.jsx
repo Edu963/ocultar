@@ -277,16 +277,16 @@ export default function RiskAssessmentPage() {
                                     <h2 className="text-xl font-bold uppercase font-hero border-b border-black/10 pb-4">Risk Scorecard v{report.full.Meta.MethodologyVersion}</h2>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                         {[
-                                            { label: "Identifiability", score: report.full.Risk.Identifiability.Score, detail: report.full.Risk.Identifiability.Label },
-                                            { label: "Financial", score: report.full.Risk.FinancialSensitivity.Score, detail: report.full.Risk.FinancialSensitivity.Label },
-                                            { label: "Re-id Risk", score: report.full.Risk.ReidentificationRisk.Score, detail: report.full.Risk.ReidentificationRisk.Label },
-                                            { label: "Compliance", score: report.full.Risk.ComplianceReadiness.Score, detail: report.full.Risk.ComplianceReadiness.Label }
+                                            { label: "Identifiability", data: report.full.Risk.identifiability_risk },
+                                            { label: "Financial", data: report.full.Risk.financial_sensitivity },
+                                            { label: "Re-id Risk", data: report.full.Risk.reidentification_risk },
+                                            { label: "Compliance", data: report.full.Risk.compliance_readiness }
                                         ].map((stat) => (
                                             <div key={stat.label} className="border border-black/10 p-6 flex flex-col gap-2">
                                                 <span className="font-tech text-[10px] uppercase text-dim">{stat.label}</span>
-                                                <span className="text-2xl font-bold font-hero">{stat.score.toFixed(1)}/10</span>
-                                                <span className={`text-[9px] font-bold uppercase px-2 py-0.5 w-fit ${stat.score > 7 ? 'bg-red-100 text-red-600' : stat.score > 4 ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
-                                                    {stat.detail}
+                                                <span className="text-2xl font-bold font-hero">{stat.data.score.toFixed(1)}/10</span>
+                                                <span className={`text-[9px] font-bold uppercase px-2 py-0.5 w-fit ${stat.data.score > 7 ? 'bg-red-100 text-red-600' : stat.data.score > 4 ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'}`}>
+                                                    {stat.data.label}
                                                 </span>
                                             </div>
                                         ))}
@@ -310,20 +310,20 @@ export default function RiskAssessmentPage() {
                                                 <tr>
                                                     <td className="p-4 font-bold">Regulatory</td>
                                                     <td className="p-4 text-dim">Risk Score Multiplier</td>
-                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.Exposure.RegulatoryExposureMin).toLocaleString()}</td>
-                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.Exposure.RegulatoryExposureMax).toLocaleString()}</td>
+                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.financial_exposure.regulatory_exposure_min_eur).toLocaleString()}</td>
+                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.financial_exposure.regulatory_exposure_max_eur).toLocaleString()}</td>
                                                 </tr>
                                                 <tr>
                                                     <td className="p-4 font-bold">Operational</td>
                                                     <td className="p-4 text-dim">Recovery Cost Benchmarks</td>
-                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.Exposure.OperationalCostMin).toLocaleString()}</td>
-                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.Exposure.OperationalCostMax).toLocaleString()}</td>
+                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.financial_exposure.operational_cost_min_eur).toLocaleString()}</td>
+                                                    <td className="p-4 text-right">€{Math.round(report.full.Risk.financial_exposure.operational_cost_max_eur).toLocaleString()}</td>
                                                 </tr>
                                                 <tr className="bg-black/5 font-bold">
                                                     <td className="p-4 text-xs">TOTAL VaR</td>
                                                     <td className="p-4 text-dim">Combined Aggregation</td>
-                                                    <td className="p-4 text-right text-xs">€{Math.round(report.full.Risk.Exposure.VaRMin).toLocaleString()}</td>
-                                                    <td className="p-4 text-right text-xs text-red-600">€{Math.round(report.full.Risk.Exposure.VaRMax).toLocaleString()}</td>
+                                                    <td className="p-4 text-right text-xs">€{Math.round(report.full.Risk.financial_exposure.var_min_eur).toLocaleString()}</td>
+                                                    <td className="p-4 text-right text-xs text-red-600">€{Math.round(report.full.Risk.financial_exposure.var_max_eur).toLocaleString()}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -369,7 +369,7 @@ export default function RiskAssessmentPage() {
                                         <h3 className="font-bold uppercase font-hero">Immediate Remediation Plan</h3>
                                     </div>
                                     <div className="font-tech text-xs text-yellow-900 leading-relaxed whitespace-pre-wrap">
-                                        {report.full.Risk.Recommendation}
+                                        {report.full.Risk.recommendation}
                                     </div>
                                 </div>
                             </div>
