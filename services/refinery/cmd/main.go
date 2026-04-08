@@ -900,8 +900,39 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		leadUpdated, _ := json.MarshalIndent(leads, "", "  ")
 		os.WriteFile("pilot_data/leads.json", leadUpdated, 0644)
 
+		// Map to full report for template generation
+		reportID := strings.ToUpper(uuid.New().String()[:8])
+		datasetScopeName := company + " Custom Upload"
+		meta := reportMeta{
+			ReportID:           reportID,
+			GeneratedAt:        time.Now().UTC().Format("02 January 2006, 15:04 UTC"),
+			DatasetScope:       datasetScopeName,
+			MethodologyVersion: reportVersion,
+			EngineVersion:      engineVersion,
+			TotalRecords:       len(dataset),
+		}
+		before, after := buildScenarios(report)
+		fullRpt := fullReport{Meta: meta, Risk: report, Before: before, After: after}
+
+		// Generate on-disk Markdown
+		mdTmpl := texttmpl.Must(texttmpl.New("md").Parse(mdTemplate))
+		mdPath := filepath.Join("pilot_data/reports", "report_"+reportID+".md")
+		if mdFile, _ := os.Create(mdPath); mdFile != nil {
+			mdTmpl.Execute(mdFile, fullRpt)
+			mdFile.Close()
+		}
+
+		// Generate on-disk HTML
+		funcMap := htmltmpl.FuncMap{ "lower": strings.ToLower, "pct": func(score float64) int { return int(score * 10) } }
+		htmlTmpl := htmltmpl.Must(htmltmpl.New("html").Funcs(funcMap).Parse(htmlTemplate))
+		htmlPath := filepath.Join("pilot_data/reports", "report_"+reportID+".html")
+		if htmlFile, _ := os.Create(htmlPath); htmlFile != nil {
+			htmlTmpl.Execute(htmlFile, fullRpt)
+			htmlFile.Close()
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{"status": "success", "report": report})
+		json.NewEncoder(w).Encode(map[string]interface{}{"status": "success", "report": report, "report_id": reportID})
 	})
 
 	http.HandleFunc("/api/pilot/history", func(w http.ResponseWriter, r *http.Request) {
