@@ -64,6 +64,9 @@ export default function RiskAssessmentPage() {
             });
             const data = await res.json();
             if (data.status === 'success') {
+                if (data.report_id) {
+                    data.report.report_id = data.report_id;
+                }
                 setReport(data.report);
                 setStep(4);
             } else {
@@ -269,17 +272,20 @@ export default function RiskAssessmentPage() {
                                 <Shield className="w-64 h-64" />
                             </div>
                             <div className="relative z-10 space-y-4">
-                                <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tighter font-hero">Get the Full Enterprise Audit</h2>
+                                <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tighter font-hero">View Full Enterprise Audit</h2>
                                 <p className="text-dim max-w-xl mx-auto font-tech text-sm">
-                                    This is a preview. The full OCULTAR report includes a detailed compliance mapping, re-identification probability heatmaps, and a multi-stage remediation plan.
+                                    Your high-fidelity compliance mapping, re-identification probability heatmaps, and a multi-stage remediation plan have been compiled inside your secure vault.
                                 </p>
                                 <div className="flex flex-col md:flex-row gap-4 justify-center pt-8">
-                                    <a href="mailto:sales@ocultar.dev" className="bg-white text-black px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:scale-105 transition-all">
-                                        Request Full Audit Report
-                                    </a>
-                                    <a href="#pilot" className="border border-white/20 bg-white/5 backdrop-blur-md px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:bg-white/10 transition-all">
-                                        Book Enterprise Demo
-                                    </a>
+                                    {report.report_id ? (
+                                        <a href={`/api/pilot/report?id=${report.report_id}`} target="_blank" rel="noopener noreferrer" className="bg-white text-black px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:scale-105 transition-all">
+                                            Open High-Fidelity Report
+                                        </a>
+                                    ) : (
+                                        <a href="#pilot" className="border border-white/20 bg-white/5 backdrop-blur-md px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:bg-white/10 transition-all">
+                                            Book Enterprise Demo
+                                        </a>
+                                    )}
                                 </div>
                             </div>
                         </div>
