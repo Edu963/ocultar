@@ -59,22 +59,24 @@ hr {
 }
 
 /* Typography Hierarchy */
-h1, h2, h3, h4 {
-  font-family: var(--font-hero);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-}
+@layer base {
+  h1, h2, h3, h4 {
+    font-family: var(--font-hero);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
 
-h1 {
-  font-size: clamp(4rem, 15vw, 12rem);
-  line-height: 0.85;
-}
+  h1 {
+    font-size: clamp(4rem, 15vw, 12rem);
+    line-height: 0.85;
+  }
 
-h2 {
-  font-size: clamp(2rem, 5vw, 4rem);
-  line-height: 1;
-  margin-bottom: 2rem;
+  h2 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1;
+    margin-bottom: 2rem;
+  }
 }
 
 .mono-label {
