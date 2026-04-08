@@ -81,12 +81,12 @@ export default function RiskAssessmentPage() {
         <div className="page-wrapper">
             
             {/* --- HEADER --- */}
-            <div className="space-y-6 text-center py-16">
+            <div className="space-y-6 text-center py-16 max-w-5xl mx-auto w-full">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white text-[10px] font-tech uppercase tracking-[0.2em] mb-4">
                     <Shield className="w-3 h-3" /> Pilot Assessment v3.1
                 </div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter uppercase font-hero leading-tight">Test Your Data Risk in 60 Seconds</h1>
-                <p className="text-dim max-w-2xl mx-auto font-tech text-base md:text-lg leading-relaxed">
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase font-hero leading-tight w-full max-w-4xl mx-auto">Test Your Data Risk in 60 Seconds</h1>
+                <p className="text-dim max-w-3xl mx-auto font-tech text-lg md:text-xl leading-relaxed">
                     Upload a sample dataset and see your compliance exposure before using AI tools. 
                     Stateless processing. No data stored.
                 </p>
@@ -104,18 +104,18 @@ export default function RiskAssessmentPage() {
                                 { id: "feat-audit", icon: <Shield className="w-5 h-5" />, title: "Instant Audit", desc: "Immediate K-Anonymity score." },
                                 { id: "feat-report", icon: <FileText className="w-5 h-5" />, title: "Risk Report", desc: "Defensible VaR estimations." }
                             ].map((item) => (
-                                <div key={item.id} className="p-8 md:p-10 border border-black/10 rounded-xl bg-white/40 space-y-4">
-                                    <div className="p-3 w-fit bg-black/5">{item.icon}</div>
-                                    <h3 className="font-bold uppercase text-base md:text-lg font-hero">{item.title}</h3>
-                                    <p className="text-sm text-dim leading-relaxed">{item.desc}</p>
+                                <div key={item.id} className="p-10 md:p-12 border border-black/10 rounded-xl bg-white/40 space-y-6">
+                                    <div className="p-4 w-fit bg-black/5">{item.icon}</div>
+                                    <h3 className="font-bold uppercase text-xl md:text-2xl font-hero">{item.title}</h3>
+                                    <p className="text-base md:text-lg text-dim leading-relaxed">{item.desc}</p>
                                 </div>
                             ))}
                         </div>
                         <button 
                             onClick={handleStart}
-                            className="group flex items-center gap-4 bg-black text-white px-12 py-6 rounded-full font-tech uppercase text-sm md:text-base tracking-widest hover:scale-105 transition-all shadow-xl"
+                            className="group flex items-center gap-4 bg-black text-white px-16 py-8 rounded-full font-tech uppercase text-lg md:text-xl font-bold tracking-widest hover:scale-105 transition-all shadow-xl"
                         >
-                            Start Free Assessment <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            Start Free Assessment <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                         </button>
                     </div>
                 )}
