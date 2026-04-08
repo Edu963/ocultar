@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { Shield, Lock, Zap, BarChart3, ChevronRight, Github, ExternalLink, Globe } from 'lucide-react';
 import ROIDashboardCard from './components/ROIDashboardCard';
 import RiskAssessmentPage from './RiskAssessmentPage';
 import logo from './assets/images/image.webp';
 
-// --- Particle Background System ---
+// --- Subtle Particle Background ---
 const CanvasBackground = () => {
     const canvasRef = useRef(null);
 
@@ -13,8 +14,8 @@ const CanvasBackground = () => {
         const ctx = canvas.getContext('2d');
         let animationFrameId;
         let particles = [];
-        const numParticles = 80;
-        const connectionDistance = 120;
+        const numParticles = 40; // Fewer particles for minimalist look
+        const connectionDistance = 150;
 
         const resizeCanvas = () => {
             canvas.width = window.innerWidth;
@@ -28,8 +29,8 @@ const CanvasBackground = () => {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 1.2;
-                this.vy = (Math.random() - 0.5) * 1.2;
+                this.vx = (Math.random() - 0.5) * 0.4; // Slower
+                this.vy = (Math.random() - 0.5) * 0.4;
                 this.radius = 1;
             }
 
@@ -38,14 +39,12 @@ const CanvasBackground = () => {
                 if (this.y <= 0 || this.y >= canvas.height) this.vy *= -1;
                 this.x += this.vx;
                 this.y += this.vy;
-                this.x = Math.max(0, Math.min(canvas.width, this.x));
-                this.y = Math.max(0, Math.min(canvas.height, this.y));
             }
 
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#000000';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
                 ctx.fill();
             }
         }
@@ -67,7 +66,7 @@ const CanvasBackground = () => {
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
-                        const opacity = (1 - distance / connectionDistance) * 0.12;
+                        const opacity = (1 - distance / connectionDistance) * 0.05;
                         ctx.strokeStyle = `rgba(0, 0, 0, ${opacity})`;
                         ctx.lineWidth = 0.5;
                         ctx.stroke();
@@ -88,25 +87,6 @@ const CanvasBackground = () => {
     return <canvas ref={canvasRef} id="zero-egress-canvas" />;
 };
 
-const TerminalBlock = ({ title, content, isDark = false, className = "" }) => (
-    <div
-        className={`terminal-block ${className}`}
-        style={isDark ? { backgroundColor: '#000000', color: '#FFFFFF' } : {}}
-    >
-        {title && (
-            <div className={`mono-label mb-4 pb-2 border-b ${isDark ? 'border-white/20' : 'border-black/10'}`} style={isDark ? { color: '#AAAAAA', borderColor: 'rgba(255,255,255,0.2)' } : {}}>
-                {title}
-            </div>
-        )}
-        <pre
-            className="font-tech text-xs md:text-sm whitespace-pre-wrap leading-relaxed"
-            style={isDark ? { color: '#FFFFFF' } : { color: '#000000' }}
-        >
-            {content}
-        </pre>
-    </div>
-);
-
 // --- Main Application ---
 export default function App() {
     return (
@@ -118,57 +98,83 @@ export default function App() {
 
 function AppContent() {
     return (
-        <div className="selection:bg-black selection:text-white relative bg-[#FAFAFA] min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col selection:bg-black selection:text-white">
             <CanvasBackground />
 
             {/* Navigation */}
-            <nav className="fixed top-0 left-0 w-full z-50 p-6 flex justify-between items-center mix-blend-difference pointer-events-none">
-                <div className="flex gap-4 pointer-events-auto">
-                    <Link to="/" className="font-tech text-xs uppercase tracking-widest border border-black px-3 py-1 hover:bg-black hover:text-white transition-all">HOME</Link>
-                    <Link to="/risk-assessment" className="font-tech text-xs uppercase tracking-widest border border-black px-3 py-1 bg-black text-white hover:bg-white hover:text-black transition-all">RISK_PILOT</Link>
-                    <a href="https://ocultar.dev/docs" className="font-tech text-xs uppercase tracking-widest border border-black px-3 py-1 hover:bg-black hover:text-white transition-all">DOCS</a>
-                </div>
-                <div className="flex gap-4 pointer-events-auto">
-                    <a href="#pilot" className="font-tech text-xs uppercase tracking-widest border border-black px-3 py-1 hover:bg-black hover:text-white transition-all">INIT_DEPLOY</a>
-                    <a href="#github" className="font-tech text-xs uppercase tracking-widest border border-black px-3 py-1 hover:bg-black hover:text-white transition-all">GITHUB</a>
+            <nav className="fixed top-0 left-0 w-full z-50 py-4">
+                <div className="max-container flex justify-between items-center">
+                    <Link to="/" className="font-heading font-bold text-xl tracking-tighter flex items-center gap-2">
+                        <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                            <Shield className="text-white w-5 h-5" />
+                        </div>
+                        OCULTAR
+                    </Link>
+                    <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+                        <Link to="/" className="hover:text-black transition-colors text-secondary">Home</Link>
+                        <Link to="/risk-assessment" className="hover:text-black transition-colors text-secondary">Risk Pilot</Link>
+                        <a href="#roi" className="hover:text-black transition-colors text-secondary">ROI</a>
+                        <a href="https://ocultar.dev/docs" className="hover:text-black transition-colors text-secondary flex items-center gap-1">
+                            Docs <ExternalLink className="w-3 h-3" />
+                        </a>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <Link to="/risk-assessment" className="btn btn-primary text-sm px-6">
+                            Start Audit
+                        </Link>
+                    </div>
                 </div>
             </nav>
 
-            <div className="flex-grow pt-32 pb-20">
+            <div className="flex-grow">
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/risk-assessment" element={<RiskAssessmentPage />} />
                 </Routes>
             </div>
 
-            {/* Common Footer */}
-            <footer className="py-20 border-t border-black px-6 w-full mt-auto">
-                <div className="max-w-[900px] mx-auto space-y-12">
-                    <div className="flex flex-col md:flex-row justify-between items-start gap-12">
-                        <div className="space-y-4">
-                            <div className="font-bold text-lg uppercase tracking-widest">OCULTAR</div>
-                            <div className="font-tech text-[10px] text-dim">BUILD_2026.04.07 // ENTERPRISE_PILOT_MODE</div>
+            {/* Footer */}
+            <footer className="bg-secondary border-t border-color py-20">
+                <div className="max-container">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+                        <div className="col-span-1 md:col-span-2 space-y-6">
+                            <div className="font-heading font-bold text-xl tracking-tighter">OCULTAR</div>
+                            <p className="max-w-xs text-sm">
+                                Zero-Egress data protection for the modern AI stack. 
+                                Secure your PII locally. Redact before you egress.
+                            </p>
+                            <div className="flex gap-4">
+                                <a href="https://github.com/Edu963/ocultar" className="text-muted hover:text-black transition-colors">
+                                    <Github className="w-5 h-5" />
+                                </a>
+                                <a href="#" className="text-muted hover:text-black transition-colors">
+                                    <Globe className="w-5 h-5" />
+                                </a>
+                            </div>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-12 font-tech text-[10px] uppercase">
-                            <div className="space-y-3">
-                                <span className="text-dim">Network</span>
-                                <a href="https://ocultar.dev/docs" className="block hover:line-through">Documentation</a>
-                                <Link to="/risk-assessment" className="block hover:line-through">Risk Pilot</Link>
-                                <a href="#faq" className="block hover:line-through">FAQ</a>
-                            </div>
-                            <div className="space-y-3">
-                                <span className="text-dim">Systems</span>
-                                <a href="/#roi" className="block hover:line-through">ROI Calculator</a>
-                                <a href="/#pilot" className="block hover:line-through">Pilot Program</a>
-                            </div>
-                            <div className="space-y-3">
-                                <span className="text-dim">Contact</span>
-                                <a href="mailto:sales@ocultar.dev" className="block hover:line-through">sales@ocultar.dev</a>
-                            </div>
+                        <div className="space-y-4">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Product</h4>
+                            <ul className="space-y-2 text-sm">
+                                <li><Link to="/risk-assessment" className="hover:text-black transition-colors">Risk Pilot</Link></li>
+                                <li><a href="#roi" className="hover:text-black transition-colors">ROI Calculator</a></li>
+                                <li><a href="https://ocultar.dev/docs" className="hover:text-black transition-colors">Documentation</a></li>
+                            </ul>
+                        </div>
+                        <div className="space-y-4">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Company</h4>
+                            <ul className="space-y-2 text-sm">
+                                <li><a href="#" className="hover:text-black transition-colors">Privacy Policy</a></li>
+                                <li><a href="#" className="hover:text-black transition-colors">Terms of Service</a></li>
+                                <li><a href="mailto:sales@ocultar.dev" className="hover:text-black transition-colors">Contact Sales</a></li>
+                            </ul>
                         </div>
                     </div>
-                    <div className="pt-8 border-t border-black/10 font-tech text-[9px] text-dim text-center uppercase tracking-[0.2em]">
-                        &copy; 2026 OCULTAR Security // FAIL_CLOSED OR NOTHING
+                    <div className="mt-20 pt-8 border-t border-color flex flex-col md:row justify-between items-center gap-4 text-xs text-muted font-medium">
+                        <div>&copy; 2026 OCULTAR Security. All rights reserved.</div>
+                        <div className="flex gap-6">
+                            <span>FAIL_CLOSED_OR_NOTHING</span>
+                            <span>BUILD_2026.04.08</span>
+                        </div>
                     </div>
                 </div>
             </footer>
@@ -190,223 +196,174 @@ function LandingPage() {
         new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
 
     return (
-        <div className="page-wrapper">
-            {/* 1. HERO */}
-            <section className="min-h-[60vh] flex flex-col items-center justify-center text-center py-20 border-none">
-                <div className="w-full mb-12 mix-blend-multiply opacity-90 transition-opacity hover:opacity-100">
-                    <img src={logo} alt="OCULTAR LOGO" className="max-w-[600px] mx-auto w-full h-auto" style={{ mixBlendMode: 'multiply' }} />
-                </div>
-                <div className="max-w-3xl space-y-6">
-                    <h2 className="text-2xl md:text-4xl tracking-tight uppercase font-hero font-bold">Zero Egress. Zero Cloud. Total Sovereignty.</h2>
-                    <p className="font-tech text-sm md:text-lg text-dim">All data flows refined locally before external interaction.</p>
-                    <Link to="/risk-assessment" className="inline-block mt-8 bg-black text-white px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:scale-105 transition-all">
-                        Run Free Risk Audit
-                    </Link>
-                </div>
-            </section>
-
-            {/* 2. ARCHITECTURE / PIPELINE */}
-            <section id="how-it-works" className="py-20 space-y-12 border-b border-black">
-                <div className="flex justify-between items-end border-b border-black pb-4">
-                    <h2 className="text-2xl font-bold uppercase font-hero">Architecture / Pipeline</h2>
-                </div>
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-8 py-12">
-                    <div className="w-full lg:w-[30%] border border-black p-8 min-h-[300px] flex flex-col items-center justify-center text-center">
-                        <span className="font-bold mb-4 text-sm">[ INPUT DATA ]</span>
-                        <span className="font-tech text-xs text-dim leading-relaxed">Raw logs, Prompts, <br /> JSON</span>
+        <div className="animate-in fade-in duration-1000">
+            {/* Hero Section */}
+            <section className="section-padding flex flex-col items-center text-center">
+                <div className="max-container space-y-8">
+                    <div className="badge animate-in slide-in-from-bottom-2 duration-500">
+                        ✨ Secure AI Infrastructure
                     </div>
-                    <div className="text-2xl opacity-50">→</div>
-                    <div className="w-full lg:w-[32%] border border-black border-dashed p-8 relative min-h-[350px] flex flex-col justify-center gap-8 bg-white/40">
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FAFAFA] border border-black px-3 py-0.5 text-[10px] font-bold tracking-widest uppercase">Zero-Egress Zone</div>
-                        <div className="text-center space-y-2">
-                            <span className="font-bold block uppercase text-xs">Live Refinery</span>
-                            <span className="font-tech text-[10px] text-dim block">Regex → NLP → SLM Cascade</span>
-                        </div>
-                        <div className="w-16 h-px bg-black/20 mx-auto"></div>
-                        <div className="text-center space-y-2">
-                            <span className="font-bold block uppercase text-xs">Identity Vault</span>
-                            <span className="font-tech text-[10px] text-dim block">AES-256-GCM / Deterministic</span>
-                        </div>
-                        <div className="w-16 h-px bg-black/20 mx-auto"></div>
-                        <div className="text-center space-y-2">
-                            <span className="font-bold block uppercase text-xs">Sombra Gateway</span>
-                            <span className="font-tech text-[10px] text-dim block">Fail-Closed Proxy Routing</span>
-                        </div>
+                    <h1 className="max-w-4xl mx-auto text-gradient">
+                        Secure AI with Zero-Egress PII Redaction
+                    </h1>
+                    <p className="max-w-2xl mx-auto text-lg md:text-xl font-medium leading-relaxed">
+                        Ocultar intercepts and redacts sensitive data locally before it leaves your infrastructure. 
+                        No cloud dependencies. No data leaks. Fail-closed by design.
+                    </p>
+                    <div className="flex flex-col md:flex-row gap-4 justify-center pt-4">
+                        <Link to="/risk-assessment" className="btn btn-primary px-8 py-4 text-base gap-2">
+                            Run a Free Audit <ChevronRight className="w-4 h-4" />
+                        </Link>
+                        <a href="https://ocultar.dev/docs" className="btn btn-secondary px-8 py-4 text-base">
+                            View Documentation
+                        </a>
                     </div>
-                    <div className="text-2xl opacity-50">→</div>
-                    <div className="w-full lg:w-[30%] border border-black p-8 min-h-[300px] flex flex-col items-center justify-center text-center">
-                        <span className="font-bold mb-4 text-sm">[ EXTERNAL AI ]</span>
-                        <span className="font-tech text-xs text-dim leading-relaxed">Tokenized output <br /> only</span>
+                </div>
+                
+                {/* Visual Placeholder (Could be an image or a simplified diagram) */}
+                <div className="mt-20 max-container w-full">
+                    <div className="card bg-secondary/50 border-dashed border-2 flex items-center justify-center py-20 opacity-80">
+                         <div className="flex flex-col md:flex-row items-center gap-8 text-sm font-bold uppercase tracking-widest text-muted">
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="p-6 bg-white border border-color rounded-2xl shadow-sm text-primary">Raw Input</div>
+                                <span>Sensitive JSON</span>
+                            </div>
+                            <div className="text-2xl">→</div>
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="p-8 bg-black text-white rounded-3xl shadow-xl flex items-center gap-3">
+                                    <Shield className="w-6 h-6 text-green-400" /> REFINERY
+                                </div>
+                                <span className="text-primary">Local SLM Processing</span>
+                            </div>
+                            <div className="text-2xl">→</div>
+                            <div className="flex flex-col items-center gap-4 text-muted">
+                                <div className="p-6 bg-white border border-color rounded-2xl shadow-sm">Vaulted Output</div>
+                                <span>Tokenized Data</span>
+                            </div>
+                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* 3. WHY THIS EXISTS */}
-            <section className="py-20 border-l-[6px] border-black pl-8 space-y-10 border-b border-black">
-                <h2 className="text-4xl md:text-6xl font-bold tracking-tighter leading-[0.9] font-hero">
-                    EVERY AI REQUEST LEAKS CONTEXT. <br />LOGS. PROMPTS. METADATA.
-                </h2>
-                <div className="bg-black text-white px-6 py-3 inline-block font-tech text-md md:text-lg">
-                    We remove the risk surface entirely.
-                </div>
-                <ul className="font-tech text-xs space-y-4 pt-4 uppercase tracking-tight opacity-80">
-                    <li key="why1" className="flex items-center gap-3"><span>[✓]</span> NO SAAS DEPENDENCY</li>
-                    <li key="why2" className="flex items-center gap-3"><span>[✓]</span> NO EXTERNAL TRUST BOUNDARY</li>
-                    <li key="why3" className="flex items-center gap-3"><span>[✓]</span> NO PROBABILISTIC COMPLIANCE</li>
-                </ul>
-            </section>
-
-            {/* 4. SYSTEM STREAMS */}
-            <section className="py-20 space-y-12 border-b border-black">
-                <div className="flex justify-between items-end border-b border-black pb-4">
-                    <h2 className="text-2xl font-bold uppercase font-hero">System Streams</h2>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="space-y-8">
-                        <TerminalBlock
-                            title="SYS::DATA_REFINEMENT_ENGINE"
-                            content={`> INIT TIER_0_SHIELD ... OK\n> LOAD REGEX_HEURISTICS ... OK\n> MOUNT NLP_NER_MODEL ... OK\n> MOUNT LOCAL_SLM ... OK\n\nSTATUS:\n- Sub-ms latency enforcement\n- Obfuscation resistance: ACTIVE`}
-                        />
-                        <TerminalBlock
-                            title="SYS::SOMBRA_GATEWAY"
-                            content={`> BIND :8080 (HTTP/PROXY)\n> BIND :514 (SYSLOG)\n> ROUTING TABLE LOADED\n\nPOLICY:\n- Fail-Closed default\n- Multi-model balancing: ACTIVE`}
-                        />
+            {/* Core Capabilities */}
+            <section className="section-padding bg-secondary border-y border-color">
+                <div className="max-container space-y-16">
+                    <div className="text-center space-y-4">
+                        <h2 className="text-primary font-bold">Engineered for Sovereignty</h2>
+                        <p className="max-w-2xl mx-auto text-lg">Every capability maps directly to a hardened security requirement in our core engine.</p>
                     </div>
-                    <div className="space-y-8">
-                        <TerminalBlock
-                            isDark={true}
-                            title="PROOF OF TRANSFORMATION"
-                            content={`# INTERCEPTED INPUT\nPAYLOAD: "User John Doe, SSN 123-45-6789 requested access."\n\n# REFINEMENT EXECUTED (2.4ms)\nMATCH: [Name] -> John Doe\nMATCH: [SSN] -> ***-**-6789\n\n# EGRESS PAYLOAD\nOUTPUT: "User [PERSON_001], SSN [TOKEN_002] requested access."\n\n# VAULT STATE (LOCAL DUCKDB)\nMAP: PERSON_001 <-> John Doe\nMAP: TOKEN_002 <-> 123-45-6789 (Encrypted)`}
-                            className="min-h-[350px]"
-                        />
-                        <TerminalBlock
-                            title="SYS::GOVERNANCE"
-                            content={`AUDIT LOG TAIL:\n[2026-03-19T07:34:11Z] PII_REDACT req_id=992a action=vault\n[2026-03-19T07:34:12Z] POLICY_EVAL req_id=992b result=pass\n[2026-03-19T07:34:15Z] REGULATORY_MAP GDPR=pass HIPAA=pass`}
-                        />
-                    </div>
-                </div>
-            </section>
-
-            {/* 5. VALUE REALIZATION */}
-            <section id="roi" className="py-20 space-y-12 border-b border-black">
-                <div className="flex justify-between items-end border-b border-black pb-4">
-                    <h2 className="text-2xl font-bold uppercase font-hero">Value Realization</h2>
-                    <span className="mono-label tracking-widest text-[9px]">Live_Telemetry</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-6">
-                        <p className="font-tech text-sm text-dim leading-relaxed">
-                            Real-time quantification of capital retention achieved via zero-egress architecture.
-                            This logic bypasses external API taxation by executing SLM-based PII refinement within your local security perimeter.
-                        </p>
-                        <div className="flex gap-4">
-                            <div className="border border-black px-4 py-2 font-tech text-[10px] uppercase">Vector: Local_Refine</div>
-                            <div className="border border-black px-4 py-2 font-tech text-[10px] uppercase">Status: Zero_Egress</div>
+                    
+                    <div className="feature-grid">
+                        <div className="card space-y-6">
+                            <div className="w-12 h-12 bg-black/5 rounded-xl flex items-center justify-center">
+                                <Lock className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl">Zero-Egress Processing</h3>
+                            <p className="text-sm">Processes all PII redaction within your local security perimeter. Your raw data never crosses a network boundary to a 3rd party API.</p>
                         </div>
-                    </div>
-                    <ROIDashboardCard />
-                </div>
-            </section>
-
-            {/* 6. DEPLOYMENT MODES */}
-            <section className="py-20 space-y-12 border-b border-black">
-                <div className="flex justify-between items-center border-b border-black pb-4">
-                    <h2 className="text-2xl font-bold uppercase font-hero">Deployment Modes</h2>
-                    <span className="mono-label">config_blocks.yml</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-black">
-                    <div key="community" className="p-8 border-r border-black space-y-4">
-                        <span className="font-bold text-xs uppercase">[ Community ]</span>
-                        <ul className="font-tech text-[10px] space-y-1 text-dim">
-                            <li key="c1">- local binary</li><li key="c2">- duckdb</li><li key="c3">- http proxy</li>
-                        </ul>
-                    </div>
-                    <div key="sombra" className="p-8 border-r border-black bg-black text-white space-y-4">
-                        <span className="font-bold text-xs uppercase">[ Sombra ]</span>
-                        <ul className="font-tech text-[10px] space-y-1 opacity-70">
-                            <li key="s1">- gateway</li><li key="s2">- connectors</li><li key="s3">- advanced routing</li>
-                        </ul>
-                    </div>
-                    <div key="enterprise" className="p-8 space-y-4">
-                        <span className="font-bold text-xs uppercase">[ Enterprise ]</span>
-                        <ul className="font-tech text-[10px] space-y-1 text-dim">
-                            <li key="e1">- postgres vaulting</li><li key="e2">- rbac / sso</li><li key="e3">- risk matrix monitoring</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            {/* 7. QUANTIFY RISK */}
-            <section className="py-20 space-y-12 border-b border-black">
-                <div className="text-center max-w-2xl mx-auto space-y-4">
-                    <h2 className="text-3xl font-bold uppercase font-hero">Quantify Risk</h2>
-                    <p className="text-dim font-tech text-xs">Compute estimated annual exposure based on current AI integration scale.</p>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-black">
-                    <div className="p-8 space-y-8 border-b lg:border-b-0 lg:border-r border-black">
-                        <div className="space-y-4">
-                            <label className="mono-label block text-[10px]">Monthly AI/API Requests</label>
-                            <input type="number" value={apiUsage} onChange={(e) => setApiUsage(Number(e.target.value))} className="w-full border border-black p-2 font-tech text-sm bg-transparent outline-none focus:bg-white" />
+                        
+                        <div className="card space-y-6">
+                            <div className="w-12 h-12 bg-black/5 rounded-xl flex items-center justify-center">
+                                <Zap className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl">Multi-Layer Detection</h3>
+                            <p className="text-sm">Leverages a high-speed deterministic regex pipeline paired with a deep-scan Local SLM for contextual semantic entity recognition.</p>
                         </div>
-                        <div className="space-y-4">
-                            <label className="mono-label block text-[10px]">PII Exposure Probability (%)</label>
-                            <input type="number" value={piiPercent} onChange={(e) => setPiiPercent(Number(e.target.value))} className="w-full border border-black p-2 font-tech text-sm bg-transparent outline-none focus:bg-white" />
+                        
+                        <div className="card space-y-6">
+                            <div className="w-12 h-12 bg-black/5 rounded-xl flex items-center justify-center">
+                                <Shield className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl">Fail-Closed Security</h3>
+                            <p className="text-sm">Guaranteed protection. If the refinery engine or proxy encounter an error, all data egress is automatically blocked to prevent leaks.</p>
                         </div>
-                        <div className="space-y-4">
-                            <label className="mono-label block text-[10px]">Estimated Compliance Risk Cost (Per Record)</label>
-                            <input type="number" value={riskCost} onChange={(e) => setRiskCost(Number(e.target.value))} className="w-full border border-black p-2 font-tech text-sm bg-transparent outline-none focus:bg-white" />
-                        </div>
-                    </div>
-                    <div className="bg-white p-8 flex flex-col justify-center space-y-6">
-                        <div className="space-y-1">
-                            <span className="mono-label text-[10px]">Estimated Annual Risk</span>
-                            <div className="text-3xl font-bold tabular-nums text-red-600">{formatCurrency(baseExposure)}</div>
-                        </div>
-                        <div className="space-y-1">
-                            <span className="mono-label text-[10px]">Projected Savings (OCULTAR)</span>
-                            <div className="text-3xl font-bold tabular-nums text-green-600">{formatCurrency(ocultarSavings)}</div>
+                        
+                        <div className="card space-y-6">
+                            <div className="w-12 h-12 bg-black/5 rounded-xl flex items-center justify-center">
+                                <BarChart3 className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl">High-Density Scaling</h3>
+                            <p className="text-sm">Built for enterprise workloads. A parallelized refinery engine capable of processing gigabyte-scale data ingestion without bottlenecking.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* 8. INITIALIZE DEPLOYMENT */}
-            <section id="pilot" className="py-24 border-t border-black space-y-16">
-                <h2 className="text-center text-4xl font-bold uppercase tracking-tight font-hero">Initialize Deployment</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="border border-black p-8 space-y-6 bg-white/40">
-                        <div className="space-y-2">
-                            <h3 className="font-bold uppercase text-sm">Community / Self-Serve</h3>
-                            <p className="text-[10px] text-dim leading-relaxed">Download binary. Run locally in minutes. DuckDB included.</p>
+            {/* ROI Calculator Section */}
+            <section id="roi" className="section-padding">
+                <div className="max-container">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div className="space-y-8">
+                            <h2 className="text-primary">Quantify Your Exposure</h2>
+                            <p className="text-lg">
+                                Use our calculator to estimate your annual financial risk based on PII exposure probability and industry compliance benchmarks.
+                            </p>
+                            
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-muted">Monthly AI/API Requests</label>
+                                    <input 
+                                        type="number" 
+                                        value={apiUsage} 
+                                        onChange={(e) => setApiUsage(Number(e.target.value))} 
+                                        className="w-full bg-secondary border border-color p-4 rounded-xl outline-none focus:border-black transition-colors"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-muted">PII Exposure Probability (%)</label>
+                                    <input 
+                                        type="number" 
+                                        value={piiPercent} 
+                                        onChange={(e) => setPiiPercent(Number(e.target.value))} 
+                                        className="w-full bg-secondary border border-color p-4 rounded-xl outline-none focus:border-black transition-colors"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-muted">Est. Risk Cost (Per Record)</label>
+                                    <input 
+                                        type="number" 
+                                        value={riskCost} 
+                                        onChange={(e) => setRiskCost(Number(e.target.value))} 
+                                        className="w-full bg-secondary border border-color p-4 rounded-xl outline-none focus:border-black transition-colors"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="card bg-secondary/30 p-6">
+                                    <div className="text-xs font-bold text-muted uppercase mb-1">Annual Risk</div>
+                                    <div className="text-2xl font-bold text-red-600">{formatCurrency(baseExposure)}</div>
+                                </div>
+                                <div className="card bg-secondary/30 p-6">
+                                    <div className="text-xs font-bold text-muted uppercase mb-1">OCULTAR Savings</div>
+                                    <div className="text-2xl font-bold text-green-600">{formatCurrency(ocultarSavings)}</div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="font-tech text-xs pt-4 border-t border-black/10">{`> curl -sL https://ocultar.dev/install | bash`}</div>
-                    </div>
-                    <div className="border border-black p-8 space-y-6 bg-white/40">
-                        <div className="space-y-2">
-                            <h3 className="font-bold uppercase text-sm">Enterprise Pilot</h3>
-                            <p className="text-[10px] text-dim leading-relaxed">Deploy in your infra in &lt;48h. Measure ROI + risk reduction.</p>
+                        
+                        <div className="space-y-6">
+                            <div className="text-xs font-bold uppercase tracking-[0.2em] text-muted mb-4">Real-Time Verification</div>
+                            <ROIDashboardCard />
                         </div>
-                        <div className="font-tech text-xs pt-4 border-t border-black/10">{`> request_deployment --guided`}</div>
                     </div>
                 </div>
             </section>
 
-            {/* 9. DEVELOPER ENTRY */}
-            <section className="py-20 space-y-8">
-                <div className="flex justify-between items-end border-b border-black pb-4">
-                    <h2 className="text-2xl font-bold uppercase font-hero">Developer Entry</h2>
-                    <span className="mono-label">api::v1</span>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <TerminalBlock
-                        title="Proxy Integration"
-                        isDark={true}
-                        content={`curl -x http://localhost:8080 \\\n  -d "My name is John Doe" \\\n  https://api.openai.com/v1/completions`}
-                    />
-                    <TerminalBlock
-                        title="Response Header"
-                        content={`HTTP/1.1 200 OK\nX-Ocultar-Refined: true\nX-Ocultar-Latency: 2.1ms\n\n{"refined_payload": "My name is [PERSON_1]"}`}
-                    />
+            {/* Final CTA */}
+            <section className="section-padding bg-black text-white">
+                <div className="max-container text-center space-y-8">
+                    <h2 className="text-white">Ready for Technical Sovereignty?</h2>
+                    <p className="text-lg opacity-80 max-w-2xl mx-auto">
+                        Deploy Ocultar in your infrastructure in minutes. Download our open-core binary or request a guided enterprise pilot.
+                    </p>
+                    <div className="flex flex-col md:flex-row gap-4 justify-center pt-8">
+                        <button className="btn bg-white text-black px-12 py-5 text-lg font-bold">
+                            Initialize Deployment
+                        </button>
+                        <Link to="/risk-assessment" className="btn btn-secondary border-white/20 hover:border-white text-white px-12 py-5 text-lg">
+                            Run Pilot Test
+                        </Link>
+                    </div>
                 </div>
             </section>
         </div>

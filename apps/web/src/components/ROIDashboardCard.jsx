@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Shield, Zap, TrendingUp, Activity } from 'lucide-react';
 
 const ROIDashboardCard = () => {
-    const [data, setData] = useState({ savings: 0, vault_entries: 0, status: 'offline', name: 'Standard_Mode' });
+    const [data, setData] = useState({ savings: 0, vault_entries: 0, status: 'offline', name: 'Standard Refinery' });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -15,7 +16,7 @@ const ROIDashboardCard = () => {
                         savings: result.savings || 0,
                         vault_entries: result.vault_entries || 0,
                         status: 'online',
-                        name: result.name || 'Standard_Mode'
+                        name: result.name || 'Standard Refinery'
                     });
                 }
             } catch (error) {
@@ -39,37 +40,49 @@ const ROIDashboardCard = () => {
         }).format(val);
 
     return (
-        <div className="border border-black bg-white p-6 space-y-4 relative overflow-hidden group">
+        <div className="card space-y-6 relative overflow-hidden group border-none shadow-2xl shadow-black/5 bg-white/80 backdrop-blur-xl">
             {/* Status Indicator */}
-            <div className="absolute top-4 right-4 flex items-center gap-2">
-                <div className={`w-1.5 h-1.5 rounded-full ${data.status === 'online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-                <span className="font-tech text-[8px] uppercase tracking-widest text-dim">
-                    {data.status === 'online' ? 'Live_Sync' : 'API_Offline'}
+            <div className="absolute top-6 right-6 flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${data.status === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted">
+                    {data.status === 'online' ? 'Live Telemetry' : 'Sync Error'}
                 </span>
             </div>
 
-            <div className="space-y-1">
-                <h3 className="font-tech text-[10px] uppercase text-dim tracking-widest italic">{loading ? "Capital_Retention_Metric" : data.name}</h3>
-                <div className="text-4xl font-bold tracking-tighter tabular-nums">
+            <div className="space-y-2">
+                <h3 className="text-xs font-bold uppercase text-muted tracking-widest flex items-center gap-2">
+                    <Activity className="w-3 h-3" /> {loading ? "Syncing..." : data.name}
+                </h3>
+                <div className="text-5xl font-bold tracking-tighter tabular-nums text-primary">
                     {loading ? "---" : formatCurrency(data.savings)}
                 </div>
+                <p className="text-sm font-medium text-secondary">Capital retention via zero-egress architecture.</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 border-t border-black/10 pt-4">
+            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-color/40">
                 <div className="space-y-1">
-                    <span className="font-tech text-[9px] uppercase text-dim block">Vault_Interactions</span>
-                    <span className="font-bold text-sm tabular-nums">
-                        {loading ? "..." : data.vault_entries.toLocaleString()}
-                    </span>
+                    <span className="text-[10px] font-bold uppercase text-muted block">Vault Interactions</span>
+                    <div className="flex items-center gap-2">
+                        <Shield className="w-4 h-4 text-primary" />
+                        <span className="font-bold text-lg tabular-nums">
+                            {loading ? "..." : data.vault_entries.toLocaleString()}
+                        </span>
+                    </div>
                 </div>
-                <div className="space-y-1 text-right">
-                    <span className="font-tech text-[9px] uppercase text-dim block">Efficiency_Rate</span>
-                    <span className="font-bold text-sm text-green-600">99.98%</span>
+                <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase text-muted block">Efficiency Rate</span>
+                    <div className="flex items-center gap-2 text-emerald-600">
+                        <TrendingUp className="w-4 h-4" />
+                        <span className="font-bold text-lg">99.98%</span>
+                    </div>
                 </div>
             </div>
 
-            <div className="bg-black/5 p-3 font-tech text-[9px] text-dim leading-relaxed border-l-2 border-black">
-                [SYS_MSG]: Native SLM refinement and deterministic vaulting have neutralized {data.vault_entries.toLocaleString()} external egress vectors this cycle.
+            <div className="bg-secondary/50 p-4 rounded-xl text-xs font-medium text-secondary leading-relaxed border border-color/40 flex gap-3">
+                 <Zap className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                 <div>
+                    Native SLM refinement and deterministic vaulting have neutralized {data.vault_entries.toLocaleString()} egress vectors this cycle.
+                 </div>
             </div>
         </div>
     );
