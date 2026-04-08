@@ -1506,9 +1506,83 @@ const htmlTemplate = `<!DOCTYPE html>
     </div>
 
     <div class="section">
-      <h2>AI Usage Recommendation</h2>
-      <p style="margin-bottom:12px;"><strong>Decision:</strong> {{.Risk.AI.Status}}</p>
-      <blockquote>{{.Risk.AI.Recommendation}}</blockquote>
+      <h2>Technical Metrics — Interpreted</h2>
+      <div style="margin-bottom:20px;">
+        <strong>K-Anonymity Score: {{.Risk.KAnonymity}}</strong><br>
+        <p style="font-size:12px; color:var(--muted); margin-top:4px;">{{.Risk.KAnonymityInterpretation}}</p>
+      </div>
+      <div>
+        <strong>L-Diversity Score: {{.Risk.LDiversity}}</strong><br>
+        <p style="font-size:12px; color:var(--muted); margin-top:4px;">{{.Risk.LDiversityInterpretation}}</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Financial Exposure — Three-Pillar VaR Model</h2>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:16px;">This model anchors technical risk scores to industry breach benchmarks (IBM/Ponemon) to simulate potential Value at Risk (VaR). All figures are projected ranges.</p>
+      <table>
+        <thead>
+          <tr><th>Pillar / Component</th><th>Methodology</th><th style="text-align:right">Min Est. (€)</th><th style="text-align:right">Max Est. (€)</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Regulatory Exposure</strong></td>
+            <td>Simulation anchors (€10k-€100k) × Score</td>
+            <td style="text-align:right">{{printf "%.0f" .Risk.Exposure.RegulatoryExposureMin}}</td>
+            <td style="text-align:right">{{printf "%.0f" .Risk.Exposure.RegulatoryExposureMax}}</td>
+          </tr>
+          <tr>
+            <td><strong>2. Operational Cost</strong></td>
+            <td>Industry benchmarks (€100-€300/record)</td>
+            <td style="text-align:right">{{printf "%.0f" .Risk.Exposure.OperationalCostMin}}</td>
+            <td style="text-align:right">{{printf "%.0f" .Risk.Exposure.OperationalCostMax}}</td>
+          </tr>
+          <tr>
+            <td><strong>3. Risk Multiplier</strong></td>
+            <td>Profile-driven tiering (K/L profile)</td>
+            <td style="text-align:right">{{printf "%.1f" .Risk.Exposure.RiskMultiplierMin}}×</td>
+            <td style="text-align:right">{{printf "%.1f" .Risk.Exposure.RiskMultiplierMax}}×</td>
+          </tr>
+          <tr style="background:var(--bg); font-weight:700;">
+            <td colspan="2">TOTAL VALUE AT RISK (SIMULATED RANGE)</td>
+            <td style="text-align:right">€{{printf "%.0f" .Risk.Exposure.VaRMin}}</td>
+            <td style="text-align:right; color:var(--critical);">€{{printf "%.0f" .Risk.Exposure.VaRMax}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:11px; color:var(--muted); margin-top:12px; line-height:1.4;">{{.Risk.Exposure.AssumptionsNote}}</p>
+    </div>
+
+    <div class="section">
+      <h2>AI & LLM Exposure Assessment</h2>
+      <table>
+        <thead><tr><th>Parameter</th><th>Assessment / Guidance</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Decision</strong></td><td style="font-weight:700; color:{{if eq .Risk.AI.Status "ALLOW"}}var(--low){{else}}var(--critical){{end}};">{{.Risk.AI.Status}}</td></tr>
+          <tr><td><strong>External LLM API Safety</strong></td><td>{{.Risk.AI.LLMExposure}} Risk Profile</td></tr>
+          <tr><td><strong>Vector DB / RAG Indexing</strong></td><td>{{if .Risk.AI.RAGSafe}}✅ Estimated safe for indexing{{else}}🚫 Sanitisation required before indexing{{end}}</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:16px; font-size:12px; border-left:4px solid var(--accent); padding-left:16px; color:var(--muted);">
+        <strong>RAG Guidance:</strong> {{.Risk.AI.RAGGuidance}}
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Before / After Impact Simulation</h2>
+      <table>
+        <thead><tr><th>Metric</th><th>{{.Before.Label}}</th><th>{{.After.Label}}</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Risk Level</strong></td><td><span class="badge badge-critical">{{.Before.RiskLevel}}</span></td><td><span class="badge badge-low">{{.After.RiskLevel}}</span></td></tr>
+          <tr><td><strong>Risk Score</strong></td><td>{{.Before.RiskScore}}</td><td>{{.After.RiskScore}}</td></tr>
+          <tr><td><strong>VaR Range</strong></td><td>{{.Before.VaRRange}}</td><td>{{.After.VaRRange}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Structured Remediation Plan</h2>
+      <div style="font-size:13px; color:var(--text); white-space:pre-wrap; line-height:1.6;">{{.Risk.Recommendation}}</div>
     </div>
 
     <div class="footer">
