@@ -1,0 +1,6 @@
+[
+  {"name": "Alice", "email": "alice@example.com", "region": "North", "dept": "HR", "age_group": "30-40", "iban": "FR123", "salary": 50000},
+  {"name": "Bob", "email": "bob@example.com", "region": "South", "dept": "IT", "age_group": "20-30", "iban": "FR456", "salary": 60000},
+  {"name": "Charlie", "email": "charlie@example.com", "region": "North", "dept": "HR", "age_group": "30-40", "iban": "FR789", "salary": 70000},
+  {"name": "David", "email": "david@example.com", "region": "East", "dept": "Sales", "age_group": "40-50", "iban": "FR012", "salary": 80000}
+]

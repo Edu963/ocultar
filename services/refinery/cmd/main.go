@@ -1257,7 +1257,7 @@ func buildScenarios(r audit.RiskReport) (scenarioSummary, scenarioSummary) {
 		RiskScore: fmt.Sprintf("%.1f – %.1f / 10 (projected)", afterScoreMin, afterScoreMax),
 		VaRRange: fmt.Sprintf("€%.0f – €%.0f (projected residual)", afterVaRMin, afterVaRMax),
 		AIStatus: "ALLOW",
-		Description: "After OCULTAR tokenization and format-preserving encryption pipeline. Direct identifiers are removed.",
+		Description: "After OCULTAR tokenization and format-preserving encryption pipeline. Direct identifiers are removed and re-identification risk is significantly reduced (though not mathematically eliminated).",
 	}
 	return before, after
 }
@@ -1297,9 +1297,9 @@ const mdTemplate = `# OCULTAR Data Risk Assessment Report
 > **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
 > **Compliance Likelihood: ✅ Meets Common Pseudonymization Thresholds**{{end}}
 
-The dataset identified in this report contains an estimated **{{.Risk.ViolatingRecords}} records** that fall below commonly cited EU pseudonymization thresholds. In its current state, this data **{{if .Risk.IsGDPRPseudonymized}}satisfies commonly cited thresholds for use{{else}}presents elevated risk for use{{end}} with external AI systems and LLM APIs** without prior sanitisation.
+The dataset identified in this report contains an estimated **{{.Risk.ViolatingRecords}} records** that fall below commonly cited EU pseudonymization thresholds. In its current state, this data **{{if .Risk.IsGDPRPseudonymized}}appears to satisfy commonly cited thresholds for use{{else}}presents elevated technical risk for use{{end}} with external AI systems and LLM APIs** without prior sanitisation.
 
-The estimated financial exposure associated with unauthorised disclosure of this dataset is in the range of **€{{printf "%.0f" .Risk.Exposure.VaRMin}} – €{{printf "%.0f" .Risk.Exposure.VaRMax}}** (simulated estimate based on industry breach benchmarks). This range encompasses regulatory exposure modelling, operational incident response costs, and a risk multiplier derived from the dataset's anonymization profile. Actual impact may vary significantly based on enforcement context and organisational factors.
+The estimated financial exposure associated with unauthorised disclosure of this dataset is in the range of **€{{printf "%.0f" .Risk.Exposure.VaRMin}} – €{{printf "%.0f" .Risk.Exposure.VaRMax}}**. This is a **simulated estimate** grounded in the OCULTAR Three-Pillar VaR model, incorporating regulatory simulation anchors, operational incident benchmarks, and a risk multiplier. Actual impact is subject to contextual factors and organisational mitigating controls.
 
 ---
 
@@ -1341,11 +1341,11 @@ The **Value at Risk (VaR)** range below is computed using a three-component meth
 
 | Component | Methodology | Min Estimate | Max Estimate |
 | :--- | :--- | ---: | ---: |
-| **Regulatory Exposure** | Dataset Risk Score ({{printf "%.2f" .Risk.DatasetRiskScore}}) × anchor range (€10,000–€100,000) | **€{{printf "%.0f" .Risk.Exposure.RegulatoryExposureMin}}** | **€{{printf "%.0f" .Risk.Exposure.RegulatoryExposureMax}}** |
-| **Operational Cost** | €100–€300 × {{.Risk.TotalRecords}} records (industry benchmark range) | **€{{printf "%.0f" .Risk.Exposure.OperationalCostMin}}** | **€{{printf "%.0f" .Risk.Exposure.OperationalCostMax}}** |
-| **Risk Multiplier** | Derived from K={{.Risk.KAnonymity}}, L={{.Risk.LDiversity}} profile | **{{printf "%.1f" .Risk.Exposure.RiskMultiplierMin}}×** | **{{printf "%.1f" .Risk.Exposure.RiskMultiplierMax}}×** |
+| **Regulatory Exposure** | Simulation anchor (€10k–€100k base) × Dataset Risk Score ({{printf "%.2f" .Risk.DatasetRiskScore}}) | **€{{printf "%.0f" .Risk.Exposure.RegulatoryExposureMin}}** | **€{{printf "%.0f" .Risk.Exposure.RegulatoryExposureMax}}** |
+| **Operational Cost** | Industry benchmark (€100–€300/record) × {{.Risk.TotalRecords}} records | **€{{printf "%.0f" .Risk.Exposure.OperationalCostMin}}** | **€{{printf "%.0f" .Risk.Exposure.OperationalCostMax}}** |
+| **Risk Multiplier** | Profile-driven tiering (K={{.Risk.KAnonymity}}, L={{.Risk.LDiversity}}) | **{{printf "%.1f" .Risk.Exposure.RiskMultiplierMin}}×** | **{{printf "%.1f" .Risk.Exposure.RiskMultiplierMax}}×** |
 | | | | |
-| **Total Value at Risk (Estimated)** | | **€{{printf "%.0f" .Risk.Exposure.VaRMin}}** | **€{{printf "%.0f" .Risk.Exposure.VaRMax}}** |
+| **Value at Risk (Estimated)** | **(Regulatory + Operational) × Multiplier** | **€{{printf "%.0f" .Risk.Exposure.VaRMin}}** | **€{{printf "%.0f" .Risk.Exposure.VaRMax}}** |
 
 > **Assumptions & Methodology Note:**
 > {{.Risk.Exposure.AssumptionsNote}}
@@ -1479,8 +1479,8 @@ const htmlTemplate = `<!DOCTYPE html>
     <div class="risk-banner {{.Risk.OverallRiskLevel}}">
       <div class="risk-dial">{{printf "%.1f" .Risk.OverallRiskScore}}</div>
       <div>
-        <h2 style="font-size:18px; margin-bottom:4px;">{{.Risk.OverallRiskLevel}} Risk — {{if .Risk.IsGDPRPseudonymized}}✅ PSEUDONYMIZED{{else}}⚠️ NON-COMPLIANT{{end}}</h2>
-        <p style="font-size:13px; opacity:0.7;">Estimated financial exposure: <strong>€{{printf "%.0f" .Risk.Exposure.VaRMin}} - €{{printf "%.0f" .Risk.Exposure.VaRMax}}</strong></p>
+        <h2 style="font-size:18px; margin-bottom:4px;">{{.Risk.OverallRiskLevel}} Risk — {{if .Risk.IsGDPRPseudonymized}}Pseudonymized (Heuristic Assessment){{else}}Elevated Technical Risk Level{{end}}</h2>
+        <p style="font-size:13px; opacity:0.7;">Estimated Var Range: <strong>€{{printf "%.0f" .Risk.Exposure.VaRMin}} - €{{printf "%.0f" .Risk.Exposure.VaRMax}}</strong></p>
       </div>
     </div>
 

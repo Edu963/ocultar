@@ -10,26 +10,23 @@ import (
 // All figures are simulated estimates based on industry benchmarks and should not be
 // interpreted as legally binding calculations or regulatory determinations.
 type FinancialExposure struct {
-	// Range-based regulatory exposure (simulation anchors, not per-record fines)
+	// Component 1: Regulatory exposure simulation anchors (€10,000–$100,000)
 	RegulatoryExposureMin float64 `json:"regulatory_exposure_min_eur"`
 	RegulatoryExposureMax float64 `json:"regulatory_exposure_max_eur"`
 
-	// Operational cost estimate based on industry breach studies (€100–€300/record)
+	// Component 2: Operational cost estimate based on industry benchmarks (€100–€300/record)
 	OperationalCostMin float64 `json:"operational_cost_min_eur"`
 	OperationalCostMax float64 `json:"operational_cost_max_eur"`
 
-	// Derived risk multiplier range (from K-Anonymity, L-Diversity, PII density)
+	// Component 3: Risk multiplier range derived from K/L profiles
 	RiskMultiplierMin float64 `json:"risk_multiplier_min"`
 	RiskMultiplierMax float64 `json:"risk_multiplier_max"`
 
-	// Final VaR range — primary output for reporting
+	// Final VaR Range (Simulated)
 	VaRMin float64 `json:"var_min_eur"`
 	VaRMax float64 `json:"var_max_eur"`
 
-	// Midpoint kept for backward compatibility with callers expecting a single value
-	TotalVaR float64 `json:"total_var_eur"`
-
-	// Plain-English explanation of methodology and assumptions
+	// Descriptive methodology for defensibility
 	AssumptionsNote string `json:"assumptions_note"`
 }
 
@@ -111,10 +108,10 @@ func computeIdentifiability(k int) CategoryScore {
 		impl = "No quasi-identifier grouping detected. Every record appears fully unique, presenting maximum re-identification risk in an adversarial context."
 	case k == 1:
 		score = 9.5
-		impl = "K=1: Each individual is uniquely identifiable from their quasi-attributes alone. This represents the highest re-identification risk level. Common industry benchmarks suggest K≥3–5 as a minimum for basic pseudonymization."
+		impl = "K=1: Each individual is estimated to be uniquely identifiable from their quasi-attributes alone. This represents a high re-identification risk profile. Common industry benchmarks suggest K≥3–5 for basic anonymization."
 	case k == 2:
 		score = 7.0
-		impl = "K=2: Individuals share attributes with only one other record. This dataset is likely to present a high re-identification risk in external processing scenarios. Industry benchmarks generally recommend K≥3–5 for robust pseudonymization."
+		impl = "K=2: Individuals share attributes with only one other record. This dataset is estimated to present a high re-identification risk in external processing scenarios. Industry benchmarks typically recommend K≥3–5 for robust pseudonymization."
 	case k == 3:
 		score = 4.0
 		impl = "K=3: Meets commonly cited minimum thresholds for statistical pseudonymization. Borderline for most enterprise privacy frameworks; contextual factors apply."
@@ -137,8 +134,8 @@ func computeFinancialSensitivity(sensitiveCount, total int) CategoryScore {
 	score := math.Min(ratio*12, 10)
 	impl := fmt.Sprintf(
 		"An estimated %.0f%% of assessed records contain high-sensitivity attributes (financial identifiers, personal names). "+
-			"Exposure of this dataset in an unprotected context would likely present significant regulatory and operational risk. "+
-			"Subject to contextual factors including jurisdiction, data controller agreements, and processing purpose.",
+			"Exposure of this dataset in an unprotected context would likely present elevated regulatory and operational risk. "+
+			"Risk assessments are subject to contextual factors including jurisdiction, controller agreements, and processing purpose.",
 		ratio*100,
 	)
 	return CategoryScore{Score: score, Label: scoreToLabel(score), Implication: impl}
@@ -174,8 +171,8 @@ func computeComplianceReadiness(isCompliant bool, violating, total int) Category
 		return CategoryScore{
 			Score: 1.5,
 			Label: "LOW",
-			Implication: "Dataset satisfies commonly cited K-Anonymity and L-Diversity thresholds for statistical pseudonymization. " +
-				"This is a technical heuristic simulation and does not constitute a legal determination of regulatory compliance.",
+			Implication: "Dataset appears to satisfy commonly cited K-Anonymity and L-Diversity thresholds for statistical pseudonymization. " +
+				"This is a technical heuristic simulation and does not constitute a legal determination of compliance.",
 		}
 	}
 	ratio := float64(violating) / float64(total)
@@ -183,7 +180,7 @@ func computeComplianceReadiness(isCompliant bool, violating, total int) Category
 	impl := fmt.Sprintf(
 		"An estimated %.0f%% of records (%d/%d) fall below commonly cited minimum pseudonymization thresholds. "+
 			"This dataset presents a high likelihood of non-compliance in external processing scenarios. "+
-			"Regulatory exposure depends on jurisdiction, processing context, and applicable exemptions.",
+			"Actual regulatory exposure depends on jurisdiction, processing context, and applicable exemptions.",
 		ratio*100, violating, total,
 	)
 	return CategoryScore{Score: score, Label: scoreToLabel(score), Implication: impl}
@@ -225,32 +222,29 @@ func computeRiskMultiplier(k, l int) (minMult, maxMult float64) {
 // Component 3 — Risk Multiplier (K/L driven):
 //   K=1 → 1.5–2.0x | K<3 → 1.3–1.5x | else → 1.0–1.2x
 func computeVaRRange(records int, datasetRiskScore float64, k, l int) FinancialExposure {
-	// Pillar 1: Regulatory exposure (simulation anchors)
+	// Pillar 1: Regulatory exposure simulation (anchors, not legal fines)
 	const baseLow = 10_000.0
 	const baseHigh = 100_000.0
 	regMin := datasetRiskScore * baseLow
 	regMax := datasetRiskScore * baseHigh
 
-	// Pillar 2: Operational cost (industry benchmark range)
+	// Pillar 2: Operational cost (industry breach benchmark approximation)
 	const costPerRecordLow = 100.0
 	const costPerRecordHigh = 300.0
 	opMin := float64(records) * costPerRecordLow
 	opMax := float64(records) * costPerRecordHigh
 
-	// Pillar 3: Risk multiplier
+	// Pillar 3: Risk multiplier range
 	multMin, multMax := computeRiskMultiplier(k, l)
 
-	// Final VaR range
+	// Final VaR Formula: (Reg + Op) * Multiplier
 	varMin := (regMin + opMin) * multMin
 	varMax := (regMax + opMax) * multMax
-	midpoint := (varMin + varMax) / 2.0
 
-	note := "This estimate is based on industry breach cost benchmarks (€100–€300/record range from published incident studies) " +
-		"and a regulatory exposure simulation anchor (€10,000–€100,000 base, scaled by dataset risk score). " +
-		"The risk multiplier (range: 1.0×–2.0×) is derived from K-Anonymity and L-Diversity scores. " +
-		"Actual financial impact may vary significantly depending on enforcement context, data controller obligations, " +
-		"jurisdiction, organisational size, and mitigating controls in place. " +
-		"These figures are simulated estimates and do not constitute legal or financial advice."
+	note := "This estimate is based on the OCULTAR Three-Pillar VaR model: (Simulation Anchors + Industry Benchmarks) × Risk Multiplier. " +
+		"Operational costs (€100–€300/record) are derived from published incident studies (e.g., IBM/Ponemon). " +
+		"Regulatory simulation anchors (€10,000–€100,000) are base estimates scaled by the dataset's risk profile. " +
+		"These figures are simulated estimates and do not constitute legal or financial advice. Actual impact depends on enforcement context and organizational mitigating controls."
 
 	return FinancialExposure{
 		RegulatoryExposureMin: regMin,
@@ -261,7 +255,6 @@ func computeVaRRange(records int, datasetRiskScore float64, k, l int) FinancialE
 		RiskMultiplierMax:     multMax,
 		VaRMin:                varMin,
 		VaRMax:                varMax,
-		TotalVaR:              midpoint,
 		AssumptionsNote:       note,
 	}
 }
@@ -284,8 +277,8 @@ func computeAIReadiness(k int, isCompliant bool, sensitiveRatio float64) AIReadi
 	} else {
 		status = "BLOCK"
 		llmExposure = "CRITICAL"
-		ragGuidance = "The current anonymization profile is estimated to be insufficient for secure RAG indexing. Embedding high-density PII (names, identifiers) into a vector database creates permanent, queryable re-identification surfaces. This assessment is based on detected K-Anonymity and L-Diversity levels under industry standard models."
-		rec = "Do not transmit this dataset to any external API or internal AI copilot system without first running the full OCULTAR redaction pipeline. This recommendation is based on a simulated technical risk assessment, not a legal mandate."
+		ragGuidance = "The current anonymization profile is estimated to be insufficient for secure RAG indexing. Embedding high-density PII (names, identifiers) into a vector database creates permanent, queryable re-identification surfaces. This assessment is based on simulated metrics under industry-aligned models."
+		rec = "Do not transmit this dataset to any external API or internal AI copilot system without first running the full OCULTAR sanitisation pipeline. This recommendation is based on a simulated technical risk assessment, not a legal mandate."
 	}
 
 	return AIReadiness{
