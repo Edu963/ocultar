@@ -1,9 +1,9 @@
-import { useState, useRef } from 'react';
-import { Shield, Upload, FileText, Mail, CheckCircle, AlertTriangle, ArrowRight, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Shield, Upload, FileText, AlertTriangle, ArrowRight, Loader2 } from 'lucide-react';
 
 const TerminalBlock = ({ title, content, isDark = false, className = "" }) => (
     <div 
-        className={`terminal-block ${className} p-6 border border-black/10 rounded-lg bg-white/40 backdrop-blur-sm`} 
+        className={`terminal-block ${className} p-6 border border-black/10 bg-white/40 backdrop-blur-sm`} 
         style={isDark ? { backgroundColor: '#000000', color: '#FFFFFF' } : {}}
     >
         {title && (
@@ -39,7 +39,6 @@ export default function RiskAssessmentPage() {
     
     const handleProcess = async () => {
         setLoading(true);
-        // Simulate processing for UX
         await new Promise(r => setTimeout(r, 1500));
         setStep(3);
         setLoading(false);
@@ -79,215 +78,213 @@ export default function RiskAssessmentPage() {
     };
 
     return (
-        <div className="min-h-screen pt-24 pb-20 px-6 font-sans selection:bg-black selection:text-white">
-            <div className="max-w-4xl mx-auto space-y-12">
-                
-                {/* --- HEADER --- */}
-                <div className="space-y-4 text-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black text-white text-[10px] font-tech uppercase tracking-[0.2em] mb-4">
-                        <Shield className="w-3 h-3" /> Pilot Assessment v3.1
-                    </div>
-                    <h1 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase">Test Your Data Risk <br /> in 60 Seconds</h1>
-                    <p className="text-dim max-w-xl mx-auto font-tech text-sm md:text-base">
-                        Upload a sample dataset and see your compliance exposure before using AI tools. 
-                        Stateless processing. No data stored.
-                    </p>
+        <div className="page-wrapper">
+            
+            {/* --- HEADER --- */}
+            <div className="space-y-4 text-center py-12">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white text-[10px] font-tech uppercase tracking-[0.2em] mb-4">
+                    <Shield className="w-3 h-3" /> Pilot Assessment v3.1
                 </div>
+                <h1 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase font-hero">Test Your Data Risk <br /> in 60 Seconds</h1>
+                <p className="text-dim max-w-xl mx-auto font-tech text-sm md:text-base">
+                    Upload a sample dataset and see your compliance exposure before using AI tools. 
+                    Stateless processing. No data stored.
+                </p>
+            </div>
 
-                {/* --- STEPS --- */}
-                <div className="relative">
-                    
-                    {/* STEP 1: LANDING */}
-                    {step === 1 && (
-                        <div className="flex flex-col items-center gap-8 py-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                                {[
-                                    { icon: <Upload className="w-5 h-5" />, title: "Secure Upload", desc: "Small CSV or JSON samples." },
-                                    { icon: <Shield className="w-5 h-5" />, title: "Instant Audit", desc: "Immediate K-Anonymity score." },
-                                    { icon: <FileText className="w-5 h-5" />, title: "Risk Report", desc: "Defensible VaR estimations." }
-                                ].map((item, i) => (
-                                    <div key={i} className="p-6 border border-black/10 rounded-xl bg-white/40 space-y-3">
-                                        <div className="p-2 w-fit rounded-lg bg-black/5">{item.icon}</div>
-                                        <h3 className="font-bold uppercase text-sm">{item.title}</h3>
-                                        <p className="text-xs text-dim leading-relaxed">{item.desc}</p>
-                                    </div>
-                                ))}
-                            </div>
+            {/* --- STEPS --- */}
+            <div className="relative min-h-[400px]">
+                
+                {/* STEP 1: LANDING */}
+                {step === 1 && (
+                    <div className="flex flex-col items-center gap-12 py-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                            {[
+                                { id: "feat-upload", icon: <Upload className="w-5 h-5" />, title: "Secure Upload", desc: "Small CSV or JSON samples." },
+                                { id: "feat-audit", icon: <Shield className="w-5 h-5" />, title: "Instant Audit", desc: "Immediate K-Anonymity score." },
+                                { id: "feat-report", icon: <FileText className="w-5 h-5" />, title: "Risk Report", desc: "Defensible VaR estimations." }
+                            ].map((item) => (
+                                <div key={item.id} className="p-6 border border-black/10 rounded-xl bg-white/40 space-y-3">
+                                    <div className="p-2 w-fit bg-black/5">{item.icon}</div>
+                                    <h3 className="font-bold uppercase text-sm font-hero">{item.title}</h3>
+                                    <p className="text-xs text-dim leading-relaxed">{item.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <button 
+                            onClick={handleStart}
+                            className="group flex items-center gap-3 bg-black text-white px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:scale-105 transition-all"
+                        >
+                            Start Free Assessment <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                    </div>
+                )}
+
+                {/* STEP 2: INPUT */}
+                {step === 2 && (
+                    <div className="space-y-8 animate-in fade-in duration-500">
+                        <div className="flex gap-4 border-b border-black/10 pb-4">
                             <button 
-                                onClick={handleStart}
-                                className="group flex items-center gap-3 bg-black text-white px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:scale-105 transition-all"
+                                onClick={() => setInputType('paste')}
+                                className={`font-tech text-xs uppercase tracking-widest px-4 py-2 transition-all ${inputType === 'paste' ? 'bg-black text-white' : 'hover:bg-black/5'}`}
                             >
-                                Start Free Assessment <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                Option A: Paste Data
+                            </button>
+                            <button 
+                                onClick={() => setInputType('upload')}
+                                className={`font-tech text-xs uppercase tracking-widest px-4 py-2 transition-all ${inputType === 'upload' ? 'bg-black text-white' : 'hover:bg-black/5'}`}
+                            >
+                                Option B: File Upload
                             </button>
                         </div>
-                    )}
 
-                    {/* STEP 2: INPUT */}
-                    {step === 2 && (
-                        <div className="space-y-8 animate-in fade-in duration-500">
-                            <div className="flex gap-4 border-b border-black/10 pb-4">
-                                <button 
-                                    onClick={() => setInputType('paste')}
-                                    className={`font-tech text-xs uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${inputType === 'paste' ? 'bg-black text-white' : 'hover:bg-black/5'}`}
-                                >
-                                    Option A: Paste Data
-                                </button>
-                                <button 
-                                    onClick={() => setInputType('upload')}
-                                    className={`font-tech text-xs uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${inputType === 'upload' ? 'bg-black text-white' : 'hover:bg-black/5'}`}
-                                >
-                                    Option B: File Upload
-                                </button>
-                            </div>
-
-                            <div className="min-h-[300px]">
-                                {inputType === 'paste' ? (
-                                    <div className="space-y-4">
-                                        <textarea 
-                                            value={pastedData}
-                                            onChange={(e) => setPastedData(e.target.value)}
-                                            className="w-full h-64 p-6 font-tech text-xs border border-black/10 rounded-xl bg-white/40 focus:bg-white focus:outline-none focus:ring-2 ring-black/5"
-                                            placeholder='Paste JSON or CSV here...'
-                                        />
-                                        <p className="text-[10px] text-dim font-tech uppercase">Tip: Pre-filled with a leaky employee dataset.</p>
+                        <div className="min-h-[300px]">
+                            {inputType === 'paste' ? (
+                                <div className="space-y-4">
+                                    <textarea 
+                                        value={pastedData}
+                                        onChange={(e) => setPastedData(e.target.value)}
+                                        className="w-full h-64 p-6 font-tech text-xs border border-black/10 bg-white/40 focus:bg-white focus:outline-none focus:ring-2 ring-black/5"
+                                        placeholder='Paste JSON or CSV here...'
+                                    />
+                                    <p className="text-[10px] text-dim font-tech uppercase">Tip: Pre-filled with a leaky employee dataset.</p>
+                                </div>
+                            ) : (
+                                <div className="relative border-2 border-dashed border-black/10 h-64 flex flex-col items-center justify-center p-8 text-center gap-4 bg-white/20 overflow-hidden">
+                                    <Upload className="w-8 h-8 opacity-20" />
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-bold">Drop your file here or <span className="underline cursor-pointer">browse</span></p>
+                                        <p className="text-xs text-dim">Supports .csv, .json, .txt (Max 100KB)</p>
                                     </div>
-                                ) : (
-                                    <div className="border-2 border-dashed border-black/10 rounded-xl h-64 flex flex-col items-center justify-center p-8 text-center gap-4 bg-white/20">
-                                        <Upload className="w-8 h-8 opacity-20" />
-                                        <div className="space-y-1">
-                                            <p className="text-sm font-bold">Drop your file here or <span className="underline cursor-pointer">browse</span></p>
-                                            <p className="text-xs text-dim">Supports .csv, .json, .txt (Max 100KB)</p>
-                                        </div>
-                                        <input 
-                                            type="file" 
-                                            onChange={(e) => setFile(e.target.files[0])}
-                                            className="absolute inset-0 opacity-0 cursor-pointer"
-                                            accept=".csv,.json,.txt"
-                                        />
-                                        {file && <div className="text-xs font-tech bg-black text-white px-3 py-1 rounded-full uppercase">{file.name}</div>}
-                                    </div>
-                                )}
-                            </div>
+                                    <input 
+                                        type="file" 
+                                        onChange={(e) => setFile(e.target.files[0])}
+                                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                        accept=".csv,.json,.txt"
+                                    />
+                                    {file && <div className="relative z-20 text-xs font-tech bg-black text-white px-3 py-1 uppercase">{file.name}</div>}
+                                </div>
+                            )}
+                        </div>
 
-                            <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg flex gap-3">
-                                <AlertTriangle className="w-4 h-4 text-yellow-600 shrink-0" />
-                                <p className="text-[10px] text-yellow-800 uppercase tracking-tight font-tech">
-                                    Disclaimer: Do not upload sensitive or production data. This tool is for demonstration purposes only.
+                        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg flex gap-3">
+                            <AlertTriangle className="w-4 h-4 text-yellow-600 shrink-0" />
+                            <p className="text-[10px] text-yellow-800 uppercase tracking-tight font-tech">
+                                Disclaimer: Do not upload sensitive or production data. This tool is for demonstration purposes only.
+                            </p>
+                        </div>
+
+                        <button 
+                            onClick={handleProcess}
+                            disabled={loading || (inputType === 'upload' && !file)}
+                            className="w-full bg-black text-white py-4 font-tech uppercase text-xs tracking-widest flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Run Risk Analysis'}
+                        </button>
+                    </div>
+                )}
+
+                {/* STEP 3: LEAD GATE */}
+                {step === 3 && (
+                    <div className="max-w-md mx-auto space-y-8 py-12 animate-in fade-in duration-500">
+                        <div className="text-center space-y-2">
+                            <div className="text-red-600 font-tech text-xs uppercase tracking-[0.2em] animate-pulse">Critical Risk Detected</div>
+                            <h2 className="text-2xl font-bold uppercase font-hero">Unlock Full Report</h2>
+                            <p className="text-xs text-dim font-tech">Your analysis is ready. Enter your work details to see the exposure values.</p>
+                        </div>
+
+                        <form onSubmit={handleUnlock} className="space-y-4">
+                            <div className="space-y-1">
+                                <label className="text-[9px] uppercase font-tech text-dim">Work Email</label>
+                                <input 
+                                    type="email" required
+                                    value={email} onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full p-4 border border-black/10 font-tech text-sm focus:outline-none focus:ring-2 ring-black/5 bg-white/40"
+                                    placeholder="you@company.com"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[9px] uppercase font-tech text-dim">Company Name</label>
+                                <input 
+                                    type="text"
+                                    value={company} onChange={(e) => setCompany(e.target.value)}
+                                    className="w-full p-4 border border-black/10 font-tech text-sm focus:outline-none focus:ring-2 ring-black/5 bg-white/40"
+                                    placeholder="Acme Corp"
+                                />
+                            </div>
+                            <button 
+                                className="w-full bg-black text-white py-4 font-tech uppercase text-xs tracking-widest flex items-center justify-center gap-2 disabled:opacity-50"
+                                disabled={loading}
+                            >
+                                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Unlock My Results'}
+                            </button>
+                        </form>
+                    </div>
+                )}
+
+                {/* STEP 4: REPORT PREVIEW */}
+                {step === 4 && report && (
+                    <div className="space-y-8 animate-in fade-in duration-500">
+                        <div className="flex justify-between items-center bg-black text-white p-8">
+                            <div className="space-y-1">
+                                <div className="text-[10px] font-tech uppercase opacity-60">Overall Risk Level</div>
+                                <div className="text-4xl font-bold uppercase tracking-tighter font-hero">{report.overall_risk_level}</div>
+                            </div>
+                            <div className="text-right space-y-1">
+                                <div className="text-[10px] font-tech uppercase opacity-60">Compliance Status</div>
+                                <div className={`text-xs font-bold px-3 py-1 rounded-full uppercase ${report.is_gdpr_pseudonymized ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                                    {report.is_gdpr_pseudonymized ? 'Pseudonymized' : 'Non-Compliant'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="p-8 border border-black/10 bg-white/40 space-y-4">
+                                <h3 className="font-tech text-xs uppercase text-dim">Estimated Financial Exposure</h3>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-3xl font-bold text-red-600 font-hero">€{Math.round(report.financial_exposure.var_min_eur).toLocaleString()} – €{Math.round(report.financial_exposure.var_max_eur).toLocaleString()}</span>
+                                </div>
+                                <p className="text-[10px] text-dim leading-relaxed uppercase font-tech">
+                                    Based on industry breach cost benchmarks and regulatory simulation anchors.
                                 </p>
                             </div>
-
-                            <button 
-                                onClick={handleProcess}
-                                disabled={loading || (inputType === 'upload' && !file)}
-                                className="w-full bg-black text-white py-4 rounded-xl font-tech uppercase text-xs tracking-widest flex items-center justify-center gap-2 disabled:opacity-50"
-                            >
-                                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Run Risk Analysis'}
-                            </button>
+                            
+                            <div className="p-8 border border-black/10 bg-white/40 space-y-4">
+                                <h3 className="font-tech text-xs uppercase text-dim">AI Usage Recommendation</h3>
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 ${report.ai_readiness.status === 'ALLOW' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                        <Shield className="w-5 h-5" />
+                                    </div>
+                                    <span className="font-bold uppercase text-sm font-hero">{report.ai_readiness.status === 'ALLOW' ? 'Safe to Use' : 'Requires Sanitization'}</span>
+                                </div>
+                                <p className="text-xs text-dim leading-relaxed">
+                                    {report.ai_readiness.recommendation}
+                                </p>
+                            </div>
                         </div>
-                    )}
 
-                    {/* STEP 3: LEAD GATE */}
-                    {step === 3 && (
-                        <div className="max-w-md mx-auto space-y-8 py-12 animate-in fade-in duration-500">
-                            <div className="text-center space-y-2">
-                                <div className="text-red-600 font-tech text-xs uppercase tracking-[0.2em] animate-pulse">Critical Risk Detected</div>
-                                <h2 className="text-2xl font-bold uppercase">Unlock Full Report</h2>
-                                <p className="text-xs text-dim font-tech">Your analysis is ready. Enter your work details to see the exposure values.</p>
+                        {/* CONVERSION LAYER */}
+                        <div className="bg-black text-white p-12 text-center space-y-8 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-12 opacity-10">
+                                <Shield className="w-64 h-64" />
                             </div>
-
-                            <form onSubmit={handleUnlock} className="space-y-4">
-                                <div className="space-y-1">
-                                    <label className="text-[9px] uppercase font-tech text-dim">Work Email</label>
-                                    <input 
-                                        type="email" required
-                                        value={email} onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full p-4 border border-black/10 rounded-xl font-tech text-sm focus:outline-none focus:ring-2 ring-black/5"
-                                        placeholder="you@company.com"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[9px] uppercase font-tech text-dim">Company Name</label>
-                                    <input 
-                                        type="text"
-                                        value={company} onChange={(e) => setCompany(e.target.value)}
-                                        className="w-full p-4 border border-black/10 rounded-xl font-tech text-sm focus:outline-none focus:ring-2 ring-black/5"
-                                        placeholder="Acme Corp"
-                                    />
-                                </div>
-                                <button 
-                                    className="w-full bg-black text-white py-4 rounded-xl font-tech uppercase text-xs tracking-widest flex items-center justify-center gap-2 disabled:opacity-50"
-                                    disabled={loading}
-                                >
-                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Unlock My Results'}
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    {/* STEP 4: REPORT PREVIEW */}
-                    {step === 4 && report && (
-                        <div className="space-y-8 animate-in fade-in duration-500">
-                            <div className="flex justify-between items-center bg-black text-white p-8 rounded-2xl">
-                                <div className="space-y-1">
-                                    <div className="text-[10px] font-tech uppercase opacity-60">Overall Risk Level</div>
-                                    <div className="text-4xl font-bold uppercase tracking-tighter">{report.overall_risk_level}</div>
-                                </div>
-                                <div className="text-right space-y-1">
-                                    <div className="text-[10px] font-tech uppercase opacity-60">Compliance Status</div>
-                                    <div className={`text-xs font-bold px-3 py-1 rounded-full uppercase ${report.is_gdpr_pseudonymized ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                                        {report.is_gdpr_pseudonymized ? 'Pseudonymized' : 'Non-Compliant'}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="p-8 border border-black/10 rounded-2xl bg-white/40 space-y-4">
-                                    <h3 className="font-tech text-xs uppercase text-dim">Estimated Financial Exposure</h3>
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-3xl font-bold text-red-600">€{Math.round(report.financial_exposure.var_min_eur).toLocaleString()} – €{Math.round(report.financial_exposure.var_max_eur).toLocaleString()}</span>
-                                    </div>
-                                    <p className="text-[10px] text-dim leading-relaxed uppercase font-tech">
-                                        Based on industry breach cost benchmarks and regulatory simulation anchors.
-                                    </p>
-                                </div>
-                                
-                                <div className="p-8 border border-black/10 rounded-2xl bg-white/40 space-y-4">
-                                    <h3 className="font-tech text-xs uppercase text-dim">AI Usage Recommendation</h3>
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-lg ${report.ai_readiness.status === 'ALLOW' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                            <Shield className="w-5 h-5" />
-                                        </div>
-                                        <span className="font-bold uppercase text-sm">{report.ai_readiness.status === 'ALLOW' ? 'Safe to Use' : 'Requires Sanitization'}</span>
-                                    </div>
-                                    <p className="text-xs text-dim leading-relaxed">
-                                        {report.ai_readiness.recommendation}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* CONVERSION LAYER */}
-                            <div className="bg-black text-white p-12 rounded-3xl text-center space-y-8 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-12 opacity-10">
-                                    <Shield className="w-64 h-64" />
-                                </div>
-                                <div className="relative z-10 space-y-4">
-                                    <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tighter">Get the Full Enterprise Audit</h2>
-                                    <p className="text-dim max-w-xl mx-auto font-tech text-sm">
-                                        This is a preview. The full OCULTAR report includes a detailed compliance mapping, re-identification probability heatmaps, and a multi-stage remediation plan.
-                                    </p>
-                                    <div className="flex flex-col md:flex-row gap-4 justify-center pt-8">
-                                        <a href="mailto:sales@ocultar.dev" className="bg-white text-black px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:scale-105 transition-all">
-                                            Request Full Audit Report
-                                        </a>
-                                        <a href="#pilot" className="border border-white/20 bg-white/5 backdrop-blur-md px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:bg-white/10 transition-all">
-                                            Book Enterprise Demo
-                                        </a>
-                                    </div>
+                            <div className="relative z-10 space-y-4">
+                                <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tighter font-hero">Get the Full Enterprise Audit</h2>
+                                <p className="text-dim max-w-xl mx-auto font-tech text-sm">
+                                    This is a preview. The full OCULTAR report includes a detailed compliance mapping, re-identification probability heatmaps, and a multi-stage remediation plan.
+                                </p>
+                                <div className="flex flex-col md:flex-row gap-4 justify-center pt-8">
+                                    <a href="mailto:sales@ocultar.dev" className="bg-white text-black px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:scale-105 transition-all">
+                                        Request Full Audit Report
+                                    </a>
+                                    <a href="#pilot" className="border border-white/20 bg-white/5 backdrop-blur-md px-8 py-4 rounded-full font-tech uppercase text-xs tracking-widest hover:bg-white/10 transition-all">
+                                        Book Enterprise Demo
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );
