@@ -47,9 +47,10 @@ Use this mode to run the Enterprise refinery locally with the browser dashboard 
 ### Step 1 — Prepare the environment
 
 ```bash
-# Unpack the enterprise archive
-tar -xzf ocultar-enterprise.tar.gz
+# Create a dedicated directory and extract into it
+mkdir ocultar-enterprise
 cd ocultar-enterprise
+tar -xzf ../ocultar-enterprise.tar.gz
 
 # Create your secrets file
 cp .env.example .env
