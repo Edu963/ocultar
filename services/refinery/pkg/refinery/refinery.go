@@ -16,7 +16,6 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	"github.com/Edu963/ocultar/internal/pii"
 	"github.com/Edu963/ocultar/pkg/config"
@@ -348,7 +347,6 @@ func (e *Refinery) processInterfaceRecursive(data interface{}, actor string, pre
 // RefineString is the core logic that orchestrates PII detection tiers (Regex, Dictionaries, SLM) on a single string.
 // Security is mandatory: Tier 2 (AI) is always prioritized if available.
 func (e *Refinery) RefineString(input string, actor string, preScanMap map[string][]string) (string, error) {
-	ProcessTotal.Inc()
 	if len(input) < 3 {
 		return input, nil
 	}
@@ -367,7 +365,6 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	var err error
 
 	// TIER 0.1: Embedded Base64 Evasion Shield
-	t0Start := time.Now()
 	base64Matches := base64Regex.FindAllStringIndex(refined, -1)
 	if len(base64Matches) > 0 {
 		var out strings.Builder
@@ -412,10 +409,8 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 			}
 		}
 	}
-	TierLatency.WithLabelValues("tier0_dictionary").Observe(time.Since(t0Start).Seconds())
 
 	// TIER 1: Centralized Deterministic Pipeline
-	t1Start := time.Now()
 	eng := pii.NewRefinery()
 	if config.Global.AliasMapping != nil {
 		eng.SetMapping(config.Global.AliasMapping)
@@ -437,7 +432,6 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		if overlap {
 			return d.Value, nil
 		}
-		DetectionTotal.WithLabelValues(d.Entity, "tier1_regex").Inc()
 		return e.getOrSetSecureResult(d, actor)
 	})
 	if err != nil {
@@ -450,7 +444,6 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	if strings.ContainsAny(refined, "0123456789") && !e.isFullyTokenised(refined) {
 		var phoneErr error
 		refined, phoneErr = parseAndReplaceWithErr(refined, ParseAndReplacePhonesRaw, func(match string) (string, error) {
-			DetectionTotal.WithLabelValues("PHONE", "tier1_phone").Inc()
 			log.Printf("[DEBUG] Tier 1.1 Phone hit: %s", match)
 			return e.getOrSetSecureToken(match, "PHONE", actor)
 		})
@@ -462,7 +455,6 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 
 	if len(refined) > 10 && (strings.ContainsAny(refined, "0123456789") || containsAnyLower(refined, "rue", "calle", "street", "ave", "road", "str.")) {
 		refined, err = parseAndReplaceWithErr(refined, ParseAndReplaceAddressesRaw, func(match string) (string, error) {
-			DetectionTotal.WithLabelValues("ADDRESS", "tier1_address").Inc()
 			return e.getOrSetSecureToken(match, "ADDRESS", actor)
 		})
 		if err != nil {
@@ -476,7 +468,6 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 			start, end := match[2], match[3]
 			nameStr := refined[start:end]
 			if !strings.HasPrefix(nameStr, "[") {
-				DetectionTotal.WithLabelValues("PERSON", "tier1_greeting").Inc()
 				refined, err = e.applyReplacement(refined, nameStr, "PERSON", actor)
 				if err != nil {
 					return "", err
@@ -485,15 +476,11 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		}
 	}
 
-	TierLatency.WithLabelValues("tier1_deterministic").Observe(time.Since(t1Start).Seconds())
-
 	// TIER 2: SLM NER Scan (Mandatory Phase)
-	t2Start := time.Now()
 	if preScanMap != nil {
 		for piiType, items := range preScanMap {
 			for _, item := range items {
 				if len(strings.TrimSpace(item)) > 2 && strings.Contains(refined, item) {
-					DetectionTotal.WithLabelValues(piiType, "tier2_slm_pre").Inc()
 					refined, err = e.applyReplacement(refined, item, piiType, actor)
 					if err != nil {
 						return "", err
@@ -510,18 +497,14 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 			for _, item := range items {
 				if len(strings.TrimSpace(item)) > 2 {
 					log.Printf("[DEBUG] Tier 2 SLM hit: %s (%s)", item, piiType)
-					DetectionTotal.WithLabelValues(piiType, "tier2_slm").Inc()
 					refined, err = e.applyReplacement(refined, item, piiType, actor)
 					if err != nil {
 						return "", err
 					}
-				} else if len(strings.TrimSpace(item)) > 2 {
-					log.Printf("[DEBUG] Tier 2 SLM skip (not in refined): %s", item)
 				}
 			}
 		}
 	}
-	TierLatency.WithLabelValues("tier2_ai").Observe(time.Since(t2Start).Seconds())
 
 	// TIER 3: Structural Heuristics
 	refined, err = e.applyStructuralHeuristics(refined, actor)
@@ -717,6 +700,12 @@ func (e *Refinery) getOrSetSecureResult(res pii.DetectionResult, actor string) (
 
 	if license.Active.Tier == "enterprise" && !e.DryRun {
 		e.AuditLogger.Log(actor, "vaulted", token, getComplianceMapping(res.Entity))
+	}
+
+	// [PILOT-001] Enforce hard caps on vault entries during pilot trials
+	if e.PilotMode && e.VaultCount.Load() >= 1000 {
+		log.Printf("[WARN] [PILOT-001] Vault entry limit reached (1,000 max). Refusing to store new PII.")
+		return "", fmt.Errorf("pilot trial entry limit reached (1,000 max)")
 	}
 
 	encrypted, encErr := encrypt([]byte(res.Value), e.MasterKey)

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Upload, FileText, AlertTriangle, ArrowRight, Loader2, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Shield, Upload, FileText, AlertTriangle, ArrowRight, Loader2, CheckCircle2, ChevronRight, BarChart3, Activity } from 'lucide-react';
 
 export default function RiskAssessmentPage() {
     const [step, setStep] = useState(1);
@@ -286,7 +286,58 @@ export default function RiskAssessmentPage() {
                                     </div>
                                 </div>
 
-                                {/* 2. TRANSFORMATION TABLE */}
+                                {/* 2. REGULATORY RISK MATRIX */}
+                                <div className="space-y-8">
+                                    <h2 className="text-2xl font-bold flex items-center gap-3">
+                                        <Activity className="w-6 h-6" /> 
+                                        Regulatory Alignment Matrix
+                                    </h2>
+                                    <div className="card overflow-hidden p-0 border-color shadow-sm">
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead>
+                                                    <tr className="bg-secondary/50 border-b border-color">
+                                                        <th className="p-5 text-xs font-bold uppercase tracking-wider text-muted">Field</th>
+                                                        <th className="p-5 text-xs font-bold uppercase tracking-wider text-muted">Governing Regulation</th>
+                                                        <th className="p-5 text-xs font-bold uppercase tracking-wider text-muted">Primary Article</th>
+                                                        <th className="p-5 text-xs font-bold uppercase tracking-wider text-muted">Risk Level</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {report.Risk.regulatory_findings?.map((finding, idx) => (
+                                                        <tr key={idx} className="border-b border-color/40 hover:bg-secondary/20 transition-colors">
+                                                            <td className="p-5 font-mono text-sm font-bold">{finding.attribute}</td>
+                                                            <td className="p-5 text-sm font-medium">{finding.regulation}</td>
+                                                            <td className="p-5 text-sm"><span className="px-2 py-1 bg-secondary rounded font-mono text-[10px]">{finding.article}</span></td>
+                                                            <td className="p-5">
+                                                                <div className={`text-[10px] font-bold uppercase px-2 py-1 rounded inline-flex items-center gap-1 ${
+                                                                    finding.severity === 'HIGH' ? 'bg-red-100 text-red-600' : 
+                                                                    finding.severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-600' : 
+                                                                    'bg-green-100 text-green-600'
+                                                                }`}>
+                                                                    <div className={`w-1 h-1 rounded-full ${
+                                                                        finding.severity === 'HIGH' ? 'bg-red-600' : 
+                                                                        finding.severity === 'MEDIUM' ? 'bg-yellow-600' : 
+                                                                        'bg-green-600'
+                                                                    }`} />
+                                                                    {finding.severity}
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div className="p-5 bg-secondary/10 border-t border-color">
+                                            <p className="text-[11px] text-muted leading-relaxed">
+                                                <strong>Note:</strong> This matrix maps technical entity patterns to specific regulatory frameworks (HIPAA §164.514, GDPR Art 4, etc.). 
+                                                Findings are simulated based on the OCULTAR Regulatory Policy v1.2.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* 3. TRANSFORMATION TABLE */}
                                 <div className="space-y-8">
                                     <h2 className="text-2xl font-bold">Ocultar Transformation Simulation</h2>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-color rounded-2xl overflow-hidden">
@@ -312,7 +363,7 @@ export default function RiskAssessmentPage() {
                                     </div>
                                 </div>
 
-                                {/* 3. REMEDIATION */}
+                                {/* 4. REMEDIATION */}
                                 <div className="card border-yellow-200 bg-yellow-50/50 p-10 space-y-6">
                                     <div className="flex items-center gap-3 text-yellow-800">
                                         <div className="p-3 bg-yellow-100 rounded-xl">
@@ -325,7 +376,7 @@ export default function RiskAssessmentPage() {
                                     </div>
                                 </div>
 
-                                {/* 4. FINAL ACTIONS */}
+                                {/* 5. FINAL ACTIONS */}
                                 <div className="bg-black text-white p-12 rounded-3xl text-center space-y-8 relative overflow-hidden">
                                     <div className="absolute top-0 right-0 p-12 opacity-10">
                                         <Shield className="w-64 h-64" />

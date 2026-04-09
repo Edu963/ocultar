@@ -79,8 +79,19 @@ type RiskReport struct {
 	KAnonymityInterpretation string `json:"k_anonymity_interpretation"`
 	LDiversityInterpretation string `json:"l_diversity_interpretation"`
 
+	// --- Regulatory Matrix ---
+	RegulatoryFindings []RegulatoryFinding `json:"regulatory_findings"`
+
 	// --- Remediation ---
 	Recommendation string `json:"recommendation"`
+}
+
+// RegulatoryFinding maps a detected attribute to its governing regulation.
+type RegulatoryFinding struct {
+	Attribute  string `json:"attribute"`
+	Regulation string `json:"regulation"`
+	Article    string `json:"article"`
+	Severity   string `json:"severity"` // HIGH / MEDIUM / LOW
 }
 
 // scoreToLabel converts a 0–10 numeric score to a qualitative risk label.
@@ -387,7 +398,38 @@ func AnalyzeDatasetRisk(dataset []map[string]interface{}, quasiIdentifiers []str
 		)
 	}
 
-	// 8. Remediation
+	// 8. Regulatory Findings (Mocked for Pilot based on common SA types)
+	findings := []RegulatoryFinding{}
+	for _, sa := range sensitiveAttributes {
+		finding := RegulatoryFinding{Attribute: sa, Severity: "HIGH"}
+		switch strings.ToUpper(sa) {
+		case "NAME", "FIRSTNAME", "LASTNAME":
+			finding.Regulation = "GDPR"
+			finding.Article = "Art. 4(1)"
+			finding.Severity = "MEDIUM"
+		case "EMAIL":
+			finding.Regulation = "GDPR"
+			finding.Article = "Art. 4(1)"
+		case "IBAN", "SWIFT", "CREDIT_CARD", "ACCOUNT":
+			finding.Regulation = "GDPR / PCI-DSS"
+			finding.Article = "Art. 32 / Sec. 3"
+		case "SALARY", "INCOME", "PRICE":
+			finding.Regulation = "GDPR (Financial)"
+			finding.Article = "Art. 6"
+			finding.Severity = "MEDIUM"
+		case "PHONE", "TEL":
+			finding.Regulation = "GDPR"
+			finding.Article = "Art. 4(1)"
+			finding.Severity = "LOW"
+		default:
+			finding.Regulation = "General Privacy"
+			finding.Article = "Best Practice"
+			finding.Severity = "LOW"
+		}
+		findings = append(findings, finding)
+	}
+
+	// 9. Remediation
 	rec := "Dataset satisfies commonly cited K-Anonymity and L-Diversity thresholds for pseudonymization. " +
 		"Periodic re-evaluation is recommended as the dataset grows or as new quasi-identifiers are identified."
 	if !isCompliant {
@@ -416,6 +458,7 @@ func AnalyzeDatasetRisk(dataset []map[string]interface{}, quasiIdentifiers []str
 		AI:                       ai,
 		KAnonymityInterpretation: kInterp,
 		LDiversityInterpretation: lInterp,
+		RegulatoryFindings:      findings,
 		Recommendation:           rec,
 	}
 }
