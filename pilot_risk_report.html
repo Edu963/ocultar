@@ -15,7 +15,7 @@
   body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
   .container { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
   
-   
+  /* Header */
   .report-header { background: var(--text); color: white; padding: 40px; border-radius: 12px; margin-bottom: 32px; position: relative; overflow: hidden; }
   .report-header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 240px; height: 240px; background: rgba(255,255,255,0.04); border-radius: 50%; }
   .report-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
@@ -24,7 +24,7 @@
   .meta-item label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.5; margin-bottom: 2px; }
   .meta-item span { font-size: 13px; font-weight: 500; }
   
-   
+  /* Risk Banner */
   .risk-banner { border-radius: 10px; padding: 24px 28px; margin-bottom: 28px; display: flex; align-items: center; gap: 20px; }
   .risk-banner.CRITICAL { background: #fef2f2; border: 1px solid #fecaca; }
   .risk-banner.HIGH { background: #fff7ed; border: 1px solid #fed7aa; }
@@ -38,18 +38,18 @@
   .risk-banner-text h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
   .risk-banner-text p { font-size: 13px; color: var(--muted); }
   
-   
+  /* Section Blocks */
   .section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px; margin-bottom: 20px; }
   .section h2 { font-size: 15px; font-weight: 700; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
   .section h3 { font-size: 13px; font-weight: 600; margin: 16px 0 8px; }
   
-   
+  /* Table Styles */
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { text-align: left; padding: 10px 12px; background: var(--bg); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); border-bottom: 1px solid var(--border); }
   td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
   tr:last-child td { border-bottom: none; }
   
-   
+  /* Badges */
   .badge { display: inline-block; padding: 2px 9px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
   .badge-critical { background: #fef2f2; color: var(--critical); }
   .badge-high { background: #fff7ed; color: var(--high); }
@@ -59,7 +59,7 @@
   .badge-sanitize { background: #fffbeb; color: var(--medium); }
   .badge-allow { background: #f0fdf4; color: var(--low); }
   
-   
+  /* Progress Bars */
   .score-bar-wrap { display: flex; align-items: center; gap: 10px; }
   .score-bar { height: 6px; border-radius: 3px; background: #e2e8f0; flex: 1; }
   .score-bar-fill { height: 100%; border-radius: 3px; }
@@ -68,7 +68,7 @@
   .fill-medium { background: var(--medium); }
   .fill-low { background: var(--low); }
   
-   
+  /* Scenarios */
   .scenario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .scenario-card { border-radius: 8px; padding: 20px; }
   .scenario-before { background: #fef2f2; border: 1px solid #fecaca; }
@@ -80,16 +80,16 @@
   .scenario-before h3 { color: var(--critical); }
   .scenario-after h3 { color: var(--low); }
   
-   
+  /* VaR Pillar Row */
   .var-total td { font-weight: 700; font-size: 15px; background: #f8fafc; }
   
-   
+  /* Steps */
   .step { display: flex; gap: 12px; margin-bottom: 14px; }
   .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .step-body strong { display: block; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
   .step-body p { font-size: 12px; color: var(--muted); }
   
-   
+  /* Buttons & Utilities */
   .print-btn { position: fixed; bottom: 28px; right: 28px; background: var(--accent); color: white; border: none; border-radius: 8px; padding: 12px 20px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(30,64,175,0.3); display: flex; align-items: center; gap: 8px; }
   .print-btn:hover { background: #1d4ed8; }
   @media print {
@@ -110,7 +110,7 @@
 
   <div class="confidential">⚠️ CONFIDENTIAL — For Authorised Recipients Only. Report ID: OCU-A106A2FF</div>
 
-  
+  <!-- Header -->
   <div class="report-header">
     <h1>OCULTAR Data Risk Assessment</h1>
     <div class="subtitle">Enterprise Compliance &amp; AI Exposure Report</div>
@@ -124,7 +124,7 @@
     </div>
   </div>
 
-  
+  <!-- Risk Banner -->
   <div class="risk-banner CRITICAL">
     <div class="risk-dial">9.8</div>
     <div class="risk-banner-text">
@@ -134,7 +134,7 @@
     </div>
   </div>
 
-  
+  <!-- Risk Scorecard -->
   <div class="section">
     <h2>Risk Scorecard</h2>
     <table>
@@ -188,7 +188,52 @@
     </table>
   </div>
 
-  
+  <!-- Regulatory Matrix -->
+  <div class="section">
+    <h2>Regulatory Alignment Matrix</h2>
+    <p style="margin-bottom: 20px; font-size: 12px; color: var(--muted);">This matrix maps technical entity patterns detected in your dataset to specific regulatory frameworks as identified by the OCULTAR Regulatory Policy v1.2.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Governing Regulation</th>
+          <th>Primary Article</th>
+          <th>Risk Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-family: monospace; font-weight: 700;">NAME</td>
+          <td>GDPR</td>
+          <td><code style="font-size: 10px;">Art. 4(1)</code></td>
+          <td><span class="badge badge-medium">MEDIUM</span></td>
+        </tr>
+        <tr>
+          <td style="font-family: monospace; font-weight: 700;">EMAIL</td>
+          <td>GDPR</td>
+          <td><code style="font-size: 10px;">Art. 4(1)</code></td>
+          <td><span class="badge badge-critical">HIGH</span></td>
+        </tr>
+        <tr>
+          <td style="font-family: monospace; font-weight: 700;">IBAN</td>
+          <td>GDPR / PCI-DSS</td>
+          <td><code style="font-size: 10px;">Art. 32 / Sec. 3</code></td>
+          <td><span class="badge badge-critical">HIGH</span></td>
+        </tr>
+        <tr>
+          <td style="font-family: monospace; font-weight: 700;">SALARY</td>
+          <td>GDPR (Financial)</td>
+          <td><code style="font-size: 10px;">Art. 6</code></td>
+          <td><span class="badge badge-medium">MEDIUM</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <blockquote style="margin-top: 20px;">
+      <strong>Audit Interpretation:</strong> Findings indicate multiple high-severity violations of data minimization principles. Exposure of these fields in plaintext constitutes a material breach of GDPR Article 32 (Security of Processing).
+    </blockquote>
+  </div>
+
+  <!-- Statistics -->
   <div class="section">
     <h2>Technical Metrics — Interpreted</h2>
     <h3>K-Anonymity (Score: 1)</h3>
@@ -199,7 +244,7 @@
     <blockquote>Regulatory Threshold: L ≥ 2 required to mitigate homogeneity attacks per ISO/IEC 29101.</blockquote>
   </div>
 
-  
+  <!-- Financial Model -->
   <div class="section">
     <h2>Financial Exposure — Three-Pillar VaR Model</h2>
     <table>
@@ -213,7 +258,7 @@
     </table>
   </div>
 
-  
+  <!-- AI Risk -->
   <div class="section">
     <h2>AI &amp; LLM Exposure Assessment</h2>
     <table>
@@ -228,7 +273,7 @@
     </table>
   </div>
 
-  
+  <!-- Comparison -->
   <div class="section">
     <h2>Before / After — OCULTAR Impact Simulation</h2>
     <div class="scenario-grid">
@@ -251,7 +296,7 @@
     </div>
   </div>
 
-  
+  <!-- Next Steps -->
   <div class="section">
     <h2>Remediation Plan</h2>
     <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Tokenization</strong><p>Replace all Name, IBAN, and Email fields with OCULTAR reversible vault tokens. Zero-knowledge re-hydration available on authorised request.</p></div></div>
@@ -260,7 +305,7 @@
     <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Automate via OCULTAR Pipeline</strong><p>All steps above can be automated via the OCULTAR Enterprise proxy. Route your LLM API calls through the proxy and all PII is intercepted and redacted in real-time, with zero changes to your application code.</p></div></div>
   </div>
 
-  
+  <!-- Footer -->
   <div class="footer">
     OCULTAR Enterprise v1.14 | Methodology v3.0 | Report OCU-A106A2FF<br>
     This report was generated automatically. All findings are based on the dataset provided at time of analysis.<br>
