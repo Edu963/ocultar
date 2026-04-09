@@ -84,12 +84,17 @@ def compress_distribution(dist_key, dist_cfg, target_dir):
     name = dist_cfg.get("name", dist_key)
     output_base = os.path.join(DIST_DIR, name)
     
-    log(f"Compressing distribution {dist_key} to {format}...")
+    log(f"Compressing distribution {dist_key} to {name}.{format} (with parent folder)...")
+    
+    # root_dir is the parent folder of the content we want to pack
+    # base_dir is the name of the folder within root_dir to pack
+    root_dir = os.path.dirname(target_dir)
+    base_dir = os.path.basename(target_dir)
+
     if format == "zip":
-        shutil.make_archive(output_base, 'zip', target_dir)
+        shutil.make_archive(output_base, 'zip', root_dir=root_dir, base_dir=base_dir)
     elif format == "tar.gz":
-        shutil.make_archive(output_base, 'gztar', target_dir)
-        # shutil.make_archive for gztar creates .tar.gz
+        shutil.make_archive(output_base, 'gztar', root_dir=root_dir, base_dir=base_dir)
     else:
         log(f"Warning: Unknown format {format} for {dist_key}", color="red")
 
@@ -132,7 +137,9 @@ def main():
     
     for dist_key, dist_cfg in dists.items():
         log(f"\nProcessing Distribution: {dist_key}", color="green")
-        target_dir = os.path.join(DIST_DIR, dist_key)
+        # Use the explicit name for the staging directory to ensure it's used in the archive parent folder
+        dist_name = dist_cfg.get("name", dist_key)
+        target_dir = os.path.join(DIST_DIR, dist_name)
         os.makedirs(target_dir, exist_ok=True)
 
         # Handle extends (shallow one-level for now)
