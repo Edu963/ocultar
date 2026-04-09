@@ -24,13 +24,6 @@
 
 | Feature | Community (Pilot) | Enterprise (Enforcement) |
 |---|---|---|
-| **Operational Mode** | **Audit / Pilot** | **Full Redaction** |
-| Regex PII detection | ✅ | ✅ |
-| Dictionary Shield (Tier 0) | ✅ | ✅ |
-| Local AI NER scan (Tier 2) | ❌ | ✅ |
-| Custom engine rules (`config.yaml`) | ❌ | ✅ |
-| SIEM-compatible audit log | ❌ | ✅ |
-| `OCU_LICENSE_KEY` required | ❌ | ✅ |
 
 ---
 

@@ -41,7 +41,6 @@ The estimated financial exposure associated with unauthorised disclosure of this
 | **Financial Sensitivity** | 10.0/10 | CRITICAL | 100% of records contain high-sensitivity attributes (financial identifiers, personal names). Exposure of this dataset would constitute a significant regulatory breach. |
 | **Re-identification Risk** | 10.0/10 | CRITICAL | Combined K-Anonymity=1 and L-Diversity=1 yield a re-identification attack surface of 10/10. An adversary with partial knowledge could isolate individuals with high probability. |
 | **Compliance Readiness** | 10.0/10 | CRITICAL | 100% of records (4/4) fail minimum anonymisation requirements. Regulatory reporting of this dataset in its current state would constitute a GDPR violation under Art. 5(1)(f). |
-| **Overall** | **9.8/10** | **CRITICAL** | Weighted composite score (Identifiability 35%, Financial 25%, Re-id 25%, Compliance 15%) |
 
 ---
 
