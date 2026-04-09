@@ -81,6 +81,14 @@ distributions:
         type: "file"
         dest: "datasets/leaky_demo.json"
         optional: true
+      - name: "integrity-manifest"
+        src: "./security/dashboard_integrity.json"
+        type: "file"
+        dest: "security/dashboard_integrity.json"
+      - name: "mapping-config"
+        src: "./services/refinery/configs/mapping.json"
+        type: "file"
+        dest: "services/refinery/configs/mapping.json"
 
 # Mandatory Security Checks for all components
 security:

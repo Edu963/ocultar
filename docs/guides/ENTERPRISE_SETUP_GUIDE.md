@@ -59,9 +59,10 @@ cp .env.example .env
 Edit `.env`:
 ```bash
 # ── Required ─────────────────────────────────────────────────────────────────
-OCU_MASTER_KEY=<output of: openssl rand -hex 32>
-OCU_SALT=<output of: openssl rand -hex 16>
-OCU_LICENSE_KEY=<your enterprise license key>
+export OCU_MASTER_KEY=<output of: openssl rand -hex 32>
+export OCU_SALT=<output of: openssl rand -hex 16>
+export OCU_LICENSE_KEY=<your enterprise license key>
+# ─────────────────────────────────────────────────────────────────────────────
 ```
 
 > ⚠️ **Important:** `OCU_MASTER_KEY` and `OCU_SALT` derive your vault encryption key. **Changing either value after first run invalidates all vault entries.** Back them up securely before going to production.
@@ -113,13 +114,13 @@ Edit `.env` with all required values:
 
 ```bash
 # ── Required ─────────────────────────────────────────────────────────────────
-OCU_MASTER_KEY=<output of: openssl rand -hex 32>
-OCU_SALT=<output of: openssl rand -hex 16>
-OCU_PROXY_TARGET=https://api.openai.com   # your upstream LLM API
-OCU_LICENSE_KEY=<your enterprise license key>
+export OCU_MASTER_KEY=<output of: openssl rand -hex 32>
+export OCU_SALT=<output of: openssl rand -hex 16>
+export OCU_PROXY_TARGET=https://api.openai.com   # your upstream LLM API
+export OCU_LICENSE_KEY=<your enterprise license key>
 
 # ── Optional ─────────────────────────────────────────────────────────────────
-OCU_PROXY_PORT=8081                        # host port the proxy listens on
+export OCU_PROXY_PORT=8081                        # host port the proxy listens on
 ```
 
 ### Step 2 — Launch the cluster

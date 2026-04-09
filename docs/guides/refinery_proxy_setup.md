@@ -16,8 +16,10 @@ Deploying the OCULTAR Enterprise Proxy is designed to be frictionless, taking le
 
 If you received a distribution tarball:
 ```bash
-tar -xzf ocultar-enterprise.tar.gz
+# Create and enter the directory FIRST to avoid collisions
+mkdir ocultar-enterprise
 cd ocultar-enterprise
+tar -xzf ../ocultar-enterprise.tar.gz
 ```
 
 If deploying from source:
@@ -39,22 +41,21 @@ Open `.env` and set the following values:
 ```bash
 # REQUIRED — AES-256 master encryption key (min 32 chars).
 # ⚠️  Never change this after first run: it invalidates all vault entries.
-OCU_MASTER_KEY=$(openssl rand -hex 32)
+export OCU_MASTER_KEY=$(openssl rand -hex 32)
 
 # REQUIRED — Per-deployment HKDF salt.
 # ⚠️  Also invalidates vault if changed after first run.
-OCU_SALT=$(openssl rand -hex 16)
+export OCU_SALT=$(openssl rand -hex 16)
 
 # REQUIRED — Your upstream LLM API URL (the service you want to protect).
 # Examples: https://api.openai.com  |  http://your-internal-llm:11434
-OCU_PROXY_TARGET=https://api.openai.com
+export OCU_PROXY_TARGET=https://api.openai.com
 
 # OPTIONAL — Proxy listener port (default: 8081).
-OCU_PROXY_PORT=8081
+export OCU_PROXY_PORT=8081
 
-# OPTIONAL — Activate Enterprise features (Tier 2 AI scan, PostgreSQL vault,
-# SIEM audit log). Leave empty for Community feature set.
-OCU_LICENSE_KEY=
+# OPTIONAL — Activate Enterprise features.
+export OCU_LICENSE_KEY=
 ```
 
 > A one-liner that fills in the keys automatically:
@@ -116,7 +117,7 @@ Expected output:
 | `${OCU_PROXY_PORT:-8081}` (host) | `ocultar-proxy` | Transparent PII proxy — point your app here |
 | `8080` (internal only) | `slm-ner` | Local AI inference — not exposed to host |
 
-> The Enterprise Dashboard (`/index_v2.html`) is part of the **standalone binary** deployment, not the proxy stack. See [`ENTERPRISE_SETUP_GUIDE.md`](../documentation/ENTERPRISE_SETUP_GUIDE.md) for the full feature walkthrough.
+> The Enterprise Dashboard (`/index_v2.html`) is part of the **standalone binary** deployment, not the proxy stack. See [`ENTERPRISE_SETUP_GUIDE.md`](./ENTERPRISE_SETUP_GUIDE.md) for the full feature walkthrough.
 
 ---
 

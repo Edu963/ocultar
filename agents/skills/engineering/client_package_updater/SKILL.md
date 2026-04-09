@@ -35,7 +35,9 @@ The **Ocultar Distribution Manifest** (`dist.manifest.yaml`) is the single sourc
 1. **Audit `dist.manifest.yaml`**: Ensure all new files (e.g., extensions, config keys) are explicitly listed in the appropriate `distributions` section.
 2. **Component Mapping**: Update `src` and `dest` paths if directory structures change.
 3. **Exclusion Logic**: Verify that `security` flags (`sanitization`, `egress_audit`) are enabled for new components.
-4. **Script Sync**: Ensure `tools/scripts/scripts/build_release.sh` reflects the logic defined in the manifest.
+4. **Integrity Manifests (CRITICAL)**: Whenever shipping an Enterprise binary, ensure the `security/dashboard_integrity.json` and other related manifests are explicitly bundled in the distribution.
+5. **Archive Structure**: Verify that the distribution format (zip/tar.gz) includes a single parent folder named after the package to ensure clean extraction.
+6. **Script Sync**: Ensure `tools/scripts/scripts/build_release.sh` reflects the logic defined in the manifest.
 
 ### 3. Security & Compliance (MANDATORY)
 1. **Secret Scanning**: Invoke the `secret-scanner` skill on the `dist/` staging directory to prevent credential leaks.
