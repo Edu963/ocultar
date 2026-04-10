@@ -117,7 +117,7 @@ Expected output:
 | `${OCU_PROXY_PORT:-8081}` (host) | `ocultar-proxy` | Transparent PII proxy — point your app here |
 | `8080` (internal only) | `slm-ner` | Local AI inference — not exposed to host |
 
-> The Enterprise Dashboard (`/index_v2.html`) is part of the **standalone binary** deployment, not the proxy stack. See [`ENTERPRISE_SETUP_GUIDE.md`](./ENTERPRISE_SETUP_GUIDE.md) for the full feature walkthrough.
+> The Enterprise Dashboard (`/index.html`) is part of the **standalone binary** deployment, not the proxy stack. See [`ENTERPRISE_SETUP_GUIDE.md`](./ENTERPRISE_SETUP_GUIDE.md) for the full feature walkthrough.
 
 ---
 

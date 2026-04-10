@@ -57,7 +57,7 @@ Or, if running alongside Community, use a different port.
 
 ### Step 2 — Open the Compliance Audit view
 
-Navigate to: **http://localhost:9091/index_v2.html**
+Navigate to: **http://localhost:9091/index.html**
 
 ### Step 3 — Paste risk data
 

@@ -90,7 +90,7 @@ Or for batch file processing from the CLI:
 
 ### Step 3 — Open the Enterprise Dashboard
 
-Navigate to **http://localhost:3030/index_v2.html**
+Navigate to **http://localhost:3030/index.html**
 
 The Enterprise dashboard shows:
 - **Extraction Breakdown** — entity counts by type
@@ -193,7 +193,7 @@ source .env
 ./ocultar-enterprise --serve 3030
 ```
 
-Then open your browser to **http://localhost:3030/index_v2.html**.
+Then open your browser to **http://localhost:3030/index.html**.
 
 ---
 
@@ -335,7 +335,7 @@ Satisfies **GDPR Article 32(1)(d)** — logging of all processing events without
 
 The compliance dashboard is available in **Deployment Mode A** (standalone binary) at:
 
-**http://localhost:3030/index_v2.html**
+**http://localhost:3030/index.html**
 
 ### Running an Audit
 
