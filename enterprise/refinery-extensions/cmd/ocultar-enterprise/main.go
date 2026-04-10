@@ -185,8 +185,13 @@ func VerifyDashboardIntegrity() error {
 		return fmt.Errorf("failed to parse manifest: %v", err)
 	}
 
+	baseDir := "dist/enterprise/dashboard"
+	if _, err := os.Stat("dashboard"); err == nil {
+		baseDir = "dashboard"
+	}
+
 	for relPath, expectedHash := range manifest.Checksums {
-		fullPath := "dist/enterprise/dashboard/" + relPath
+		fullPath := baseDir + "/" + relPath
 		f, err := os.Open(fullPath)
 		if err != nil {
 			return fmt.Errorf("asset missing: %s", relPath)
@@ -220,6 +225,9 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		baseDir := "apps/web/dist"
 		if license.Active.Tier == "enterprise" {
 			baseDir = "dist/enterprise/dashboard"
+			if _, err := os.Stat("dashboard"); err == nil {
+				baseDir = "dashboard"
+			}
 		}
 
 		// Static Asset Routing
