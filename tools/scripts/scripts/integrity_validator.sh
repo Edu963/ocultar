@@ -66,7 +66,7 @@ elif [[ "$ARTIFACT_PATH" == *.tar.gz ]]; then
     tar -xzf "$ARTIFACT_PATH" -C "$TMP_DIR"
 fi
 
-cd "$TMP_DIR"
+cd "$TMP_DIR/ocultar-$DIST_TYPE"
 
 if [[ ! -f "$SETUP_SCRIPT" ]]; then
     echo -e "${RED}FAILURE: Required setup script $SETUP_SCRIPT not found in archive.${NC}"
@@ -77,6 +77,7 @@ fi
 echo -e "[*] Running setup and starting services..."
 bash "$SETUP_SCRIPT" > setup.log 2>&1 || {
     echo -e "${RED}FAILURE: Setup script failed. See $TMP_DIR/setup.log${NC}"
+    cat setup.log
     exit 1
 }
 
