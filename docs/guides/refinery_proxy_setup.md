@@ -70,7 +70,7 @@ export OCU_LICENSE_KEY=
 ## Phase 2: Start the Cluster (4–5 Minutes)
 
 ```bash
-docker compose -f docker-compose.proxy.yml up -d
+docker compose up -d
 ```
 
 On first run the cluster will:
@@ -80,7 +80,7 @@ On first run the cluster will:
 
 Watch startup progress:
 ```bash
-docker compose -f docker-compose.proxy.yml logs -f
+docker compose logs -f
 ```
 
 Expected final output:
@@ -124,14 +124,14 @@ Expected output:
 ## Shut Down
 
 ```bash
-docker compose -f docker-compose.proxy.yml down
+docker compose down
 ```
 
 Vault data is persisted in the `proxy_vault` Docker volume and survives restarts.
 
 To wipe everything (including the vault):
 ```bash
-docker compose -f docker-compose.proxy.yml down -v
+docker compose down -v
 ```
 ---
 

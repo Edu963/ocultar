@@ -126,7 +126,7 @@ export OCU_PROXY_PORT=8081                        # host port the proxy listens 
 ### Step 2 — Launch the cluster
 
 ```bash
-docker compose -f docker-compose.proxy.yml up -d
+docker compose up -d
 ```
 
 **What happens on first run:**
@@ -136,7 +136,7 @@ docker compose -f docker-compose.proxy.yml up -d
 
 Watch progress:
 ```bash
-docker compose -f docker-compose.proxy.yml logs -f
+docker compose logs -f
 ```
 
 Wait for:
@@ -220,7 +220,7 @@ dictionaries:
 After editing, apply by restarting:
 ```bash
 # Proxy stack:
-docker compose -f docker-compose.proxy.yml restart ocultar-proxy
+docker compose restart ocultar-proxy
 
 # Standalone binary — just re-run it; config is loaded at startup.
 ```
@@ -247,8 +247,8 @@ These terms are matched case-insensitively before any regex or AI scan, guarante
 
 When using Docker Compose, this file is baked into the Docker image at build time. If you need to update it, rebuild the image:
 ```bash
-docker compose -f docker-compose.proxy.yml build ocultar-proxy
-docker compose -f docker-compose.proxy.yml up -d ocultar-proxy
+docker compose build ocultar-proxy
+docker compose up -d ocultar-proxy
 ```
 
 ---
@@ -365,8 +365,8 @@ echo "Exit code: $?"
 
 **Proxy stack:**
 ```bash
-docker compose -f docker-compose.proxy.yml down        # stops containers, keeps volumes
-docker compose -f docker-compose.proxy.yml down -v     # stops containers + deletes vault & model
+docker compose down        # stops containers, keeps volumes
+docker compose down -v     # stops containers + deletes vault & model
 ```
 
 **Standalone binary:** `Ctrl+C` — the vault file (`vault.db`) is preserved.
@@ -380,7 +380,7 @@ docker compose -f docker-compose.proxy.yml down -v     # stops containers + dele
 | `[FATAL] Failed reading protected_entities.json!` | File missing from `configs/` | Create the file with at least one entry (see §6) |
 | `[FATAL] protected_entities.json … contains zero entries` | File is `[]` | Add at least one string to the JSON array |
 | `[!] FATAL: OCU_MASTER_KEY must be set` | `.env` not loaded or key missing | Confirm `source .env` before running binary, or check Docker env vars |
-| SLM container not healthy after 5 minutes | Model download incomplete or `slm_data` volume corrupt | `docker compose -f docker-compose.proxy.yml down -v && docker compose -f docker-compose.proxy.yml up -d` |
+| SLM container not healthy after 5 minutes | Model download incomplete or `slm_data` volume corrupt | `docker compose down -v && docker compose up -d` |
 | `Active license tier … does not permit postgres` | `OCU_LICENSE_KEY` missing or expired | Add/renew your license key in `.env` |
 | Proxy returns `429 Too Many Requests` | More than 15 concurrent requests | Scale horizontally with PostgreSQL vault (see §7) |
 | Audit log is empty | Community binary or missing license key | Confirm `OCU_LICENSE_KEY` is set and `Tier: enterprise` is activated (check startup logs) |
