@@ -34,7 +34,7 @@ RESPONSE=$(curl -s -X POST "$COMPLETIONS_URL" \
   -H "Content-Type: application/json" \
   -H "Ocultar-Target: http://echo-upstream:8080" \
   -d '{
-    "model": "gpt-4o",
+    "model": "gemini-1.5-flash",
     "messages": [{"role": "user", "content": "Email me at leaky@example.com"}]
   }')
 
