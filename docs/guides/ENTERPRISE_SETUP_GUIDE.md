@@ -180,6 +180,20 @@ curl -X POST http://localhost:8081/v1/chat/completions \
   -d '{"messages":[{"role":"user","content":"My name is Alice Martin."}]}'
 ```
 
+### Step 5 — Access the Enterprise Dashboard (Optional)
+
+> **Note:** The visual Compliance Dashboard is **not** hosted by the Docker Compose proxy stack, because the proxy is designed to run headlessly. 
+
+If you want to view the visual dashboard while running your proxy cluster, simply open a new terminal window and run the standalone binary:
+
+```bash
+# Open a second terminal window
+cd ocultar-enterprise
+./ocultar-enterprise --serve 3030
+```
+
+Then open your browser to **http://localhost:3030/index_v2.html**.
+
 ---
 
 ## 5. Enterprise Configuration (`configs/config.yaml`)
