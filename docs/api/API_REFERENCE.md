@@ -331,7 +331,7 @@ Selects and constructs the correct backend:
 type Settings struct {
     Regexes            []RegexRule `yaml:"regexes"`
     Dictionaries       []DictRule  `yaml:"dictionaries"`
-    PresidioConfidence float64     `yaml:"presidio_confidence"`
+    SLMConfidence float64     `yaml:"slm_confidence"`
     VaultBackend       string      `yaml:"vault_backend"`
     PostgresDSN        string      `yaml:"postgres_dsn"`
 }

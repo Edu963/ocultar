@@ -28,8 +28,8 @@ func Load() {
 	config.Global.Regexes = append(config.Global.Regexes, userConfig.Regexes...)
 	config.Global.Dictionaries = append(config.Global.Dictionaries, userConfig.Dictionaries...)
 
-	if userConfig.PresidioConfidence > 0 {
-		config.Global.PresidioConfidence = userConfig.PresidioConfidence
+	if userConfig.SLMConfidence > 0 {
+		config.Global.SLMConfidence = userConfig.SLMConfidence
 	}
 
 	// Phase 4: Distributed Enterprise Vaulting — vault backend selection

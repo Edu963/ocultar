@@ -209,7 +209,7 @@ Enterprise users can extend PII detection without recompiling. Edit `configs/con
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Minimum SLM confidence score for Tier 2 NER detections (0.0–1.0).
-presidio_confidence: 0.75
+slm_confidence: 0.75
 
 # Custom regex rules (Tier 1) ─────────────────────────────────────────────────
 # type: token label in UPPER_SNAKE_CASE

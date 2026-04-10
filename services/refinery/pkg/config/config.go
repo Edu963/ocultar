@@ -27,7 +27,7 @@ type DictRule struct {
 type Settings struct {
 	Regexes            []RegexRule `yaml:"regexes"`
 	Dictionaries       []DictRule  `yaml:"dictionaries"`
-	PresidioConfidence float64     `yaml:"presidio_confidence"`
+	SLMConfidence float64     `yaml:"slm_confidence"`
 
 	// Phase 4: Distributed Enterprise Vaulting
 	// VaultBackend selects the storage backend: "duckdb" (default) or "postgres".
@@ -87,7 +87,7 @@ func initDefaultConfig() {
 		Dictionaries: []DictRule{
 			{Type: "PERSON_VIP", Terms: []string{"Héctor Eduardo Trejos", "Héctor Eduardo", "Eduardo Trejos", "Héctor", "Hector", "Eduardo", "Trejos", "Project Phoenix", "Ouroboros Protocol"}},
 		},
-		PresidioConfidence: 0.6,
+		SLMConfidence: 0.6,
 		DomainSnapshot:     "standard",
 		CRMEndpoint:        os.Getenv("CRM_ENDPOINT"),
 		CRMApiKey:          os.Getenv("CRM_API_KEY"),

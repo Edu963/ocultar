@@ -8,7 +8,7 @@ dictionaries:
       terms:
         - John Doe
         - Jane Smith
-presidio_confidence: 0.6
+slm_confidence: 0.6
 vault_backend: duckdb
 postgres_dsn: ""
 domain_snapshot: standard
