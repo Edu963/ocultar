@@ -1,7 +1,7 @@
 # OCULTAR Horizon Enterprise - Custom Rules Configuration
 # This file is actively evaluated ONLY if an enterprise license is loaded.
 
-presidio_confidence: 0.75
+slm_confidence: 0.75
 
 # --- Redaction Rules ---
 regexes:
