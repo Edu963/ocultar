@@ -304,7 +304,7 @@ export default function RiskAssessmentPage() {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {report.Risk.regulatory_findings?.map((finding, idx) => (
+                                                    {report.full.Risk.regulatory_findings?.map((finding, idx) => (
                                                         <tr key={idx} className="border-b border-color/40 hover:bg-secondary/20 transition-colors">
                                                             <td className="p-5 font-mono text-sm font-bold">{finding.attribute}</td>
                                                             <td className="p-5 text-sm font-medium">{finding.regulation}</td>
