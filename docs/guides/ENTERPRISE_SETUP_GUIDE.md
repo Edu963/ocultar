@@ -189,6 +189,7 @@ If you want to view the visual dashboard while running your proxy cluster, simpl
 ```bash
 # Open a second terminal window
 cd ocultar-enterprise
+source .env
 ./ocultar-enterprise --serve 3030
 ```
 
