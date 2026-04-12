@@ -10,13 +10,14 @@
   --text-muted: #64748b;
   --accent-primary: #10b981; /* Emerald 500 */
   --accent-secondary: #0ea5e9; /* Sky 500 */
+  --accent-danger: #f43f5e; /* Rose 500 */
   --border-color: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(16, 185, 129, 0.3);
   
   /* Typography */
-  --font-sans: 'Inter', -apple-system, sans-serif;
-  --font-heading: 'Space Grotesk', var(--font-sans);
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 * {
@@ -133,6 +134,7 @@ nav {
 .text-gradient {
   background: linear-gradient(to right, #fff 30%, #94a3b8 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -202,9 +204,29 @@ nav {
 
 /* Glass Effect */
 .glass {
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-premium {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.card-premium {
+  background: rgba(16, 185, 129, 0.02);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-premium:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.04);
 }
 
 /* Animations */
