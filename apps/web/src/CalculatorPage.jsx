@@ -159,7 +159,7 @@ const CalculatorPage = () => {
       <div className="relative z-10 max-w-6xl mx-auto p-6 md:p-12">
         
         {/* Boxed Header */}
-        <header className="mb-12 border border-white/20 p-8 flex flex-col md:flex-row justify-between items-start gap-8 bg-black/40 backdrop-blur-md">
+        <header className="mb-12 mt-12 md:mt-24 border border-white/20 p-8 flex flex-col md:flex-row justify-between items-start gap-8 bg-black/40 backdrop-blur-md">
             <div className="max-w-2xl order-2 md:order-1">
                 <div className="flex items-baseline gap-3 mb-4">
                     <h1 className="text-3xl md:text-5xl font-bold tracking-tight uppercase text-white">Data Refinery</h1>
