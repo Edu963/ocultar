@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Shield, Lock, Zap, BarChart3, ChevronRight, Github, ExternalLink, Globe } from 'lucide-react';
 import ROIDashboardCard from './components/ROIDashboardCard';
 import RiskAssessmentPage from './RiskAssessmentPage';
+import CalculatorPage from './CalculatorPage';
 import logo from './assets/images/image.webp';
 
 // --- Subtle Particle Background ---
@@ -113,7 +114,7 @@ function AppContent() {
                     <div className="hidden md:flex items-center gap-8 text-sm font-medium">
                         <Link to="/" className="hover:text-black transition-colors text-secondary">Home</Link>
                         <Link to="/risk-assessment" className="hover:text-black transition-colors text-secondary">Risk Pilot</Link>
-                        <a href="#roi" className="hover:text-black transition-colors text-secondary">ROI</a>
+                        <Link to="/calculator" className="hover:text-black transition-colors text-secondary">ROI</Link>
                         <a href="https://ocultar.dev/docs" className="hover:text-black transition-colors text-secondary flex items-center gap-1">
                             Docs <ExternalLink className="w-3 h-3" />
                         </a>
@@ -130,6 +131,7 @@ function AppContent() {
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/risk-assessment" element={<RiskAssessmentPage />} />
+                    <Route path="/calculator" element={<CalculatorPage />} />
                 </Routes>
             </div>
 
@@ -156,7 +158,7 @@ function AppContent() {
                             <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Product</h4>
                             <ul className="space-y-2 text-sm">
                                 <li><Link to="/risk-assessment" className="hover:text-black transition-colors">Risk Pilot</Link></li>
-                                <li><a href="#roi" className="hover:text-black transition-colors">ROI Calculator</a></li>
+                                <li><Link to="/calculator" className="hover:text-black transition-colors">ROI Calculator</Link></li>
                                 <li><a href="https://ocultar.dev/docs" className="hover:text-black transition-colors">Documentation</a></li>
                             </ul>
                         </div>
@@ -214,9 +216,9 @@ function LandingPage() {
                         <Link to="/risk-assessment" className="btn btn-primary px-8 py-4 text-base gap-2">
                             Run a Free Audit <ChevronRight className="w-4 h-4" />
                         </Link>
-                        <a href="https://ocultar.dev/docs" className="btn btn-secondary px-8 py-4 text-base">
-                            View Documentation
-                        </a>
+                        <Link to="/calculator" className="btn btn-secondary px-8 py-4 text-base">
+                            View ROI Calculator
+                        </Link>
                     </div>
                 </div>
                 
