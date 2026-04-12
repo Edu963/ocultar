@@ -63,6 +63,7 @@ var profTitleRegex = regexp.MustCompile(`(?i)\b(DR|DOCTEUR|PROF|MME|MLLE|SR|SRA|
 var capitalizedWordRegex = regexp.MustCompile(`\b[A-ZÀ-Ÿ][A-ZÀ-Ÿa-zà-ÿ\-]{1,20}\b`)
 var possessiveRegex = regexp.MustCompile(`(?i)\b[A-ZÀ-Ÿ][a-zà-ÿ\-]{1,20}['’]s\b`)
 var semanticTriggerRegex = regexp.MustCompile(`(?i)\b(DIVORCE|MARIAGE|WEDDING|AVOCAT|LAWYER|HOSPITAL|CLINIQUE|TREATMENT|TRAITEMENT|CAMPAIGN|POLITICAL|CAMPAGNE|PEA)\b`)
+var nameIntroRegex = regexp.MustCompile(`(?m)(?i)\b(?:my name is|i am|call me|this is)\s+([A-ZÀ-Ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-Ÿ][a-zà-ÿ]+){0,2})\b`)
 
 // DryRunReport collects PII hit metadata when running in --dry-run or --report mode.
 type DryRunReport struct {
@@ -463,7 +464,10 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	}
 
 	greetingMatches := greetingRegex.FindAllStringSubmatchIndex(refined, -1)
-	for _, match := range greetingMatches {
+	nameIntroMatches := nameIntroRegex.FindAllStringSubmatchIndex(refined, -1)
+	allNameMatches := append(greetingMatches, nameIntroMatches...)
+
+	for _, match := range allNameMatches {
 		if len(match) > 2 {
 			start, end := match[2], match[3]
 			nameStr := refined[start:end]

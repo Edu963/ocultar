@@ -235,7 +235,11 @@ func pilotDataDir() string {
 func startServer(eng *refinery.Refinery, servePort string) {
 	if license.Active.Tier == "enterprise" {
 		if err := VerifyDashboardIntegrity(); err != nil {
-			log.Fatalf("[FATAL] Dashboard integrity check failed: %v", err)
+			if eng.PilotMode || eng.DryRun {
+				log.Printf("[WARN] Dashboard integrity check failed: %v. Proceeding in Demo/Pilot mode (Safety Bypass ACTIVE).", err)
+			} else {
+				log.Fatalf("[FATAL] Dashboard integrity check failed: %v", err)
+			}
 		}
 	}
 

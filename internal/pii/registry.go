@@ -88,6 +88,7 @@ var Registry = []EntityDef{
 	{Type: "SECRET", Pattern: regexp.MustCompile(`(?i)\b(?:secret|key|token)\s*[:=]\s*[^\s,]+`), Validator: ValNone, MinLength: 8, Normalization: false, CaptureGroup: 0},
 	{Type: "PATIENT_ID", Pattern: regexp.MustCompile(`\b[A-Z]{2,3}[0-9]{6,10}\b`), Validator: ValNone, MinLength: 8, Normalization: false, CaptureGroup: 0},
 	{Type: "MEDICAL_RECORD", Pattern: regexp.MustCompile(`\bMRN[- ]?[0-9]{7,10}\b`), Validator: ValNone, MinLength: 10, Normalization: false, CaptureGroup: 0},
+	{Type: "PERSON", Pattern: regexp.MustCompile(`(?i)\b(?:my name is|i am|call me|this is)\s+([A-ZÀ-Ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-Ÿ][a-zà-ÿ]+){0,2})\b`), Validator: ValNone, MinLength: 3, Normalization: false, CaptureGroup: 1},
 
 	// Legacy Scrubber Specific Entity Extraction
 	{Type: "ACCOUNT_NUMBER", Pattern: regexp.MustCompile(`(?i)(compte[^n\[]*n[°o]|account[- _]?(?:number|no|nr)|num[eé]ro de compte|konto[- _]?(?:nr|nummer)|n[úu]mero de cuenta|conto corrente|n[°o]\b)\s*:?\s*([0-9]{6,20})\b`), Validator: ValNone, MinLength: 6, Normalization: false, CaptureGroup: 2},
