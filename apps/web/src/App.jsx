@@ -129,7 +129,7 @@ function AppContent() {
                 </div>
             </nav>
 
-            <div className="flex-grow pt-20">
+            <div className="flex-grow pt-24 md:pt-32">
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/risk-assessment" element={<RiskAssessmentPage />} />
