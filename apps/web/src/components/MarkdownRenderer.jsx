@@ -63,23 +63,40 @@ const CodeBlock = ({ language, value }) => {
     );
 };
 
-export default function MarkdownRenderer({ content }) {
+export default function MarkdownRenderer({ content, onHeadingsExtracted }) {
+    useEffect(() => {
+        if (onHeadingsExtracted) {
+            const headings = [];
+            const lines = content.split('\n');
+            lines.forEach(line => {
+                const h2Match = line.match(/^##\s+(.+)/);
+                const h3Match = line.match(/^###\s+(.+)/);
+                if (h2Match) {
+                    headings.push({ text: h2Match[1], id: slugify(h2Match[1], { lower: true }), level: 2 });
+                } else if (h3Match) {
+                    headings.push({ text: h3Match[1], id: slugify(h3Match[1], { lower: true }), level: 3 });
+                }
+            });
+            onHeadingsExtracted(headings);
+        }
+    }, [content, onHeadingsExtracted]);
+
     return (
-        <article className="prose prose-invert prose-cyan max-w-none">
+        <article className="docs-content prose prose-invert prose-cyan max-w-none">
             <ReactMarkdown
                 components={{
                     h1: ({ children }) => (
-                        <h1 id={slugify(String(children), { lower: true })} className="text-3xl md:text-4xl font-bold text-white mb-8 tracking-tight">
+                        <h1 id={slugify(String(children), { lower: true })} className="text-4xl font-extrabold text-white mb-8 tracking-tight border-b border-white/5 pb-4">
                             {children}
                         </h1>
                     ),
                     h2: ({ children }) => (
-                        <h2 id={slugify(String(children), { lower: true })} className="text-xl font-bold text-white mt-12 mb-6 tracking-tight border-b border-white/5 pb-2">
+                        <h2 id={slugify(String(children), { lower: true })} className="text-2xl font-bold text-white mt-12 mb-6 tracking-tight">
                             {children}
                         </h2>
                     ),
                     h3: ({ children }) => (
-                        <h3 id={slugify(String(children), { lower: true })} className="text-lg font-bold text-slate-200 mt-8 mb-4 tracking-tight">
+                        <h3 id={slugify(String(children), { lower: true })} className="text-xl font-bold text-slate-200 mt-8 mb-4 tracking-tight">
                             {children}
                         </h3>
                     ),

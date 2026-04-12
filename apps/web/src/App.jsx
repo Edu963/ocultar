@@ -10,7 +10,10 @@ import CalculatorPage from './CalculatorPage';
 import SolutionsPage from './SolutionsPage';
 import DocsLayout from './components/DocsLayout';
 import DocPage from './components/DocPage';
-import ReferencePage from './components/ReferencePage';
+import ReferencePage from './ReferencePage';
+import DocsLanding from './components/DocsLanding';
+import DocsHeader from './components/DocsHeader';
+import { useLocation } from 'react-router-dom';
 
 // --- Subtle Particle Background ---
 const CanvasBackground = () => {
@@ -503,17 +506,21 @@ export default function App() {
 }
 
 function AppContent() {
+    const location = useLocation();
+    const isDocs = location.pathname.startsWith('/docs');
+
     return (
         <div className="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black">
             <CanvasBackground />
-            <Nav />
-            <div className="flex-grow pt-32">
+            {isDocs ? <DocsHeader /> : <Nav />}
+            <div className={`flex-grow ${isDocs ? '' : 'pt-32'}`}>
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/risk-assessment" element={<RiskAssessmentPage />} />
                     <Route path="/calculator" element={<CalculatorPage />} />
                     <Route path="/solutions" element={<SolutionsPage />} />
                     <Route path="/docs" element={<DocsLayout />}>
+                        <Route index element={<DocsLanding />} />
                         <Route path="reference/:type" element={<ReferencePage />} />
                         <Route path="*" element={<DocPage />} />
                     </Route>
