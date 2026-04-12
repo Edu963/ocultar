@@ -8,6 +8,9 @@ import {
 import RiskAssessmentPage from './RiskAssessmentPage';
 import CalculatorPage from './CalculatorPage';
 import SolutionsPage from './SolutionsPage';
+import DocsLayout from './components/DocsLayout';
+import DocPage from './components/DocPage';
+import ReferencePage from './components/ReferencePage';
 
 // --- Subtle Particle Background ---
 const CanvasBackground = () => {
@@ -91,7 +94,7 @@ const Nav = () => (
                 <Link to="/solutions" className="text-zinc-500 hover:text-white transition-colors">Solutions</Link>
                 <Link to="/risk-assessment" className="text-zinc-500 hover:text-white transition-colors">Risk Audit</Link>
                 <Link to="/calculator" className="text-zinc-500 hover:text-white transition-colors">ROI Engine</Link>
-                <a href="#" className="text-zinc-500 hover:text-white transition-colors flex items-center gap-1">Docs <ExternalLink className="w-3 h-3" /></a>
+                <Link to="/docs/tutorials/quickstart" className="text-zinc-500 hover:text-white transition-colors flex items-center gap-1">Docs <ExternalLink className="w-3 h-3" /></Link>
             </div>
             <Link to="/risk-assessment" className="bg-cyan-500 text-black text-[11px] font-bold px-6 py-3 rounded uppercase tracking-wider hover:bg-cyan-400 transition-colors">
                 Start Pilot
@@ -510,6 +513,10 @@ function AppContent() {
                     <Route path="/risk-assessment" element={<RiskAssessmentPage />} />
                     <Route path="/calculator" element={<CalculatorPage />} />
                     <Route path="/solutions" element={<SolutionsPage />} />
+                    <Route path="/docs" element={<DocsLayout />}>
+                        <Route path="reference/:type" element={<ReferencePage />} />
+                        <Route path="*" element={<DocPage />} />
+                    </Route>
                 </Routes>
             </div>
             <Footer />
