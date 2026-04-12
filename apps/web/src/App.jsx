@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import RiskAssessmentPage from './RiskAssessmentPage';
 import CalculatorPage from './CalculatorPage';
+import SolutionsPage from './SolutionsPage';
 
 // --- Subtle Particle Background ---
 const CanvasBackground = () => {
@@ -90,6 +91,7 @@ const Nav = () => (
             </Link>
             <div className="hidden md:flex items-center gap-10 text-[12px] font-bold uppercase tracking-widest">
                 <Link to="/" className="text-zinc-500 hover:text-white transition-colors">Platform</Link>
+                <Link to="/solutions" className="text-zinc-500 hover:text-white transition-colors">Solutions</Link>
                 <Link to="/risk-assessment" className="text-zinc-500 hover:text-white transition-colors">Risk Audit</Link>
                 <Link to="/calculator" className="text-zinc-500 hover:text-white transition-colors">ROI Engine</Link>
                 <a href="#" className="text-zinc-500 hover:text-white transition-colors flex items-center gap-1">Docs <ExternalLink className="w-3 h-3" /></a>
@@ -189,26 +191,43 @@ const BeforeAfter = () => {
     );
 };
 
-const DockerCommand = () => {
+const EnterpriseCTA = () => {
     const [copied, setCopied] = useState(false);
-    const command = "docker run -p 8080:8080 ocultar/refinery";
+    const command = "docker-compose -f docker-compose.community.yml up -d";
 
-    const copy = () => {
+    const copyToClipboard = () => {
         navigator.clipboard.writeText(command);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
 
     return (
-        <div className="inline-flex items-center gap-4 bg-zinc-900/50 border border-white/5 rounded-lg pl-4 pr-2 py-2 mt-8 transition-all hover:bg-zinc-900 hover:border-white/10">
-            <code className="text-[13px] text-zinc-400 font-mono">{command}</code>
-            <button 
-                onClick={copy}
-                className="p-2 hover:bg-white/10 rounded transition-colors text-zinc-500 hover:text-white"
-                title="Copy to clipboard"
-            >
-                {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-            </button>
+        <div className="mt-12 flex flex-col items-center gap-6 w-full max-w-xl mx-auto">
+            <div className="w-full bg-zinc-950 border border-white/5 rounded-xl p-1 overflow-hidden flex items-center gap-4 group">
+                <div className="bg-zinc-900 px-4 py-3 rounded-l-lg border-r border-white/5 flex items-center gap-2">
+                    <Terminal className="w-4 h-4 text-emerald-500" />
+                    <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest">Local Setup</span>
+                </div>
+                <code className="text-[11px] font-mono text-zinc-400 flex-grow truncate px-2">
+                    {command}
+                </code>
+                <button 
+                    onClick={copyToClipboard}
+                    className="p-3 hover:text-emerald-500 transition-colors"
+                    title="Copy to clipboard"
+                >
+                    {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                </button>
+            </div>
+            <div className="flex flex-col items-center gap-3">
+                <div className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest flex items-center gap-2">
+                    <ShieldCheck className="w-3 h-3 text-emerald-500/50" />
+                    Local-First Architecture — Zero External Dependencies
+                </div>
+                <Link to="/risk-assessment" className="text-emerald-500 hover:text-emerald-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 transition-all">
+                    Request Full Enterprise Cluster Spec <ChevronRight className="w-3 h-3" />
+                </Link>
+            </div>
         </div>
     );
 };
@@ -493,6 +512,7 @@ function AppContent() {
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/risk-assessment" element={<RiskAssessmentPage />} />
                     <Route path="/calculator" element={<CalculatorPage />} />
+                    <Route path="/solutions" element={<SolutionsPage />} />
                 </Routes>
             </div>
             <Footer />
@@ -527,7 +547,7 @@ function LandingPage() {
                             Run Live Demo
                         </button>
                     </div>
-                    <DockerCommand />
+                    <EnterpriseCTA />
                     <BeforeAfter />
                 </div>
             </section>
@@ -535,7 +555,6 @@ function LandingPage() {
             <TrustStrip />
             <HowItWorks />
             <FailClosedVisual />
-            <SimplifiedROI />
             <SovereignPacks />
             <UseCases />
             <DataSources />
@@ -548,10 +567,6 @@ function LandingPage() {
                             Initialize Deployment
                         </Link>
                     </div>
-                    <div className="pt-12 flex justify-center items-center gap-12 opacity-20 grayscale grayscale-100">
-                         <div className="font-bold text-xl scale-90">SOUVERAIN</div>
-                         <div className="font-mono font-bold text-lg tracking-tighter">PROTO_GUARDv2</div>
-                         <div className="font-bold text-xl uppercase tracking-tighter">Refinery_Core</div>
                     </div>
                 </div>
             </section>
