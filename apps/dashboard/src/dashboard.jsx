@@ -426,37 +426,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Report Modal */}
-      {reportModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-white border border-slate-200 shadow-2xl rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100 bg-slate-50/80">
-              <div>
-                <h2 className="text-sm font-bold text-slate-800 uppercase tracking-widest flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-blue-600" /> Senior Risk Specialist Assessment
-                </h2>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5 tracking-wider uppercase">Deliverable ID: OCU-{activeReportId?.toUpperCase()}</div>
-              </div>
-              <button onClick={() => setReportModalOpen(false)} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-500">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-grow bg-slate-100 relative">
-              <iframe 
-                src={`/api/pilot/report?id=${activeReportId}`} 
-                className="w-full h-full border-none"
-                title="Risk Report Viewer"
-              />
-            </div>
-            <div className="px-6 py-4 bg-white border-t border-slate-100 flex justify-between items-center">
-               <span className="text-[11px] text-slate-400 font-medium">OCULTAR Enterprise Methodology v3.1 · Simulation Anchor Model</span>
-               <button onClick={() => window.open(`/api/pilot/report?id=${activeReportId}`, '_blank')} className="text-blue-600 text-[11px] font-bold uppercase tracking-wider hover:underline flex items-center gap-1.5">
-                  <Eye className="w-4 h-4" /> Open in New Tab
-               </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       <footer className="mt-12 pt-8 border-t border-slate-200 flex justify-between items-center px-4">
         <p className="text-[9px] text-slate-500 font-mono uppercase tracking-[0.3em]">
