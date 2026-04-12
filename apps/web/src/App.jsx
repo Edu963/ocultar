@@ -567,7 +567,6 @@ function LandingPage() {
                             Initialize Deployment
                         </Link>
                     </div>
-                    </div>
                 </div>
             </section>
         </div>
