@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { useParams, useOutletContext } from 'react-router-dom';
 import MarkdownRenderer from './MarkdownRenderer';
 import { ThumbsUp, ThumbsDown, Clock, User, ArrowRight } from 'lucide-react';
 
