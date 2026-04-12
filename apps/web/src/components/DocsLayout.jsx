@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
 import { 
     Search, ChevronRight, BookOpen, GraduationCap, 
-    Lightbulb, Terminal, ChevronDown, List, ArrowLeft,
-    Home, Shield
+    Lightbulb, Terminal, List, ArrowLeft, Home
 } from 'lucide-react';
 
 const sections = [
@@ -76,7 +75,7 @@ const Breadcrumbs = () => {
 
 export default function DocsLayout() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default to false for mobile
     const [headings, setHeadings] = useState([]);
     const location = useLocation();
     const navigate = useNavigate();
@@ -88,18 +87,15 @@ export default function DocsLayout() {
         }
     }, [location.pathname]);
 
-    // Handle headings from child pages
     const handleHeadingsExtracted = (newHeadings) => {
         setHeadings(newHeadings);
     };
 
-    // Flatten items for pagination
     const allItems = sections.flatMap(s => s.items);
     const currentIndex = allItems.findIndex(item => location.pathname.includes(item.path));
     const prevItem = currentIndex > 0 ? allItems[currentIndex - 1] : null;
     const nextItem = currentIndex < allItems.length - 1 ? allItems[currentIndex + 1] : null;
 
-    // Filtered sections based on search query
     const filteredSections = sections.map(section => ({
         ...section,
         items: section.items.filter(item => 
@@ -109,13 +105,28 @@ export default function DocsLayout() {
     })).filter(section => section.items.length > 0);
 
     return (
-        <div className="flex min-h-screen bg-zinc-950 text-slate-300 font-sans selection:bg-cyan-500/30">
-            {/* Sidebar (Left) */}
+        // 1. Root container flexed and centered
+        <div className="flex w-full max-w-[1600px] mx-auto bg-zinc-950 text-slate-300 font-sans selection:bg-cyan-500/30">
+            
+            {/* 2. Mobile Backdrop Overlay */}
+            {isSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
+            {/* 3. Navigation Sidebar - Sticky Top-0 with Self-Start */}
             <aside 
-                className={`fixed inset-y-0 left-0 z-40 w-72 bg-[#0c0c0e]/80 backdrop-blur-xl border-r border-white/5 transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 h-screen top-0 pt-16`}
+                className={`
+                    fixed inset-y-0 left-0 z-50 w-72 bg-[#0c0c0e] border-r border-white/5 
+                    transform transition-transform duration-300 ease-in-out pt-16
+                    md:sticky md:top-0 md:h-screen md:translate-x-0 md:flex-shrink-0 md:self-start
+                    ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                `}
             >
-                <div className="flex flex-col h-full">
-                    <div className="px-6 mb-8 mt-8">
+                <div className="flex flex-col h-full overflow-hidden">
+                    <div className="px-6 mb-8 mt-8 shrink-0">
                         <div className="relative group">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-cyan-500 transition-colors" />
                             <input 
@@ -128,7 +139,7 @@ export default function DocsLayout() {
                         </div>
                     </div>
 
-                    <nav className="flex-grow overflow-y-auto px-4 space-y-8 custom-scrollbar">
+                    <nav className="flex-grow overflow-y-auto px-4 space-y-8 custom-scrollbar scrollbar-hide">
                         {filteredSections.map(section => (
                             <div key={section.title} className="space-y-2">
                                 <h4 className="flex items-center gap-2 px-2 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-3">
@@ -157,7 +168,7 @@ export default function DocsLayout() {
                         ))}
                     </nav>
 
-                    <div className="p-6 border-t border-white/5">
+                    <div className="p-6 border-t border-white/5 shrink-0 bg-[#0c0c0e]">
                         <div className="flex items-center justify-between text-[10px] font-mono text-zinc-600 uppercase tracking-widest">
                             <span>v4.1.0-RC</span>
                             <span className="text-cyan-500/50">Enterprise</span>
@@ -166,9 +177,9 @@ export default function DocsLayout() {
                 </div>
             </aside>
 
-            {/* Main Content (Center) */}
-            <main className={`flex-grow transition-all duration-300 ${isSidebarOpen ? 'md:pl-72' : 'pl-0'} md:pr-72 pt-16`}>
-                <div className="max-w-4xl mx-auto px-6 py-12 md:px-12 md:py-16 animate-fade-in min-h-[calc(100vh-64px)]">
+            {/* 4. Main Content - Standard flow, flex-1 */}
+            <main className="flex-1 min-w-0 pt-16 md:pt-0">
+                <div className="max-w-4xl mx-auto px-6 py-12 md:px-12 md:py-24 animate-fade-in min-h-screen">
                     <Breadcrumbs />
                     <Outlet context={{ onHeadingsExtracted: handleHeadingsExtracted }} />
                     
@@ -183,7 +194,7 @@ export default function DocsLayout() {
                                         {prevItem.title}
                                     </span>
                                 </Link>
-                            ) : <div></div>}
+                            ) : <div />}
                             
                             {nextItem ? (
                                 <Link to={`/docs/${nextItem.path}`} className="group flex flex-col items-end gap-2 text-right">
@@ -194,14 +205,14 @@ export default function DocsLayout() {
                                         {nextItem.title}
                                     </span>
                                 </Link>
-                            ) : <div></div>}
+                            ) : <div />}
                         </div>
                     )}
                 </div>
             </main>
 
-            {/* TOC (Right Sidebar) */}
-            <aside className="fixed inset-y-0 right-0 z-30 w-72 h-screen pt-32 px-8 overflow-y-auto hidden lg:block border-l border-white/5">
+            {/* 5. Table of Contents - Sticky Top-0 with Self-Start */}
+            <aside className="hidden xl:block sticky top-0 h-screen w-64 pt-24 px-6 flex-shrink-0 self-start border-l border-white/5 overflow-y-auto custom-scrollbar">
                 <div className="space-y-6">
                     <h4 className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">
                         <List className="w-3 h-3" /> On this page
@@ -221,7 +232,7 @@ export default function DocsLayout() {
                 </div>
             </aside>
 
-            {/* Mobile Toggle */}
+            {/* Mobile Toggle Button */}
             <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="fixed bottom-6 right-6 z-50 p-4 bg-cyan-500 text-black rounded-full shadow-lg md:hidden hover:scale-110 transition-transform active:scale-95"
