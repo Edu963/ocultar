@@ -105,8 +105,8 @@ export default function DocsLayout() {
     })).filter(section => section.items.length > 0);
 
     return (
-        // 1. Root container flexed and centered
-        <div className="flex w-full max-w-[1600px] mx-auto bg-zinc-950 text-slate-300 font-sans selection:bg-cyan-500/30">
+        // 1. Root container flexed and centered + pt-16 to clear global header
+        <div className="flex w-full max-w-[1600px] mx-auto bg-zinc-950 text-slate-300 font-sans selection:bg-cyan-500/30 pt-16">
             
             {/* 2. Mobile Backdrop Overlay */}
             {isSidebarOpen && (
@@ -116,30 +116,17 @@ export default function DocsLayout() {
                 />
             )}
 
-            {/* 3. Navigation Sidebar - Sticky Top-0 with Self-Start */}
+            {/* 3. Navigation Sidebar - Sticky Top-16 (to match header height) */}
             <aside 
                 className={`
-                    fixed inset-y-0 left-0 z-50 w-72 bg-[#0c0c0e] border-r border-white/5 
-                    transform transition-transform duration-300 ease-in-out pt-16
-                    md:sticky md:top-0 md:h-screen md:translate-x-0 md:flex-shrink-0 md:self-start
+                    fixed inset-y-0 left-0 z-50 w-72 bg-[#0c0c0e] border-r border-white/10
+                    transform transition-transform duration-300 ease-in-out
+                    md:sticky md:top-16 md:h-[calc(100vh-64px)] md:translate-x-0 md:flex-shrink-0 md:self-start
                     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                 `}
             >
                 <div className="flex flex-col h-full overflow-hidden">
-                    <div className="px-6 mb-8 mt-8 shrink-0">
-                        <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-cyan-500 transition-colors" />
-                            <input 
-                                type="text" 
-                                placeholder="Search documentation..." 
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-zinc-900/50 border border-white/5 rounded-lg py-2 pl-10 pr-4 text-xs focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-all"
-                            />
-                        </div>
-                    </div>
-
-                    <nav className="flex-grow overflow-y-auto px-4 space-y-8 custom-scrollbar scrollbar-hide">
+                    <nav className="flex-grow overflow-y-auto px-4 py-8 space-y-8 custom-scrollbar">
                         {filteredSections.map(section => (
                             <div key={section.title} className="space-y-2">
                                 <h4 className="flex items-center gap-2 px-2 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-3">
@@ -211,8 +198,8 @@ export default function DocsLayout() {
                 </div>
             </main>
 
-            {/* 5. Table of Contents - Sticky Top-0 with Self-Start */}
-            <aside className="hidden xl:block sticky top-0 h-screen w-64 pt-24 px-6 flex-shrink-0 self-start border-l border-white/5 overflow-y-auto custom-scrollbar">
+            {/* 5. Table of Contents - Sticky Top-16 */}
+            <aside className="hidden xl:block sticky top-16 h-[calc(100vh-64px)] w-64 pt-12 px-6 flex-shrink-0 self-start border-l border-white/10 overflow-y-auto custom-scrollbar">
                 <div className="space-y-6">
                     <h4 className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">
                         <List className="w-3 h-3" /> On this page
