@@ -20,7 +20,7 @@ const CONNECTORS = [
         icon: <MessageSquare className="w-5 h-5" />,
         desc: "End-to-end agentic Slack bot with fail-closed PII redaction on inbound messages and secure re-hydration on AI responses before delivery.",
         tag: "Native",
-        tagColor: "emerald",
+        tagColor: "cyan",
         source: "pkg/handler/slack_app.go"
     },
     {
@@ -36,7 +36,7 @@ const CONNECTORS = [
         icon: <Globe className="w-5 h-5" />,
         desc: "Zero-config adapter for any authenticated REST endpoint. Supports Bearer tokens and API keys, with per-connector data policy enforcement and model allowlists.",
         tag: "Native",
-        tagColor: "emerald",
+        tagColor: "cyan",
         source: "pkg/connector/api_connector.go"
     },
     {
@@ -44,7 +44,7 @@ const CONNECTORS = [
         icon: <Box className="w-5 h-5" />,
         desc: "Processes uploaded documents through the Refinery before storage or forwarding. Supports JSON, CSV, and raw text.",
         tag: "Native",
-        tagColor: "emerald",
+        tagColor: "cyan",
         source: "pkg/connector/file_connector.go"
     },
 ];
@@ -83,15 +83,15 @@ const ENTERPRISE_FEATURES = [
 
 export default function SolutionsPage() {
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-emerald-500 selection:text-black">
+        <div className="min-h-screen bg-black text-white selection:bg-cyan-500 selection:text-black">
 
             {/* Hero */}
             <section className="pt-40 pb-24 border-b border-white/5 relative overflow-hidden">
-                <div className="absolute inset-0 bg-emerald-500/[0.03] blur-[120px] scale-150 -translate-y-1/2 rounded-full pointer-events-none"></div>
+                <div className="absolute inset-0 bg-cyan-500/[0.03] blur-[120px] scale-150 -translate-y-1/2 rounded-full pointer-events-none"></div>
                 <div className="max-container relative z-10 text-center space-y-8">
                     <div className="badge mx-auto">Technical Architecture</div>
                     <h1 className="text-5xl md:text-7xl tracking-tighter max-w-5xl mx-auto">
-                        Product Suite — <span className="text-emerald-500">Source Verified</span>
+                        Product Suite — <span className="text-cyan-500">Source Verified</span>
                     </h1>
                     <p className="max-w-2xl mx-auto text-xl text-zinc-400">
                         Every feature on this page maps directly to production code. No vaporware.
@@ -103,7 +103,7 @@ export default function SolutionsPage() {
             <section className="section-padding bg-zinc-950/50">
                 <div className="max-container space-y-20">
                     <div className="max-w-3xl">
-                        <div className="flex items-center gap-3 text-emerald-500 mb-6">
+                        <div className="flex items-center gap-3 text-cyan-500 mb-6">
                             <Network className="w-6 h-6" />
                             <span className="text-[10px] font-bold uppercase tracking-widest">Product 01</span>
                         </div>
@@ -119,14 +119,14 @@ export default function SolutionsPage() {
                     {/* Multi-Model Router */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div className="space-y-6">
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Multi-Model Router</h4>
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-cyan-500">Multi-Model Router</h4>
                             <p className="text-zinc-400 leading-relaxed">
-                                A pluggable <code className="text-emerald-500/70 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">ModelAdapter</code> interface 
+                                A pluggable <code className="text-cyan-500/70 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">ModelAdapter</code> interface 
                                 dispatches sanitized prompts to any registered backend. Zero-Egress domain 
                                 validation is enforced per-adapter — any unregistered domain is blocked before transmission.
                             </p>
                             <p className="text-xs text-zinc-600 font-mono">
-                                <span className="text-emerald-500/50">Also acts as a drop-in OpenAI-compatible proxy</span> — 
+                                <span className="text-cyan-500/50">Also acts as a drop-in OpenAI-compatible proxy</span> — 
                                 existing SDKs need zero code changes.
                             </p>
                         </div>
@@ -151,8 +151,8 @@ export default function SolutionsPage() {
                     {/* Connectors */}
                     <div className="space-y-8">
                         <div>
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-2">Data Source Connectors</h4>
-                            <p className="text-zinc-500 text-sm">Each connector declares a <code className="text-emerald-500/70 bg-zinc-900 px-1 rounded text-xs">DataPolicy</code> that enforces which PII categories are stripped, which models may receive its data, and enforces size limits.</p>
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-cyan-500 mb-2">Data Source Connectors</h4>
+                            <p className="text-zinc-500 text-sm">Each connector declares a <code className="text-cyan-500/70 bg-zinc-900 px-1 rounded text-xs">DataPolicy</code> that enforces which PII categories are stripped, which models may receive its data, and enforces size limits.</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {CONNECTORS.map(c => (
@@ -202,7 +202,7 @@ export default function SolutionsPage() {
                                     "Fail-Closed: any batch error blocks the entire payload",
                                 ].map(f => (
                                     <div key={f} className="flex items-center gap-3 text-sm text-zinc-400">
-                                        <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                                        <ShieldCheck className="w-4 h-4 text-cyan-500 flex-shrink-0" />
                                         {f}
                                     </div>
                                 ))}
@@ -222,12 +222,12 @@ export default function SolutionsPage() {
                     </div>
 
                     {/* Code Visual */}
-                    <div className="card bg-black/60 border-emerald-500/10 p-8 max-w-3xl mx-auto">
+                    <div className="card bg-black/60 border-cyan-500/10 p-8 max-w-3xl mx-auto">
                         <div className="flex items-center justify-between mb-6 border-b border-white/5 pb-4">
                             <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">Refinery Flow — Fail-Closed Batch</span>
-                            <Terminal className="w-4 h-4 text-emerald-500" />
+                            <Terminal className="w-4 h-4 text-cyan-500" />
                         </div>
-                        <pre className="text-xs font-mono text-emerald-500/70 leading-relaxed overflow-x-auto">
+                        <pre className="text-xs font-mono text-cyan-500/70 leading-relaxed overflow-x-auto">
                             <code>{`// RefineBatch — bounded 100-worker goroutine pool
 for _, item := range items {
     go func(idx int, val interface{}) {
@@ -249,10 +249,10 @@ for _, err := range errs {
 
             {/* ── PILLAR 3: ENTERPRISE ── */}
             <section className="section-padding bg-black relative overflow-hidden">
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-emerald-500/[0.04] blur-[140px] rounded-full pointer-events-none"></div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-cyan-500/[0.04] blur-[140px] rounded-full pointer-events-none"></div>
                 <div className="max-container relative z-10 space-y-16">
                     <div className="max-w-3xl">
-                        <div className="flex items-center gap-3 text-emerald-500 mb-6">
+                        <div className="flex items-center gap-3 text-cyan-500 mb-6">
                             <Layout className="w-6 h-6" />
                             <span className="text-[10px] font-bold uppercase tracking-widest">Product 03</span>
                         </div>
@@ -267,8 +267,8 @@ for _, err := range errs {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {ENTERPRISE_FEATURES.map(f => (
-                            <div key={f.title} className="card bg-zinc-950/60 border-white/5 hover:border-emerald-500/20 p-10 space-y-5 transition-all">
-                                <div className="w-12 h-12 bg-emerald-500/10 rounded flex items-center justify-center text-emerald-500">
+                            <div key={f.title} className="card bg-zinc-950/60 border-white/5 hover:border-cyan-500/20 p-10 space-y-5 transition-all">
+                                <div className="w-12 h-12 bg-cyan-500/10 rounded flex items-center justify-center text-cyan-500">
                                     {f.icon}
                                 </div>
                                 <h3 className="text-lg font-bold">{f.title}</h3>
@@ -309,8 +309,8 @@ if upstream != nil {
             <section className="py-16 border-t border-white/5 bg-zinc-950">
                 <div className="max-container flex flex-col md:flex-row justify-between items-center gap-6 text-[9px] font-mono text-zinc-700 uppercase tracking-[0.2em]">
                     <div className="flex items-center gap-6">
-                        <span className="flex items-center gap-2 text-emerald-500/40">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span className="flex items-center gap-2 text-cyan-500/40">
+                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></div>
                             Sombra_Gateway_Active
                         </span>
                         <span>Build: 4.12.26</span>
@@ -318,7 +318,7 @@ if upstream != nil {
                     <div className="flex gap-10">
                         <span>Features sourced from /pkg</span>
                         <span>Zero vaporware</span>
-                        <span className="text-emerald-500/30">Fail_Closed_By_Default</span>
+                        <span className="text-cyan-500/30">Fail_Closed_By_Default</span>
                     </div>
                 </div>
             </section>
