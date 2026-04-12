@@ -9,10 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "flexsearch": "^0.8.212",
     "lucide-react": "^0.477.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.14.0"
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.14.0",
+    "react-syntax-highlighter": "^16.1.1",
+    "shiki": "^4.0.2",
+    "slugify": "^1.6.9"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.9",
