@@ -42,16 +42,13 @@ const CalculatorPage = () => {
         new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
 
     return (
-        <div className="min-h-screen font-sans antialiased bg-[#050505] text-white selection:bg-emerald-500 selection:text-black pb-20">
+        <div className="min-h-screen font-sans antialiased bg-[#050505] text-white selection:bg-cyan-500 selection:text-black pb-20">
             
             {/* Nav */}
             <nav className="fixed top-0 left-0 w-full z-50 py-5 bg-black/50 backdrop-blur-xl border-b border-white/5">
                 <div className="max-container flex justify-between items-center">
                     <Link to="/" className="flex items-center gap-3 group">
-                        <div className="w-9 h-9 bg-emerald-500 rounded flex items-center justify-center">
-                            <Shield className="text-black w-5 h-5" strokeWidth={3} />
-                        </div>
-                        <span className="text-white font-bold text-xl tracking-tighter uppercase">OCULTAR</span>
+                        <img src="/logo3.jpg" alt="OCULTAR" className="h-8 md:h-10 object-contain" />
                     </Link>
                     <Link to="/" className="text-[11px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors flex items-center gap-2">
                         <ArrowLeft className="w-3 h-3" /> Back to Platform
@@ -61,7 +58,7 @@ const CalculatorPage = () => {
 
             <div className="max-container pt-32">
                 <header className="mb-16">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/5 border border-emerald-500/10 text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/5 border border-cyan-500/10 text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-6">
                         <BarChart3 className="w-3 h-3" /> Cost Analysis Module
                     </div>
                     <h1 className="mb-4">ROI Forecast Engine</h1>
@@ -74,14 +71,14 @@ const CalculatorPage = () => {
                     {/* Left: Inputs */}
                     <div className="lg:col-span-5 space-y-10">
                         <div className="card space-y-8 bg-zinc-950">
-                            <h3 className="text-sm uppercase tracking-widest text-emerald-500 font-mono">Parameters</h3>
+                            <h3 className="text-sm uppercase tracking-widest text-cyan-500 font-mono">Parameters</h3>
                             
                             <div className="space-y-3">
                                 <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">Cloud Infrastructure</label>
                                 <select
                                     value={provider}
                                     onChange={(e) => setProvider(e.target.value)}
-                                    className="w-full bg-zinc-900 border border-white/5 text-white font-medium rounded-lg p-4 focus:outline-none focus:border-emerald-500 transition-colors appearance-none"
+                                    className="w-full bg-zinc-900 border border-white/5 text-white font-medium rounded-lg p-4 focus:outline-none focus:border-cyan-500 transition-colors appearance-none"
                                 >
                                     <option value="gcp">Google Cloud DLP ($5.00/GB)</option>
                                     <option value="aws">AWS Comprehend (~$1,000/GB)</option>
@@ -97,7 +94,7 @@ const CalculatorPage = () => {
                                 <input
                                     type="range" min="1" max="250"
                                     value={volume} onChange={(e) => setVolume(parseInt(e.target.value))}
-                                    className="w-full h-1.5 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                    className="w-full h-1.5 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-cyan-500"
                                 />
                             </div>
 
@@ -109,7 +106,7 @@ const CalculatorPage = () => {
                                 <input
                                     type="range" min="0" max="80" step="5"
                                     value={discount} onChange={(e) => setDiscount(parseInt(e.target.value))}
-                                    className="w-full h-1.5 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                    className="w-full h-1.5 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-cyan-500"
                                 />
                             </div>
                         </div>
@@ -122,7 +119,7 @@ const CalculatorPage = () => {
                             </div>
                             <div className="flex justify-between text-base font-bold">
                                 <span>Effective Cloud Rate</span>
-                                <span className="text-emerald-500">{formatRate(effectiveRate)} / GB</span>
+                                <span className="text-cyan-500">{formatRate(effectiveRate)} / GB</span>
                             </div>
                         </div>
                     </div>
@@ -154,14 +151,14 @@ const CalculatorPage = () => {
                                 </div>
                             </div>
 
-                            <div className="card bg-emerald-500/5 border-emerald-500/20 flex flex-col justify-between h-[300px]">
+                            <div className="card bg-cyan-500/5 border-cyan-500/20 flex flex-col justify-between h-[300px]">
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center">
-                                        <div className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Zero-Egress</div>
-                                        <Shield className="w-4 h-4 text-emerald-500" />
+                                        <div className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest">Zero-Egress</div>
+                                        <Shield className="w-4 h-4 text-cyan-500" />
                                     </div>
                                     <h3 className="text-xl">OCULTAR SLM</h3>
-                                    <div className="space-y-2 text-sm text-emerald-400/60 font-mono">
+                                    <div className="space-y-2 text-sm text-cyan-400/60 font-mono">
                                         <div className="flex justify-between">
                                             <span>Software License</span>
                                             <span>$10,000</span>
@@ -172,9 +169,9 @@ const CalculatorPage = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="pt-6 border-t border-emerald-500/10">
-                                    <div className="text-[10px] uppercase font-bold text-emerald-500/50 mb-1">Monthly Cost</div>
-                                    <div className="text-4xl font-bold font-mono text-emerald-500">{formatCurrency(totalOcultarMonthly)}</div>
+                                <div className="pt-6 border-t border-cyan-500/10">
+                                    <div className="text-[10px] uppercase font-bold text-cyan-500/50 mb-1">Monthly Cost</div>
+                                    <div className="text-4xl font-bold font-mono text-cyan-500">{formatCurrency(totalOcultarMonthly)}</div>
                                 </div>
                             </div>
                         </div>
@@ -191,7 +188,7 @@ const CalculatorPage = () => {
                             </div>
                         </div>
 
-                        <div className="card bg-emerald-500 text-black p-12 text-center space-y-6">
+                        <div className="card bg-cyan-500 text-black p-12 text-center space-y-6">
                             <h2 className="text-3xl text-black lowercase italic font-light tracking-tight">Neutralize regulatory risk and terminate external egress taxation.</h2>
                             <div className="flex justify-center gap-4">
                                 <button className="bg-black text-white px-8 py-4 rounded-lg font-bold text-sm uppercase tracking-widest hover:bg-zinc-900 transition-colors">

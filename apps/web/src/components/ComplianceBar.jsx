@@ -19,7 +19,7 @@ const ComplianceBar = () => {
             <div className="flex animate-marquee whitespace-nowrap">
                 {[...badges, ...badges].map((text, i) => (
                     <div key={i} className="flex items-center gap-3 px-12 opacity-40 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
-                        <Shield className="w-5 h-5 text-emerald-500" />
+                        <Shield className="w-5 h-5 text-cyan-500" />
                         <span className="font-mono text-xs font-bold tracking-widest text-white">{text}</span>
                     </div>
                 ))}
