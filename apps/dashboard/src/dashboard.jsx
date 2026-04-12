@@ -26,7 +26,7 @@ import {
   Play
 } from 'lucide-react';
 
-const OCULTAR_API = 'http://localhost:8080/api';
+const OCULTAR_API = '/api';
 
 // ─── Pilot Data (sourced from docs/pilot/) ─────────────────────────────────
 

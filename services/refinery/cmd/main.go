@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -98,6 +99,7 @@ func (l *BasicFileLogger) Log(user, action, result, mapping string) {
 func (l *BasicFileLogger) Close() {}
 
 func main() {
+	mime.AddExtensionType(".js", "application/javascript")
 	showVersion := flag.Bool("version", false, "Print the OCULTAR refinery version and exit")
 	showVersionShort := flag.Bool("v", false, "Print the OCULTAR refinery version and exit (alias)")
 	dryRun := flag.Bool("dry-run", false, "Scan for PII without writing to vault; output JSON report")
