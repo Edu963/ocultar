@@ -921,14 +921,14 @@ const Dashboard = () => {
             </div>
             <div className="flex-grow bg-slate-100 relative">
               <iframe 
-                src={`http://localhost:8080/api/pilot/report?id=${activeReportId}`} 
+                src={`/api/pilot/report?id=${activeReportId}`} 
                 className="w-full h-full border-none"
                 title="Risk Report Viewer"
               />
             </div>
             <div className="px-6 py-4 bg-white border-t border-slate-100 flex justify-between items-center">
                <span className="text-[11px] text-slate-400 font-medium">OCULTAR Enterprise Methodology v3.1 · Simulation Anchor Model</span>
-               <button onClick={() => window.open(`http://localhost:8080/api/pilot/report?id=${activeReportId}`, '_blank')} className="text-blue-600 text-[11px] font-bold uppercase tracking-wider hover:underline flex items-center gap-1.5">
+               <button onClick={() => window.open(`/api/pilot/report?id=${activeReportId}`, '_blank')} className="text-blue-600 text-[11px] font-bold uppercase tracking-wider hover:underline flex items-center gap-1.5">
                   <Eye className="w-4 h-4" /> Open in New Tab
                </button>
             </div>
