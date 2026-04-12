@@ -10,7 +10,7 @@ import CalculatorPage from './CalculatorPage';
 import SolutionsPage from './SolutionsPage';
 import DocsLayout from './components/DocsLayout';
 import DocPage from './components/DocPage';
-import ReferencePage from './ReferencePage';
+import ReferencePage from './components/ReferencePage';
 import DocsLanding from './components/DocsLanding';
 import DocsHeader from './components/DocsHeader';
 import { useLocation } from 'react-router-dom';
