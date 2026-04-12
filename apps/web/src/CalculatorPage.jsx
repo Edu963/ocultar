@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo3 from './assets/images/logo3.jpg';
+import { Shield, ArrowLeft, Cpu, BarChart3, Lock, ExternalLink, Box } from 'lucide-react';
 
 const CalculatorPage = () => {
     const [provider, setProvider] = useState('gcp');
@@ -42,218 +42,165 @@ const CalculatorPage = () => {
         new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
 
     return (
-        <div className="min-h-screen font-sans antialiased relative overflow-x-hidden selection:bg-white selection:text-black">
-
-            <div className="relative z-10 max-w-6xl mx-auto p-6 md:p-12">
-
-                {/* Header */}
-                <header className="mb-12 border-b border-white pb-8 flex flex-col md:flex-row justify-between items-start gap-8 p-6">
-                    <div className="max-w-2xl order-2 md:order-1">
-                        <div className="flex items-baseline gap-3 mb-4">
-                            <h1 className="text-3xl md:text-5xl font-bold tracking-tight uppercase">Data Refinery</h1>
-                            <span className="font-mono text-gray-500">v_1.0.0</span>
+        <div className="min-h-screen font-sans antialiased bg-[#050505] text-white selection:bg-emerald-500 selection:text-black pb-20">
+            
+            {/* Nav */}
+            <nav className="fixed top-0 left-0 w-full z-50 py-5 bg-black/50 backdrop-blur-xl border-b border-white/5">
+                <div className="max-container flex justify-between items-center">
+                    <Link to="/" className="flex items-center gap-3 group">
+                        <div className="w-9 h-9 bg-emerald-500 rounded flex items-center justify-center">
+                            <Shield className="text-black w-5 h-5" strokeWidth={3} />
                         </div>
-                        <h2 className="font-mono text-sm uppercase tracking-widest border-b border-white inline-block mb-4 pb-1">ROI Calculator Module</h2>
-                        <p className="font-mono text-sm text-gray-400 leading-relaxed max-w-xl">
-                            [SYS_MSG]: Compute the mathematical variance between external AI pipeline taxation and OCULTAR's zero-egress local processing framework.
-                        </p>
+                        <span className="text-white font-bold text-xl tracking-tighter uppercase">OCULTAR</span>
+                    </Link>
+                    <Link to="/" className="text-[11px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors flex items-center gap-2">
+                        <ArrowLeft className="w-3 h-3" /> Back to Platform
+                    </Link>
+                </div>
+            </nav>
+
+            <div className="max-container pt-32">
+                <header className="mb-16">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/5 border border-emerald-500/10 text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-6">
+                        <BarChart3 className="w-3 h-3" /> Cost Analysis Module
                     </div>
-                    <div className="flex-shrink-0 w-full md:w-auto flex justify-start md:justify-end order-1 md:order-2">
-                        <img
-                            src={logo3}
-                            alt="OCULTAR Logo"
-                            className="h-8 md:h-10 w-auto object-contain invert"
-                        />
-                    </div>
+                    <h1 className="mb-4">ROI Forecast Engine</h1>
+                    <p className="text-slate-400 max-w-2xl text-lg">
+                        Quantify the financial variance between external AI pipeline taxing and OCULTAR's zero-egress local processing.
+                    </p>
                 </header>
 
-                {/* Main Layout Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-                    {/* Left Col: Parameters */}
-                    <div className="lg:col-span-5 border border-white p-8">
-                        <div className="flex items-center gap-2 mb-8 border-b border-white pb-4">
-                            <div className="w-2 h-2 bg-white"></div>
-                            <h3 className="font-mono text-sm font-bold uppercase tracking-widest">Input Parameters</h3>
-                        </div>
-
-                        {/* Cloud Provider Selection */}
-                        <div className="mb-10">
-                            <label className="block font-mono text-xs uppercase text-gray-400 mb-3">Target Cloud Architecture</label>
-                            <select
-                                value={provider}
-                                onChange={(e) => setProvider(e.target.value)}
-                                className="w-full bg-transparent border border-white text-white font-mono text-sm rounded-none p-4 focus:outline-none focus:ring-1 focus:ring-white cursor-pointer appearance-none"
-                                style={{
-                                    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                                    backgroundRepeat: 'no-repeat',
-                                    backgroundPosition: 'right 1rem center',
-                                    backgroundSize: '1em'
-                                }}
-                            >
-                                <option value="gcp" className="bg-black text-white">Google Cloud DLP ($5.00 / GB)</option>
-                                <option value="aws" className="bg-black text-white">AWS Comprehend (~$1,000 / GB)</option>
-                                <option value="azure" className="bg-black text-white">Azure AI Language (~$1.50 / GB)</option>
-                            </select>
-                        </div>
-
-                        {/* Volume Slider */}
-                        <div className="mb-10">
-                            <label className="block font-mono text-xs uppercase text-gray-400 mb-3">Data Throughput (Monthly)</label>
-                            <div className="flex justify-between items-end mb-4 border-b border-white pb-2">
-                                <span className="font-mono text-2xl font-bold">{volume} TB</span>
-                                <span className="font-mono text-xs text-gray-400">Volume</span>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    {/* Left: Inputs */}
+                    <div className="lg:col-span-5 space-y-10">
+                        <div className="card space-y-8 bg-zinc-950">
+                            <h3 className="text-sm uppercase tracking-widest text-emerald-500 font-mono">Parameters</h3>
+                            
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">Cloud Infrastructure</label>
+                                <select
+                                    value={provider}
+                                    onChange={(e) => setProvider(e.target.value)}
+                                    className="w-full bg-zinc-900 border border-white/5 text-white font-medium rounded-lg p-4 focus:outline-none focus:border-emerald-500 transition-colors appearance-none"
+                                >
+                                    <option value="gcp">Google Cloud DLP ($5.00/GB)</option>
+                                    <option value="aws">AWS Comprehend (~$1,000/GB)</option>
+                                    <option value="azure">Azure AI Language (~$1.50/GB)</option>
+                                </select>
                             </div>
-                            <input
-                                type="range"
-                                min="1" max="250"
-                                value={volume}
-                                onChange={(e) => setVolume(parseInt(e.target.value))}
-                                className="w-full"
-                            />
-                            <div className="flex justify-between font-mono text-[10px] text-gray-400 mt-3">
-                                <span>1 TB</span>
-                                <span>250 TB</span>
+
+                            <div className="space-y-5">
+                                <div className="flex justify-between items-end">
+                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">Monthly Throughput</label>
+                                    <span className="text-2xl font-bold font-mono text-white">{volume} TB</span>
+                                </div>
+                                <input
+                                    type="range" min="1" max="250"
+                                    value={volume} onChange={(e) => setVolume(parseInt(e.target.value))}
+                                    className="w-full h-1.5 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                />
+                            </div>
+
+                            <div className="space-y-5">
+                                <div className="flex justify-between items-end">
+                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">Enterprise Discount</label>
+                                    <span className="text-2xl font-bold font-mono text-white">{discount}%</span>
+                                </div>
+                                <input
+                                    type="range" min="0" max="80" step="5"
+                                    value={discount} onChange={(e) => setDiscount(parseInt(e.target.value))}
+                                    className="w-full h-1.5 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                />
                             </div>
                         </div>
 
-                        {/* Discount Slider */}
-                        <div className="mb-10">
-                            <label className="block font-mono text-xs uppercase text-gray-400 mb-3">Negotiated EDP Discount</label>
-                            <div className="flex justify-between items-end mb-4 border-b border-white pb-2">
-                                <span className="font-mono text-2xl font-bold">{discount}%</span>
-                                <span className="font-mono text-xs text-gray-400">Variance</span>
+                        <div className="p-6 rounded-xl border border-white/5 bg-zinc-950 space-y-4">
+                            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-white/5 pb-2">Rate Summary</div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-zinc-500">List Price (Processing + Egress)</span>
+                                <span className="text-zinc-400 line-through">{formatRate(listPricePerGB)} / GB</span>
                             </div>
-                            <input
-                                type="range"
-                                min="0" max="80" step="5"
-                                value={discount}
-                                onChange={(e) => setDiscount(parseInt(e.target.value))}
-                                className="w-full"
-                            />
-                            <div className="flex justify-between font-mono text-[10px] text-gray-400 mt-3">
-                                <span>BASE [0%]</span>
-                                <span>MAX [80%]</span>
-                            </div>
-                        </div>
-
-                        {/* Effective Rate Output */}
-                        <div className="font-mono text-xs p-5 border border-white">
-                            <h4 className="font-bold uppercase border-b border-white pb-2 mb-3">Rate Matrix</h4>
-                            <div className="flex justify-between mb-2">
-                                <span className="text-gray-400">List Price (Scrub + Egress)</span>
-                                <span className="line-through">{formatRate(listPricePerGB)} / GB</span>
-                            </div>
-                            <div className="flex justify-between pt-2">
-                                <span className="font-bold">Effective Rate</span>
-                                <span className="font-bold">{formatRate(effectiveRate)} / GB</span>
+                            <div className="flex justify-between text-base font-bold">
+                                <span>Effective Cloud Rate</span>
+                                <span className="text-emerald-500">{formatRate(effectiveRate)} / GB</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Col: Computation Results */}
-                    <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                        {/* Cloud Pipeline Node */}
-                        <div className="border border-white p-8 flex flex-col justify-between">
-                            <div>
-                                <div className="flex items-center justify-between mb-6 border-b border-white pb-4">
-                                    <h3 className="font-sans text-xl font-bold uppercase">{selectedProvider.name}</h3>
-                                    <span className="font-mono text-xs border border-white px-2 py-1">API_EGRESS</span>
+                    {/* Right: Outputs */}
+                    <div className="lg:col-span-7 space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="card bg-zinc-950 flex flex-col justify-between h-[300px]">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Legacy Stack</div>
+                                        <Box className="w-4 h-4 text-zinc-700" />
+                                    </div>
+                                    <h3 className="text-xl">{selectedProvider.name}</h3>
+                                    <div className="space-y-2 text-sm text-zinc-400 font-mono">
+                                        <div className="flex justify-between">
+                                            <span>Compute</span>
+                                            <span>{formatCurrency(totalCloudGrossMonthly)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Discount</span>
+                                            <span className="text-rose-500">-{formatCurrency(discountValueMonthly)}</span>
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <div className="font-mono text-sm space-y-4 mb-8">
-                                    <div className="flex justify-between border-b border-gray-800 pb-2">
-                                        <span className="text-gray-400">Compute Overhead</span>
-                                        <span className="line-through">{formatCurrency(totalCloudGrossMonthly)}</span>
-                                    </div>
-                                    <div className="flex justify-between border-b border-gray-800 pb-2">
-                                        <span className="text-gray-400">Discount Applied</span>
-                                        <span>-{formatCurrency(discountValueMonthly)}</span>
-                                    </div>
-                                    <div className="flex justify-between pt-2">
-                                        <span className="text-gray-400">Network Latency</span>
-                                        <span>100-500ms</span>
-                                    </div>
+                                <div className="pt-6 border-t border-white/5">
+                                    <div className="text-[10px] uppercase font-bold text-zinc-500 mb-1">Monthly Cost</div>
+                                    <div className="text-4xl font-bold font-mono">{formatCurrency(totalCloudNetMonthly)}</div>
                                 </div>
                             </div>
 
-                            <div className="pt-6 border-t border-white">
-                                <span className="block font-mono text-xs text-gray-400 uppercase mb-2">Net Financial Drain (Mo)</span>
-                                <span className="font-sans text-4xl font-bold tracking-tight">{formatCurrency(totalCloudNetMonthly)}</span>
+                            <div className="card bg-emerald-500/5 border-emerald-500/20 flex flex-col justify-between h-[300px]">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <div className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Zero-Egress</div>
+                                        <Shield className="w-4 h-4 text-emerald-500" />
+                                    </div>
+                                    <h3 className="text-xl">OCULTAR SLM</h3>
+                                    <div className="space-y-2 text-sm text-emerald-400/60 font-mono">
+                                        <div className="flex justify-between">
+                                            <span>Software License</span>
+                                            <span>$10,000</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Local Compute</span>
+                                            <span>{formatCurrency(localComputeMonthly)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="pt-6 border-t border-emerald-500/10">
+                                    <div className="text-[10px] uppercase font-bold text-emerald-500/50 mb-1">Monthly Cost</div>
+                                    <div className="text-4xl font-bold font-mono text-emerald-500">{formatCurrency(totalOcultarMonthly)}</div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Ocultar Node (Inverted for Dark Mode) */}
-                        <div className="border border-white bg-white text-black p-8 flex flex-col justify-between relative">
+                        <div className="card bg-zinc-950 flex items-center justify-between py-10">
                             <div>
-                                <div className="flex items-center justify-between mb-6 border-b border-black/30 pb-4">
-                                    <h3 className="font-sans text-xl font-bold uppercase">Zero-Egress SLM</h3>
-                                    <span className="font-mono text-xs border border-black px-2 py-1 font-bold">LOCAL_NODE</span>
-                                </div>
-
-                                <div className="font-mono text-sm space-y-4 mb-8">
-                                    <div className="flex justify-between border-b border-black/20 pb-2">
-                                        <span className="text-gray-600">Software License</span>
-                                        <span className="font-bold">$10,000 / mo</span>
-                                    </div>
-                                    <div className="flex justify-between border-b border-black/20 pb-2">
-                                        <span className="text-gray-600">Hardware Dep.</span>
-                                        <span>+{formatCurrency(localComputeMonthly)}</span>
-                                    </div>
-                                    <div className="flex justify-between pt-2">
-                                        <span className="text-gray-600">P50 Latency</span>
-                                        <span className="font-bold">0.92ms</span>
-                                    </div>
-                                </div>
+                                <h3 className="text-3xl mb-1">Capital Retention</h3>
+                                <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono">Projected 12-Month Financial Savings</p>
                             </div>
-
-                            <div className="pt-6 border-t border-black/30">
-                                <span className="block font-mono text-xs text-gray-600 uppercase mb-2 font-bold">Fixed Resource Cost (Mo)</span>
-                                <span className="font-sans text-4xl font-bold tracking-tight">{formatCurrency(totalOcultarMonthly)}</span>
-                            </div>
-                        </div>
-
-                        {/* Differential Banner */}
-                        <div className="md:col-span-2 border border-white p-8 flex flex-col sm:flex-row items-center justify-between">
-                            <div>
-                                <h4 className="font-sans text-xl font-bold uppercase mb-2">Total System Variance</h4>
-                                <p className="font-mono text-xs text-gray-400 uppercase tracking-widest">Projected 12-Month Capital Retention</p>
-                            </div>
-                            <div className="mt-6 sm:mt-0 text-right">
-                                <span className="block font-sans text-5xl font-bold tracking-tighter text-white">
+                            <div className="text-right">
+                                <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 tracking-tighter">
                                     {formatCurrency(annualSavings)}
-                                </span>
+                                </div>
                             </div>
                         </div>
 
-                        {/* CTA Section */}
-                        <div className="md:col-span-2 mt-4 text-center border border-white p-10">
-                            <h2 className="font-sans text-2xl font-bold uppercase mb-4 tracking-tight">Execute Architecture Upgrade</h2>
-                            <p className="font-mono text-sm text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed">
-                                Initiate deployment sequence. Neutralize regulatory risk and terminate external egress taxation via localized execution.
-                            </p>
-
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 font-mono text-xs uppercase tracking-widest font-bold">
-                                <a href="mailto:sales@ocultar.io?subject=Enterprise%20Pilot%20Request" className="w-full sm:w-auto px-8 py-4 border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors">
-                                    [ Init Pilot Protocol ]
-                                </a>
-                                <button onClick={() => window.open('https://github.com/Edu963/ocultar', '_blank')} className="w-full sm:w-auto px-8 py-4 border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors">
-                                    [ Audit Source Code ]
+                        <div className="card bg-emerald-500 text-black p-12 text-center space-y-6">
+                            <h2 className="text-3xl text-black lowercase italic font-light tracking-tight">Neutralize regulatory risk and terminate external egress taxation.</h2>
+                            <div className="flex justify-center gap-4">
+                                <button className="bg-black text-white px-8 py-4 rounded-lg font-bold text-sm uppercase tracking-widest hover:bg-zinc-900 transition-colors">
+                                    Initialize Pilot Protocol
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
-
-                {/* Back Link */}
-                <div className="mt-16 text-center">
-                    <Link to="/" className="text-gray-500 hover:text-white transition-colors text-xs font-mono font-bold uppercase tracking-widest">
-                        [ Back to Terminal ]
-                    </Link>
-                </div>
-
             </div>
         </div>
     );
