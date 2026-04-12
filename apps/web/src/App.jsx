@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Shield, Lock, Zap, BarChart3, ChevronRight, Github, ExternalLink, Globe, ArrowRight, AlertTriangle, Code2, Terminal } from 'lucide-react';
 import ROIDashboardCard from './components/ROIDashboardCard';
 import RiskAssessmentPage from './RiskAssessmentPage';
-import CalculatorPage from './CalculatorPage';
+// import CalculatorPage from './CalculatorPage';
 import TerminalLog from './components/TerminalLog';
 import ComplianceBar from './components/ComplianceBar';
 import ArchitectureDiagram from './components/ArchitectureDiagram';
@@ -116,7 +116,7 @@ function AppContent() {
                     <div className="hidden md:flex items-center gap-10 text-[13px] font-bold uppercase tracking-widest">
                         <Link to="/" className="hover:text-emerald-400 transition-colors text-slate-400">Home</Link>
                         <Link to="/risk-assessment" className="hover:text-emerald-400 transition-colors text-slate-400">Security Audit</Link>
-                        <Link to="/calculator" className="hover:text-emerald-400 transition-colors text-slate-400">ROI Forecast</Link>
+                        <a href="/calculator.html" className="hover:text-emerald-400 transition-colors text-slate-400">ROI Forecast</a>
                         <a href="https://ocultar.dev/docs" className="hover:text-emerald-400 transition-colors text-slate-400 flex items-center gap-1">
                             Docs <ExternalLink className="w-3 h-3" />
                         </a>
@@ -133,7 +133,7 @@ function AppContent() {
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/risk-assessment" element={<RiskAssessmentPage />} />
-                    <Route path="/calculator" element={<CalculatorPage />} />
+                    {/* <Route path="/calculator" element={<CalculatorPage />} /> */}
                 </Routes>
             </div>
 
@@ -160,7 +160,7 @@ function AppContent() {
                             <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-500">Security Stack</h4>
                             <ul className="space-y-3 text-sm font-medium">
                                 <li><Link to="/risk-assessment" className="text-slate-400 hover:text-white transition-colors">Risk Assessment</Link></li>
-                                <li><Link to="/calculator" className="text-slate-400 hover:text-white transition-colors">ROI Calculator</Link></li>
+                                <li><a href="/calculator.html" className="text-slate-400 hover:text-white transition-colors">ROI Calculator</a></li>
                                 <li><a href="https://ocultar.dev/docs" className="text-slate-400 hover:text-white transition-colors">Developer Docs</a></li>
                             </ul>
                         </div>
@@ -319,9 +319,9 @@ function LandingPage() {
                                         <div className="text-3xl font-bold text-emerald-500">$1,435,500</div>
                                     </div>
                                 </div>
-                                <Link to="/calculator" className="btn btn-secondary w-full py-4 uppercase text-[10px] tracking-[0.2em] font-bold">
+                                <a href="/calculator.html" className="btn btn-secondary w-full py-4 uppercase text-[10px] tracking-[0.2em] font-bold">
                                     Open Detailed ROI Engine
-                                </Link>
+                                </a>
                             </div>
                         </div>
                         
