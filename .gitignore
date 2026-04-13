@@ -35,7 +35,9 @@ results.json
 *.log
 /reports/
 /pilot_data/
-/business/
+
+# Agent Skills (Private/Business)
+agents/skills/business/
 
 # Documentation Binaries
 *.pdf
