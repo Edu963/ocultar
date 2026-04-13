@@ -1,0 +1,26 @@
+Starting Competitive Performance Analysis Benchmark...
+Executing 1000 total requests with concurrency 50...
+1/2 Benchmarking Upstream (Baseline)...
+Traceback (most recent call last):
+  File "/home/edu/ocultar/scripts/sombra_benchmark.py", line 137, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/usr/lib64/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib64/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib64/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/edu/ocultar/scripts/sombra_benchmark.py", line 106, in main
+    base_latencies, base_status, base_duration = await benchmark(UPSTREAM_URL, CONCURRENCY, TOTAL_REQUESTS)
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edu/ocultar/scripts/sombra_benchmark.py", line 59, in benchmark
+    results = await asyncio.gather(*batch)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edu/ocultar/scripts/sombra_benchmark.py", line 23, in send_request
+    raise ValueError("OCU_MASTER_KEY environment variable is not set. Please set it before running the benchmark.")
+ValueError: OCU_MASTER_KEY environment variable is not set. Please set it before running the benchmark.
+<sys>:0: RuntimeWarning: coroutine 'send_request' was never awaited

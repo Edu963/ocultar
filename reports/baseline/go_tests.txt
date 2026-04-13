@@ -1,0 +1,1258 @@
+?   	github.com/Edu963/sombra	[no test files]
+?   	github.com/Edu963/sombra/pkg/connector	[no test files]
+?   	github.com/Edu963/sombra/pkg/handler	[no test files]
+?   	github.com/Edu963/sombra/pkg/router	[no test files]
+?   	github.com/Edu963/sombra/pkg/scrubber	[no test files]
+=== RUN   TestFileConnector_Fetch
+=== RUN   TestFileConnector_Fetch/In-memory_raw_body_CSV
+=== RUN   TestFileConnector_Fetch/Size_limit_exceeded
+--- PASS: TestFileConnector_Fetch (0.00s)
+    --- PASS: TestFileConnector_Fetch/In-memory_raw_body_CSV (0.00s)
+    --- PASS: TestFileConnector_Fetch/Size_limit_exceeded (0.00s)
+=== RUN   TestAPIConnector_Fetch
+=== RUN   TestAPIConnector_Fetch/Missing_auth_token
+=== RUN   TestAPIConnector_Fetch/Successful_authenticated_fetch
+--- PASS: TestAPIConnector_Fetch (0.00s)
+    --- PASS: TestAPIConnector_Fetch/Missing_auth_token (0.00s)
+    --- PASS: TestAPIConnector_Fetch/Successful_authenticated_fetch (0.00s)
+=== RUN   TestGateway_HandleQuery
+2026/03/22 11:03:18 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+--- PASS: TestGateway_HandleQuery (0.01s)
+=== RUN   TestPass1_IBAN
+2026/03/22 11:03:18 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+--- PASS: TestPass1_IBAN (0.01s)
+=== RUN   TestPass1_CreditorRef
+2026/03/22 11:03:18 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+--- PASS: TestPass1_CreditorRef (0.01s)
+=== RUN   TestPass2_AccountLabels
+2026/03/22 11:03:18 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+--- PASS: TestPass2_AccountLabels (0.01s)
+=== RUN   TestPass3_WireTransferNames
+2026/03/22 11:03:18 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+--- PASS: TestPass3_WireTransferNames (0.01s)
+=== RUN   TestPass4_TerminalVendorNames
+2026/03/22 11:03:18 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+--- PASS: TestPass4_TerminalVendorNames (0.03s)
+=== RUN   TestPass5_Art9Health
+2026/03/22 11:03:19 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+--- PASS: TestPass5_Art9Health (0.02s)
+=== RUN   TestPass6_MemoFreeText
+2026/03/22 11:03:19 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+--- PASS: TestPass6_MemoFreeText (0.01s)
+=== RUN   TestPass7_TaxRefs
+2026/03/22 11:03:19 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+--- PASS: TestPass7_TaxRefs (0.01s)
+=== RUN   TestIntegration_RealBankStatement
+2026/03/22 11:03:19 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+    scrubber_eu_test.go:314: Prescrubbed output:
+        
+        Compte de Dépôt n° [ACCOUNT_NUMBER_c0b28766]
+        [BIC_08c03028] EN VOTRE FAVEUR
+        VATES TREJOS CABEZAS H
+        : 3,322.00
+        
+        [BIC_08c03028] EMIS
+        VIR INST vers [PERSON_18b1c617] Campagne
+        : 100.00
+        
+        [BIC_db310612]
+        [ART9_HEALTH_RECORD] [HEALTH_ENTITY_002b3df9] DE L ISERE [ACCOUNT_NUMBER_803a8641]
+        : 10.00
+        
+        [BIC_08c03028] EMIS
+        VIR INST vers [PERSON_4b58d238] documents.
+        : 92.00
+        
+        [BIC_db310612]
+        [TAX_REF_a5596a06]
+        [CREDITOR_REF_e148b724]
+        : 92.00
+        
+        SUMUP *[PERSON_57b3aafe]: 9.50
+        
+        [BIC_d6ccedc2]
+        [IBAN_f6d62775]
+        4RVJ224UH4WJC
+        : 21.99
+--- PASS: TestIntegration_RealBankStatement (0.03s)
+PASS
+ok  	github.com/Edu963/sombra/tests	0.171s
+=== RUN   TestAPIEndpoints
+2026/03/22 11:03:18 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+OCULTAR REST API running on http://localhost:9991
+2026/03/22 11:03:19 [ERROR] decrypt error for token [EMAIL_a1b2c3d4] (key rotation?). Fail-safe: returning unhydrated token: encoding/hex: invalid byte: U+006E 'n'
+--- PASS: TestAPIEndpoints (1.01s)
+PASS
+ok  	github.com/Edu963/ocultar/cmd	1.039s
+=== RUN   TestAnalyzeDatasetRisk
+--- PASS: TestAnalyzeDatasetRisk (0.00s)
+PASS
+ok  	github.com/Edu963/ocultar/pkg/audit	0.002s
+?   	github.com/Edu963/ocultar/pkg/config	[no test files]
+?   	github.com/Edu963/ocultar/pkg/connector	[no test files]
+?   	github.com/Edu963/ocultar/pkg/connector/slack	[no test files]
+?   	github.com/Edu963/ocultar/pkg/identities	[no test files]
+?   	github.com/Edu963/ocultar/pkg/inference	[no test files]
+=== RUN   TestGeneratedLicense
+2026/03/22 11:03:19 [INFO] License verified. Tier: ENTERPRISE, Customer: Development
+--- PASS: TestGeneratedLicense (0.00s)
+PASS
+ok  	github.com/Edu963/ocultar/pkg/license	0.005s
+=== RUN   TestFailClosed_VaultError
+2026/03/22 11:03:20 [PROXY-BLOCK] Refinery error: vault storage failed: unexpected EOF
+--- PASS: TestFailClosed_VaultError (0.00s)
+=== RUN   TestFailClosed_ModelInferenceError
+2026/03/22 11:03:20 [PROXY-BLOCK] Refinery error: SLM inference failed: io: read/write on closed pipe
+--- PASS: TestFailClosed_ModelInferenceError (0.00s)
+=== RUN   TestFailClosed_Success
+2026/03/22 11:03:20 [PROXY] → POST http://127.0.0.1:42995/ (body: 70 bytes, redacted: false)
+2026/03/22 11:03:20 [PROXY] ← 200  (response: 34 bytes)
+--- PASS: TestFailClosed_Success (0.00s)
+=== RUN   TestProxyRedactsRequestPII
+2026/03/22 11:03:20 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [PROXY] → POST http://127.0.0.1:45813/v1/chat/completions (body: 74 bytes, redacted: true)
+2026/03/22 11:03:20 [PROXY] ← 200  (response: 143 bytes)
+    proxy_test.go:79: ✅ Email redacted in upstream request
+    proxy_test.go:86: ✅ Phone redacted in upstream request
+    proxy_test.go:91: 🚨 Expected [EMAIL_...] token in upstream body, got: {"messages":[{"content":"[SSN_50af802f]","role":"user"}],"model":"gpt-4o"}
+--- FAIL: TestProxyRedactsRequestPII (0.01s)
+=== RUN   TestProxyRehydratesResponseTokens
+2026/03/22 11:03:20 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+2026/03/22 11:03:20 [PROXY] → POST http://127.0.0.1:33797/v1/chat/completions (body: 88 bytes, redacted: true)
+2026/03/22 11:03:20 [PROXY] ← 200  (response: 109 bytes)
+    proxy_test.go:148: ✅ Email re-hydrated in client response: {"choices":[{"message":{"content":"The user mentioned My email is rehydration@test.io","role":"assistant"}}]}
+--- PASS: TestProxyRehydratesResponseTokens (0.01s)
+=== RUN   TestVaultRehydrateString
+2026/03/22 11:03:20 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+    proxy_test.go:182: ✅ Re-hydration OK: Contact [EMAIL_cbeb3178] for details. → Contact alice@company.org for details.
+--- PASS: TestVaultRehydrateString (0.01s)
+FAIL
+FAIL	github.com/Edu963/ocultar/pkg/proxy	0.036s
+=== RUN   TestCrawlLocalDirectory
+2026/03/22 11:03:20 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+    crawler_test.go:47: Full scan report: {TargetDirectory:/tmp/TestCrawlLocalDirectory3873385369/001 FilesScanned:2 TotalExposures:1 Files:map[/tmp/TestCrawlLocalDirectory3873385369/001/customer_data.txt:{TotalPII:1 Types:map[SSN:[c4d782a2…]]}]}
+    crawler_test.go:56: Expected at least 2 PII elements (email, phone), got 1
+--- FAIL: TestCrawlLocalDirectory (0.01s)
+FAIL
+FAIL	github.com/Edu963/ocultar/pkg/recon	0.017s
+=== RUN   TestParseAndReplaceAddresses
+=== RUN   TestParseAndReplaceAddresses/Colombian_Address_1
+=== RUN   TestParseAndReplaceAddresses/Colombian_Address_2
+=== RUN   TestParseAndReplaceAddresses/French_Address
+=== RUN   TestParseAndReplaceAddresses/German_Address
+=== RUN   TestParseAndReplaceAddresses/Spanish_Address
+=== RUN   TestParseAndReplaceAddresses/US_Full
+=== RUN   TestParseAndReplaceAddresses/US_Short
+=== RUN   TestParseAndReplaceAddresses/City_Only
+=== RUN   TestParseAndReplaceAddresses/City_Only_Accented
+=== RUN   TestParseAndReplaceAddresses/Already_Tokenized
+=== RUN   TestParseAndReplaceAddresses/False_Positive_Avoidance
+=== RUN   TestParseAndReplaceAddresses/False_Positive_Avoidance_2
+--- PASS: TestParseAndReplaceAddresses (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/Colombian_Address_1 (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/Colombian_Address_2 (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/French_Address (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/German_Address (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/Spanish_Address (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/US_Full (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/US_Short (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/City_Only (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/City_Only_Accented (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/Already_Tokenized (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/False_Positive_Avoidance (0.00s)
+    --- PASS: TestParseAndReplaceAddresses/False_Positive_Avoidance_2 (0.00s)
+=== RUN   TestParseAndReplacePhones
+=== RUN   TestParseAndReplacePhones/French_Mobile
+=== RUN   TestParseAndReplacePhones/French_Local
+=== RUN   TestParseAndReplacePhones/German
+=== RUN   TestParseAndReplacePhones/Spanish
+=== RUN   TestParseAndReplacePhones/Brazilian_Mobile
+=== RUN   TestParseAndReplacePhones/Mexican
+=== RUN   TestParseAndReplacePhones/Argentine
+=== RUN   TestParseAndReplacePhones/Colombian
+=== RUN   TestParseAndReplacePhones/US_Standard
+=== RUN   TestParseAndReplacePhones/US_Country_Code
+=== RUN   TestParseAndReplacePhones/Already_Tokenized
+=== RUN   TestParseAndReplacePhones/Overlapping_Token
+=== RUN   TestParseAndReplacePhones/ISO_Date_Not_Phone
+=== RUN   TestParseAndReplacePhones/Embedded_in_Text
+--- PASS: TestParseAndReplacePhones (0.00s)
+    --- PASS: TestParseAndReplacePhones/French_Mobile (0.00s)
+    --- PASS: TestParseAndReplacePhones/French_Local (0.00s)
+    --- PASS: TestParseAndReplacePhones/German (0.00s)
+    --- PASS: TestParseAndReplacePhones/Spanish (0.00s)
+    --- PASS: TestParseAndReplacePhones/Brazilian_Mobile (0.00s)
+    --- PASS: TestParseAndReplacePhones/Mexican (0.00s)
+    --- PASS: TestParseAndReplacePhones/Argentine (0.00s)
+    --- PASS: TestParseAndReplacePhones/Colombian (0.00s)
+    --- PASS: TestParseAndReplacePhones/US_Standard (0.00s)
+    --- PASS: TestParseAndReplacePhones/US_Country_Code (0.00s)
+    --- PASS: TestParseAndReplacePhones/Already_Tokenized (0.00s)
+    --- PASS: TestParseAndReplacePhones/Overlapping_Token (0.00s)
+    --- PASS: TestParseAndReplacePhones/ISO_Date_Not_Phone (0.00s)
+    --- PASS: TestParseAndReplacePhones/Embedded_in_Text (0.00s)
+=== RUN   TestGDPRComplianceHeuristics
+2026/03/22 11:03:20 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+=== RUN   TestGDPRComplianceHeuristics/Greedy_Neighborhood_(Surname_Proximity)
+=== RUN   TestGDPRComplianceHeuristics/Multilingual_Conjunction_Linkage_(ET)
+=== RUN   TestGDPRComplianceHeuristics/Professional_Title_Shield_(DR)
+=== RUN   TestGDPRComplianceHeuristics/Semantic_Scrubbing_(Sensitive_Life_Event)
+=== RUN   TestGDPRComplianceHeuristics/Possessive_Case_Names
+--- PASS: TestGDPRComplianceHeuristics (0.01s)
+    --- PASS: TestGDPRComplianceHeuristics/Greedy_Neighborhood_(Surname_Proximity) (0.00s)
+    --- PASS: TestGDPRComplianceHeuristics/Multilingual_Conjunction_Linkage_(ET) (0.00s)
+    --- PASS: TestGDPRComplianceHeuristics/Professional_Title_Shield_(DR) (0.00s)
+    --- PASS: TestGDPRComplianceHeuristics/Semantic_Scrubbing_(Sensitive_Life_Event) (0.00s)
+    --- PASS: TestGDPRComplianceHeuristics/Possessive_Case_Names (0.00s)
+=== RUN   TestDomainSwapping
+--- PASS: TestDomainSwapping (0.00s)
+=== RUN   TestRefineBatchConcurrency
+2026/03/22 11:03:20 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:20 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:21 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:22 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+--- PASS: TestRefineBatchConcurrency (3.21s)
+=== RUN   TestFalseNegativeKPI
+2026/03/22 11:03:23 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+=== RUN   TestFalseNegativeKPI/Standard_Email
+    refinery_test.go:94: ✅ Cleaned Standard Email -> Contact me at [EMAIL_06014062] tomorrow.
+=== RUN   TestFalseNegativeKPI/French_Mobile_Phone
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+    refinery_test.go:94: ✅ Cleaned French Mobile Phone -> [SSN_31d34389]
+=== RUN   TestFalseNegativeKPI/North_American_Phone
+2026/03/22 11:03:23 [VULN-001] Segmented SSN detected in normalized buffer.
+    refinery_test.go:94: ✅ Cleaned North American Phone -> [SSN_606caa78]
+=== RUN   TestFalseNegativeKPI/Hidden_Structure_(CRLFs)
+    refinery_test.go:94: ✅ Cleaned Hidden Structure (CRLFs) -> My email is sneaky
+        [EMAIL_fa9c7b0d]
+        and you won't find it.
+=== RUN   TestFalseNegativeKPI/European_Address
+    refinery_test.go:94: ✅ Cleaned European Address -> We shipped the hardware to [ADDRESS_dc3ba366], [ADDRESS_5dd272b4].
+=== RUN   TestFalseNegativeKPI/URL_/_Web_Link
+    refinery_test.go:94: ✅ Cleaned URL / Web Link -> Download the file from [URL_0b7dc8db]
+=== RUN   TestFalseNegativeKPI/Timestamp_Bug_(Should_not_become_phone)
+    refinery_test.go:94: ✅ Cleaned Timestamp Bug (Should not become phone) -> 2026-02-21T10:00:00Z
+=== RUN   TestFalseNegativeKPI/Overlap_Bug_(Nested_tokens)
+    refinery_test.go:94: ✅ Cleaned Overlap Bug (Nested tokens) -> Email [EMAIL_624fcfdf] with phone 12345678
+--- PASS: TestFalseNegativeKPI (0.03s)
+    --- PASS: TestFalseNegativeKPI/Standard_Email (0.00s)
+    --- PASS: TestFalseNegativeKPI/French_Mobile_Phone (0.00s)
+    --- PASS: TestFalseNegativeKPI/North_American_Phone (0.00s)
+    --- PASS: TestFalseNegativeKPI/Hidden_Structure_(CRLFs) (0.00s)
+    --- PASS: TestFalseNegativeKPI/European_Address (0.00s)
+    --- PASS: TestFalseNegativeKPI/URL_/_Web_Link (0.00s)
+    --- PASS: TestFalseNegativeKPI/Timestamp_Bug_(Should_not_become_phone) (0.00s)
+    --- PASS: TestFalseNegativeKPI/Overlap_Bug_(Nested_tokens) (0.00s)
+=== RUN   TestSinglePassScanning
+2026/03/22 11:03:23 [INFO] Embedded regulatory policy v1.2 loaded successfully.
+2026/03/22 11:03:23 [INFO] SLM Batch Scan: 1 entity type(s) detected in record
+    refinery_test.go:143: ✅ Single-pass scan verified: ScanForPII called exactly 1 time
+--- PASS: TestSinglePassScanning (0.00s)
+PASS
+ok  	github.com/Edu963/ocultar/pkg/refinery	3.264s
+=== RUN   TestParseAuditLog
+--- PASS: TestParseAuditLog (0.00s)
+=== RUN   TestGenerateHTMLReport
+--- PASS: TestGenerateHTMLReport (0.00s)
+PASS
+ok  	github.com/Edu963/ocultar/pkg/reporter	0.002s
+FAIL
