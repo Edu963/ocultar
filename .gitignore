@@ -38,6 +38,7 @@ results.json
 
 # Agent Skills (Private/Business)
 agents/skills/business/
+business/
 
 # Documentation Binaries
 *.pdf
