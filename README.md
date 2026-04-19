@@ -13,7 +13,7 @@ Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refin
 - `/tools/` - Development and build tools
 - `/security/` - Regulatory policies and integrity manifests
 
-### Key Hardening Features (v2.1.1+)
+### Key Hardening Features (v1.1.0+)
 - **Fail-Closed Proxy**: Replaced performance-shield load shedding with a strict semaphore-based queue.
 - **SSRF Protection**: Strict IP/DNS validation with rebinding protection for all egress targets.
 - **Secrets Enforcement**: Mandatory `OCU_MASTER_KEY` and `OCU_SALT` validation for production deployments.
@@ -33,7 +33,7 @@ Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refin
     ```bash
     cp .env.example .env
     # Fill in your master keys and API keys
-    ./scripts/orchestrate.sh  # Run the 16-Step Ocultar Protocol validation
+    ./scripts/orchestrate.sh  # Run the Ocultar Protocol validation (In-Progress)
     ```
 
 2.  **Go Workspace**:
@@ -51,7 +51,7 @@ Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refin
 
 ## AI-Driven Governance
 
-OCULTAR is maintained by a specialized ecosystem of 40+ AI Agent Skills. Every change to this repository is verified by the **16-Step Ocultar Protocol**, ensuring deterministic security and compliance.
+OCULTAR is maintained by a specialized ecosystem of 40+ AI Agent Skills. Every change to this repository is verified by the **Ocultar Protocol** (v1.0), ensuring deterministic security and compliance. See [ROADMAP.md](./ROADMAP.md) for the implementation status of the full 16-step sequence.
 
 - **Orchestration**: Managed by `/.agents/skills/`.
 - **Policy**: Defined in `/security/regulatory_policy.json`.
@@ -60,4 +60,5 @@ OCULTAR is maintained by a specialized ecosystem of 40+ AI Agent Skills. Every c
 ## Development
 
 - **Documentation**: See `/docs` for architecture and API references.
+- **Roadmap**: See [ROADMAP.md](./ROADMAP.md) for upcoming features and releases.
 - **Testing**: Run `go test ./...` from the root.
