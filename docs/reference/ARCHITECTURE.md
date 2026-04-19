@@ -62,7 +62,7 @@ graph TD
         Vault_svc["Identity Vault\nservices/vault"]
         DDB[("DuckDB\nvault.db")]
         PG[("PostgreSQL ✦\nexternal HA cluster")]
-        SLM["Specialized SLM ✦\n(Clinical / General)\nllama.cpp / Qwen"]
+        SLM["Specialized SLM ✦\n(Clinical / General)\nllama.cpp / Qwen\n:8085"]
         Dashboard["Dashboard\nindex.html\n:3030"]
         AuditLog["Audit System\nservices/refinery/pkg/audit\nTamper-proof logs"]
         Connectors["Sombra Pro Connectors ✦\napps/sombra/pkg/connector"]
@@ -152,7 +152,7 @@ sequenceDiagram
 
 Ocultar uses a decentralized network of **Specialized Agent Skills** to maintain security, compliance, and product integrity. These are orchestrated by the `Continuous AI Orchestrator`.
 
-### Governance Tiers (v2.1)
+### Governance Tiers (v2.4)
 
 | Tier | Agent Skills | Focus |
 |---|---|---|
@@ -161,8 +161,8 @@ Ocultar uses a decentralized network of **Specialized Agent Skills** to maintain
 | **Security & Egress** | `zero-egress-validator`, `refinery-architecture-manager`, `secret-scanner`, `secret-rotation-manager`, `red-team-evasion-scanner`, `pii-regression-suite-runner` | The "Fail-Closed" layer; automates PII detection rules and detects "Shadow AI" adoption. |
 | **Business & Infrastructure** | `manage-ocultar-license`, `license-validation-cli`, `tier-compliance-checker`, `pilot-manager`, `roi-cost-efficiency-accountant`, `sombra-gateway-policy-enforcer` | The "Value Layer"; manages Ed25519 licensing, Pilot lifecycles, and financial ROI quantification. |
 
-### The 16-Step Ocultar Protocol
-The orchestrator triggers a deterministic sequence for ALL repository modifications:
+### The Ocultar Protocol
+The orchestrator triggers a deterministic sequence for repository modifications. See [ROADMAP.md](../../ROADMAP.md) for the implementation status of the 16-step sequence.
 1. **Ingest** (Regs) → 2. **Decode** (Intent) → 3. **Sync** (State) → 4. **Generate** (Policy) → 5. **Simulate** (Impact) → 6. **Sign** (Artifact) → 7. **Audit** (Log check) → 8. **Enforce** (Gateway) → 9. **Verify** (Dash) → 10. **Redact** (Content) → 11. **Scan** (Secrets) → 12. **Visualize** (CIV) → 13. **Red-Team** (Evasion) → 14. **Provision** (Snapshot) → 15. **Account** (ROI) → 16. **Benchmark** (Perf).
 
 ---

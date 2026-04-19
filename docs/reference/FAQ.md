@@ -48,8 +48,8 @@ The **Enterprise Dashboard** is a browser-based UI for monitoring and management
 - **ROI Analytics**: Quantifying financial savings and fine-avoidance.
 - Identity Vault management and audit log review.
 
-### Should dictionary management and external connectors be part of the Dashboard?
-Absolutely. While the current dashboard focuses on monitoring hits and metrics, our roadmap includes a "Shield Manager" UI. This will allow non-technical security officers to manage dictionaries and connectors without touching configuration files.
+### Is there a UI to manage dictionaries and connectors?
+Yes. The Dashboard includes a **Shield Manager** interface. This allows security officers to manage dictionaries and regex patterns directly via the UI without touching configuration files. Modifications are hot-reloaded and persisted to `configs/config.yaml`.
 
 ### What is the Identity Vault?
 The **Identity Vault** is a local, encrypted database (DuckDB or PostgreSQL) that stores the mapping between original PII and its corresponding tokens. It allows the system to "re-hydrate" (restore) original values in the AI's response for the end-user, without ever exposing them to the AI provider.
@@ -67,7 +67,7 @@ The **Dictionary Shield (Tier 0)** is the first line of defense. it uses a manda
 Currently, clients add terms by editing the `configs/protected_entities.json` file. This is a "Fail-Closed" dependency; if the file is missing or contains invalid JSON, the refinery will refuse to start to ensure no data is processed without the primary shield.
 
 ### Can we connect to external tools like LDAP, CRMs, or Databases for Tier 0?
-OCULTAR does not natively pull from these sources yet. This is a high-priority item on our Enterprise roadmap. Integrating these would allow for automated, real-time "Identity Ingestion" from systems like Salesforce or Active Directory.
+Yes. OCULTAR Enterprise includes a **Live Identity Sync** worker. It natively polls external CRM/LDAP endpoints (e.g., Salesforce, Workday) to perform automated, real-time "Identity Ingestion" of protected names and VIPs into the Tier 0 shield.
 
 ---
 

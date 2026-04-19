@@ -86,7 +86,7 @@ docker compose logs -f
 Expected final output:
 ```
 ocultar-proxy  | [+] All pre-flight checks passed! Starting Proxy.
-ocultar-proxy  | [INFO] OCULTAR proxy listening on :8080
+ocultar-proxy  | [INFO] OCULTAR proxy listening on :8081
 ```
 
 > **Subsequent starts are instant** — the model is cached in the `slm_data` Docker volume.
@@ -115,7 +115,7 @@ Expected output:
 | Port | Service | Purpose |
 |---|---|---|
 | `${OCU_PROXY_PORT:-8081}` (host) | `ocultar-proxy` | Transparent PII proxy — point your app here |
-| `8080` (internal only) | `slm-ner` | Local AI inference — not exposed to host |
+| `8085` (internal only) | `slm-ner` | Local AI inference — not exposed to host |
 
 > The Enterprise Dashboard (`/index.html`) is part of the **standalone binary** deployment, not the proxy stack. See [`ENTERPRISE_SETUP_GUIDE.md`](./ENTERPRISE_SETUP_GUIDE.md) for the full feature walkthrough.
 

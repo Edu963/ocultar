@@ -130,7 +130,7 @@ OCULTAR uses an **Offline Ed25519** model. To activate:
 To process a large `.csv` or `.json` file directly through the refinery (bypassing the browser):
 
 ```bash
-curl -F "file=@my_large_data.csv" http://localhost:8080/api/refine/file > cleaned_data.csv
+curl -F "file=@my_large_data.csv" http://localhost:8081/api/refine/file > cleaned_data.csv
 ```
 
 OCULTAR streams the cleaned output directly into `cleaned_data.csv`.
@@ -153,7 +153,7 @@ This safely stops all containers and frees resources.
 
 | Symptom | Fix |
 |---|---|
-| Browser shows nothing at `localhost:3000` | Ensure Docker Desktop is running. Wait 30 seconds after setup, then refresh. |
+| Browser shows nothing at `localhost:3030` | Ensure Docker Desktop is running. Wait 30 seconds after setup, then refresh. |
 | Dashboard loads but refinement fails | Check that the local AI container started: `docker compose logs ocultar-ai` |
 | Windows PowerShell script blocked | Open PowerShell as Administrator, run `Set-ExecutionPolicy RemoteSigned`, then retry. |
 ### SharePoint Connector Environment Variables
