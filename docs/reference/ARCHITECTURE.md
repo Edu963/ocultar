@@ -115,6 +115,7 @@ sequenceDiagram
 
     Note over E: Tier 0.1 — Base64 Evasion Shield
     Note over E: Tier 0 — Dictionary Shield (protected_entities.json)
+    Note over E: Tier 0.5 — Pattern Matching Shield (RegEx / Entropy)
     Note over E: Tier 1 — Centralized Deterministic Pipeline (Refinery)
     Note over E: EU Sovereign Detection Pack (v1) — Checksum Validation ✦
     Note over E: Tier 1.1 — Phone Shield (libphonenumber)
@@ -138,7 +139,7 @@ sequenceDiagram
     U-->>P: {choices:[{message:{content:"I'll email [EMAIL_9c8f7a1b]"}}]}
 
     Note over P: Response re-hydration (RBAC Checked)
-    P->>V: GetEncryptedByToken("[EMAIL_9c8f7a1b]")
+    P->>V: GetToken("[EMAIL_9c8f7a1b]_hash")
     V-->>P: ciphertext
     P->>P: Decrypt(ciphertext, masterKey) → "john@example.com"
     P->>P: Log to Tamper-proof Audit Trail
@@ -207,7 +208,7 @@ graph LR
 
 ---
 
-## 5. Package Dependency Graph
+## 6. Package Dependency Graph
 
 ```mermaid
 graph TD
@@ -247,7 +248,7 @@ graph TD
 
 ---
 
-## 6. Cryptographic Design
+## 7. Cryptographic Design
 
 ### Key Derivation
 
@@ -261,7 +262,7 @@ OCU_MASTER_KEY (env var, arbitrary string)
    32-byte AES key  ──► used for Encrypt() / Decrypt()
 ```
 
-The Sombra gateway uses **HKDF** (SHA-256, fixed salt) instead of raw SHA-256 for stronger key separation.
+Both the **OCULTAR Proxy** and the **Sombra Gateway** use **HKDF-SHA256** (with a fixed salt) for strong key separation.
 
 ### License Enforcement (Entitlement Bitmask)
 Enterprise licenses (signed via Ed25519) include a 64-bit `Capabilities` mask. This provides granular control over which "Pro" features are enabled for a specific customer.
@@ -308,7 +309,7 @@ Total overhead per PII value: 12 bytes (nonce) + 16 bytes (auth tag) = 28 bytes 
 
 ---
 
-## 7. Vault Schema
+## 8. Vault Schema
 
 ### DuckDB (default)
 
@@ -328,7 +329,7 @@ Same schema created at startup via `CREATE TABLE IF NOT EXISTS`. Connection stri
 
 ---
 
-## 8. Fail-Closed Guarantees
+## 9. Fail-Closed Guarantees
 
 OCULTAR enforces fail-closed at every critical junction:
 
@@ -340,23 +341,21 @@ OCULTAR enforces fail-closed at every critical junction:
 | Trial limit reached (`OCU_PILOT_MODE`) | Proxy returns `403` — request is blocked |
 | Obfuscated payload detected (Base64/JWT prefix, URL-encoded JSON) | Refinery returns error → proxy returns `403` |
 | SSRF attempt in `Ocultar-Target` header | `resolveTarget` returns error → proxy returns `403` |
-| Payload exceeds 5 MB | `MaxBytesReader` triggers → proxy returns `413` |
-| Concurrency limit exceeded (>15 concurrent) | Semaphore blocks for 5 seconds → `429` if not acquired |
+| Payload exceeds configured limit | `MaxBytesReader` triggers → proxy returns `413` |
+| Concurrency limit exceeded | Semaphore blocks for 10 seconds → `429` if not acquired |
 | Token re-hydration key mismatch (key rotation) | Logs error, returns **token unchanged** (fail-safe — no data loss) |
 | SLM inference fails (Enterprise) | Refinery returns error → proxy returns `500` |
 | Pro Connector initialized without Bitmask license | `log.Printf([WARN])` — connector remains dormant (Fail-Closed) |
 
-> **Re-hydration exception:** Unlike request-side processing which is strictly fail-closed, response-side re-hydration is **fail-safe** — if a token cannot be decrypted (e.g. after a key rotation), the token is returned as-is rather than returning a 500 error. This prevents permanent proxy unavailability while preserving security (the token string itself contains no PII).
-
 ---
 
-## 9. Scalability & Concurrency Model
+## 10. Scalability & Concurrency Model
 
 ### Concurrency limits
 
 | Layer | Mechanism | Limit |
 |---|---|---|
-| Proxy (per instance) | `chan struct{}` semaphore | 15 concurrent requests |
+| Proxy (per instance) | `chan struct{}` semaphore | Configurable (Default: 10, Fallback: 15) |
 | DuckDB | File-level lock | Single-process only |
 | PostgreSQL (Enterprise) | Connection pool (15 max) | Horizontally scalable |
 
@@ -370,7 +369,7 @@ OCULTAR enforces fail-closed at every critical junction:
 
 ### Memory model
 
-- **Request bodies** are read fully into RAM before processing (5 MB cap enforced via `io.MaxBytesReader`).
+- **Request bodies** are read fully into RAM before processing (Configurable cap enforced via `io.MaxBytesReader`).
 - **File uploads** (`/api/refine/file`) use `bufio.Scanner` — line-by-line streaming. Memory overhead is bounded to a single line, not the file size.
 - **SLM batch scan** marshals an entire JSON record to a string once per document — for deeply nested objects, worst-case memory is 2× the JSON document size.
 - **Vault hits map** (`refinery.Hits`) is accumulated per-request and protected by `sync.Mutex`. It is reset between requests via `ResetHits()`.

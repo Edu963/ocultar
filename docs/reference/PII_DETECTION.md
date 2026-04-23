@@ -40,7 +40,21 @@ The Refinery operates on a multi-tier defense-in-depth model:
 | `[NL_BSN_...]` | Identity | Dutch Citizen Service Numbers (BSN). | GDPR, UAVG |
 | `[UK_NINO_...]` | Identity | UK National Insurance Numbers. | UK GDPR, HMRC |
 | `[UK_NHS_...]` | Identity | UK National Health Service numbers. | UK GDPR, NHS Data Security |
+| `[PL_PESEL_...]` | Identity | Polish National Identification Numbers (PESEL). | GDPR |
+| `[FI_HETU_...]` | Identity | Finnish Personal Identity Codes. | GDPR |
+| `[SE_PIN_...]` | Identity | Swedish Personal Identity Numbers. | GDPR |
+| `[DK_CPR_...]` | Identity | Danish Personal Identification Numbers. | GDPR |
+| `[NO_FNR_...]` | Identity | Norwegian Birth Numbers (FNR). | GDPR |
+| `[BR_CPF_...]` | Identity | Brazilian Individual Taxpayer Registry (CPF). | LGPD |
+| `[CL_RUT_...]` | Identity | Chilean National ID (RUT). | LPDP |
+| `[INDIA_AADHAAR_...]` | Identity | Indian Aadhaar Numbers (12-digit). | Digital Personal Data Protection Act |
+| `[SINGAPORE_ID_...]` | Identity | Singapore National ID (NRIC/FIN). | PDPA |
+| `[US_PASSPORT_...]` | Identity | US Passport Numbers. | Privacy Act of 1974 |
+| `[US_DL_...]` | Identity | US Driver's License Numbers. | Driver's Privacy Protection Act |
 | `[AWS_KEY_...]` | Security | AWS Access Key IDs. | SOC2, PCI-DSS |
+| `[AWS_SECRET_...]` | Security | AWS Secret Access Keys. | SOC2, PCI-DSS |
+| `[GCP_SERVICE_ACCOUNT_...]` | Security | GCP Service Account Emails. | SOC2 |
+| `[IP_ADDRESS_...]` | Digital Identity | IPv4 addresses. | GDPR, CCPA |
 
 ## 3. Canonical InfoType Mapping (Google Cloud DLP)
 
