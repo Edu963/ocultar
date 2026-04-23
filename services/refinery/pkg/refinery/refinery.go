@@ -463,6 +463,9 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		}
 	}
 
+	// TIER 1.5: Greeting & Signature Shield
+	// Catches names disclosed via salutations ("Regards, John") and self-introductions ("My name is Jane").
+	// Runs after phone/address parsing to avoid false-positive collisions with numeric fields.
 	greetingMatches := greetingRegex.FindAllStringSubmatchIndex(refined, -1)
 	nameIntroMatches := nameIntroRegex.FindAllStringSubmatchIndex(refined, -1)
 	allNameMatches := append(greetingMatches, nameIntroMatches...)
