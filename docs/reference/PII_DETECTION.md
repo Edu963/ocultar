@@ -76,17 +76,17 @@ OCULTAR always uses **deterministic pseudonymization**:
 - **Same Input = Same Token**: Preserves relational integrity for data science and AI context.
 - **Irreversible**: Token strings contain no original data and are reversible only with access to both the **Identity Vault** (DuckDB/PostgreSQL) and the **Master Key**.
 
-## 4. Auditor Verification Note
+## 5. Auditor Verification Note
 
 Every policy update in OCULTAR goes through the **Validation-First DAG**:
 1.  **Simulation**: Proposed changes are replayed against the last 1,000 requests to predict impact.
 2.  **Signing**: Final policies are signed with Ed25519 to prevent tampering.
 3.  **Audit**: The `compliance-integrity-suite` continuously monitors for configuration drift and runtime violations.
 
-## 5. Performance & SLA
+## 6. Performance & SLA
 
 To satisfy enterprise latency and reliability requirements, the Tier 2 AI Scan implements deterministic SLA enforcement:
-- **Five-Second Timeout**: Every AI scan is bounded by a strict 5-second `http.Client` timeout.
-- **Fail-Closed Strategy**: If the scan exceeds this budget, the request fails with a security error, preventing un-scanned data from being processed.
-- **Deterministic Caching**: Results are stored in a thread-safe `sync.Map` keyed by the **SHA-256 hash** of the input. Repeat scans are sub-millisecond, bypass the network, and preserve relational token integrity.
-- **Strict Single-Pass Audit**: Validated by regression tests to ensure Tier 2 never re-scans partial fragments already covered by the batch record scan.
+- **Thirty-Second Timeout**: Every AI scan is bounded by a strict 30-second `http.Client` timeout (hardcoded in `inference/remote.go`). Configurable at the application level via `inference_timeout` in `config.yaml` (currently advisory only).
+- **Fail-Closed Strategy**: If the scan exceeds this budget or the sidecar is unreachable, the request fails with a security error, preventing un-scanned data from being processed.
+- **Session Cache**: Results are stored in a thread-safe `sync.Map` keyed by the original input string. Repeat scans within the same request session are sub-millisecond and bypass the network.
+- **Single-Pass Batch Scan**: For complex JSON records, the SLM is called once per record (not per string field) to reduce round-trips and preserve relational token integrity.
