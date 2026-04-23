@@ -25,6 +25,17 @@ Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refin
 - **Native SLM Inference**: Sidecar support for local, sovereign PII scanning using specialized LLMs without cloud egress.
 - **Zero-Egress Architecture**: PII is tokenized *before* ever leaving the trust boundary, converting liabilities into audit-safe assets.
 
+## Why OCULTAR Is Different
+
+### Obfuscation-Resistant: Recursive Base64 Scanning
+Most PII filters operate on plaintext. A sophisticated attacker — or a misbehaving upstream SDK — can embed sensitive data inside a Base64-encoded blob inside a JSON field, completely bypassing naive pattern matching. OCULTAR decodes and recursively scans every Base64 segment it encounters, running the full detection pipeline on the decoded content before re-encoding the output. The payload structure is preserved; the PII is not. This is implemented in `Tier 0.1` of the refinery pipeline (`RefineString → processInterfaceRecursive`) and applies to both inline strings and nested JSON payloads hidden inside Base64.
+
+### Luhn-Validated Credit Card Detection
+Regex alone catches digit sequences that *look* like card numbers, producing a high false-positive rate that poisons analytics and erodes trust in any filtering system. OCULTAR applies the **Luhn algorithm (mod-10 checksum)** to every credit card candidate before vaulting it — the same validation used by payment processors. A match that fails Luhn is silently passed through without redaction or vault storage. Finance and payments teams will recognize this as the difference between a real card filter and a noise generator.
+
+### Deterministic Tokens Enable Privacy-Safe Cross-Document Analytics
+OCULTAR tokens are not random UUIDs. Every token is derived deterministically from `SHA-256(original_PII)`, meaning the same input always produces the same token — across requests, across sessions, and across documents. This has a consequence that has not been documented anywhere until now: **you can run aggregations, joins, and frequency analysis on fully tokenized data without ever de-tokenizing it.** A database of `[EMAIL_9c8f7a1b]` values can be counted, grouped, and correlated exactly like the original emails — the analytical value is preserved, the privacy risk is not. Re-hydration to plaintext is only needed when a human must read the result.
+
 ## Getting Started
 
 1.  **Environment Setup**:

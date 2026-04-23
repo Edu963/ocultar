@@ -11,8 +11,9 @@ The Refinery operates on a multi-tier defense-in-depth model:
 
 | Tier | Name | Methodology |
 |---|---|---|
+| **Tier 0.1** | Base64 Evasion Shield | Decodes and recursively scans every Base64 segment in the payload. PII hidden inside encoded blobs is caught and re-encoded after redaction — the payload structure is preserved, the data is not. |
 | **Tier 0** | Dictionary Shield | Exact match against Enterprise VIP and exclusion lists. |
-| **Tier 1** | Lead Shield | High-performance Go regular expressions. |
+| **Tier 1** | Deterministic Registry | High-performance Go regular expressions with **checksum-backed validation** (Luhn mod-10 for credit cards, MOD97 for IBANs, and 12 national ID validators). Pattern matches that fail their checksum are discarded rather than flagged — eliminating false positives at the source. |
 | **Tier 2** | AI Semantic Scan | Local SLM (Qwen/Phi) performing NER inference. |
 | **Tier 3** | Structural Heuristics | Context-aware proximity rules and entity expansion. |
 
@@ -31,7 +32,8 @@ The Refinery operates on a multi-tier defense-in-depth model:
 | `[SSN_...]` | Identity | Social Security Numbers. Supports both hyphenated (`XXX-XX-XXXX`) and raw 9-digit (`XXXXXXXXX`) formats. Utilizes contextual triggers to ensure high-fidelity detection. | GDPR, HIPAA, Tax Compliance |
 | `[CREDENTIAL_...]` | Security | Passwords and authentication secrets. | OWASP, PCI-DSS, ISO 27001 |
 | `[SECRET_...]` | Security | API keys, tokens, and cryptographic secrets. | OWASP, PCI-DSS, ISO 27001 |
-| `[IBAN_...]` | Financial | International Bank Account Numbers. | GDPR, PCI-DSS |
+| `[IBAN_...]` | Financial | International Bank Account Numbers. Validated with MOD97 checksum. | GDPR, PCI-DSS |
+| `[CREDIT_CARD_...]` | Financial | Credit card numbers (Visa, Mastercard, Amex, Discover, JCB). Every candidate is validated with the **Luhn algorithm (mod-10 checksum)** before vaulting — sequences that fail are not redacted, eliminating false positives. | PCI-DSS, GDPR |
 | `[EU_VAT_...]` | Financial | EU and UK Value Added Tax numbers. | GDPR, Tax Compliance |
 | `[FR_NIR_...]` | Identity | French Social Security Numbers (NIR). | GDPR Art. 9, CNIL |
 | `[ES_DNI_...]` | Identity | Spanish National Identity Numbers (DNI/NIE/CIF). | LOPD, GDPR |
@@ -73,8 +75,20 @@ For enterprise compliance parity, OCULTAR internal types are mapped to **Google 
 ## 4. Redaction Behavior
 
 OCULTAR always uses **deterministic pseudonymization**:
-- **Same Input = Same Token**: Preserves relational integrity for data science and AI context.
-- **Irreversible**: Token strings contain no original data and are reversible only with access to both the **Identity Vault** (DuckDB/PostgreSQL) and the **Master Key**.
+- **Same Input = Same Token**: The token for any PII value is computed as `[TYPE_sha256[:8]]`. The same email address, SSN, or card number always produces the same token — across requests, sessions, and documents. Relational integrity is fully preserved in tokenized datasets.
+- **Irreversible without the Vault**: Token strings contain no original data. Reversal requires both the **Identity Vault** (DuckDB/PostgreSQL) and the **Master Key** — neither of which ever leaves your infrastructure.
+
+### Privacy-Safe Analytics on Tokenized Data
+
+Because tokens are deterministic, **you can perform aggregations, joins, and frequency analysis directly on tokenized data — without ever de-tokenizing it.**
+
+A dataset where every email has been replaced with `[EMAIL_9c8f7a1b]` still supports:
+- **Counting unique users** — distinct token values = distinct PII values
+- **Joining across tables** — the same person appears with the same token in every table
+- **Frequency analysis** — which customers appear most often, without exposing who they are
+- **Anomaly detection** — token-level clustering and outlier detection on sensitive fields
+
+Re-hydration to plaintext is only required when a human must read a specific value. All analytical workloads can remain in the tokenized domain. This property is a direct consequence of the SHA-256-based token design in `getOrSetSecureResult` (`services/refinery/pkg/refinery/refinery.go`) and requires no additional configuration.
 
 ## 5. Auditor Verification Note
 
