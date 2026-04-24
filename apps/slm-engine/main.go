@@ -10,7 +10,7 @@ import (
 	"github.com/Edu963/ocultar/apps/slm-engine/pkg/inference"
 )
 
-var scanner *inference.LlamaScanner
+var scanner inference.Scanner
 
 func handleScan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -45,17 +45,32 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	modelPath := os.Getenv("SLM_MODEL_PATH")
-	if modelPath == "" {
-		// Just fail explicitly as required for native CGO interference safety
-		log.Fatal("[FATAL] SLM_MODEL_PATH is required for native inference")
+	engine := os.Getenv("SLM_ENGINE")
+	if engine == "" {
+		engine = "llama"
 	}
 
 	var err error
-	scanner, err = inference.NewLlamaScanner(modelPath)
-	if err != nil {
-		log.Fatalf("failed to initialize model: %v", err)
+	switch engine {
+	case "llama":
+		modelPath := os.Getenv("SLM_MODEL_PATH")
+		if modelPath == "" {
+			log.Fatal("[FATAL] SLM_MODEL_PATH is required for llama engine")
+		}
+		scanner, err = inference.NewLlamaScanner(modelPath)
+	case "privacy-filter":
+		endpoint := os.Getenv("PRIVACY_FILTER_URL")
+		if endpoint == "" {
+			endpoint = "http://localhost:8086"
+		}
+		scanner, err = inference.NewPrivacyFilterScanner(endpoint)
+	default:
+		log.Fatalf("[FATAL] unknown SLM_ENGINE %q (supported: llama, privacy-filter)", engine)
 	}
+	if err != nil {
+		log.Fatalf("failed to initialize %s scanner: %v", engine, err)
+	}
+	defer scanner.Close()
 
 	http.HandleFunc("/scan", handleScan)
 	http.HandleFunc("/health", handleHealth)
