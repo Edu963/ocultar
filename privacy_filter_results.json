@@ -1,0 +1,152 @@
+{
+  "privacy_filter": [
+    {
+      "text": "Transfer \u20ac84,293 from IBAN FR76 3000 6000 0112 3456 7890 189",
+      "entities": [
+        {
+          "label": "account_number",
+          "value": " IBAN",
+          "score": 0.739642858505249
+        },
+        {
+          "label": "account_number",
+          "value": " FR76 3000 6000 0112 3456 7890 ",
+          "score": 0.9951785206794739
+        },
+        {
+          "label": "account_number",
+          "value": "189",
+          "score": 0.9977803826332092
+        }
+      ],
+      "latency": 268.6929702758789
+    },
+    {
+      "text": "Vendor payment to Acme Corp, account 4532015112830366, approved by John Smith",
+      "entities": [
+        {
+          "label": "account_number",
+          "value": "453201511283036",
+          "score": 0.9999958276748657
+        },
+        {
+          "label": "account_number",
+          "value": "6",
+          "score": 0.9999992847442627
+        },
+        {
+          "label": "private_person",
+          "value": " John",
+          "score": 0.9999988079071045
+        },
+        {
+          "label": "private_person",
+          "value": " Smith",
+          "score": 0.9999959468841553
+        }
+      ],
+      "latency": 221.6358184814453
+    },
+    {
+      "text": "Cost center 4420-EMEA-CORP, GL account 6100, controller Sarah Chen",
+      "entities": [
+        {
+          "label": "private_person",
+          "value": " Sarah",
+          "score": 0.9999964237213135
+        },
+        {
+          "label": "private_person",
+          "value": " Chen",
+          "score": 0.9999985694885254
+        }
+      ],
+      "latency": 194.73719596862793
+    },
+    {
+      "text": "Invoice INV-2026-00847 for Soci\u00e9t\u00e9 G\u00e9n\u00e9rale, SWIFT SOGEFRPP",
+      "entities": [
+        {
+          "label": "account_number",
+          "value": " INV-2026-008",
+          "score": 0.970095694065094
+        },
+        {
+          "label": "account_number",
+          "value": "47",
+          "score": 0.8928777575492859
+        }
+      ],
+      "latency": 161.96584701538086
+    },
+    {
+      "text": "Board resolution: CEO approved $2.3M acquisition, confidential until April 30",
+      "entities": [],
+      "latency": 242.9959774017334
+    },
+    {
+      "text": "john.doe@company.fr called +33 6 12 34 56 78 re: Q1 close",
+      "entities": [
+        {
+          "label": "private_email",
+          "value": "john.doe@company",
+          "score": 0.9998860359191895
+        },
+        {
+          "label": "private_email",
+          "value": ".fr",
+          "score": 0.9999997615814209
+        },
+        {
+          "label": "private_phone",
+          "value": " +33 6 12 34 56 ",
+          "score": 0.9999980926513672
+        },
+        {
+          "label": "private_phone",
+          "value": "78",
+          "score": 0.9999949932098389
+        }
+      ],
+      "latency": 166.46456718444824
+    }
+  ],
+  "current_slm": [
+    {
+      "text": "Transfer \u20ac84,293 from IBAN FR76 3000 6000 0112 3456 7890 189",
+      "entities": [],
+      "latency": 0.003337860107421875
+    },
+    {
+      "text": "Vendor payment to Acme Corp, account 4532015112830366, approved by John Smith",
+      "entities": [
+        {
+          "label": "PERSON",
+          "value": "John",
+          "score": 1.0
+        }
+      ],
+      "latency": 0.0016689300537109375
+    },
+    {
+      "text": "Cost center 4420-EMEA-CORP, GL account 6100, controller Sarah Chen",
+      "entities": [],
+      "latency": 0.000476837158203125
+    },
+    {
+      "text": "Invoice INV-2026-00847 for Soci\u00e9t\u00e9 G\u00e9n\u00e9rale, SWIFT SOGEFRPP",
+      "entities": [],
+      "latency": 0.0002384185791015625
+    },
+    {
+      "text": "Board resolution: CEO approved $2.3M acquisition, confidential until April 30",
+      "entities": [],
+      "latency": 0.000476837158203125
+    },
+    {
+      "text": "john.doe@company.fr called +33 6 12 34 56 78 re: Q1 close",
+      "entities": [],
+      "latency": 0.0
+    }
+  ]
+}
