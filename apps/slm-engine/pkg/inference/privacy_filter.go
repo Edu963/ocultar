@@ -15,7 +15,7 @@ import (
 //	POST /scan  {"text": "..."}  →  {"PERSON": ["John"], "EMAIL": ["j@x.com"]}
 //	GET  /health                 →  {"status": "ok"}
 //
-// Set PRIVACY_FILTER_URL to its base URL (default http://localhost:8086).
+// Set PYTHON_SIDECAR_URL to its base URL (default http://localhost:8086).
 type PrivacyFilterEngine struct {
 	endpoint string
 	client   *http.Client
@@ -52,6 +52,10 @@ func (s *PrivacyFilterEngine) ScanForPII(text string) (map[string][]string, erro
 		return nil, fmt.Errorf("privacy-filter response parse failed: %w", err)
 	}
 	return result, nil
+}
+
+func (s *PrivacyFilterEngine) Name() string {
+	return "privacy-filter"
 }
 
 func (s *PrivacyFilterEngine) Close() {}

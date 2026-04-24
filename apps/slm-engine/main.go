@@ -45,15 +45,28 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	endpoint := os.Getenv("PRIVACY_FILTER_URL")
-	if endpoint == "" {
-		log.Fatal("[FATAL] PRIVACY_FILTER_URL is required for SLM sidecar")
-	}
-
 	var err error
-	scanner, err = inference.NewPrivacyFilterEngine(endpoint)
-	if err != nil {
-		log.Fatalf("failed to initialize privacy-filter scanner: %v", err)
+
+	engine := os.Getenv("TIER2_ENGINE")
+	switch engine {
+	case "privacy-filter", "":
+		// default
+		sidecarURL := os.Getenv("PYTHON_SIDECAR_URL")
+		if old := os.Getenv("PRIVACY_FILTER_URL"); old != "" {
+			log.Println("[DEPRECATED] PRIVACY_FILTER_URL renamed to PYTHON_SIDECAR_URL. Please update your config.")
+			sidecarURL = old
+		}
+		if sidecarURL == "" {
+			log.Fatal("[FATAL] PYTHON_SIDECAR_URL not set")
+		}
+		scanner, err = inference.NewPrivacyFilterEngine(sidecarURL)
+		if err != nil {
+			log.Fatalf("failed to initialize privacy-filter scanner: %v", err)
+		}
+	case "llama-cpp":
+		log.Fatal("[FATAL] llama-cpp engine not yet implemented. See TODO in scanner.go. Use TIER2_ENGINE=privacy-filter")
+	default:
+		log.Fatalf("[FATAL] Unknown TIER2_ENGINE: %s", engine)
 	}
 	defer scanner.Close()
 
