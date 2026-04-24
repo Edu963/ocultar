@@ -1,0 +1,13 @@
+{
+  "backend": "tokenizers",
+  "eos_token": "<|endoftext|>",
+  "is_local": false,
+  "local_files_only": false,
+  "model_input_names": [
+    "input_ids",
+    "attention_mask"
+  ],
+  "model_max_length": 128000,
+  "pad_token": "<|endoftext|>",
+  "tokenizer_class": "TokenizersBackend"
+}
