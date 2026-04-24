@@ -37,7 +37,9 @@ services:
     image: slm-engine:latest
     restart: unless-stopped
     environment:
+      - SLM_ENGINE=llama
       - SLM_MODEL_PATH=/app/models/qwen-1.5b-q4_k_m.gguf
+      # To use privacy-filter instead: set SLM_ENGINE=privacy-filter and PRIVACY_FILTER_URL
     volumes:
       - ./models:/app/models
 
