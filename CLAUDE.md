@@ -51,6 +51,7 @@ Copy `.env.example` to `.env` before running:
 | `TIER2_ENGINE` | Sidecar inference backend: privacy-filter (default) or llama-cpp |
 | `SLM_MODEL_PATH` | Path to GGUF model file (llama-cpp engine only) |
 | `PYTHON_SIDECAR_URL` | Python service URL for privacy-filter engine (default `http://localhost:8086`) |
+| `PRIVACY_FILTER_MODEL_PATH` | Path or HuggingFace ID for the privacy-filter model (default `openai/privacy-filter`) |
 | `OCU_LICENSE_KEY` | Base64-encoded Ed25519 license (enterprise only) |
 
 ## Architecture

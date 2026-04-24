@@ -387,7 +387,7 @@ The refinery (`services/refinery/pkg/inference/remote.go`) and the enterprise ex
 | `SLM_ENGINE` | Backend | CGO required | Model env var |
 |---|---|---|---|
 | `llama` (default) | llama.cpp native CGO | Yes | `SLM_MODEL_PATH` |
-| `privacy-filter` | `openai/privacy-filter` via Python service | No | `PRIVACY_FILTER_URL` |
+| `privacy-filter` | `openai/privacy-filter` via Python service | No | `PYTHON_SIDECAR_URL` / `PRIVACY_FILTER_MODEL_PATH` |
 
 ### Engine: llama (default)
 
@@ -400,12 +400,13 @@ Build requirements: `llama.cpp` headers and `libllama.a` in the library path. Op
 
 ### Engine: privacy-filter
 
-`openai/privacy-filter` is a bidirectional token classifier (Apache 2.0, ~1.5B params). Because it is Python-native (HuggingFace Transformers), run it as a separate Python service and point the sidecar at it:
+`openai/privacy-filter` is a bidirectional token classifier (Apache 2.0, ~1.5B params). Because it is Python-native (HuggingFace Transformers), run it as a separate Python service using the provided Dockerfile or script, and point the sidecar at it:
 
 ```bash
-# Start the Python service (FastAPI + transformers)
-pip install fastapi uvicorn transformers torch
-python apps/slm-engine/privacy_filter_server.py   # listens on :8086
+# To run locally via script:
+pip install -r apps/slm-engine/python/requirements.txt
+export PRIVACY_FILTER_MODEL_PATH=openai/privacy-filter # Or a local fine-tuned model path
+python scripts/serve_privacy_filter.py   # listens on :8086
 
 # Start the Go sidecar pointing at it
 export SLM_ENGINE=privacy-filter
