@@ -10,7 +10,7 @@ import (
 	"github.com/Edu963/ocultar/apps/slm-engine/pkg/inference"
 )
 
-var scanner inference.Scanner
+var scanner inference.Tier2Engine
 
 func handleScan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -45,30 +45,15 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	engine := os.Getenv("SLM_ENGINE")
-	if engine == "" {
-		engine = "privacy-filter"
+	endpoint := os.Getenv("PRIVACY_FILTER_URL")
+	if endpoint == "" {
+		log.Fatal("[FATAL] PRIVACY_FILTER_URL is required for SLM sidecar")
 	}
 
 	var err error
-	switch engine {
-	case "llama":
-		modelPath := os.Getenv("SLM_MODEL_PATH")
-		if modelPath == "" {
-			log.Fatal("[FATAL] SLM_MODEL_PATH is required for llama engine")
-		}
-		scanner, err = inference.NewLlamaScanner(modelPath)
-	case "privacy-filter":
-		endpoint := os.Getenv("PRIVACY_FILTER_URL")
-		if endpoint == "" {
-			endpoint = "http://localhost:8086"
-		}
-		scanner, err = inference.NewPrivacyFilterScanner(endpoint)
-	default:
-		log.Fatalf("[FATAL] unknown SLM_ENGINE %q (supported: llama, privacy-filter)", engine)
-	}
+	scanner, err = inference.NewPrivacyFilterEngine(endpoint)
 	if err != nil {
-		log.Fatalf("failed to initialize %s scanner: %v", engine, err)
+		log.Fatalf("failed to initialize privacy-filter scanner: %v", err)
 	}
 	defer scanner.Close()
 
