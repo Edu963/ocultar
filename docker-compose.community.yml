@@ -36,7 +36,8 @@ services:
     image: slm-engine:latest
     restart: unless-stopped
     environment:
-      - PRIVACY_FILTER_URL=http://privacy-filter:8086
+      - TIER2_ENGINE=privacy-filter
+      - PYTHON_SIDECAR_URL=http://privacy-filter:8086
     depends_on:
       - privacy-filter
 

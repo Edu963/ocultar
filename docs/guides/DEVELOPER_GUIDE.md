@@ -409,7 +409,7 @@ python apps/slm-engine/privacy_filter_server.py   # listens on :8086
 
 # Start the Go sidecar pointing at it
 export SLM_ENGINE=privacy-filter
-export PRIVACY_FILTER_URL=http://localhost:8086
+export PYTHON_SIDECAR_URL=http://localhost:8086
 go run ./apps/slm-engine
 ```
 

@@ -48,9 +48,9 @@ Copy `.env.example` to `.env` before running:
 | `OCU_PROXY_TARGET` | Upstream API base URL |
 | `OCU_PROXY_PORT` | Proxy listen port (default `8081`) |
 | `SLM_SIDECAR_URL` | SLM sidecar endpoint (default `http://localhost:8085`) |
-| `SLM_ENGINE` | Sidecar inference backend: `llama` (default, CGO) or `privacy-filter` |
-| `SLM_MODEL_PATH` | Path to GGUF model file (llama engine only) |
-| `PRIVACY_FILTER_URL` | Python service URL for privacy-filter engine (default `http://localhost:8086`) |
+| `TIER2_ENGINE` | Sidecar inference backend: privacy-filter (default) or llama-cpp |
+| `SLM_MODEL_PATH` | Path to GGUF model file (llama-cpp engine only) |
+| `PYTHON_SIDECAR_URL` | Python service URL for privacy-filter engine (default `http://localhost:8086`) |
 | `OCU_LICENSE_KEY` | Base64-encoded Ed25519 license (enterprise only) |
 
 ## Architecture
