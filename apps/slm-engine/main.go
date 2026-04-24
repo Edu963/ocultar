@@ -59,7 +59,11 @@ func main() {
 		if sidecarURL == "" {
 			log.Fatal("[FATAL] PYTHON_SIDECAR_URL not set")
 		}
-		scanner, err = inference.NewPrivacyFilterEngine(sidecarURL)
+		modelPath := os.Getenv("PRIVACY_FILTER_MODEL_PATH")
+		if modelPath == "" {
+			modelPath = "openai/privacy-filter"
+		}
+		scanner, err = inference.NewPrivacyFilterEngine(sidecarURL, modelPath)
 		if err != nil {
 			log.Fatalf("failed to initialize privacy-filter scanner: %v", err)
 		}

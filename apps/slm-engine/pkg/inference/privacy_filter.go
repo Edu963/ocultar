@@ -17,14 +17,16 @@ import (
 //
 // Set PYTHON_SIDECAR_URL to its base URL (default http://localhost:8086).
 type PrivacyFilterEngine struct {
-	endpoint string
-	client   *http.Client
+	endpoint  string
+	modelPath string
+	client    *http.Client
 }
 
-func NewPrivacyFilterEngine(endpoint string) (*PrivacyFilterEngine, error) {
+func NewPrivacyFilterEngine(endpoint string, modelPath string) (*PrivacyFilterEngine, error) {
 	s := &PrivacyFilterEngine{
-		endpoint: endpoint,
-		client:   &http.Client{Timeout: 10 * time.Second},
+		endpoint:  endpoint,
+		modelPath: modelPath,
+		client:    &http.Client{Timeout: 10 * time.Second},
 	}
 	resp, err := s.client.Get(endpoint + "/health")
 	if err != nil {
@@ -55,7 +57,7 @@ func (s *PrivacyFilterEngine) ScanForPII(text string) (map[string][]string, erro
 }
 
 func (s *PrivacyFilterEngine) Name() string {
-	return "privacy-filter"
+	return fmt.Sprintf("privacy-filter (%s)", s.modelPath)
 }
 
 func (s *PrivacyFilterEngine) Close() {}

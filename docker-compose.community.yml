@@ -42,10 +42,17 @@ services:
       - privacy-filter
 
   privacy-filter:
-    image: openai/privacy-filter:latest
+    build:
+      context: .
+      dockerfile: apps/slm-engine/python/Dockerfile
     restart: unless-stopped
     ports:
       - "8086:8086"
+    environment:
+      - PRIVACY_FILTER_MODEL_PATH=${PRIVACY_FILTER_MODEL_PATH:-openai/privacy-filter}
+    volumes:
+      - ./models:/app/models
+      - ./scripts/serve_privacy_filter.py:/app/serve_privacy_filter.py
 
 networks:
   default:
