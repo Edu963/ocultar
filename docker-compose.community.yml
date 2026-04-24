@@ -23,7 +23,6 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - SLM_SIDECAR_URL=http://slm-engine:8085
-      - SLM_MODEL_PATH=models/qwen-1.5b-q4_k_m.gguf
     depends_on:
       - echo-upstream
       - slm-engine
@@ -37,11 +36,16 @@ services:
     image: slm-engine:latest
     restart: unless-stopped
     environment:
-      - SLM_ENGINE=llama
-      - SLM_MODEL_PATH=/app/models/qwen-1.5b-q4_k_m.gguf
-      # To use privacy-filter instead: set SLM_ENGINE=privacy-filter and PRIVACY_FILTER_URL
-    volumes:
-      - ./models:/app/models
+      - SLM_ENGINE=privacy-filter
+      - PRIVACY_FILTER_URL=http://privacy-filter:8086
+    depends_on:
+      - privacy-filter
+
+  privacy-filter:
+    image: openai/privacy-filter:latest
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
 
 networks:
   default:

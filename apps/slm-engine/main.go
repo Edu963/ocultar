@@ -47,7 +47,7 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 func main() {
 	engine := os.Getenv("SLM_ENGINE")
 	if engine == "" {
-		engine = "llama"
+		engine = "privacy-filter"
 	}
 
 	var err error
