@@ -36,7 +36,7 @@ LABEL2ID = {v: k for k, v in ID2LABEL.items()}
 
 def train():
     print(f"Loading tokenizer and model: {MODEL_ID}")
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
     
     # Load model with updated label count
     model = AutoModelForTokenClassification.from_pretrained(
@@ -44,7 +44,8 @@ def train():
         num_labels=len(ID2LABEL),
         id2label=ID2LABEL,
         label2id=LABEL2ID,
-        ignore_mismatched_sizes=True # Crucial since we added labels
+        ignore_mismatched_sizes=True, # Crucial since we added labels
+        trust_remote_code=True
     )
 
     print("Loading datasets...")
