@@ -14,7 +14,7 @@ The Refinery operates on a multi-tier defense-in-depth model:
 | **Tier 0.1** | Base64 Evasion Shield | Decodes and recursively scans every Base64 segment in the payload. PII hidden inside encoded blobs is caught and re-encoded after redaction — the payload structure is preserved, the data is not. |
 | **Tier 0** | Dictionary Shield | Exact match against Enterprise VIP and exclusion lists. |
 | **Tier 1** | Deterministic Registry | High-performance Go regular expressions with **checksum-backed validation** (Luhn mod-10 for credit cards, MOD97 for IBANs, and 12 national ID validators). Pattern matches that fail their checksum are discarded rather than flagged — eliminating false positives at the source. |
-| **Tier 2** | AI Semantic Scan | Local SLM (Qwen/Phi) performing NER inference. |
+| **Tier 2** | AI Semantic Scan | Engine-agnostic NER inference. Default: llama.cpp GGUF (generative). Alternative: `openai/privacy-filter` bidirectional token classifier (Apache 2.0, no CGO). Selected via `SLM_ENGINE` on the sidecar. |
 | **Tier 3** | Structural Heuristics | Context-aware proximity rules and entity expansion. |
 
 ## 2. PII Type Glossary & Compliance Mapping

@@ -62,7 +62,7 @@ graph TD
         Vault_svc["Identity Vault\nservices/vault"]
         DDB[("DuckDB\nvault.db")]
         PG[("PostgreSQL ✦\nexternal HA cluster")]
-        SLM["Specialized SLM ✦\n(Clinical / General)\nllama.cpp / Qwen\n:8085"]
+        SLM["Specialized SLM ✦\n(Clinical / General)\nllama.cpp · privacy-filter\n:8085"]
         Dashboard["Dashboard\nindex.html\n:3030"]
         AuditLog["Audit System\nservices/refinery/pkg/audit\nTamper-proof logs"]
         Connectors["Sombra Pro Connectors ✦\napps/sombra/pkg/connector"]

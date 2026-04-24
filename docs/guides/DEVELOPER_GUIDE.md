@@ -370,31 +370,52 @@ The orchestrator executes the following functional gates located in `tools/scrip
 
 ---
 
-## 9. Native SLM Integration (CGO)
+## 9. Tier 2 SLM Engine Selection
 
-OCULTAR Enterprise supports high-scan PII detection using local Small Language Models (SLMs) via a **native CGO integration** with `llama.cpp`. This replaces the legacy Python-based relay and Ollama fallback logic.
+OCULTAR Enterprise routes Tier 2 AI NER scans to the `slm-engine` sidecar over HTTP (`SLM_SIDECAR_URL`). The sidecar is engine-agnostic — its internal backend is selected at startup via `SLM_ENGINE`.
 
 ### Architecture
-- **Direct Linkage**: The refinery links directly against `libllama.a` using CGO.
-- **Performance**: Zero-latency inference — no HTTP overhead.
-- **Fail-Closed SLA**: A strict **5-second context timeout** is enforced. The Go layer passes an `aborted` flag to C-land via `llama_set_abort_callback`, ensuring that C execution terminates immediately upon timeout.
 
-### Configuration
-Set the following environment variables to activate native scanning:
-```bash
-export SLM_TYPE="native"
-export SLM_MODEL_PATH="models/qwen-1.5b-q4_k_m.gguf"
+```
+Refinery → RemoteScanner (HTTP) → slm-engine sidecar → inference backend
 ```
 
-### Build Requirements
-Compiling the refinery now requires `llama.cpp` headers and the corresponding Shared Object (`.so`) or archive (`.a`) in your library path.
+The refinery (`services/refinery/pkg/inference/remote.go`) and the enterprise extension (`enterprise/refinery-extensions/pkg/ai/scanner.go`) are fully decoupled from the inference backend. Only the sidecar changes between engines.
+
+### Supported Engines
+
+| `SLM_ENGINE` | Backend | CGO required | Model env var |
+|---|---|---|---|
+| `llama` (default) | llama.cpp native CGO | Yes | `SLM_MODEL_PATH` |
+| `privacy-filter` | `openai/privacy-filter` via Python service | No | `PRIVACY_FILTER_URL` |
+
+### Engine: llama (default)
+
 ```bash
-# Example build on Linux
-go build -o ocultar-enterprise ./dist/enterprise
+export SLM_ENGINE=llama
+export SLM_MODEL_PATH=models/qwen-1.5b-q4_k_m.gguf
 ```
 
-### Model selection
-The refinery is optimized for **Qwen 1.5B Q4_K_M** GGUF models (~1.2 GB VRAM). Other models (Phi-3, Mistral) are compatible if they follow the GGUF standard.
+Build requirements: `llama.cpp` headers and `libllama.a` in the library path. Optimized for Qwen 1.5B Q4_K_M GGUF (~1.2 GB VRAM); any GGUF-format model is compatible. A 5-second inference timeout is enforced via `llama_set_abort_callback`.
+
+### Engine: privacy-filter
+
+`openai/privacy-filter` is a bidirectional token classifier (Apache 2.0, ~1.5B params). Because it is Python-native (HuggingFace Transformers), run it as a separate Python service and point the sidecar at it:
+
+```bash
+# Start the Python service (FastAPI + transformers)
+pip install fastapi uvicorn transformers torch
+python apps/slm-engine/privacy_filter_server.py   # listens on :8086
+
+# Start the Go sidecar pointing at it
+export SLM_ENGINE=privacy-filter
+export PRIVACY_FILTER_URL=http://localhost:8086
+go run ./apps/slm-engine
+```
+
+No CGO required for the Go sidecar in this mode. The Python service must expose the same HTTP contract:
+- `POST /scan  {"text":"..."}  →  {"PERSON":["John"],"EMAIL":["j@x.com"]}`
+- `GET  /health               →  {"status":"ok"}`
 
 ---
 
