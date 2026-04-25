@@ -49,10 +49,9 @@ services:
     ports:
       - "8086:8086"
     environment:
-      - PRIVACY_FILTER_MODEL_PATH=${PRIVACY_FILTER_MODEL_PATH:-openai/privacy-filter}
+      - PRIVACY_FILTER_MODEL_PATH=openai/privacy-filter
     volumes:
-      - ./models:/app/models
-      - ./scripts/serve_privacy_filter.py:/app/serve_privacy_filter.py
+      - ./models:/app/models:Z
 
 networks:
   default:
