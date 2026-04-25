@@ -16,6 +16,7 @@ release-checksum.txt
 
 # Environment and Secrets
 .env
+apps/sombra/src/.env
 *.db
 *.db-wal
 *.db-shm
