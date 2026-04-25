@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import {
     Shield, Lock, Zap, Network, Cpu, Activity, Server,
     ShieldCheck, Database, Terminal, ChevronRight, Layout,
-    MessageSquare, FileText, Globe, Radio, Key, Box
+    MessageSquare, FileText, Globe, Radio, Key, Box,
+    GitMerge, ClipboardCheck, Fingerprint
 } from 'lucide-react';
 
 // ---- Data (all verified against codebase) ----
@@ -47,6 +48,33 @@ const CONNECTORS = [
         tagColor: "cyan",
         source: "pkg/connector/file_connector.go"
     },
+];
+
+const POLICY_MATRIX = [
+    {
+        connector: "file",
+        strip: ["SSN", "ACCOUNT_NUMBER"],
+        models: ["local-slm", "gpt-4o", "gemini-flash-latest"],
+        limit: "10 MB",
+    },
+    {
+        connector: "banking",
+        strip: ["SSN", "ROUTING_NUMBER"],
+        models: ["local-slm"],
+        limit: "10 MB",
+    },
+    {
+        connector: "slack-prod",
+        strip: ["SSN", "CREDENTIAL", "SECRET", "PHONE_NUMBER"],
+        models: ["gemini-flash-latest"],
+        limit: "—",
+    },
+];
+
+const OPENAI_COMPAT_STEPS = [
+    { before: "https://api.openai.com/v1", after: "http://localhost:8086/v1", label: "Base URL" },
+    { before: "Authorization: Bearer sk-...", after: "Authorization: Bearer sk-...", label: "Auth header (unchanged)" },
+    { before: "model: gpt-4o", after: "model: gpt-4o", label: "Model name (unchanged)" },
 ];
 
 const REFINERY_TIERS = [
@@ -174,6 +202,123 @@ export default function SolutionsPage() {
                             ))}
                         </div>
                     </div>
+
+                    {/* Policy Enforcement Matrix */}
+                    <div className="space-y-8">
+                        <div>
+                            <div className="flex items-center gap-3 text-cyan-500 mb-2">
+                                <ClipboardCheck className="w-5 h-5" />
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest">Per-Connector Policy Enforcement</h4>
+                            </div>
+                            <p className="text-zinc-500 text-sm max-w-2xl">
+                                Every connector enforces a <code className="text-cyan-500/70 bg-zinc-900 px-1 rounded text-xs">DataPolicy</code> at the gateway layer — before a single byte reaches the Refinery. Sensitive data sources are hard-restricted to local inference; no configuration drift can bypass this.
+                            </p>
+                        </div>
+                        <div className="overflow-x-auto rounded-xl border border-white/5">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="border-b border-white/5 bg-zinc-950">
+                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Connector</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Strip Categories</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Allowed Models</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Size Limit</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5 bg-black/30">
+                                    {POLICY_MATRIX.map(row => (
+                                        <tr key={row.connector} className="hover:bg-zinc-900/30 transition-colors">
+                                            <td className="px-6 py-4 font-mono text-xs text-cyan-400">{row.connector}</td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {row.strip.map(cat => (
+                                                        <span key={cat} className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">{cat}</span>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {row.models.map(m => (
+                                                        <span key={m} className="text-[9px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-white/5">{m}</span>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 font-mono text-xs text-zinc-500">{row.limit}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <p className="text-[10px] font-mono text-zinc-700">source: apps/sombra/configs/sombra.yaml · pkg/connector/connector.go</p>
+                    </div>
+
+                    {/* OpenAI Drop-in Compatibility */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3 text-cyan-500">
+                                <GitMerge className="w-5 h-5" />
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest">Drop-in OpenAI Compatibility</h4>
+                            </div>
+                            <p className="text-zinc-400 leading-relaxed">
+                                Sombra exposes a <code className="text-cyan-500/70 bg-zinc-900 px-1.5 py-0.5 rounded text-xs">/v1/chat/completions</code> endpoint that is wire-compatible with the OpenAI API. Change one URL — every existing SDK, agent, or tool works without modification. No wrapper libraries. No forked SDKs.
+                            </p>
+                            <p className="text-zinc-500 text-sm leading-relaxed">
+                                All traffic is scrubbed by the Refinery before dispatch. Responses are optionally rehydrated before returning to the caller. Your application never sees tokenized output unless you opt in.
+                            </p>
+                            <p className="text-[10px] font-mono text-zinc-700">source: apps/sombra/pkg/handler/handler.go · HandleV1ChatCompletions</p>
+                        </div>
+                        <div className="card bg-zinc-950 border-white/5 p-6 space-y-0 font-mono text-xs">
+                            <div className="text-[10px] uppercase tracking-widest text-zinc-600 mb-5">Migration — one line changes</div>
+                            {OPENAI_COMPAT_STEPS.map((step, i) => (
+                                <div key={i} className="py-4 border-b border-white/5 last:border-0">
+                                    <div className="text-[9px] uppercase tracking-widest text-zinc-600 mb-2">{step.label}</div>
+                                    <div className="flex flex-col gap-1.5">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-red-500/60 text-[10px]">−</span>
+                                            <span className={`text-zinc-500 ${step.before !== step.after ? 'line-through decoration-red-500/40' : ''}`}>{step.before}</span>
+                                        </div>
+                                        {step.before !== step.after && (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-cyan-500/60 text-[10px]">+</span>
+                                                <span className="text-cyan-400">{step.after}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Immutable Audit Trail */}
+                    <div className="relative overflow-hidden rounded-2xl border border-cyan-500/10 bg-cyan-500/[0.03] p-10 space-y-8">
+                        <div className="absolute top-0 right-0 p-10 opacity-5">
+                            <Fingerprint className="w-48 h-48 text-cyan-500" />
+                        </div>
+                        <div className="relative z-10 space-y-4 max-w-2xl">
+                            <div className="flex items-center gap-3 text-cyan-500">
+                                <Fingerprint className="w-5 h-5" />
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest">Immutable Audit Trail</h4>
+                            </div>
+                            <h3 className="text-2xl font-bold text-white">Every vault event is cryptographically signed.</h3>
+                            <p className="text-zinc-400 leading-relaxed">
+                                Sombra initializes an <code className="text-cyan-500/70 bg-black/40 px-1.5 py-0.5 rounded text-xs">ImmutableLogger</code> backed by an Ed25519 keypair on startup. Every token vault, match, and rehydration event is written to a append-only log and signed with the private key. The corresponding public key is printed to stdout — auditors can verify the entire log has not been tampered with offline, without access to your infrastructure.
+                            </p>
+                        </div>
+                        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {[
+                                { label: "Algorithm", value: "Ed25519", sub: "FIPS 186-5 compliant" },
+                                { label: "Log Format", value: "Append-only JSON", sub: "sombra_audit.log" },
+                                { label: "Verification", value: "Offline / Air-gapped", sub: "No infra access required" },
+                            ].map(item => (
+                                <div key={item.label} className="bg-black/30 border border-white/5 rounded-xl p-5 space-y-1">
+                                    <div className="text-[9px] uppercase tracking-widest text-zinc-600">{item.label}</div>
+                                    <div className="text-sm font-bold text-white">{item.value}</div>
+                                    <div className="text-[10px] font-mono text-zinc-600">{item.sub}</div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="relative z-10 text-[10px] font-mono text-zinc-700">source: pkg/audit/audit.go · audit.NewImmutableLogger</div>
+                    </div>
+
                 </div>
             </section>
 
