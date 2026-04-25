@@ -894,7 +894,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 			Timestamp time.Time `json:"timestamp"`
 			RiskLevel string    `json:"risk_level"`
 		}
-		os.MkdirAll("pilot_data", 0755)
+		os.MkdirAll("pilot_data/reports", 0755)
 		var leads []lead
 		leadRaw, _ := os.ReadFile("pilot_data/leads.json")
 		json.Unmarshal(leadRaw, &leads)
