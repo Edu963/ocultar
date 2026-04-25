@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import {
-    Shield, Lock, BarChart3, ChevronRight, Github, ExternalLink, Globe,
+    Shield, Lock, BarChart3, ChevronRight, Github, Globe,
     ArrowRight, AlertTriangle, Terminal, Check, Server, Database, Activity,
     ShieldCheck, Eye, RefreshCw, CheckCircle2
 } from 'lucide-react';
@@ -17,6 +17,68 @@ import { useLocation } from 'react-router-dom';
 
 const DEMO_URL =
     'mailto:sales@ocultar.dev?subject=Demo%20Request&body=Hi%2C%20I%27d%20like%20to%20book%20a%2030-minute%20demo%20of%20OCULTAR.';
+
+// ── OCULTAR Wordmark ──────────────────────────────────────────────────────────
+const OcultarWordmark = () => (
+    <svg
+        viewBox="0 0 1000 160"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full max-w-4xl mx-auto mb-2"
+        aria-label="OCULTAR"
+        role="img"
+    >
+        <defs>
+            <filter id="wm-glow" x="-10%" y="-40%" width="120%" height="180%">
+                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
+            <filter id="wm-diffuse" x="-15%" y="-60%" width="130%" height="220%">
+                <feGaussianBlur stdDeviation="14" />
+            </filter>
+        </defs>
+
+        {/* Diffuse ambient glow */}
+        <text x="500" y="128" textAnchor="middle"
+              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
+              fontSize="128" fontWeight="900" letterSpacing="4"
+              fill="none" stroke="rgba(6,182,212,0.25)" strokeWidth="6"
+              filter="url(#wm-diffuse)">OCULTAR</text>
+
+        {/* Solid dark fill — letter bodies */}
+        <text x="500" y="128" textAnchor="middle"
+              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
+              fontSize="128" fontWeight="900" letterSpacing="4"
+              fill="rgba(4,8,18,0.92)">OCULTAR</text>
+
+        {/* Outer thick stroke — deep navy, creates block frame */}
+        <text x="500" y="128" textAnchor="middle"
+              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
+              fontSize="128" fontWeight="900" letterSpacing="4"
+              fill="none" stroke="rgba(8,40,90,0.95)" strokeWidth="20" strokeLinejoin="miter">OCULTAR</text>
+
+        {/* Mid stroke — electric blue */}
+        <text x="500" y="128" textAnchor="middle"
+              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
+              fontSize="128" fontWeight="900" letterSpacing="4"
+              fill="none" stroke="rgba(20,80,160,0.75)" strokeWidth="11" strokeLinejoin="miter">OCULTAR</text>
+
+        {/* Inner stroke — lighter blue ring */}
+        <text x="500" y="128" textAnchor="middle"
+              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
+              fontSize="128" fontWeight="900" letterSpacing="4"
+              fill="none" stroke="rgba(60,150,210,0.55)" strokeWidth="5" strokeLinejoin="miter">OCULTAR</text>
+
+        {/* Foreground wire — bright cyan with glow */}
+        <text x="500" y="128" textAnchor="middle"
+              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
+              fontSize="128" fontWeight="900" letterSpacing="4"
+              fill="none" stroke="rgba(160,235,255,0.95)" strokeWidth="1.5"
+              filter="url(#wm-glow)">OCULTAR</text>
+    </svg>
+);
 
 // ── Particle Background (preserved exactly) ───────────────────────────────────
 const CanvasBackground = () => {
@@ -98,9 +160,6 @@ const Nav = () => (
                 <Link to="/" className="text-zinc-500 hover:text-white transition-colors">Platform</Link>
                 <Link to="/risk-assessment" className="text-zinc-500 hover:text-white transition-colors">Risk Audit</Link>
                 <Link to="/calculator" className="text-zinc-500 hover:text-white transition-colors">ROI Calculator</Link>
-                <Link to="/docs/tutorials/quickstart" className="text-zinc-500 hover:text-white transition-colors flex items-center gap-1">
-                    Docs <ExternalLink className="w-3 h-3" />
-                </Link>
             </div>
             <a
                 href={DEMO_URL}
@@ -162,6 +221,7 @@ const Footer = () => (
 const Hero = () => (
     <section className="section-padding flex flex-col items-center">
         <div className="max-container text-center relative z-10">
+            <OcultarWordmark />
             <div className="badge mb-10">
                 <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
@@ -457,8 +517,11 @@ const WhyNotSaaS = () => (
 
 // ── 6. ROI Calculator ─────────────────────────────────────────────────────────
 const ROISection = () => {
-    const [volume, setVolume] = useState(1);
-    const savings = volume * 14500;
+    const [volume, setVolume] = useState(5);
+    const cloudCost = volume * 15000;
+    const tier = volume > 2 ? 'ENTERPRISE' : 'PROFESSIONAL';
+    const ocultarCost = tier === 'ENTERPRISE' ? 24900 : 9900;
+    const savings = Math.max(0, cloudCost - ocultarCost);
 
     return (
         <section className="section-padding bg-zinc-950 border-b border-white/5 relative overflow-hidden">
@@ -491,19 +554,22 @@ const ROISection = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
-                                <div>
-                                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Cloud DLP / yr</div>
-                                    <div className="text-2xl font-bold text-rose-500 font-mono">
-                                        ${(volume * 15000).toLocaleString()}
-                                    </div>
+                            <div className="space-y-3 pt-6 border-t border-white/5">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Cloud DLP / yr</span>
+                                    <span className="text-xl font-bold text-rose-500 font-mono">${cloudCost.toLocaleString()}</span>
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-[10px] font-bold text-cyan-500/50 uppercase tracking-widest mb-1">OCULTAR saves</div>
-                                    <div className="text-2xl font-bold text-cyan-500 font-mono">
-                                        ${savings.toLocaleString()}
-                                    </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">OCULTAR {tier}</span>
+                                    <span className="text-xl font-bold text-white font-mono">€{ocultarCost.toLocaleString()}/yr</span>
                                 </div>
+                                <div className="flex justify-between items-center pt-3 border-t border-white/5">
+                                    <span className="text-[10px] font-bold text-cyan-500/50 uppercase tracking-widest">You save (approx.)</span>
+                                    <span className="text-xl font-bold text-cyan-500 font-mono">~${savings.toLocaleString()}</span>
+                                </div>
+                                <p className="text-[10px] text-zinc-700 font-mono pt-1">
+                                    Fixed annual license · price does not scale with volume
+                                </p>
                             </div>
                         </div>
 
