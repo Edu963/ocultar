@@ -47,3 +47,4 @@ business/
 audit.log
 sombra.yaml
 temp/
+models/privacy-filter-fr-finance/model.safetensors
