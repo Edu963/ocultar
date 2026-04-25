@@ -165,7 +165,7 @@ const Footer = () => (
 const Hero = () => (
     <section className="section-padding flex flex-col items-center">
         <div className="max-container text-center relative z-10">
-            <OcultarWordmark />
+
             <div className="badge mb-10">
                 <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
