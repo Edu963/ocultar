@@ -449,7 +449,8 @@ func startServer(eng *refinery.Refinery, servePort string) {
 
 	http.HandleFunc("/api/config/regex", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost:
 			var rule config.RegexRule
 			if err := json.NewDecoder(r.Body).Decode(&rule); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
@@ -466,7 +467,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 			config.Save()
 			eng.AuditLogger.Log("admin", "ADD_REGEX", "SUCCESS", rule.Type)
 			w.WriteHeader(http.StatusCreated)
-		} else if r.Method == http.MethodDelete {
+		case http.MethodDelete:
 			var payload struct {
 				Type string `json:"type"`
 			}
@@ -476,7 +477,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 				eng.AuditLogger.Log("admin", "DEL_REGEX", "SUCCESS", payload.Type)
 			}
 			w.WriteHeader(http.StatusOK)
-		} else if r.Method == http.MethodGet {
+		case http.MethodGet:
 			w.Header().Set("Content-Type", "application/json")
 			type RuleWithMapping struct {
 				config.RegexRule
@@ -490,14 +491,15 @@ func startServer(eng *refinery.Refinery, servePort string) {
 				})
 			}
 			json.NewEncoder(w).Encode(results)
-		} else {
+		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
 
 	http.HandleFunc("/api/config/dictionary", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost:
 			var payload struct {
 				Type string `json:"type"`
 				Term string `json:"term"`
@@ -510,7 +512,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 			} else {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 			}
-		} else if r.Method == http.MethodGet {
+		case http.MethodGet:
 			w.Header().Set("Content-Type", "application/json")
 			type DictWithMapping struct {
 				config.DictRule
@@ -524,7 +526,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 				})
 			}
 			json.NewEncoder(w).Encode(results)
-		} else {
+		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
@@ -595,7 +597,8 @@ func startServer(eng *refinery.Refinery, servePort string) {
 
 	http.HandleFunc("/api/config/system", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost:
 			var payload struct {
 				MaxConcurrency int `json:"max_concurrency"`
 				QueueSize      int `json:"queue_size"`
@@ -608,13 +611,13 @@ func startServer(eng *refinery.Refinery, servePort string) {
 			} else {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 			}
-		} else if r.Method == http.MethodGet {
+		case http.MethodGet:
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(map[string]interface{}{
 				"max_concurrency": config.Global.MaxConcurrency,
 				"queue_size":      config.Global.QueueSize,
 			})
-		} else {
+		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
