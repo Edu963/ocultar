@@ -20,64 +20,9 @@ const DEMO_URL =
 
 // ── OCULTAR Wordmark ──────────────────────────────────────────────────────────
 const OcultarWordmark = () => (
-    <svg
-        viewBox="0 0 1000 160"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full max-w-4xl mx-auto mb-2"
-        aria-label="OCULTAR"
-        role="img"
-    >
-        <defs>
-            <filter id="wm-glow" x="-10%" y="-40%" width="120%" height="180%">
-                <feGaussianBlur stdDeviation="2.5" result="blur" />
-                <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                </feMerge>
-            </filter>
-            <filter id="wm-diffuse" x="-15%" y="-60%" width="130%" height="220%">
-                <feGaussianBlur stdDeviation="14" />
-            </filter>
-        </defs>
-
-        {/* Diffuse ambient glow */}
-        <text x="500" y="128" textAnchor="middle"
-              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
-              fontSize="128" fontWeight="900" letterSpacing="4"
-              fill="none" stroke="rgba(6,182,212,0.25)" strokeWidth="6"
-              filter="url(#wm-diffuse)">OCULTAR</text>
-
-        {/* Solid dark fill — letter bodies */}
-        <text x="500" y="128" textAnchor="middle"
-              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
-              fontSize="128" fontWeight="900" letterSpacing="4"
-              fill="rgba(4,8,18,0.92)">OCULTAR</text>
-
-        {/* Outer thick stroke — deep navy, creates block frame */}
-        <text x="500" y="128" textAnchor="middle"
-              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
-              fontSize="128" fontWeight="900" letterSpacing="4"
-              fill="none" stroke="rgba(8,40,90,0.95)" strokeWidth="20" strokeLinejoin="miter">OCULTAR</text>
-
-        {/* Mid stroke — electric blue */}
-        <text x="500" y="128" textAnchor="middle"
-              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
-              fontSize="128" fontWeight="900" letterSpacing="4"
-              fill="none" stroke="rgba(20,80,160,0.75)" strokeWidth="11" strokeLinejoin="miter">OCULTAR</text>
-
-        {/* Inner stroke — lighter blue ring */}
-        <text x="500" y="128" textAnchor="middle"
-              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
-              fontSize="128" fontWeight="900" letterSpacing="4"
-              fill="none" stroke="rgba(60,150,210,0.55)" strokeWidth="5" strokeLinejoin="miter">OCULTAR</text>
-
-        {/* Foreground wire — cyan accent visible on light bg */}
-        <text x="500" y="128" textAnchor="middle"
-              fontFamily="'Orbitron', 'Share Tech Mono', monospace"
-              fontSize="128" fontWeight="900" letterSpacing="4"
-              fill="none" stroke="rgba(8,145,178,0.85)" strokeWidth="1.5"
-              filter="url(#wm-glow)">OCULTAR</text>
-    </svg>
+    <div className="font-mono font-black text-4xl tracking-widest text-gray-900 mb-6">
+        OCULTAR
+    </div>
 );
 
 // ── Particle Background (preserved exactly) ───────────────────────────────────
@@ -159,7 +104,6 @@ const Nav = () => (
             <div className="hidden md:flex items-center gap-10 text-[12px] font-bold uppercase tracking-widest">
                 <Link to="/" className="text-gray-500 hover:text-gray-900 transition-colors">Platform</Link>
                 <Link to="/solutions" className="text-gray-500 hover:text-gray-900 transition-colors">Product Suite</Link>
-                <Link to="/risk-assessment" className="text-gray-500 hover:text-gray-900 transition-colors">Risk Audit</Link>
                 <Link to="/calculator" className="text-gray-500 hover:text-gray-900 transition-colors">ROI Calculator</Link>
             </div>
             <a
@@ -195,7 +139,6 @@ const Footer = () => (
                     <h4 className="text-[10px] font-bold uppercase tracking-widest text-cyan-600">Product</h4>
                     <ul className="space-y-2 text-sm text-gray-500">
                         <li><Link to="/solutions" className="hover:text-gray-900 transition-colors">Product Suite</Link></li>
-                        <li><Link to="/risk-assessment" className="hover:text-gray-900 transition-colors">Risk Audit</Link></li>
                         <li><Link to="/calculator" className="hover:text-gray-900 transition-colors">ROI Calculator</Link></li>
                     </ul>
                 </div>
@@ -810,7 +753,7 @@ function LandingPage() {
             <WhoItsFor />
             <WhyNotSaaS />
             <ROISection />
-            <GDPRSection />
+
             <Pricing />
             <FinalCTA />
         </div>
