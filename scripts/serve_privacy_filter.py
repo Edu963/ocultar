@@ -16,7 +16,8 @@ try:
         "token-classification",
         model=MODEL_PATH,
         aggregation_strategy="simple",
-        device=DEVICE
+        device=DEVICE,
+        trust_remote_code=True
     )
 except Exception as e:
     print(f"Error loading model: {e}")
@@ -26,7 +27,8 @@ except Exception as e:
         "token-classification",
         model="openai/privacy-filter",
         aggregation_strategy="simple",
-        device=DEVICE
+        device=DEVICE,
+        trust_remote_code=True
     )
 
 class ScanRequest(BaseModel):
