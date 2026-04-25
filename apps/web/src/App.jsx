@@ -519,8 +519,7 @@ const WhyNotSaaS = () => (
 const ROISection = () => {
     const [volume, setVolume] = useState(5);
     const cloudCost = volume * 15000;
-    const tier = volume > 2 ? 'ENTERPRISE' : 'PROFESSIONAL';
-    const ocultarCost = tier === 'ENTERPRISE' ? 24900 : 9900;
+    const ocultarCost = 24900;
     const savings = Math.max(0, cloudCost - ocultarCost);
 
     return (
@@ -560,8 +559,8 @@ const ROISection = () => {
                                     <span className="text-xl font-bold text-rose-500 font-mono">${cloudCost.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">OCULTAR {tier}</span>
-                                    <span className="text-xl font-bold text-white font-mono">€{ocultarCost.toLocaleString()}/yr</span>
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">OCULTAR Enterprise / yr</span>
+                                    <span className="text-xl font-bold text-white font-mono">€{ocultarCost.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center pt-3 border-t border-white/5">
                                     <span className="text-[10px] font-bold text-cyan-500/50 uppercase tracking-widest">You save (approx.)</span>
@@ -667,29 +666,36 @@ const GDPRSection = () => (
 const Pricing = () => {
     const tiers = [
         {
-            name: 'PROFESSIONAL',
-            price: '€9,900',
+            name: 'COMMUNITY',
+            price: 'Free',
+            sub: 'Apache 2.0 · Self-hosted',
             accent: false,
+            cta: { label: 'View on GitHub', href: 'https://github.com/Edu963/ocultar', external: true },
             features: [
-                'Full detection pipeline (regex + AI/NER tier)',
-                'PostgreSQL vault with audit logs',
-                'Deploys in your cloud or on-premise',
-                'Email support, 48h response',
-                'Annual license, invoiced upfront',
+                'Reverse proxy with fail-closed enforcement',
+                'Detection tiers 0.1 – 1.5 (regex, rules, phone, address, greeting)',
+                'AES-256-GCM tokenization · DuckDB local vault',
+                'Dry-run mode + PII risk report generation',
+                'Prometheus metrics · Docker Compose startup',
+                'Risk assessment engine (k-anonymity, VaR)',
             ],
         },
         {
             name: 'ENTERPRISE',
             price: '€24,900',
+            sub: '/year · annual license',
             accent: true,
-            badge: 'Most Comprehensive',
+            badge: 'Full Stack',
+            cta: { label: 'Book a Demo', href: DEMO_URL, external: false },
             features: [
-                'Everything in Professional',
-                'Priority support (24h response)',
-                'GDPR/CNIL compliance documentation package',
-                'Custom entity configuration session',
-                'Dedicated async support channel',
-                'Annual license, invoiced upfront',
+                'Everything in Community',
+                'AI NER (Tier 2) — local inference, zero data egress',
+                'PostgreSQL vault — multi-server HA deployments',
+                'Structured audit log — GDPR Article 5(2) compliant, fail-fatal',
+                'Custom detection rules via config.yaml',
+                'SharePoint + Slack connectors',
+                'CRM / LDAP live identity sync → Tier 0 dictionary',
+                'Syslog UDP + gRPC interceptor for SIEM pipelines',
             ],
         },
     ];
@@ -721,11 +727,13 @@ const Pricing = () => {
                                 <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">
                                     {tier.name}
                                 </div>
-                                <div className="flex items-end gap-1">
+                                <div className="flex items-end gap-2">
                                     <span className={`text-5xl font-black tracking-tighter ${tier.accent ? 'text-cyan-500' : 'text-white'}`}>
                                         {tier.price}
                                     </span>
-                                    <span className="text-zinc-500 mb-2">/year</span>
+                                </div>
+                                <div className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest mt-1">
+                                    {tier.sub}
                                 </div>
                             </div>
 
@@ -739,10 +747,12 @@ const Pricing = () => {
                             </ul>
 
                             <a
-                                href={DEMO_URL}
+                                href={tier.cta.href}
+                                target={tier.cta.external ? '_blank' : undefined}
+                                rel={tier.cta.external ? 'noopener noreferrer' : undefined}
                                 className={`btn w-full py-4 text-center ${tier.accent ? 'btn-primary' : 'btn-secondary'}`}
                             >
-                                Book a Demo
+                                {tier.cta.label}
                             </a>
                         </div>
                     ))}
