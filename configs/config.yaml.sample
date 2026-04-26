@@ -1,0 +1,34 @@
+# Ocultar Engine Configuration
+# Copy this file to config.yaml and fill in your values.
+# config.yaml is gitignored — never commit your live configuration.
+
+# Vault settings
+vault_backend: "duckdb"       # "duckdb" (Community) or "postgres" (Enterprise)
+vault_path: "vault.db"        # Path to DuckDB file (ignored for postgres backend)
+
+# Redaction settings
+threshold: 0.85               # Confidence threshold for AI NER (Tier 2), 0.0–1.0
+pilot_mode: false             # true = log detections without redacting (dry-run)
+
+# Dictionaries — Tier 0 exact-match blocklists
+# Add VIP names, internal codenames, or org-specific sensitive terms.
+dictionaries:
+  - type: "PERSON"
+    terms:
+      - "Jane Smith"          # Example VIP name
+      - "John Doe"
+  - type: "NDA_PROTECTED"
+    terms:
+      - "Project Alpha"       # Example codename
+      - "Acme Corp"           # Example protected org name
+
+# Custom regex rules — Tier 1 additions
+regexes:
+  - type: "EMAIL"
+    pattern: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+
+# Identity Synchronization (Enterprise only)
+# Uncomment and configure to enable live CRM/LDAP → Tier 0 dictionary sync.
+# crm_endpoint: "https://crm.corp.internal/api/v1/identities"
+# crm_api_key: "your-sync-token-here"
+# sync_interval: "1h"
