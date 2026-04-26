@@ -78,32 +78,43 @@ const OPENAI_COMPAT_STEPS = [
 ];
 
 const REFINERY_TIERS = [
-    { tier: "Tier 0", name: "Custom Dictionary Engine", desc: "Admin-configurable blocklists for VIP names, internal codenames, and org-specific sensitive terms." },
-    { tier: "Tier 1", name: "Deterministic Regex Pipeline", desc: "30+ pre-compiled, validated patterns for SSNs, IBANs, credit cards, phone numbers, addresses, and regional IDs. Luhn validation prevents false positives on credit cards." },
-    { tier: "Tier 1.5", name: "Structural Heuristics", desc: "Conjunction expansion, professional title detection, possessive patterns — catches PII that regex misses without model inference overhead." },
-    { tier: "Tier 2", name: "SLM NER (Deep Scan)", desc: "A local Small Language Model performs Named-Entity Recognition for contextual PII (conversational names, implicit references). Processes entire records in a single inference pass." },
+    { tier: "Tier 0.1", name: "Evasion Shield", desc: "Recursively decodes Base64, JWT, and URL-encoded payloads and rescans the decoded content. Catches attackers who wrap PII in encoding layers to bypass downstream filters." },
+    { tier: "Tier 0", name: "Custom Dictionary Engine", desc: "Admin-configurable blocklists for VIP names, internal codenames, and org-specific sensitive terms. Backed by a live CRM/LDAP sync that updates the dictionary without restart." },
+    { tier: "Tier 1", name: "Deterministic Regex Pipeline", desc: "30+ pre-compiled, Luhn-validated patterns: SSNs, IBANs, credit cards, phone numbers, addresses, SIRET/SIREN, health references, and regional IDs across 10+ countries. Credit card false positives are eliminated with Luhn checksum verification." },
+    { tier: "Tier 1.5", name: "Contextual Heuristics", desc: "Phone libphonenumber validation, heuristic address parsing, greeting/signature detection (name in 'Dear John' or 'Best, Sarah'). Catches PII that regex misses without any model inference overhead." },
+    { tier: "Tier 2", name: "OpenAI Privacy Filter (Deep Scan)", desc: "A 1.5B-parameter local bidirectional token classifier (Apache 2.0) performs Named-Entity Recognition for contextual PII — conversational names, implicit references, and finance-specific entities. 97% F1. Runs entirely in your infrastructure. Swappable with any compatible model via TIER2_ENGINE env var." },
 ];
 
 const ENTERPRISE_FEATURES = [
     {
         icon: <Radio className="w-6 h-6" />,
         title: "Syslog → Any Upstream SIEM",
-        desc: "Ocultar runs a fail-closed UDP Syslog proxy that strips PII from every log line before forwarding to any compliant SIEM via standard protocol.",
+        desc: "A fail-closed UDP Syslog proxy strips PII from every log line before forwarding to any compliant SIEM (Splunk, Elastic, Wazuh). If the Refinery errors, the log line is dropped — raw PII is never forwarded.",
     },
     {
         icon: <Activity className="w-6 h-6" />,
-        title: "JSON Audit Logger",
-        desc: "Every vault transaction (match, vault, re-hydrate) is written to a structured JSON audit stream. Queryable by any log aggregation platform.",
+        title: "Ed25519-Signed Immutable Audit Log",
+        desc: "Every vault transaction is written to a SHA-256 hash-chained, Ed25519-signed append-only log. Auditors verify the full chain offline — no infrastructure access required. GDPR Article 5(2) compliant out of the box.",
+    },
+    {
+        icon: <Database className="w-6 h-6" />,
+        title: "PostgreSQL HA Vault",
+        desc: "Production deployments replace the local DuckDB vault with a shared PostgreSQL backend, enabling multi-node Refinery pools, read replicas, and encrypted WAL for point-in-time recovery.",
+    },
+    {
+        icon: <Globe className="w-6 h-6" />,
+        title: "CRM / LDAP Identity Sync",
+        desc: "Background polling ingests protected identities directly from your CRM or LDAP directory into Tier 0's dictionary — ensuring executive names, codenames, and customer IDs are blocked without any manual list management.",
     },
     {
         icon: <Key className="w-6 h-6" />,
-        title: "AES-256-GCM Vault",
-        desc: "All PII is encrypted at rest with FIPS-aware AES-256-GCM before touching storage. The Master Key never leaves the operator's infrastructure.",
+        title: "AES-256-GCM Vault Encryption",
+        desc: "Every PII token is encrypted at rest with AES-256-GCM and a key derived via HKDF-SHA256. The master key is operator-controlled and never leaves your process memory — not stored in config, not logged.",
     },
     {
         icon: <Server className="w-6 h-6" />,
-        title: "License-Gated Capabilities",
-        desc: "Enterprise connectors (SharePoint, Deep Scan NER) require a signed license payload. Unlicensed access is blocked at the binary level — Fail-Closed by design.",
+        title: "License-Gated at the Binary Level",
+        desc: "Enterprise connectors and Tier 2 NER require a signed Ed25519 license payload. Unlicensed access is blocked before any code path executes — the binary itself enforces the boundary.",
     },
 ];
 
@@ -138,9 +149,10 @@ export default function SolutionsPage() {
                         <h2 className="text-4xl md:text-5xl mb-4">Ocultar Sombra</h2>
                         <h3 className="text-xl text-gray-500 mb-6">The Agentic Privacy Gateway</h3>
                         <p className="text-lg text-gray-500 leading-relaxed max-w-2xl">
-                            Sombra sits between your infrastructure and every AI provider. It intercepts, 
-                            sanitizes, routes, and re-hydrates — ensuring only redacted prompts are ever 
-                            transmitted outbound, and only restored responses are delivered inbound.
+                            Sombra sits between your infrastructure and every AI provider. It intercepts,
+                            sanitizes, routes, and re-hydrates — ensuring only redacted prompts are ever
+                            transmitted outbound, and only restored responses are delivered inbound. It is
+                            a wire-compatible drop-in for the OpenAI API: change one URL, protect every model call.
                         </p>
                     </div>
 
@@ -298,15 +310,15 @@ export default function SolutionsPage() {
                                 <Fingerprint className="w-5 h-5" />
                                 <h4 className="text-[10px] font-bold uppercase tracking-widest">Immutable Audit Trail</h4>
                             </div>
-                            <h3 className="text-2xl font-bold">Every vault event is cryptographically signed.</h3>
+                            <h3 className="text-2xl font-bold">Every vault event is cryptographically signed and hash-chained.</h3>
                             <p className="text-gray-600 leading-relaxed">
-                                Sombra initializes an <code className="text-cyan-600/80 bg-white px-1.5 py-0.5 rounded text-xs border border-cyan-200">ImmutableLogger</code> backed by an Ed25519 keypair on startup. Every token vault, match, and rehydration event is written to an append-only log and signed with the private key. The corresponding public key is printed to stdout — auditors can verify the entire log has not been tampered with offline, without access to your infrastructure.
+                                Sombra initializes an <code className="text-cyan-600/80 bg-white px-1.5 py-0.5 rounded text-xs border border-cyan-200">ImmutableLogger</code> backed by an ephemeral Ed25519 keypair on startup. Every vault, match, and rehydration event carries the SHA-256 hash of the previous entry — a tamper-evident chain. The public key is printed to stdout at boot; auditors verify the entire log offline without any access to your infrastructure.
                             </p>
                         </div>
                         <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4">
                             {[
-                                { label: "Algorithm", value: "Ed25519", sub: "FIPS 186-5 compliant" },
-                                { label: "Log Format", value: "Append-only JSON", sub: "sombra_audit.log" },
+                                { label: "Signature", value: "Ed25519", sub: "FIPS 186-5 compliant" },
+                                { label: "Chain", value: "SHA-256 hash chain", sub: "Append-only JSON log" },
                                 { label: "Verification", value: "Offline / Air-gapped", sub: "No infra access required" },
                             ].map(item => (
                                 <div key={item.label} className="bg-white border border-cyan-100 rounded-xl p-5 space-y-1 shadow-sm">

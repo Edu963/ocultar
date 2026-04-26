@@ -334,7 +334,7 @@ const HowItWorks = () => {
         { num: '01', title: 'Detect', desc: 'OCULTAR scans every request in real time', icon: <Eye className="w-5 h-5" /> },
         { num: '02', title: 'Vault',  desc: 'PII is encrypted and stored locally, never transmitted', icon: <Lock className="w-5 h-5" /> },
         { num: '03', title: 'Redact', desc: 'Tokens replace sensitive data before it reaches the AI', icon: <Shield className="w-5 h-5" /> },
-        { num: '04', title: 'Route',  desc: 'The AI receives clean, safe, useful context', icon: <ArrowRight className="w-5 h-5" /> },
+        { num: '04', title: 'Route',  desc: 'Sombra Gateway routes the sanitized request to your chosen AI provider — OpenAI, Gemini, or any local model', icon: <ArrowRight className="w-5 h-5" /> },
         { num: '05', title: 'Restore',desc: 'The response is re-hydrated before your user sees it', icon: <RefreshCw className="w-5 h-5" /> },
     ];
 
@@ -633,13 +633,13 @@ const Pricing = () => {
             cta: { label: 'Book a Demo', href: DEMO_URL, external: false },
             features: [
                 'Everything in Community',
-                'AI NER (Tier 2) — local inference, zero data egress',
+                'Sombra Gateway — multi-model router with per-connector data policy enforcement',
+                'AI NER (Tier 2) — OpenAI Privacy Filter (1.5B param, 97% F1), runs fully local',
                 'PostgreSQL vault — multi-server HA deployments',
-                'Structured audit log — GDPR Article 5(2) compliant, fail-fatal',
-                'Custom detection rules via config.yaml',
-                'SharePoint + Slack connectors',
-                'CRM / LDAP live identity sync → Tier 0 dictionary',
-                'Syslog UDP + gRPC interceptor for SIEM pipelines',
+                'Ed25519-signed audit log — SHA-256 hash-chained, GDPR Art. 5(2) compliant',
+                'CRM / LDAP live identity sync → Tier 0 protected entity dictionary',
+                'SharePoint (MS Graph) + Slack Events API connectors',
+                'Syslog UDP forwarder — fail-closed PII scrub before any SIEM delivery',
             ],
         },
     ];
@@ -753,7 +753,7 @@ function LandingPage() {
             <WhoItsFor />
             <WhyNotSaaS />
             <ROISection />
-
+            <GDPRSection />
             <Pricing />
             <FinalCTA />
         </div>
