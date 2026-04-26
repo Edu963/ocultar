@@ -4,7 +4,6 @@ use (
 	./apps/proxy
 	./apps/slm-engine
 	./apps/sombra
-	./enterprise/refinery-extensions
 	./internal/pii
 	./pkg/gateway
 	./services/refinery
