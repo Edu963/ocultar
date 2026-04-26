@@ -38,8 +38,8 @@ results.json
 /reports/
 /pilot_data/
 
-# Agent Skills (Private/Business)
-agents/skills/business/
+# Agent Skills (all internal — operational moat, not for public)
+agents/
 business/
 
 # Documentation Binaries
@@ -73,5 +73,12 @@ mem.pprof
 *.p12
 *.p8
 
-# Funding and investor materials (private)
+# Internal docs (private — business strategy, roadmap tasks, investor materials)
 docs/fundraising/
+docs/tasks/
+
+# Internal scripts
+test_sombra_query.sh
+
+# License generation (verification is public, generation is private)
+tools/license-manager/generate_license.go
