@@ -48,3 +48,29 @@ audit.log
 sombra.yaml
 temp/
 models/privacy-filter-fr-finance/model.safetensors
+
+# Model files (large binaries — never commit)
+*.gguf
+*.ggml
+*.safetensors
+models/
+
+# Fine-tuning data (bulky synthetic corpora)
+data/fine-tune/
+
+# Go test artifacts
+coverage.out
+coverage.html
+*.test
+*.prof
+cpu.pprof
+mem.pprof
+
+# TLS / certificate files
+*.pem
+*.crt
+*.p12
+*.p8
+
+# Funding and investor materials (private)
+docs/fundraising/
