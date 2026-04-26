@@ -17,6 +17,7 @@ services:
       - OCU_PROXY_TARGET=http://echo-upstream:8080
       - OCU_PROXY_PORT=8081
       - SOMBRA_PORT=8081
+      # Secrets injected by Doppler — run with: doppler run -- docker compose up
       - OCU_MASTER_KEY=${OCU_MASTER_KEY}
       - OCU_SALT=${OCU_SALT}
       - OCU_LICENSE_KEY=${OCU_LICENSE_KEY}
