@@ -38,6 +38,14 @@ Regex alone catches digit sequences that *look* like card numbers, producing a h
 ### Deterministic Tokens Enable Privacy-Safe Cross-Document Analytics
 OCULTAR tokens are not random UUIDs. Every token is derived deterministically from `SHA-256(original_PII)`, meaning the same input always produces the same token — across requests, across sessions, and across documents. This has a consequence that has not been documented anywhere until now: **you can run aggregations, joins, and frequency analysis on fully tokenized data without ever de-tokenizing it.** A database of `[EMAIL_9c8f7a1b]` values can be counted, grouped, and correlated exactly like the original emails — the analytical value is preserved, the privacy risk is not. Re-hydration to plaintext is only needed when a human must read the result.
 
+## Integration Boundary
+
+Ocultar's responsibility ends at `POST /refine`. It returns `cleanText` 
+and a vault token map. It has no knowledge of role cards, judgment logs, 
+or downstream AI decisions. Nous is the only authorized caller of this 
+endpoint in the Nous/Ocultar stack. If Ocultar is unavailable, callers 
+must fail loudly — never degrade gracefully by passing raw data through.
+
 ## Getting Started
 
 1.  **Environment Setup**:
