@@ -42,6 +42,10 @@ results.json
 agents/
 business/
 
+# Commercial products (private repos)
+apps/web/
+apps/sombra/
+
 # Documentation Binaries
 *.pdf
 
