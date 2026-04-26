@@ -45,6 +45,7 @@ business/
 # Commercial products (private repos)
 apps/web/
 apps/sombra/
+apps/slm-engine/
 
 # Documentation Binaries
 *.pdf
