@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/Edu963/ocultar/pkg/config"
 	"github.com/Edu963/ocultar/pkg/license"
@@ -16,6 +17,7 @@ import (
 	"github.com/Edu963/ocultar/pkg/refinery"
 	"github.com/Edu963/ocultar/pkg/inference"
 	"github.com/Edu963/ocultar/vault"
+	"github.com/Edu963/ocultar-proxy/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/crypto/hkdf"
 )
@@ -91,6 +93,7 @@ func main() {
 	eng.PilotMode = pilotMode
 
 	// ── Initialize Enterprise Components ──────────────────────────────────────
+	tier2Available := false
 	if license.IsEnterprise() || os.Getenv("OCU_FORCE_ENTERPRISE") == "true" {
 		log.Printf("[INFO] Initializing Enterprise Security Tiers...")
 		// 1. SIEM Auditor
@@ -104,14 +107,26 @@ func main() {
 		}
 		scanner := inference.NewRemoteScanner(sidecarURL)
 		eng.SetAIScanner(scanner)
+		tier2Available = true
 		log.Printf("[INFO] Tier 2 AI (Remote Sidecar) active on %s", sidecarURL)
 	}
-	
+
+	// ── Open usage store for per-tier rate limiting ───────────────────────────
+	usagePath := filepath.Join(filepath.Dir(cfg.VaultPath), "usage.db")
+	usageStore, err := middleware.NewDuckDBUsageStore(usagePath)
+	if err != nil {
+		log.Fatalf("[FATAL] Failed to open usage store: %v", err)
+	}
+	defer usageStore.Close()
+
 	// ── Build proxy handler ───────────────────────────────────────────────────
 	handler, err := proxy.NewHandler(eng, vaultProvider, masterKey, cfg.TargetURL)
 	if err != nil {
 		log.Fatalf("[FATAL] %v", err)
 	}
+
+	// Wrap with tier enforcement.
+	tierMW := middleware.New(handler, tier2Available, usageStore, middleware.EnterpriseLimit())
 
 	addr := ":" + cfg.Port
 	if cfg.Port != "" && cfg.Port[0] == ':' {
@@ -128,20 +143,24 @@ func main() {
 	fmt.Printf("└──────────────────────────────────────────────────────┘\n")
 
 	mux := http.NewServeMux()
-	
+
 	// Health & Metrics
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok", "version":"` + VERSION + `"}`))
 	})
-	
+
 	if config.Global.PrometheusEnabled {
 		log.Printf("[INFO] Metrics enabled on /metrics")
 		mux.Handle("/metrics", promhttp.Handler())
 	}
 
-	mux.Handle("/", handler)
+	// Usage query endpoint — exempt from tier enforcement (it's a meta-route).
+	mux.Handle("/v1/usage", tierMW.UsageHandler())
+
+	// All other traffic flows through tier enforcement → proxy handler.
+	mux.Handle("/", tierMW)
 
 	log.Fatal(http.ListenAndServe(addr, mux))
 }
