@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Edu963/ocultar-proxy/metrics"
 )
 
 // Tier represents an Ocultar subscription tier.
@@ -101,6 +103,7 @@ func (m *TierMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Free tier: block entirely when Tier 2 AI scanner is active.
 	if tier == TierFree && m.tier2Available {
+		metrics.IncTierUpgradeRequired()
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set(HeaderTier, string(TierFree))
 		w.Header().Set(HeaderCallsRemaining, "0")
@@ -158,6 +161,7 @@ func (m *TierMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set(HeaderCallsRemaining, unlimited)
 	}
 
+	metrics.IncAPICall(string(tier))
 	m.next.ServeHTTP(w, r)
 }
 

@@ -40,4 +40,15 @@ var (
 		Name: "ocultar_vault_operations_total",
 		Help: "Total number of vault operations performed.",
 	}, []string{"op", "result"})
+
+	// Security Events
+	SSRFBlockedTotal = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "ocultar_ssrf_blocked_total",
+		Help: "Requests blocked due to SSRF / private-IP target.",
+	})
+
+	FailClosedTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "ocultar_fail_closed_total",
+		Help: "Fail-closed security events by reason.",
+	}, []string{"reason"})
 )
