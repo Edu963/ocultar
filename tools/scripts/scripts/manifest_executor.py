@@ -76,8 +76,12 @@ def build_component(comp, target_dir):
         log(f"Copying directory: {comp['name']}")
         os.makedirs(dest, exist_ok=True)
         include = comp.get("include", [])
-        for f in include:
-            shutil.copy2(os.path.join(src, f), os.path.join(dest, f))
+        if include:
+            for f in include:
+                shutil.copy2(os.path.join(src, f), os.path.join(dest, f))
+        else:
+            # No include filter — copy the entire directory
+            shutil.copytree(src, dest, dirs_exist_ok=True)
 
 def compress_distribution(dist_key, dist_cfg, target_dir):
     format = dist_cfg.get("format")
