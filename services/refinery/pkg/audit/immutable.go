@@ -33,23 +33,46 @@ type ImmutableLogger struct {
 	lastHash   string
 }
 
-// NewImmutableLogger initializes a logger on disk. In a production
-// scenario, the private key would be securely loaded from a KMS.
-// Here we generate an ephemeral key for the session to prove the capability.
+// NewImmutableLogger initializes a logger on disk with an ephemeral Ed25519
+// key pair. Signatures are verifiable within the current process session only.
+// For cross-session verifiability use NewImmutableLoggerWithKey.
 func NewImmutableLogger(filePath string) (*ImmutableLogger, error) {
-	pub, priv, err := ed25519.GenerateKey(nil)
+	_, priv, err := ed25519.GenerateKey(nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate ed25519 keys: %v", err)
 	}
+	return newLogger(filePath, priv)
+}
 
+// NewImmutableLoggerWithKey initializes a logger with a caller-supplied
+// private key. The same key must be retained to verify signatures after
+// process restarts. privateKey must be a valid ed25519.PrivateKey (64 bytes).
+func NewImmutableLoggerWithKey(filePath string, privateKey ed25519.PrivateKey) (*ImmutableLogger, error) {
+	return newLogger(filePath, privateKey)
+}
+
+// LoadPrivateKeyFromHex decodes a hex-encoded 32-byte Ed25519 seed (as stored
+// in OCU_AUDIT_PRIVATE_KEY) into a PrivateKey suitable for NewImmutableLoggerWithKey.
+// Generate with: openssl rand -hex 32
+func LoadPrivateKeyFromHex(seedHex string) (ed25519.PrivateKey, error) {
+	seed, err := hex.DecodeString(seedHex)
+	if err != nil {
+		return nil, fmt.Errorf("OCU_AUDIT_PRIVATE_KEY is not valid hex: %w", err)
+	}
+	if len(seed) != ed25519.SeedSize {
+		return nil, fmt.Errorf("OCU_AUDIT_PRIVATE_KEY: want %d bytes, got %d", ed25519.SeedSize, len(seed))
+	}
+	return ed25519.NewKeyFromSeed(seed), nil
+}
+
+func newLogger(filePath string, priv ed25519.PrivateKey) (*ImmutableLogger, error) {
 	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open audit log: %v", err)
 	}
-
 	return &ImmutableLogger{
 		privateKey: priv,
-		publicKey:  pub,
+		publicKey:  priv.Public().(ed25519.PublicKey),
 		logFile:    f,
 		lastHash:   "0000000000000000000000000000000000000000000000000000000000000000",
 	}, nil

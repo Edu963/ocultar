@@ -26,6 +26,10 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - SLM_SIDECAR_URL=http://slm-engine:8085
+      # Enterprise audit log — set OCU_AUDIT_PRIVATE_KEY in Doppler to activate.
+      # Generate: openssl rand -hex 32
+      - OCU_AUDIT_PRIVATE_KEY=${OCU_AUDIT_PRIVATE_KEY}
+      - OCU_AUDIT_LOG_PATH=/data/audit.log
     volumes:
       - vault-data:/data
     depends_on:

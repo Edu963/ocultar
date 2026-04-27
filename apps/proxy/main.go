@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Edu963/ocultar/pkg/audit"
 	"github.com/Edu963/ocultar/pkg/config"
 	"github.com/Edu963/ocultar/pkg/license"
 	"github.com/Edu963/ocultar/pkg/proxy"
@@ -30,6 +31,21 @@ var devMode bool
 
 func init() {
 	flag.BoolVar(&devMode, "dev", false, "Enable development mode (allows insecure defaults)")
+}
+
+// auditAdapter bridges audit.ImmutableLogger to the refinery.AuditLogger interface.
+// The refinery interface uses Log(user, action, result, mapping string); ImmutableLogger
+// uses Log(actor, action, resource, status, details string) and returns an error.
+type auditAdapter struct {
+	logger *audit.ImmutableLogger
+}
+
+func (a *auditAdapter) Init(_ string) error { return nil }
+func (a *auditAdapter) Close()              { a.logger.Close() }
+func (a *auditAdapter) Log(actor, action, resource, mapping string) {
+	if err := a.logger.Log(actor, action, resource, "ALLOW", mapping); err != nil {
+		log.Printf("[WARN] audit write failed: %v", err)
+	}
 }
 
 func getSalt() string {
@@ -94,11 +110,32 @@ func main() {
 
 	// ── Initialize Enterprise Components ──────────────────────────────────────
 	tier2Available := false
+	auditActive := false
 	if license.IsEnterprise() || os.Getenv("OCU_FORCE_ENTERPRISE") == "true" {
 		log.Printf("[INFO] Initializing Enterprise Security Tiers...")
-		// 1. SIEM Auditor
-		auditor := &refinery.NoopAuditLogger{} // Replace with real auditor if available
-		eng.SetAuditLogger(auditor)
+
+		// 1. SIEM Auditor — requires OCU_AUDIT_PRIVATE_KEY (hex-encoded 32-byte Ed25519 seed)
+		if keyHex := os.Getenv("OCU_AUDIT_PRIVATE_KEY"); keyHex != "" {
+			privKey, err := audit.LoadPrivateKeyFromHex(keyHex)
+			if err != nil {
+				log.Fatalf("[FATAL] %v", err)
+			}
+			logPath := os.Getenv("OCU_AUDIT_LOG_PATH")
+			if logPath == "" {
+				logPath = filepath.Join(filepath.Dir(cfg.VaultPath), "audit.log")
+			}
+			immutableLog, err := audit.NewImmutableLoggerWithKey(logPath, privKey)
+			if err != nil {
+				log.Fatalf("[FATAL] Failed to open audit log at %s: %v", logPath, err)
+			}
+			defer immutableLog.Close()
+			eng.SetAuditLogger(&auditAdapter{logger: immutableLog})
+			auditActive = true
+			log.Printf("[INFO] Immutable audit log active: %s (public key: %s)", logPath, immutableLog.PublicKeyHex())
+		} else {
+			log.Printf("[WARN] OCU_AUDIT_PRIVATE_KEY not set — audit logging disabled for this deployment")
+			eng.SetAuditLogger(&refinery.NoopAuditLogger{})
+		}
 
 		// 2. Local SLM Scanner
 		sidecarURL := os.Getenv("SLM_SIDECAR_URL")
@@ -139,6 +176,7 @@ func main() {
 	fmt.Printf("│  Target    : %-38s │\n", cfg.TargetURL)
 	fmt.Printf("│  Vault     : %-38s │\n", cfg.VaultPath)
 	fmt.Printf("│  Metrics   : http://localhost%-23s │\n", addr+"/metrics")
+	fmt.Printf("│  Audit log : %-38v │\n", auditActive)
 	fmt.Printf("│  Pilot     : %-38v │\n", pilotMode)
 	fmt.Printf("│  DevMode   : %-38v │\n", devMode)
 	fmt.Printf("└──────────────────────────────────────────────────────┘\n")
