@@ -1,10 +1,15 @@
-📖 [OpenAI shipped a model. We built the system.](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
+# 🛡️ OCULTAR Monorepo
 
+> [!TIP]
+> **Featured Article:** [OpenAI shipped a model. We built the system.](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
+
+[![GitHub Release](https://img.shields.io/github/v/release/Edu963/ocultar?display_name=v1.0.0)](https://github.com/Edu963/ocultar/releases/latest)
+[![Security Policy](https://img.shields.io/badge/security-policy-brightgreen)](SECURITY.md)
+[![Changelog](https://img.shields.io/badge/changelog-v1.0.0-blue)](CHANGELOG.md)
 [![PyPI](https://img.shields.io/pypi/v/ocultar-goose-mcp)](https://pypi.org/project/ocultar-goose-mcp/)
 
-# Ocultar Monorepo (Open-Core)
-
 Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refinery, integrated applications, and enterprise security tiers.
+
 
 ## Structure
 
@@ -82,3 +87,10 @@ OCULTAR is maintained by a specialized ecosystem of AI Agent Skills. Every chang
 
 - **Documentation**: See `/docs/reference` for architecture and PII detection details.
 - **Testing**: Run `go test ./...` from the root to verify all modules.
+
+## Discovery & Community
+
+- **Topics**: `privacy`, `gdpr`, `pii`, `golang`, `ai-security`, `zero-trust`, `llm`, `data-privacy`
+- **Article**: [Read our launch story on dev.to](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
+- **License**: Apache 2.0 (Open-Core)
+
