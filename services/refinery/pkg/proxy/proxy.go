@@ -90,6 +90,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}()
 	default:
 		DroppedRequestsTotal.WithLabelValues("queue_full").Inc()
+		FailClosedTotal.WithLabelValues("queue_full").Inc()
 		http.Error(w, "ocultar-proxy: too many requests (queue full)", http.StatusTooManyRequests)
 		return
 	}
@@ -99,6 +100,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		defer func() { <-h.sem }()
 	case <-time.After(10 * time.Second): // Wait up to 10s for a worker
 		DroppedRequestsTotal.WithLabelValues("timeout").Inc()
+		FailClosedTotal.WithLabelValues("vault_timeout").Inc()
 		http.Error(w, "ocultar-proxy: internal timeout waiting for refinery worker", http.StatusServiceUnavailable)
 		return
 	case <-r.Context().Done():
@@ -137,8 +139,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[PROXY-BLOCK] Refinery error: %v", err)
 		RequestsTotal.WithLabelValues(r.Method, "error", "false").Inc()
 		if strings.Contains(err.Error(), "trial limit reached") {
+			FailClosedTotal.WithLabelValues("trial_limit").Inc()
 			http.Error(w, "ocultar-proxy: trial limit reached (fail-closed)", http.StatusForbidden)
 		} else {
+			FailClosedTotal.WithLabelValues("slm_unavailable").Inc()
 			http.Error(w, "ocultar-proxy: internal security refinery failure (fail-closed)", http.StatusInternalServerError)
 		}
 		return
@@ -308,6 +312,7 @@ func (h *Handler) resolveTarget(r *http.Request) (string, error) {
 
 	for _, ip := range ips {
 		if isPrivateIP(ip) {
+			SSRFBlockedTotal.Inc()
 			return "", fmt.Errorf("SSRF blocked: internal/private target '%s' (%s) not allowed", host, ip.String())
 		}
 	}

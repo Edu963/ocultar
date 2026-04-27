@@ -138,23 +138,22 @@ func main() {
 	fmt.Printf("│  Listening : http://localhost%-24s │\n", addr)
 	fmt.Printf("│  Target    : %-38s │\n", cfg.TargetURL)
 	fmt.Printf("│  Vault     : %-38s │\n", cfg.VaultPath)
+	fmt.Printf("│  Metrics   : http://localhost%-23s │\n", addr+"/metrics")
 	fmt.Printf("│  Pilot     : %-38v │\n", pilotMode)
 	fmt.Printf("│  DevMode   : %-38v │\n", devMode)
 	fmt.Printf("└──────────────────────────────────────────────────────┘\n")
 
 	mux := http.NewServeMux()
 
-	// Health & Metrics
+	// Health
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok", "version":"` + VERSION + `"}`))
 	})
 
-	if config.Global.PrometheusEnabled {
-		log.Printf("[INFO] Metrics enabled on /metrics")
-		mux.Handle("/metrics", promhttp.Handler())
-	}
+	// Metrics — always exposed; restrict at the network/firewall layer.
+	mux.Handle("/metrics", promhttp.Handler())
 
 	// Usage query endpoint — exempt from tier enforcement (it's a meta-route).
 	mux.Handle("/v1/usage", tierMW.UsageHandler())
