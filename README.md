@@ -10,6 +10,7 @@ Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refin
 - `/services/` - Core backend logic (Refinery, Vault)
 - `/enterprise/` - Enterprise security extensions & licensing logic
 - `/internal/pii/` - Centralized PII detection engine & registry
+- `/extensions/` - Third-party AI tool integrations (Goose MCP, etc.)
 - `/docs/` - Technical and product documentation
 - `/security/` - Regulatory policies and integrity manifests
 
