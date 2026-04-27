@@ -1,5 +1,7 @@
 📖 [OpenAI shipped a model. We built the system.](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
 
+[![PyPI](https://img.shields.io/pypi/v/ocultar-goose-mcp)](https://pypi.org/project/ocultar-goose-mcp/)
+
 # Ocultar Monorepo (Open-Core)
 
 Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refinery, integrated applications, and enterprise security tiers.
