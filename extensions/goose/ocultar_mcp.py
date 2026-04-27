@@ -115,5 +115,10 @@ async def main() -> None:
         )
 
 
-if __name__ == "__main__":
+def main_sync() -> None:
+    """Entrypoint for the ocultar-goose-mcp console script."""
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    main_sync()
