@@ -131,13 +131,13 @@ Audit logging behavior differs by binary and tier. The `AuditLogger` interface (
 | Deployment | Logger | What is recorded | Cryptographic protection |
 |---|---|---|---|
 | Proxy — Community tier | `NoopAuditLogger` | Nothing — silent no-op | None |
-| Proxy — Enterprise tier (current) | `NoopAuditLogger` | Nothing — placeholder pending KMS integration | None |
+| Proxy — Enterprise tier, `OCU_AUDIT_PRIVATE_KEY` set | `ImmutableLogger` (via `auditAdapter`) | Full event set — see below | SHA-256 hash chain + Ed25519 signatures + fsync |
+| Proxy — Enterprise tier, `OCU_AUDIT_PRIVATE_KEY` unset | `NoopAuditLogger` | Nothing — warning logged at startup | None |
 | Refinery CLI / HTTP server | `BasicFileLogger` | Timestamp, user, action, result, compliance mapping | None — plain JSON, append-only |
-| `ImmutableLogger` (available, not yet injected in proxy) | SHA-256 chain + Ed25519 signed | Full event set — see below | SHA-256 hash chain + Ed25519 signatures + fsync |
 
-**This is a tiered product distinction, not an omission.** The proxy binary currently wires `NoopAuditLogger` even in enterprise mode; the code comment at `apps/proxy/main.go:100` reads `// Replace with real auditor if available`, indicating the injection point is defined and the logger is ready. The cryptographic audit trail is a planned enterprise activation, not yet deployed.
+**Activation:** Set `OCU_AUDIT_PRIVATE_KEY` (hex-encoded 32-byte Ed25519 seed) in Doppler and restart. Generate with `openssl rand -hex 32`. The same seed must be retained to verify historical signatures after restarts — loss of the seed does not affect the hash chain, but makes signature verification of prior entries impossible.
 
-### ImmutableLogger — specification (implemented, pending proxy integration)
+### ImmutableLogger — specification (active in enterprise deployments)
 
 The `ImmutableLogger` in `services/refinery/pkg/audit/immutable.go` is fully implemented with the following properties, verifiable in code:
 
@@ -303,8 +303,8 @@ API key validation and per-tier monthly rate limits are enforced at the `TierMid
 **OCULTAR does not guarantee detection of all PII.**
 The detection pipeline (Tiers 0–1.5 in community, Tier 2 in enterprise) operates on statistical and pattern-based methods. Novel PII formats, obfuscated values, or application-specific sensitive data not covered by the configured rules may not be detected. Operators are responsible for validating detection coverage against their specific data formats.
 
-**The proxy binary does not currently produce an audit trail in any tier.**
-As described in Section 5, both community and enterprise proxy deployments use `NoopAuditLogger`. The `ImmutableLogger` (SHA-256 chain + Ed25519 signatures) is implemented and available but not yet wired into the proxy binary. The Refinery CLI server produces plain JSON logs via `BasicFileLogger`; those logs carry no cryptographic protection. Operators requiring an audit trail today should direct refinery operations through the CLI/HTTP server path or wait for the proxy integration, which is planned for the next enterprise release.
+**The cryptographic audit trail is an enterprise feature gated on `OCU_AUDIT_PRIVATE_KEY`.**
+Community tier uses `NoopAuditLogger` — no events are recorded. Enterprise deployments without `OCU_AUDIT_PRIVATE_KEY` also produce no audit log (a warning is emitted at startup). The `ImmutableLogger` (SHA-256 hash chain + Ed25519 signatures + fsync) activates only when `OCU_AUDIT_PRIVATE_KEY` is set. The Refinery CLI server always uses `BasicFileLogger` (plain JSON, no cryptographic protection). Operators requiring an audit trail must be on the enterprise tier with the key configured.
 
 **OCULTAR's audit signing key is session-scoped in the current implementation.**
 When `ImmutableLogger` is active, the Ed25519 signing key is ephemeral. Cross-session signature verification is not currently possible. The hash chain integrity guarantee holds across sessions; signature verification does not.
