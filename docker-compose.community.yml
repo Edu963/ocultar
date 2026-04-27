@@ -17,6 +17,8 @@ services:
       - OCU_PROXY_TARGET=http://echo-upstream:8080
       - OCU_PROXY_PORT=8081
       - SOMBRA_PORT=8081
+      # Vault DB path — must match the volume mount below so tokens survive restarts.
+      - OCU_VAULT_PATH=/data/vault.db
       # Secrets injected by Doppler — run with: doppler run -- docker compose up
       - OCU_MASTER_KEY=${OCU_MASTER_KEY}
       - OCU_SALT=${OCU_SALT}
@@ -24,6 +26,8 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - SLM_SIDECAR_URL=http://slm-engine:8085
+    volumes:
+      - vault-data:/data
     depends_on:
       - echo-upstream
       - slm-engine
@@ -53,6 +57,12 @@ services:
       - PRIVACY_FILTER_MODEL_PATH=openai/privacy-filter
     volumes:
       - ./models:/app/models:Z
+
+volumes:
+  # Named volume keeps the DuckDB vault file across container recreation.
+  # Without this, vault.db lives in the container layer and every
+  # `docker compose up --force-recreate` silently destroys all stored tokens.
+  vault-data:
 
 networks:
   default:
