@@ -1,15 +1,27 @@
 # 🛡️ OCULTAR Monorepo
 
-> [!TIP]
+Zero-egress PII refinery for AI pipelines.
+Runs in your infrastructure. Your data never leaves.
+
+> [!IMPORTANT]
 > **Featured Article:** [OpenAI shipped a model. We built the system.](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
+> 📖 OpenAI shipped a model. We built the system. [Read on dev.to](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
 
 [![GitHub Release](https://img.shields.io/github/v/release/Edu963/ocultar?display_name=v1.0.0)](https://github.com/Edu963/ocultar/releases/latest)
 [![Security Policy](https://img.shields.io/badge/security-policy-brightgreen)](SECURITY.md)
 [![Changelog](https://img.shields.io/badge/changelog-v1.0.0-blue)](CHANGELOG.md)
 [![PyPI](https://img.shields.io/pypi/v/ocultar-goose-mcp)](https://pypi.org/project/ocultar-goose-mcp/)
 
-Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refinery, integrated applications, and enterprise security tiers.
+### Quick Security Stats
+| Stat | Value |
+|------|-------|
+| SSRF bypass vectors found + fixed | 2 |
+| Fail-closed scenarios tested | 6 |
+| Vault persistence | Named Docker volume |
+| Tier 2 engine | OpenAI Privacy Filter (Apache 2.0) |
+| Key management | Doppler |
 
+Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refinery, integrated applications, and enterprise security tiers.
 
 ## Structure
 
@@ -21,38 +33,66 @@ Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refin
 - `/docs/` - Technical and product documentation
 - `/security/` - Regulatory policies and integrity manifests
 
-### Key Hardening Features (v1.1.0+)
-- **Fail-Closed Proxy**: Strict semaphore-based queueing ensures no data bypasses the refinery under load.
-- **SSRF Protection**: Hardened IP/DNS validation with rebinding protection for all egress targets.
-- **Secrets Enforcement**: Mandatory `OCU_MASTER_KEY` and `OCU_SALT` validation using HKDF-SHA256 derivation.
-- **Enterprise Observability**: Prometheus metrics for real-time tracking of latency, queue depth, and PII hit rates.
-- **Zero-Bypass AI**: Tier 2 AI deep scan (Local Sidecar) is strictly enforced for contextual PII detection.
+## Security Model
 
-## Key Features
+OCULTAR is built on a **Zero-Trust for Data** architecture. It is designed for senior security engineers who require verifiable guarantees before connecting internal data to external AI providers.
 
-- **Tier 0 — Dictionary Shield**: Integrated high-speed dictionary protection for VIPs and corporate secrets with automated CRM synchronization.
-- **Multi-Tier Refinery**: 5-tier detection pipeline (Base64 Shield → Dictionary → Regex Registry → AI NER → Structural Heuristics).
-- **Native SLM Inference**: Sidecar support for local, sovereign PII scanning using specialized LLMs without cloud egress.
-- **Zero-Egress Architecture**: PII is tokenized *before* ever leaving the trust boundary, converting liabilities into audit-safe assets.
+- **Zero-Egress**: A hard architectural guarantee. All PII detection and tokenization happen within your trust boundary. No network calls are made to third-party detection providers.
+- **Fail-Closed**: 6 critical failure modes are rigorously tested (SLM timeout, vault failure, empty boot-guard, queue saturation, refinery internal error, re-hydration failure). In all cases, OCULTAR blocks the request rather than degrading to plaintext exposure.
+- **SSRF Protection**: Hardened IP/DNS validation blocking RFC 1918 and `169.254.169.254` (IMDS) ranges with active DNS rebinding safety. 2 bypass vectors (including IPv6 loopback and non-standard decimal encoding) were identified and patched during adversarial testing.
+- **Secure Vault**: AES-256-GCM encryption with keys derived via HKDF-SHA256. The vault is persisted via a named Docker volume to survive redeployments while keeping the master key in memory.
+- **Ed25519 Audit Logs**: Tamper-proof, hash-chained audit trails signed with Ed25519. Every vault event (matching or vaulting) is logged for SIEM ingestion and compliance verification.
+
+## Multi-Tier Refinery Pipeline
+
+Tokenization is handled via a defense-in-depth pipeline that runs before any payload reaches an upstream AI provider.
+
+| Tier | Shield | Technical Description |
+|------|--------|-----------------------|
+| 0.1 | Base64 Evasion | Decodes, scans, and re-encodes PII hidden inside Base64/JWT blobs. |
+| 0 | Dictionary | High-speed protection for VIPs, internal projects, and sensitive org names. |
+| 0.5 | Pattern + Entropy | Shannon scoring for high-entropy strings, catching keys and tokens. |
+| 1 | Rule Engine | EMAIL, SSN, IBAN (MOD97), CC (Luhn mod-10), 30+ national ID types. |
+| 1.1 | Phone Shield | libphonenumber validation to reduce false positives on digit sequences. |
+| 1.2 | Address Shield | Heuristic street address parser supporting EN/FR/ES/DE. |
+| 1.5 | Greeting/Signature | Detects names in salutations ("Regards, Jean") and intro sentences. |
+| **2** | **AI NER** | **OpenAI Privacy Filter — 1.5B param, local inference, Apache 2.0.** |
+| 3 | Structural Heuristics | Proximity expansion: `[TOKEN] ET Dupont` → re-tokenized as single entity. |
 
 ## Why OCULTAR Is Different
 
 ### Obfuscation-Resistant: Recursive Base64 Scanning
-Most PII filters operate on plaintext. A sophisticated attacker — or a misbehaving upstream SDK — can embed sensitive data inside a Base64-encoded blob inside a JSON field, completely bypassing naive pattern matching. OCULTAR decodes and recursively scans every Base64 segment it encounters, running the full detection pipeline on the decoded content before re-encoding the output. The payload structure is preserved; the PII is not. This is implemented in `Tier 0.1` of the refinery pipeline (`RefineString → processInterfaceRecursive`) and applies to both inline strings and nested JSON payloads hidden inside Base64.
+Most PII filters operate on plaintext. A sophisticated attacker can embed sensitive data inside a Base64-encoded blob inside a JSON field, bypassing naive pattern matching. OCULTAR decodes and recursively scans every Base64 segment, running the full pipeline on the decoded content.
 
 ### Luhn-Validated Credit Card Detection
-Regex alone catches digit sequences that *look* like card numbers, producing a high false-positive rate that poisons analytics and erodes trust in any filtering system. OCULTAR applies the **Luhn algorithm (mod-10 checksum)** to every credit card candidate before vaulting it — the same validation used by payment processors. A match that fails Luhn is silently passed through without redaction or vault storage. Finance and payments teams will recognize this as the difference between a real card filter and a noise generator.
+OCULTAR applies the **Luhn algorithm (mod-10 checksum)** to every credit card candidate before vaulting it. A match that fails Luhn is passed through without redaction or vault storage, eliminating the noise typical of regex-only filters.
 
-### Deterministic Tokens Enable Privacy-Safe Cross-Document Analytics
-OCULTAR tokens are not random UUIDs. Every token is derived deterministically from `SHA-256(original_PII)`, meaning the same input always produces the same token — across requests, across sessions, and across documents. This has a consequence that has not been documented anywhere until now: **you can run aggregations, joins, and frequency analysis on fully tokenized data without ever de-tokenizing it.** A database of `[EMAIL_9c8f7a1b]` values can be counted, grouped, and correlated exactly like the original emails — the analytical value is preserved, the privacy risk is not. Re-hydration to plaintext is only needed when a human must read the result.
+### Deterministic Tokens for Privacy-Safe Analytics
+Tokens are derived from `SHA-256(original_PII)`. The same input always produces the same token. This allows you to run aggregations, joins, and frequency analysis on fully tokenized data without de-tokenizing it — preserving analytical value while eliminating privacy risk.
+
+## Extensions
+
+### Goose AI Workflow Integration
+Zero-egress PII protection for Goose AI workflows.
+```bash
+pip install ocultar-goose-mcp
+```
+Read the launch story: [OpenAI shipped a model. We built the system.](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
+
+## Pricing
+
+| Tier | Monthly Limit | Price | Features |
+|------|---------------|-------|----------|
+| **Free** | - | €0 | Tier 0–1.5, Community Support |
+| **Developer** | 50,000 calls | €49 | Tier 2 SLM Inference, Email Support |
+| **Team** | 200,000 calls | €199 | Shared Vault, Priority Support |
+| **Enterprise** | Unlimited | €800 | Ed25519 Auditing, SIEM Export, 24/7 SLA |
+
+Detailed pricing and feature breakdown: [ocultar.dev/pricing](https://ocultar.dev/pricing)
 
 ## Integration Boundary
 
-Ocultar's responsibility ends at `POST /refine`. It returns `cleanText` 
-and a vault token map. It has no knowledge of role cards, judgment logs, 
-or downstream AI decisions. Nous is the only authorized caller of this 
-endpoint in the Nous/Ocultar stack. If Ocultar is unavailable, callers 
-must fail loudly — never degrade gracefully by passing raw data through.
+Ocultar's responsibility ends at `POST /refine`. It returns `cleanText` and a vault token map. It has no knowledge of downstream AI decisions. Callers must fail loudly if Ocultar is unavailable — never degrade gracefully by passing raw data.
 
 ## Getting Started
 
@@ -63,34 +103,22 @@ must fail loudly — never degrade gracefully by passing raw data through.
     ```
 
 2.  **Go Workspace**:
-    This project uses Go workspaces. Ensure you have Go 1.22+ installed.
     ```bash
     go work sync
     ```
 
 3.  **Build and Run**:
-    Use the root `Makefile` to build all components:
     ```bash
     make build
-    go run ./apps/proxy  # Start the Privacy Proxy
+    go run ./apps/proxy
     ```
-
-## AI-Driven Governance
-
-OCULTAR is maintained by a specialized ecosystem of AI Agent Skills. Every change to this repository is verified by the **Ocultar Protocol**, ensuring deterministic security and compliance.
-
-- **Orchestration**: Managed by `/agents/skills/`.
-- **Policy**: Defined in `/services/refinery/pkg/config/data/regulatory_policy.json`.
-- **Audit**: Verifiable logs signed with Ed25519.
 
 ## Development
 
-- **Documentation**: See `/docs/reference` for architecture and PII detection details.
-- **Testing**: Run `go test ./...` from the root to verify all modules.
+- **Documentation**: See `/docs/reference` for architecture details.
+- **Testing**: Run `go test ./...` to verify all modules.
 
 ## Discovery & Community
 
 - **Topics**: `privacy`, `gdpr`, `pii`, `golang`, `ai-security`, `zero-trust`, `llm`, `data-privacy`
-- **Article**: [Read our launch story on dev.to](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
 - **License**: Apache 2.0 (Open-Core)
-
