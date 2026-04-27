@@ -7,11 +7,17 @@ Runs entirely in your infrastructure — no data leaves your environment.
 - Ocultar running locally (docker compose -f docker-compose.community.yml up)
 - Python 3.10+
 
-### Installation in Goose
+### Installation
+
+```bash
+pip install ocultar-goose-mcp
+```
+
+### Configuration in Goose
 1. Open Goose settings
 2. Add Extension → Command-line Extension
 3. Name: ocultar-pii
-4. Command: python /path/to/extensions/goose/ocultar_mcp.py
+4. Command: ocultar-goose-mcp
 5. Environment:
    OCULTAR_URL=http://localhost:8080
    OCULTAR_API_KEY=your-key
