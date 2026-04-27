@@ -291,10 +291,9 @@ func (h *Handler) resolveTarget(r *http.Request) (string, error) {
 		return "", fmt.Errorf("invalid Ocultar-Target URL")
 	}
 
-	host, _, err := net.SplitHostPort(parsed.Host)
-	if err != nil {
-		host = parsed.Host
-	}
+	// Hostname() correctly strips IPv6 brackets (e.g. "[::1]" → "::1")
+	// so that net.ParseIP and net.LookupIP receive a bare address or name.
+	host := parsed.Hostname()
 
 	// DNS Rebinding Protection: Resolve names to IPs and validate IPs
 	ips, err := net.LookupIP(host)
@@ -317,7 +316,9 @@ func (h *Handler) resolveTarget(r *http.Request) (string, error) {
 }
 
 func isPrivateIP(ip net.IP) bool {
-	if ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsMulticast() {
+	// Unspecified addresses (0.0.0.0, ::) must be blocked — they can be used
+	// to bypass address checks while still reaching the local host on many OSes.
+	if ip.IsUnspecified() || ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsMulticast() {
 		return true
 	}
 
