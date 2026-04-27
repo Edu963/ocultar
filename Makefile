@@ -27,9 +27,13 @@ clean:
 	rm -rf dist/
 
 release:
+	@echo "Building release artifacts..."
+	bash tools/scripts/scripts/build_release.sh
 	@echo "Tagging v1.0.0..."
 	git tag -a v1.0.0 -m "Release v1.0.0"
 	@echo "Pushing tag to origin..."
 	git push origin v1.0.0
 	@echo "Done! Please create the release on GitHub: https://github.com/Edu963/ocultar/releases/new?tag=v1.0.0"
+	@echo "Make sure to attach the .zip and .tar.gz files from the dist/ folder to the release!"
+
 
