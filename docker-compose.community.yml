@@ -44,8 +44,8 @@ services:
 
   privacy-filter:
     build:
-      context: .
-      dockerfile: apps/slm-engine/python/Dockerfile
+      context: ./apps/slm-engine/python
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - "8086:8086"
