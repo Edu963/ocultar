@@ -10,7 +10,8 @@ Runs in your infrastructure. Your data never leaves.
 [![GitHub Release](https://img.shields.io/github/v/release/Edu963/ocultar?display_name=v1.0.0)](https://github.com/Edu963/ocultar/releases/latest)
 [![Security Policy](https://img.shields.io/badge/security-policy-brightgreen)](SECURITY.md)
 [![Changelog](https://img.shields.io/badge/changelog-v1.0.0-blue)](CHANGELOG.md)
-[![PyPI](https://img.shields.io/pypi/v/ocultar-goose-mcp)](https://pypi.org/project/ocultar-goose-mcp/)
+[![PyPI goose](https://img.shields.io/pypi/v/ocultar-goose-mcp?label=goose-mcp)](https://pypi.org/project/ocultar-goose-mcp/)
+[![PyPI claude](https://img.shields.io/pypi/v/ocultar-claude-mcp?label=claude-mcp)](https://pypi.org/project/ocultar-claude-mcp/)
 
 ### Quick Security Stats
 | Stat | Value |

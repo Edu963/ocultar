@@ -1,5 +1,7 @@
 # Ocultar PII Refinery — Claude MCP Extension
 
+[![PyPI](https://img.shields.io/pypi/v/ocultar-claude-mcp)](https://pypi.org/project/ocultar-claude-mcp/)
+
 Zero-egress PII protection for Claude AI workflows.
 Runs entirely in your infrastructure — no data ever leaves your environment.
 
