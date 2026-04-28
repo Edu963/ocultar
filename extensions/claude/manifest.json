@@ -1,0 +1,75 @@
+{
+  "manifest_version": "0.3",
+  "name": "ocultar-pii",
+  "display_name": "Ocultar PII Refinery",
+  "version": "0.1.1",
+  "description": "Zero-egress PII redaction for Claude workflows. Redacts names, emails, IBANs, SSNs, phone numbers, and credit cards before any AI processing. Runs entirely in your infrastructure — no data ever leaves your environment.",
+  "long_description": "Ocultar is a local PII detection and redaction engine. This extension gives Claude two tools:\n\n- **refine_text** — redacts PII from any text before it reaches Claude, replacing sensitive values with deterministic tokens (e.g. `[EMAIL_9c8f7a1b]`).\n- **reveal_tokens** — de-tokenizes tokens back to plaintext for authorized callers (auditor-only, every call is logged in an immutable Ed25519-signed audit trail).\n\nAll processing happens on your machine via the locally running Ocultar Refinery. If the Refinery is unreachable, both tools fail closed — raw text is never forwarded. Zero-egress is an architectural guarantee, not a policy.",
+  "author": {
+    "name": "Ocultar Security",
+    "email": "edu@ocultar.dev",
+    "url": "https://ocultar.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Edu963/ocultar"
+  },
+  "homepage": "https://ocultar.dev",
+  "documentation": "https://github.com/Edu963/ocultar/blob/main/extensions/claude/README.md",
+  "support": "https://github.com/Edu963/ocultar/issues",
+  "license": "Apache-2.0",
+  "keywords": ["pii", "privacy", "gdpr", "zero-egress", "security", "redaction", "compliance"],
+  "privacy_policies": ["https://ocultar.dev/privacy"],
+  "server": {
+    "type": "python",
+    "entry_point": "ocultar_claude_mcp.py",
+    "mcp_config": {
+      "command": "uvx",
+      "args": ["ocultar-claude-mcp@0.1.1"],
+      "env": {
+        "OCULTAR_URL": "${user_config.ocultar_url}",
+        "OCULTAR_API_KEY": "${user_config.ocultar_api_key}",
+        "OCULTAR_AUDITOR_TOKEN": "${user_config.ocultar_auditor_token}"
+      }
+    }
+  },
+  "user_config": {
+    "ocultar_url": {
+      "type": "string",
+      "title": "Ocultar Refinery URL",
+      "description": "URL of your locally running Ocultar Refinery",
+      "required": true,
+      "default": "http://localhost:8080"
+    },
+    "ocultar_api_key": {
+      "type": "string",
+      "title": "API Key",
+      "description": "Ocultar API key (leave blank if not configured)",
+      "required": false,
+      "sensitive": true
+    },
+    "ocultar_auditor_token": {
+      "type": "string",
+      "title": "Auditor Token",
+      "description": "Enables the reveal_tokens tool. Must match OCU_AUDITOR_TOKEN on the server. Leave blank to disable token reveal.",
+      "required": false,
+      "sensitive": true
+    }
+  },
+  "tools": [
+    {
+      "name": "refine_text",
+      "description": "Redact PII from text before sending to Claude"
+    },
+    {
+      "name": "reveal_tokens",
+      "description": "De-tokenize Ocultar tokens back to plaintext (auditor-only)"
+    }
+  ],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "python": ">=3.10"
+    }
+  }
+}
