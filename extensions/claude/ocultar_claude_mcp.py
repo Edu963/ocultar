@@ -55,6 +55,7 @@ async def list_tools() -> list[types.Tool]:
     return [
         types.Tool(
             name="refine_text",
+            title="Redact PII from text",
             description=(
                 "Redact PII from text using the local Ocultar Refinery before "
                 "sending it to Claude or any other AI model. Returns the cleaned "
@@ -64,6 +65,7 @@ async def list_tools() -> list[types.Tool]:
                 "Use this tool before processing any text that may contain names, "
                 "emails, phone numbers, IBANs, SSNs, credit cards, or addresses."
             ),
+            readOnlyHint=True,
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -77,6 +79,7 @@ async def list_tools() -> list[types.Tool]:
         ),
         types.Tool(
             name="reveal_tokens",
+            title="Reveal original PII from tokens",
             description=(
                 "De-tokenize Ocultar PII tokens back to their original plaintext "
                 "values. Requires OCULTAR_AUDITOR_TOKEN to be set — this is an "
@@ -84,6 +87,7 @@ async def list_tools() -> list[types.Tool]:
                 "Use only when the authorized caller explicitly needs to retrieve "
                 "the original PII values after AI processing is complete."
             ),
+            readOnlyHint=True,
             inputSchema={
                 "type": "object",
                 "properties": {
