@@ -10,7 +10,8 @@ Runs in your infrastructure. Your data never leaves.
 [![GitHub Release](https://img.shields.io/github/v/release/Edu963/ocultar?display_name=v1.0.0)](https://github.com/Edu963/ocultar/releases/latest)
 [![Security Policy](https://img.shields.io/badge/security-policy-brightgreen)](SECURITY.md)
 [![Changelog](https://img.shields.io/badge/changelog-v1.0.0-blue)](CHANGELOG.md)
-[![PyPI](https://img.shields.io/pypi/v/ocultar-goose-mcp)](https://pypi.org/project/ocultar-goose-mcp/)
+[![PyPI goose](https://img.shields.io/pypi/v/ocultar-goose-mcp?label=goose-mcp)](https://pypi.org/project/ocultar-goose-mcp/)
+[![PyPI claude](https://img.shields.io/pypi/v/ocultar-claude-mcp?label=claude-mcp)](https://pypi.org/project/ocultar-claude-mcp/)
 
 ### Quick Security Stats
 | Stat | Value |
@@ -25,8 +26,8 @@ Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refin
 
 ## Structure
 
-- `/apps/` - Applications (Proxy, SLM Engine, Dashboard, Automation Bridge, Web)
-- `/services/` - Core backend logic (Refinery, Vault)
+- `/apps/` - Applications (Proxy, Sombra Gateway, SLM Engine, Dashboard, Automation Bridge, Web)
+- `/services/` - Core backend logic (Refinery, Vault, Mock API)
 - `/enterprise/` - Enterprise security extensions & licensing logic
 - `/internal/pii/` - Centralized PII detection engine & registry
 - `/extensions/` - Third-party AI tool integrations (Goose MCP, etc.)
@@ -52,11 +53,11 @@ Tokenization is handled via a defense-in-depth pipeline that runs before any pay
 | 0.1 | Base64 Evasion | Decodes, scans, and re-encodes PII hidden inside Base64/JWT blobs. |
 | 0 | Dictionary | High-speed protection for VIPs, internal projects, and sensitive org names. |
 | 0.5 | Pattern + Entropy | Shannon scoring for high-entropy strings, catching keys and tokens. |
-| 1 | Rule Engine | EMAIL, SSN, IBAN (MOD97), CC (Luhn mod-10), 30+ national ID types. |
+| 1 | Rule Engine | EMAIL, SSN, IBAN (MOD97), CC (Luhn mod-10), 50+ national ID types. |
 | 1.1 | Phone Shield | libphonenumber validation to reduce false positives on digit sequences. |
 | 1.2 | Address Shield | Heuristic street address parser supporting EN/FR/ES/DE. |
 | 1.5 | Greeting/Signature | Detects names in salutations ("Regards, Jean") and intro sentences. |
-| **2** | **AI NER** | **OpenAI Privacy Filter — 1.5B param, local inference, Apache 2.0.** |
+| **2** | **AI NER** | **OpenAI Privacy Filter — 1.5B param, local inference. Optimized for French Finance.** |
 | 3 | Structural Heuristics | Proximity expansion: `[TOKEN] ET Dupont` → re-tokenized as single entity. |
 
 ## Why OCULTAR Is Different
@@ -79,16 +80,6 @@ pip install ocultar-goose-mcp
 ```
 Read the launch story: [OpenAI shipped a model. We built the system.](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
 
-## Pricing
-
-| Tier | Monthly Limit | Price | Features |
-|------|---------------|-------|----------|
-| **Free** | - | €0 | Tier 0–1.5, Community Support |
-| **Developer** | 50,000 calls | €49 | Tier 2 SLM Inference, Email Support |
-| **Team** | 200,000 calls | €199 | Shared Vault, Priority Support |
-| **Enterprise** | Unlimited | €800 | Ed25519 Auditing, SIEM Export, 24/7 SLA |
-
-Detailed pricing and feature breakdown: [ocultar.dev/pricing](https://ocultar.dev/pricing)
 
 ## Integration Boundary
 
@@ -96,10 +87,10 @@ Ocultar's responsibility ends at `POST /refine`. It returns `cleanText` and a va
 
 ## Getting Started
 
-1.  **Environment Setup**:
+1.  **Secrets Management**:
+    OCULTAR uses **Doppler** for secure secret injection.
     ```bash
-    cp .env.example .env
-    # Define OCU_MASTER_KEY and OCU_SALT
+    doppler setup
     ```
 
 2.  **Go Workspace**:
@@ -110,7 +101,7 @@ Ocultar's responsibility ends at `POST /refine`. It returns `cleanText` and a va
 3.  **Build and Run**:
     ```bash
     make build
-    go run ./apps/proxy
+    ./scripts/start.sh
     ```
 
 ## Development
