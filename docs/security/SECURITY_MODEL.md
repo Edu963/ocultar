@@ -1,8 +1,8 @@
 # OCULTAR Security Model
 
 **Document classification:** Public — for vendor security review  
-**Version:** 1.1  
-**Last updated:** 2026-04-27  
+**Version:** 1.2  
+**Last updated:** 2026-04-28  
 **Contact:** security@ocultar.dev
 
 ---
@@ -162,11 +162,13 @@ The `ImmutableLogger` in `services/refinery/pkg/audit/immutable.go` is fully imp
 
 **Output format:** Newline-delimited JSON (`application/x-ndjson`). Compatible with Filebeat, Fluent Bit, and any SIEM that supports structured log ingestion.
 
-### Additional limitation: ephemeral signing key
+### Persistent signing key
 
-The Ed25519 key pair is generated in-process at startup (`ed25519.GenerateKey(nil)`). The private key is not persisted to disk or loaded from a KMS. Signatures are verifiable within a single process session via `PublicKeyHex()`; after a restart the key changes and prior signatures cannot be re-verified. The hash chain continuity guarantee is unaffected — it does not depend on the signing key.
+The Ed25519 signing key is operator-supplied via `OCU_AUDIT_PRIVATE_KEY` (hex-encoded 32-byte seed, injected through Doppler). The same seed is used across restarts, so signatures on all entries in the log are verifiable with a single stable public key retrievable via `PublicKeyHex()`. Cross-session signature verification is fully supported.
 
-**Planned:** Persistent key via KMS (AWS KMS, HashiCorp Vault Transit). The code comment in `immutable.go` explicitly names this as the production path.
+**Key generation:** `openssl rand -hex 32`. Store the output in Doppler and never commit it to the codebase.
+
+**Key loss:** If `OCU_AUDIT_PRIVATE_KEY` is lost, prior log entries cannot be signature-verified. The hash chain integrity guarantee is unaffected — it does not depend on the signing key. Operators should back up the key in a durable secrets manager alongside `OCU_MASTER_KEY`.
 
 ---
 
@@ -306,9 +308,9 @@ The detection pipeline (Tiers 0–1.5 in community, Tier 2 in enterprise) operat
 **The cryptographic audit trail is an enterprise feature gated on `OCU_AUDIT_PRIVATE_KEY`.**
 Community tier uses `NoopAuditLogger` — no events are recorded. Enterprise deployments without `OCU_AUDIT_PRIVATE_KEY` also produce no audit log (a warning is emitted at startup). The `ImmutableLogger` (SHA-256 hash chain + Ed25519 signatures + fsync) activates only when `OCU_AUDIT_PRIVATE_KEY` is set. The Refinery CLI server always uses `BasicFileLogger` (plain JSON, no cryptographic protection). Operators requiring an audit trail must be on the enterprise tier with the key configured.
 
-**OCULTAR's audit signing key is session-scoped in the current implementation.**
-When `ImmutableLogger` is active, the Ed25519 signing key is ephemeral. Cross-session signature verification is not currently possible. The hash chain integrity guarantee holds across sessions; signature verification does not.
+**The cryptographic audit trail requires operator key management.**
+When `ImmutableLogger` is active, the Ed25519 signing key is loaded from `OCU_AUDIT_PRIVATE_KEY` at startup. Cross-session signature verification is fully supported as long as the same key is retained. Loss of `OCU_AUDIT_PRIVATE_KEY` makes prior signatures unverifiable; the hash chain integrity guarantee is unaffected.
 
 ---
 
-*This document reflects the state of the codebase as of version 1.1.0. All claims are derived from the implementation in this repository. No claim in this document is aspirational; where a capability is planned rather than implemented, it is explicitly marked as such.*
+*This document reflects the state of the codebase as of version 1.2.0. All claims are derived from the implementation in this repository. No claim in this document is aspirational; where a capability is planned rather than implemented, it is explicitly marked as such.*
