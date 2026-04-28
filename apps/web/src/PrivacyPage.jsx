@@ -60,7 +60,7 @@ const SECTIONS = [
     {
         num: '10',
         title: 'Contact',
-        body: 'For privacy questions or data requests: e.trejos@gmail.com',
+        body: 'For privacy questions or data requests: edu@ocultar.dev',
     },
 ];
 
