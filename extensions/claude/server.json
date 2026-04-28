@@ -1,0 +1,49 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Edu963/ocultar-pii",
+  "description": "Zero-egress PII redaction for Claude. Runs locally — no data leaves your infrastructure.",
+  "repository": {
+    "url": "https://github.com/Edu963/ocultar",
+    "source": "github"
+  },
+  "version_detail": {
+    "version": "0.1.2"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "ocultar-claude-mcp",
+      "version": "0.1.2",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeHint": "python",
+      "environmentVariables": [
+        {
+          "name": "OCULTAR_URL",
+          "description": "URL of your locally running Ocultar Refinery",
+          "required": true
+        },
+        {
+          "name": "OCULTAR_API_KEY",
+          "description": "Ocultar API key (leave blank if not configured)",
+          "required": false
+        },
+        {
+          "name": "OCULTAR_AUDITOR_TOKEN",
+          "description": "Enables reveal_tokens tool. Must match OCU_AUDITOR_TOKEN on the server.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "registryType": "mcpb",
+      "identifier": "https://github.com/Edu963/ocultar/raw/main/extensions/claude/ocultar-pii-0.1.0.mcpb",
+      "version": "0.1.0",
+      "fileSha256": "b4428298230fdc4ba9122fd1aac1987d14a2a04875ff0b18a33e1e1ef7cfe2aa",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

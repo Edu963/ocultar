@@ -2,6 +2,8 @@
 
 [![PyPI](https://img.shields.io/pypi/v/ocultar-claude-mcp)](https://pypi.org/project/ocultar-claude-mcp/)
 
+mcp-name: io.github.Edu963/ocultar-pii
+
 Zero-egress PII protection for Claude AI workflows.
 Runs entirely in your infrastructure — no data ever leaves your environment.
 
