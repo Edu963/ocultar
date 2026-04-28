@@ -79,16 +79,6 @@ pip install ocultar-goose-mcp
 ```
 Read the launch story: [OpenAI shipped a model. We built the system.](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
 
-## Pricing
-
-| Tier | Monthly Limit | Price | Features |
-|------|---------------|-------|----------|
-| **Free** | - | €0 | Tier 0–1.5, Community Support |
-| **Developer** | 50,000 calls | €49 | Tier 2 SLM Inference, Email Support |
-| **Team** | 200,000 calls | €199 | Shared Vault, Priority Support |
-| **Enterprise** | Unlimited | €800 | Ed25519 Auditing, SIEM Export, 24/7 SLA |
-
-Detailed pricing and feature breakdown: [ocultar.dev/pricing](https://ocultar.dev/pricing)
 
 ## Integration Boundary
 
