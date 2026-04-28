@@ -25,7 +25,7 @@
     "entry_point": "ocultar_claude_mcp.py",
     "mcp_config": {
       "command": "uvx",
-      "args": ["ocultar-claude-mcp@0.1.1"],
+      "args": ["ocultar-claude-mcp@0.1.0"],
       "env": {
         "OCULTAR_URL": "${user_config.ocultar_url}",
         "OCULTAR_API_KEY": "${user_config.ocultar_api_key}",
