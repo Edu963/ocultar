@@ -27,6 +27,9 @@ go run ./services/refinery/cmd/main.go --serve 8080
 # Start the SLM sidecar (local AI NER, port 8085)
 go run ./apps/slm-engine/main.go
 
+# Start the Sombra Gateway (enterprise, port 8086)
+go run ./apps/sombra
+
 # Frontend (apps/dashboard or apps/web)
 npm run dev
 npm run build
@@ -39,7 +42,7 @@ cd services/refinery && CGO_ENABLED=1 go test ./... -run TestName
 
 ## Required Environment Variables
 
-Copy `.env.example` to `.env` before running:
+OCULTAR primarily uses **Doppler** for secret management. If running manually, copy `.env.example` to `.env`:
 
 | Variable | Purpose |
 |---|---|
@@ -48,7 +51,7 @@ Copy `.env.example` to `.env` before running:
 | `OCU_PROXY_TARGET` | Upstream API base URL |
 | `OCU_PROXY_PORT` | Proxy listen port (default `8081`) |
 | `SLM_SIDECAR_URL` | SLM sidecar endpoint (default `http://localhost:8085`) |
-| `TIER2_ENGINE` | Sidecar inference backend: privacy-filter (default) or llama-cpp |
+| `TIER2_ENGINE` | Sidecar inference backend: privacy-filter (default). llama-cpp (experimental) |
 | `SLM_MODEL_PATH` | Path to GGUF model file (llama-cpp engine only) |
 | `PYTHON_SIDECAR_URL` | Python service URL for privacy-filter engine (default `http://localhost:8086`) |
 | `PRIVACY_FILTER_MODEL_PATH` | Path or HuggingFace ID for the privacy-filter model (default `openai/privacy-filter`) |
@@ -60,15 +63,14 @@ Copy `.env.example` to `.env` before running:
 
 ### Go Workspace
 
-The repo uses a Go workspace (`go.work`) linking 8 independent modules:
+The repo uses a Go workspace (`go.work`) linking 7 core modules:
 - `apps/proxy` — reverse proxy entrypoint
 - `apps/slm-engine` — local Small Language Model sidecar
 - `apps/sombra` — agentic LLM gateway (enterprise)
-- `apps/automation_bridge` — REST automation command runner
 - `services/refinery` — core PII detection and redaction engine
 - `services/vault` — encrypted token storage (DuckDB or PostgreSQL)
 - `internal/pii` — shared PII type registry and detection interfaces
-- `enterprise/refinery-extensions` — licensed enterprise extensions
+- `pkg/gateway` — shared gateway client logic
 
 ### Detection Pipeline (5 Tiers)
 
@@ -83,7 +85,7 @@ Requests flow through the Refinery pipeline in order:
 | 1.1 | Phone Shield | libphonenumber validation with Luhn-style checksum reduction |
 | 1.2 | Address Shield | Heuristic address parser |
 | 1.5 | Greeting/Signature Shield | Detects PII embedded in email salutations and signatures |
-| 2 | AI NER (Enterprise) | Sends text to SLM sidecar for deep named-entity recognition |
+| 2 | AI NER (Enterprise) | Sends text to SLM sidecar for deep named-entity recognition. Optimized for French Finance. |
 | 3 | Structural Heuristics | Context-aware detection for structured document types |
 
 ### Vault and Tokenization
