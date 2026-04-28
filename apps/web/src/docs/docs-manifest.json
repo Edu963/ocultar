@@ -1,0 +1,562 @@
+{
+  "generated_at": "",
+  "structs": [
+    {
+      "name": "RegexRule",
+      "doc": "",
+      "fields": [
+        {
+          "name": "Type",
+          "type": "string",
+          "tag": "yaml:\"type\" json:\"type\"",
+          "comment": ""
+        },
+        {
+          "name": "Pattern",
+          "type": "string",
+          "tag": "yaml:\"pattern\" json:\"pattern\"",
+          "comment": ""
+        },
+        {
+          "name": "Compiled",
+          "type": "\u0026{286 0xc000124090}",
+          "tag": "yaml:\"-\" json:\"-\"",
+          "comment": ""
+        }
+      ],
+      "package": "config"
+    },
+    {
+      "name": "DictRule",
+      "doc": "",
+      "fields": [
+        {
+          "name": "Type",
+          "type": "string",
+          "tag": "yaml:\"type\" json:\"type\"",
+          "comment": ""
+        },
+        {
+          "name": "Terms",
+          "type": "\u0026{396 \u003cnil\u003e string}",
+          "tag": "yaml:\"terms\" json:\"terms\"",
+          "comment": ""
+        }
+      ],
+      "package": "config"
+    },
+    {
+      "name": "Settings",
+      "doc": "",
+      "fields": [
+        {
+          "name": "Regexes",
+          "type": "\u0026{479 \u003cnil\u003e RegexRule}",
+          "tag": "yaml:\"regexes\"",
+          "comment": ""
+        },
+        {
+          "name": "Dictionaries",
+          "type": "\u0026{528 \u003cnil\u003e DictRule}",
+          "tag": "yaml:\"dictionaries\"",
+          "comment": ""
+        },
+        {
+          "name": "SLMConfidence",
+          "type": "float64",
+          "tag": "yaml:\"slm_confidence\"",
+          "comment": ""
+        },
+        {
+          "name": "VaultBackend",
+          "type": "string",
+          "tag": "yaml:\"vault_backend\"",
+          "comment": "Phase 4: Distributed Enterprise Vaulting\nVaultBackend selects the storage backend: \"duckdb\" (default) or \"postgres\"."
+        },
+        {
+          "name": "PostgresDSN",
+          "type": "string",
+          "tag": "yaml:\"postgres_dsn\"",
+          "comment": "PostgresDSN is the PostgreSQL connection string used when VaultBackend is \"postgres\".\nExample: \"host=db.corp.internal port=5432 user=ocultar password=s3cr3t dbname=ocultar_vault sslmode=require\""
+        },
+        {
+          "name": "DomainSnapshot",
+          "type": "string",
+          "tag": "yaml:\"domain_snapshot\" json:\"domain_snapshot\"",
+          "comment": "Phase 5: SR-SLMs (Domain Snapshots)\nDomainSnapshot selects the AI model: \"standard\", \"clinical\", or \"fintech\"."
+        },
+        {
+          "name": "RegulatoryPolicy",
+          "type": "\u0026{1272 string 0xc0001241f8}",
+          "tag": "yaml:\"-\" json:\"regulatory_policy\"",
+          "comment": "Governance: Regulatory Policy"
+        },
+        {
+          "name": "AliasMapping",
+          "type": "\u0026{1412 string string}",
+          "tag": "yaml:\"-\" json:\"alias_mapping\"",
+          "comment": "AliasMapping (Task 1) - Maps internal IDs to Google InfoTypes"
+        },
+        {
+          "name": "CRMEndpoint",
+          "type": "string",
+          "tag": "yaml:\"crm_endpoint\"",
+          "comment": "CRM Sync Settings"
+        },
+        {
+          "name": "CRMApiKey",
+          "type": "string",
+          "tag": "yaml:\"crm_api_key\"",
+          "comment": ""
+        },
+        {
+          "name": "SyncInterval",
+          "type": "string",
+          "tag": "yaml:\"sync_interval\"",
+          "comment": "e.g. \"5m\""
+        },
+        {
+          "name": "ShowDebugMetadata",
+          "type": "bool",
+          "tag": "yaml:\"show_debug_metadata\" json:\"show_debug_metadata\"",
+          "comment": "Debug/Demo Mode: Include internal metadata in responses (e.g., ai_saw)"
+        },
+        {
+          "name": "MaxConcurrency",
+          "type": "int",
+          "tag": "yaml:\"max_concurrency\" json:\"max_concurrency\"",
+          "comment": "MaxConcurrency is the shared semaphore limit for the proxy and batch scans."
+        },
+        {
+          "name": "QueueSize",
+          "type": "int",
+          "tag": "yaml:\"queue_size\" json:\"queue_size\"",
+          "comment": "QueueSize is the size of the wait queue before failing with 429 Too Many Requests."
+        },
+        {
+          "name": "RehydrateFallbackEnabled",
+          "type": "bool",
+          "tag": "yaml:\"rehydrate_fallback_enabled\" json:\"rehydrate_fallback_enabled\"",
+          "comment": "RehydrateFallbackEnabled allows the proxy to return tokenized data if vault re-hydration fails."
+        },
+        {
+          "name": "InferenceTimeout",
+          "type": "string",
+          "tag": "yaml:\"inference_timeout\" json:\"inference_timeout\"",
+          "comment": "InferenceTimeout is the maximum time allowed for AI Deep Scan before failing closed."
+        },
+        {
+          "name": "MaxPayloadSize",
+          "type": "int64",
+          "tag": "yaml:\"max_payload_size\" json:\"max_payload_size\"",
+          "comment": "MaxPayloadSize is the maximum HTTP body size allowed (in bytes)."
+        },
+        {
+          "name": "PrometheusEnabled",
+          "type": "bool",
+          "tag": "yaml:\"prometheus_enabled\" json:\"prometheus_enabled\"",
+          "comment": "PrometheusEnabled enables the /metrics endpoint and internal instrumentation."
+        }
+      ],
+      "package": "config"
+    },
+    {
+      "name": "Event",
+      "doc": "",
+      "fields": [
+        {
+          "name": "Timestamp",
+          "type": "string",
+          "tag": "json:\"timestamp\"",
+          "comment": ""
+        },
+        {
+          "name": "Actor",
+          "type": "string",
+          "tag": "json:\"actor\"",
+          "comment": ""
+        },
+        {
+          "name": "Action",
+          "type": "string",
+          "tag": "json:\"action\"",
+          "comment": ""
+        },
+        {
+          "name": "Resource",
+          "type": "string",
+          "tag": "json:\"resource\"",
+          "comment": ""
+        },
+        {
+          "name": "Status",
+          "type": "string",
+          "tag": "json:\"status\"",
+          "comment": ""
+        },
+        {
+          "name": "Details",
+          "type": "string",
+          "tag": "json:\"details,omitempty\"",
+          "comment": ""
+        },
+        {
+          "name": "PrevHash",
+          "type": "string",
+          "tag": "json:\"prev_hash\"",
+          "comment": ""
+        },
+        {
+          "name": "Signature",
+          "type": "string",
+          "tag": "json:\"signature\"",
+          "comment": ""
+        }
+      ],
+      "package": "audit"
+    },
+    {
+      "name": "ImmutableLogger",
+      "doc": "",
+      "fields": [
+        {
+          "name": "mu",
+          "type": "\u0026{sync Mutex}",
+          "tag": "",
+          "comment": ""
+        },
+        {
+          "name": "privateKey",
+          "type": "\u0026{ed25519 PrivateKey}",
+          "tag": "",
+          "comment": ""
+        },
+        {
+          "name": "publicKey",
+          "type": "\u0026{ed25519 PublicKey}",
+          "tag": "",
+          "comment": ""
+        },
+        {
+          "name": "logFile",
+          "type": "\u0026{755 0xc000124d68}",
+          "tag": "",
+          "comment": ""
+        },
+        {
+          "name": "lastHash",
+          "type": "string",
+          "tag": "",
+          "comment": ""
+        }
+      ],
+      "package": "audit"
+    },
+    {
+      "name": "FinancialExposure",
+      "doc": "",
+      "fields": [
+        {
+          "name": "RegulatoryExposureMin",
+          "type": "float64",
+          "tag": "json:\"regulatory_exposure_min_eur\"",
+          "comment": "Component 1: Regulatory exposure simulation anchors (€10,000–$100,000)"
+        },
+        {
+          "name": "RegulatoryExposureMax",
+          "type": "float64",
+          "tag": "json:\"regulatory_exposure_max_eur\"",
+          "comment": ""
+        },
+        {
+          "name": "OperationalCostMin",
+          "type": "float64",
+          "tag": "json:\"operational_cost_min_eur\"",
+          "comment": "Component 2: Operational cost estimate based on industry benchmarks (€100–€300/record)"
+        },
+        {
+          "name": "OperationalCostMax",
+          "type": "float64",
+          "tag": "json:\"operational_cost_max_eur\"",
+          "comment": ""
+        },
+        {
+          "name": "RiskMultiplierMin",
+          "type": "float64",
+          "tag": "json:\"risk_multiplier_min\"",
+          "comment": "Component 3: Risk multiplier range derived from K/L profiles"
+        },
+        {
+          "name": "RiskMultiplierMax",
+          "type": "float64",
+          "tag": "json:\"risk_multiplier_max\"",
+          "comment": ""
+        },
+        {
+          "name": "VaRMin",
+          "type": "float64",
+          "tag": "json:\"var_min_eur\"",
+          "comment": "Final VaR Range (Simulated)"
+        },
+        {
+          "name": "VaRMax",
+          "type": "float64",
+          "tag": "json:\"var_max_eur\"",
+          "comment": ""
+        },
+        {
+          "name": "AssumptionsNote",
+          "type": "string",
+          "tag": "json:\"assumptions_note\"",
+          "comment": "Descriptive methodology for defensibility"
+        }
+      ],
+      "package": "audit"
+    },
+    {
+      "name": "AIReadiness",
+      "doc": "",
+      "fields": [
+        {
+          "name": "Status",
+          "type": "string",
+          "tag": "json:\"status\"",
+          "comment": "ALLOW / SANITIZE_FIRST / BLOCK"
+        },
+        {
+          "name": "LLMExposure",
+          "type": "string",
+          "tag": "json:\"llm_exposure\"",
+          "comment": "Risk level if sent to external API"
+        },
+        {
+          "name": "RAGSafe",
+          "type": "bool",
+          "tag": "json:\"rag_safe\"",
+          "comment": "Safe for vector DB / RAG indexing"
+        },
+        {
+          "name": "RAGGuidance",
+          "type": "string",
+          "tag": "json:\"rag_guidance\"",
+          "comment": "Plain-English RAG advice"
+        },
+        {
+          "name": "Recommendation",
+          "type": "string",
+          "tag": "json:\"recommendation\"",
+          "comment": ""
+        }
+      ],
+      "package": "audit"
+    },
+    {
+      "name": "CategoryScore",
+      "doc": "",
+      "fields": [
+        {
+          "name": "Score",
+          "type": "float64",
+          "tag": "json:\"score\"",
+          "comment": "0 (safe) – 10 (critical)"
+        },
+        {
+          "name": "Label",
+          "type": "string",
+          "tag": "json:\"label\"",
+          "comment": "LOW / MEDIUM / HIGH / CRITICAL"
+        },
+        {
+          "name": "Implication",
+          "type": "string",
+          "tag": "json:\"implication\"",
+          "comment": "Plain-English business meaning"
+        }
+      ],
+      "package": "audit"
+    },
+    {
+      "name": "RiskReport",
+      "doc": "",
+      "fields": [
+        {
+          "name": "KAnonymity",
+          "type": "int",
+          "tag": "json:\"k_anonymity\"",
+          "comment": "--- Core Privacy Metrics ---"
+        },
+        {
+          "name": "LDiversity",
+          "type": "int",
+          "tag": "json:\"l_diversity\"",
+          "comment": ""
+        },
+        {
+          "name": "IsGDPRPseudonymized",
+          "type": "bool",
+          "tag": "json:\"is_gdpr_pseudonymized\"",
+          "comment": "Heuristic assessment only"
+        },
+        {
+          "name": "ViolatingRecords",
+          "type": "int",
+          "tag": "json:\"violating_records\"",
+          "comment": ""
+        },
+        {
+          "name": "TotalRecords",
+          "type": "int",
+          "tag": "json:\"total_records\"",
+          "comment": ""
+        },
+        {
+          "name": "DatasetRiskScore",
+          "type": "float64",
+          "tag": "json:\"dataset_risk_score\"",
+          "comment": "--- Derived Risk Scoring ---"
+        },
+        {
+          "name": "RiskMultiplier",
+          "type": "float64",
+          "tag": "json:\"risk_multiplier\"",
+          "comment": "Midpoint of the range"
+        },
+        {
+          "name": "OverallRiskScore",
+          "type": "float64",
+          "tag": "json:\"overall_risk_score\"",
+          "comment": "--- Weighted Scorecard ---"
+        },
+        {
+          "name": "OverallRiskLevel",
+          "type": "string",
+          "tag": "json:\"overall_risk_level\"",
+          "comment": "LOW/MEDIUM/HIGH/CRITICAL"
+        },
+        {
+          "name": "Identifiability",
+          "type": "CategoryScore",
+          "tag": "json:\"identifiability_risk\"",
+          "comment": ""
+        },
+        {
+          "name": "FinancialSensitivity",
+          "type": "CategoryScore",
+          "tag": "json:\"financial_sensitivity\"",
+          "comment": ""
+        },
+        {
+          "name": "ReidentificationRisk",
+          "type": "CategoryScore",
+          "tag": "json:\"reidentification_risk\"",
+          "comment": ""
+        },
+        {
+          "name": "ComplianceReadiness",
+          "type": "CategoryScore",
+          "tag": "json:\"compliance_readiness\"",
+          "comment": ""
+        },
+        {
+          "name": "Exposure",
+          "type": "FinancialExposure",
+          "tag": "json:\"financial_exposure\"",
+          "comment": "--- Financial Exposure Model ---"
+        },
+        {
+          "name": "AI",
+          "type": "AIReadiness",
+          "tag": "json:\"ai_readiness\"",
+          "comment": "--- AI Safety Assessment ---"
+        },
+        {
+          "name": "KAnonymityInterpretation",
+          "type": "string",
+          "tag": "json:\"k_anonymity_interpretation\"",
+          "comment": "--- Plain-English Metric Interpretations ---"
+        },
+        {
+          "name": "LDiversityInterpretation",
+          "type": "string",
+          "tag": "json:\"l_diversity_interpretation\"",
+          "comment": ""
+        },
+        {
+          "name": "RegulatoryFindings",
+          "type": "\u0026{6517 \u003cnil\u003e RegulatoryFinding}",
+          "tag": "json:\"regulatory_findings\"",
+          "comment": "--- Regulatory Matrix ---"
+        },
+        {
+          "name": "Recommendation",
+          "type": "string",
+          "tag": "json:\"recommendation\"",
+          "comment": "--- Remediation ---"
+        }
+      ],
+      "package": "audit"
+    },
+    {
+      "name": "RegulatoryFinding",
+      "doc": "",
+      "fields": [
+        {
+          "name": "Attribute",
+          "type": "string",
+          "tag": "json:\"attribute\"",
+          "comment": ""
+        },
+        {
+          "name": "Regulation",
+          "type": "string",
+          "tag": "json:\"regulation\"",
+          "comment": ""
+        },
+        {
+          "name": "Article",
+          "type": "string",
+          "tag": "json:\"article\"",
+          "comment": ""
+        },
+        {
+          "name": "Severity",
+          "type": "string",
+          "tag": "json:\"severity\"",
+          "comment": "HIGH / MEDIUM / LOW"
+        }
+      ],
+      "package": "audit"
+    },
+    {
+      "name": "Payload",
+      "doc": "",
+      "fields": [
+        {
+          "name": "CustomerName",
+          "type": "string",
+          "tag": "json:\"CustomerName\"",
+          "comment": ""
+        },
+        {
+          "name": "Tier",
+          "type": "string",
+          "tag": "json:\"Tier\"",
+          "comment": "\"community\" or \"enterprise\""
+        },
+        {
+          "name": "ExpiryDate",
+          "type": "int64",
+          "tag": "json:\"ExpiryDate\"",
+          "comment": ""
+        },
+        {
+          "name": "Capabilities",
+          "type": "uint64",
+          "tag": "json:\"Capabilities\"",
+          "comment": "Bitmask for Pro features"
+        }
+      ],
+      "package": "license"
+    }
+  ]
+}
