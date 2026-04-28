@@ -25,13 +25,13 @@
 | **industry-snapshot-generator** | Programmatically provisions the Ocultar stack (Refinery, Shield, Dashboard) for specific verticals. |
 | **license_validation_cli** | Deterministic validator for OCULTAR license tokens. Verifies signature, expiry, and capabilities against the active refinery public key. |
 | **manage_ocultar_license** | Professional-grade orchestrator for the OCULTAR Ed25519 offline license ecosystem. Manages keypair generation, license issuance, and validation integrity. |
+| **Ocultar | Product Context** | Expert Instructions (prompt-based persona) for the AI assistant. The "Vision Oracle" and "Architectural Guardian" of the Ocultar ecosystem. Enforces Zero-Egress, Fail-Closed, and Core Terminology across all agentic actions. |
 | **pii_registry_manager** | Expert AI orchestrator for maintaining the Ocultar PII Central Registry. |
 | **pii-regression-suite-runner** | Production-grade orchestrator for the PII Regression Suite. |
 | **pilot_manager** | Professional-grade orchestrator for the 14-day Enterprise Pilot lifecycle. Manages technical onboarding, risk assessment verification, and trial-to-purchase transition. |
 | **policy-impact-simulator** | Quality Assurance (QA) Orchestrator for regulatory policy changes. Replays historical audit logs against a proposed "Draft Policy" to calculate the delta in blocked/sanitized requests. |
 | **policy-schema-generator** | Expert AI Orchestrator for regulatory policy synthesis. Synchronizes the Ocultar Global Policy with human-readable compliance requirements. |
 | **privacy-risk-analyzer** | Expert analyzer for dataset re-identifiability. Executes mathematical K-Anonymity and L-Diversity checks to ensure GDPR/HIPAA compliance for structured data. |
-| **Ocultar | Product Context** | Expert Instructions (prompt-based persona) for the AI assistant. The "Vision Oracle" and "Architectural Guardian" of the Ocultar ecosystem. Enforces Zero-Egress, Fail-Closed, and Core Terminology across all agentic actions. |
 | **red-team-evasion-scanner** | Proactively tests the Ocultar Refinery for weaknesses using advanced obfuscation and jailbreaking. |
 | **refinery-architecture-manager** | Master architect for the Ocultar Refinery's detection layer. Manages the end-to-end lifecycle of PII detection rules and architectural integrity. |
 | **regulation-digest-ingestor** | Expert AI Orchestrator for regulatory source monitoring. Fetches updates from official bodies and pre-processes them for the policy-schema-generator. |
@@ -46,7 +46,7 @@
 | **security_docs_generator** | Expert AI orchestrator for PII compliance and auditor-ready documentation. |
 | **shadow-api-scanner** | Proactively detects endpoints exposed at the network level that are NOT registered in Sombra's policy. |
 | **sombra-gateway-policy-enforcer** | Automatically injects policy hooks when new endpoints or features are added. Ensures all AI requests go through the Fail-Closed logic. |
-| **sombra-performance-benchmarker** | Monitor latency overhead and queue saturation via Prometheus. Optimizes the execution pipeline ensuring AI requests feel fast while preserving 100% security integrity. |
+| **sombra-performance-benchmarker** | Monitor latency overhead introduced by the Refinery and optimize the execution pipeline, ensuring AI requests feel fast while preserving security. |
 | **tier_compliance_checker** | Cross-references the active OCULTAR license with the Sombra gateway policy. Ensures Pro features are only enabled when backed by a valid Enterprise license. |
 | **ui-regression-orchestrator** | Runs headless browser tests to verify the "Zero-Egress" visual boundaries and UI integrity of the Ocultar Enterprise Dashboard. |
 | **zero-egress-validator** | Specialized security linter to detect unmasked PII leakage and unauthorized external network calls. |

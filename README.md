@@ -25,8 +25,8 @@ Welcome to the **Unified OCULTAR Engine**. This monorepo contains the core refin
 
 ## Structure
 
-- `/apps/` - Applications (Proxy, SLM Engine, Dashboard, Automation Bridge, Web)
-- `/services/` - Core backend logic (Refinery, Vault)
+- `/apps/` - Applications (Proxy, Sombra Gateway, SLM Engine, Dashboard, Automation Bridge, Web)
+- `/services/` - Core backend logic (Refinery, Vault, Mock API)
 - `/enterprise/` - Enterprise security extensions & licensing logic
 - `/internal/pii/` - Centralized PII detection engine & registry
 - `/extensions/` - Third-party AI tool integrations (Goose MCP, etc.)
@@ -52,11 +52,11 @@ Tokenization is handled via a defense-in-depth pipeline that runs before any pay
 | 0.1 | Base64 Evasion | Decodes, scans, and re-encodes PII hidden inside Base64/JWT blobs. |
 | 0 | Dictionary | High-speed protection for VIPs, internal projects, and sensitive org names. |
 | 0.5 | Pattern + Entropy | Shannon scoring for high-entropy strings, catching keys and tokens. |
-| 1 | Rule Engine | EMAIL, SSN, IBAN (MOD97), CC (Luhn mod-10), 30+ national ID types. |
+| 1 | Rule Engine | EMAIL, SSN, IBAN (MOD97), CC (Luhn mod-10), 50+ national ID types. |
 | 1.1 | Phone Shield | libphonenumber validation to reduce false positives on digit sequences. |
 | 1.2 | Address Shield | Heuristic street address parser supporting EN/FR/ES/DE. |
 | 1.5 | Greeting/Signature | Detects names in salutations ("Regards, Jean") and intro sentences. |
-| **2** | **AI NER** | **OpenAI Privacy Filter — 1.5B param, local inference, Apache 2.0.** |
+| **2** | **AI NER** | **OpenAI Privacy Filter — 1.5B param, local inference. Optimized for French Finance.** |
 | 3 | Structural Heuristics | Proximity expansion: `[TOKEN] ET Dupont` → re-tokenized as single entity. |
 
 ## Why OCULTAR Is Different
@@ -86,10 +86,10 @@ Ocultar's responsibility ends at `POST /refine`. It returns `cleanText` and a va
 
 ## Getting Started
 
-1.  **Environment Setup**:
+1.  **Secrets Management**:
+    OCULTAR uses **Doppler** for secure secret injection.
     ```bash
-    cp .env.example .env
-    # Define OCU_MASTER_KEY and OCU_SALT
+    doppler setup
     ```
 
 2.  **Go Workspace**:
@@ -100,7 +100,7 @@ Ocultar's responsibility ends at `POST /refine`. It returns `cleanText` and a va
 3.  **Build and Run**:
     ```bash
     make build
-    go run ./apps/proxy
+    ./scripts/start.sh
     ```
 
 ## Development
