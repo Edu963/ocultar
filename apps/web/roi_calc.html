@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCULTAR | Zero-Egress ROI Calculator</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        system: {
+                            bg: '#FAFAFA',
+                            black: '#000000',
+                            gray: '#737373',
+                            light: '#e5e5e5'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAFAFA;
+            color: #000000;
+        }
+
+        /* Minimal Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 8px;
+            background: #000000;
+            cursor: pointer;
+            border: 1px solid #000000;
+            border-radius: 0;
+            margin-top: -7px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 2px;
+            cursor: pointer;
+            background: #e5e5e5;
+            border: 1px solid #e5e5e5;
+        }
+        
+        /* Select Dropdown Styling */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-black selection:text-white">
+
+    <!-- HTML5 Canvas Background Network -->
+    <canvas id="system-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
+
+    <div class="relative z-10 max-w-6xl mx-auto p-6 md:p-12">
+        
+        <!-- Header -->
+        <header class="mb-12 border-b border-black pb-8 flex flex-col md:flex-row justify-between items-start gap-8 bg-white/50 backdrop-blur-md p-6">
+            <div class="max-w-2xl order-2 md:order-1">
+                <div class="flex items-baseline gap-3 mb-4">
+                    <h1 class="text-3xl md:text-5xl font-bold tracking-tight uppercase">Data Refinery</h1>
+                    <span class="font-mono text-system-gray">v_1.0.0</span>
+                </div>
+                <h2 class="font-mono text-sm uppercase tracking-widest border-b border-black inline-block mb-4 pb-1">ROI Calculator Module</h2>
+                <p class="font-mono text-sm text-system-gray leading-relaxed max-w-xl">
+                    [SYS_MSG]: Compute the mathematical variance between external AI pipeline taxation and OCULTAR's zero-egress local processing framework.
+                </p>
+            </div>
+            <div class="flex-shrink-0 w-full md:w-auto flex justify-start md:justify-end order-1 md:order-2">
+                <!-- Kept the image fallback logic but stripped stylistic classes -->
+                <img src="logo3.jpg" alt="OCULTAR Logo" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply" onerror="this.style.display='none'; document.getElementById('logo-fallback').classList.remove('hidden');">
+                <div id="logo-fallback" class="hidden font-mono text-2xl font-bold tracking-[0.2em] border border-black p-2">OCULTAR</div>
+            </div>
+        </header>
+
+        <!-- Main Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Col: Parameters -->
+            <div class="lg:col-span-5 bg-white/80 backdrop-blur-md border border-black p-8">
+                <div class="flex items-center gap-2 mb-8 border-b border-black pb-4">
+                    <div class="w-2 h-2 bg-black"></div>
+                    <h3 class="font-mono text-sm font-bold uppercase tracking-widest">Input Parameters</h3>
+                </div>
+                
+                <!-- Cloud Provider Selection -->
+                <div class="mb-10">
+                    <label class="block font-mono text-xs uppercase text-system-gray mb-3">Target Cloud Architecture</label>
+                    <select id="cloud-provider" class="w-full bg-transparent border border-black text-black font-mono text-sm rounded-none p-4 focus:outline-none focus:ring-1 focus:ring-black cursor-pointer">
+                        <option value="gcp">Google Cloud DLP ($5.00 / GB)</option>
+                        <option value="aws">AWS Comprehend (~$1,000 / GB)</option>
+                        <option value="azure">Azure AI Language (~$1.50 / GB)</option>
+                    </select>
+                </div>
+
+                <!-- Volume Slider -->
+                <div class="mb-10">
+                    <label class="block font-mono text-xs uppercase text-system-gray mb-3">Data Throughput (Monthly)</label>
+                    <div class="flex justify-between items-end mb-4 border-b border-black pb-2">
+                        <span class="font-mono text-2xl font-bold" id="tb-display">10 TB</span>
+                        <span class="font-mono text-xs text-system-gray">Volume</span>
+                    </div>
+                    <input type="range" id="data-volume" min="1" max="250" value="10" class="w-full">
+                    <div class="flex justify-between font-mono text-[10px] text-system-gray mt-3">
+                        <span>1 TB</span>
+                        <span>250 TB</span>
+                    </div>
+                </div>
+
+                <!-- Discount Slider -->
+                <div class="mb-10">
+                    <label class="block font-mono text-xs uppercase text-system-gray mb-3">Negotiated EDP Discount</label>
+                    <div class="flex justify-between items-end mb-4 border-b border-black pb-2">
+                        <span class="font-mono text-2xl font-bold" id="discount-display">0%</span>
+                        <span class="font-mono text-xs text-system-gray">Variance</span>
+                    </div>
+                    <input type="range" id="cloud-discount" min="0" max="80" value="0" step="5" class="w-full">
+                    <div class="flex justify-between font-mono text-[10px] text-system-gray mt-3">
+                        <span>BASE [0%]</span>
+                        <span>MAX [80%]</span>
+                    </div>
+                </div>
+
+                <!-- Effective Rate Output -->
+                <div class="font-mono text-xs p-5 border border-black bg-system-bg">
+                    <h4 class="font-bold uppercase border-b border-black pb-2 mb-3">Rate Matrix</h4>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-system-gray">List Price (Scrub + Egress)</span>
+                        <span class="line-through" id="list-rate-display">$5.10 / GB</span>
+                    </div>
+                    <div class="flex justify-between pt-2">
+                        <span class="font-bold">Effective Rate</span>
+                        <span class="font-bold" id="effective-rate-display">$5.10 / GB</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Col: Computation Results -->
+            <div class="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Cloud Pipeline Node -->
+                <div class="border border-black bg-white/80 backdrop-blur-md p-8 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-6 border-b border-black pb-4">
+                            <h3 class="font-sans text-xl font-bold uppercase" id="cloud-status-title">External Pipeline</h3>
+                            <span class="font-mono text-xs border border-black px-2 py-1">API_EGRESS</span>
+                        </div>
+                        
+                        <div class="font-mono text-sm space-y-4 mb-8">
+                            <div class="flex justify-between border-b border-system-light pb-2">
+                                <span class="text-system-gray">Compute Overhead</span>
+                                <span class="line-through" id="cloud-gross-cost">$51,000</span>
+                            </div>
+                            <div class="flex justify-between border-b border-system-light pb-2">
+                                <span class="text-system-gray">Discount Applied</span>
+                                <span id="cloud-discount-amount">-$0</span>
+                            </div>
+                            <div class="flex justify-between pt-2">
+                                <span class="text-system-gray">Network Latency</span>
+                                <span>100-500ms</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 border-t border-black">
+                        <span class="block font-mono text-xs text-system-gray uppercase mb-2">Net Financial Drain (Mo)</span>
+                        <span class="font-sans text-4xl font-bold tracking-tight" id="cloud-net-cost">$51,000</span>
+                    </div>
+                </div>
+
+                <!-- Ocultar Node -->
+                <div class="border border-black bg-black text-white p-8 flex flex-col justify-between relative">
+                    <div>
+                        <div class="flex items-center justify-between mb-6 border-b border-white/30 pb-4">
+                            <h3 class="font-sans text-xl font-bold uppercase">Zero-Egress SLM</h3>
+                            <span class="font-mono text-xs border border-white px-2 py-1">LOCAL_NODE</span>
+                        </div>
+                        
+                        <div class="font-mono text-sm space-y-4 mb-8">
+                            <div class="flex justify-between border-b border-white/20 pb-2">
+                                <span class="text-gray-400">Software License</span>
+                                <span>$10,000 / mo</span>
+                            </div>
+                            <div class="flex justify-between border-b border-white/20 pb-2">
+                                <span class="text-gray-400">Hardware Dep.</span>
+                                <span id="ocultar-compute-cost">+$200</span>
+                            </div>
+                            <div class="flex justify-between pt-2">
+                                <span class="text-gray-400">P50 Latency</span>
+                                <span>0.92ms</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 border-t border-white/30">
+                        <span class="block font-mono text-xs text-gray-400 uppercase mb-2">Fixed Resource Cost (Mo)</span>
+                        <span class="font-sans text-4xl font-bold tracking-tight" id="ocultar-total-cost">$10,200</span>
+                    </div>
+                </div>
+
+                <!-- Differential Banner -->
+                <div class="md:col-span-2 border border-black bg-white/90 backdrop-blur-md p-8 flex flex-col sm:flex-row items-center justify-between">
+                    <div>
+                        <h4 class="font-sans text-xl font-bold uppercase mb-2">Total System Variance</h4>
+                        <p class="font-mono text-xs text-system-gray uppercase tracking-widest">Projected 12-Month Capital Retention</p>
+                    </div>
+                    <div class="mt-6 sm:mt-0 text-right">
+                        <span class="block font-sans text-5xl font-bold tracking-tighter" id="annual-savings">$492,000</span>
+                    </div>
+                </div>
+
+                <!-- CTA Section -->
+                <div class="md:col-span-2 mt-4 text-center border border-black bg-system-bg p-10">
+                    <h2 class="font-sans text-2xl font-bold uppercase mb-4 tracking-tight">Execute Architecture Upgrade</h2>
+                    <p class="font-mono text-sm text-system-gray max-w-2xl mx-auto mb-8 leading-relaxed">
+                        Initiate deployment sequence. Neutralize regulatory risk and terminate external egress taxation via localized execution.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 font-mono text-xs uppercase tracking-widest font-bold">
+                        <a href="mailto:sales@ocultar.io?subject=Enterprise%20Pilot%20Request" class="w-full sm:w-auto px-8 py-4 border border-black bg-transparent text-black hover:bg-black hover:text-white transition-colors">
+                            [ Init Pilot Protocol ]
+                        </a>
+                        <a href="https://github.com/Edu963/ocultar" target="_blank" class="w-full sm:w-auto px-8 py-4 border border-black bg-transparent text-black hover:bg-black hover:text-white transition-colors">
+                            [ Audit Source Code ]
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Meta/Citations Footer -->
+        <div class="mt-16 pt-8 border-t border-black bg-white/80 backdrop-blur-md p-6 font-mono text-xs text-system-gray">
+            <h4 class="font-bold text-black mb-6 uppercase tracking-widest border-b border-black inline-block pb-2">Telemetry & Data Sources</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-[10px]">
+                <div class="space-y-4">
+                    <p><strong class="text-black">[01] AWS Syntax:</strong> <a href="https://aws.amazon.com/comprehend/pricing/" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">Comprehend API</a> - $0.0001 per 100 character array. ~1k/GB volumetric.</p>
+                    <p><strong class="text-black">[02] GCP Syntax:</strong> <a href="https://cloud.google.com/sensitive-data-protection/pricing" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">Sensitive Data Protection API</a> - Base $3.00/GB inspect, $2.00/GB transform vector.</p>
+                </div>
+                <div class="space-y-4">
+                    <p><strong class="text-black">[03] Azure Syntax:</strong> <a href="https://azure.microsoft.com/en-us/pricing/details/cognitive-services/language-service/" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">AI Language Services</a> - Median translation ~$1.50/GB processing.</p>
+                    <p><strong class="text-black">[04] Network Egress:</strong> Standard topology dictates $0.08 - $0.12/GB payload transit tax.</p>
+                </div>
+                <div class="space-y-4">
+                    <p><strong class="text-black">[05] Local Compute:</strong> Amortized generic Edge/CPU nodes via Q4_K_M GGUF.</p>
+                    <p><strong class="text-black">[06] Risk Vectors:</strong> <a href="https://www.ibm.com/reports/data-breach" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">IBM Ponemon Report</a> - $10.22M median incident cost. PII at $160/record.</p>
+                    <p><strong class="text-black">[07] Exposure:</strong> <a href="https://www.varonis.com/blog/data-risk-report" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">Varonis Risk Telemetry</a> - 10-15% of unstructured data contains PII/Shadow Data.</p>
+                </div>
+            </div>
+            <p class="mt-8 text-[10px] text-center border-t border-system-light pt-4">
+                SYS_NOTE: 1 TB = 1,000 GB. Calculations assume standard un-discounted API tiers prior to EDP coefficient application.
+            </p>
+        </div>
+    </div>
+
+    <!-- Generative System Script -->
+    <script>
+        // --- HTML5 CANVAS PARTICLE NETWORK ---
+        const canvas = document.getElementById('system-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        const PARTICLE_COUNT = 75;
+        const CONNECTION_DISTANCE = 160;
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+
+        class Node {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.8;
+                this.vy = (Math.random() - 0.5) * 0.8;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Bounce mechanics (Zero-Egress boundary representation)
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push(new Node());
+        }
+
+        function animateSystem() {
+            ctx.clearRect(0, 0, width, height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < CONNECTION_DISTANCE) {
+                        ctx.strokeStyle = `rgba(0,0,0,${0.15 * (1 - dist / CONNECTION_DISTANCE)})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateSystem);
+        }
+        animateSystem();
+
+
+        // --- CALCULATOR LOGIC ---
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            maximumFractionDigits: 0
+        });
+        
+        const rateFormatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        const providers = {
+            gcp: { name: "Google Cloud DLP", processing: 5.00, egress: 0.10 },
+            aws: { name: "AWS Comprehend", processing: 1000.00, egress: 0.10 },
+            azure: { name: "Azure AI Language", processing: 1.50, egress: 0.10 }
+        };
+
+        const providerSelect = document.getElementById('cloud-provider');
+        const volumeSlider = document.getElementById('data-volume');
+        const discountSlider = document.getElementById('cloud-discount');
+        const displayTB = document.getElementById('tb-display');
+        const displayDiscount = document.getElementById('discount-display');
+        const displayListRate = document.getElementById('list-rate-display');
+        const displayEffectiveRate = document.getElementById('effective-rate-display');
+        
+        const cloudStatusTitle = document.getElementById('cloud-status-title');
+        const cloudGrossCost = document.getElementById('cloud-gross-cost');
+        const cloudDiscountAmount = document.getElementById('cloud-discount-amount');
+        const cloudNetCost = document.getElementById('cloud-net-cost');
+        
+        const ocultarComputeCost = document.getElementById('ocultar-compute-cost');
+        const ocultarTotalCost = document.getElementById('ocultar-total-cost');
+        const annualSavings = document.getElementById('annual-savings');
+
+        const OCULTAR_MONTHLY = 10000;
+        const LOCAL_COMPUTE_PER_TB = 20; 
+        const GB_PER_TB = 1000;
+
+        async function updateCalculator() {
+            const selectedProvider = providers[providerSelect.value];
+            const tb = parseInt(volumeSlider.value);
+            const discountPercent = parseInt(discountSlider.value);
+            const gb = tb * GB_PER_TB;
+            
+            const listPricePerGB = selectedProvider.processing + selectedProvider.egress;
+            
+            displayTB.textContent = `${tb} TB`;
+            displayDiscount.textContent = `${discountPercent}%`;
+            displayListRate.textContent = `${rateFormatter.format(listPricePerGB)} / GB`;
+            
+            cloudStatusTitle.textContent = selectedProvider.name;
+
+            const totalCloudGrossMonthly = gb * listPricePerGB;
+            const discountMultiplier = discountPercent / 100;
+            const discountValueMonthly = totalCloudGrossMonthly * discountMultiplier;
+            const totalCloudNetMonthly = totalCloudGrossMonthly - discountValueMonthly;
+            
+            const effectiveRate = listPricePerGB * (1 - discountMultiplier);
+            displayEffectiveRate.textContent = `${rateFormatter.format(effectiveRate)} / GB`;
+
+            // Static Manual Model (Zero-Egress isolation for public web)
+            const localComputeMonthly = tb * LOCAL_COMPUTE_PER_TB;
+            const totalOcultarMonthly = OCULTAR_MONTHLY + localComputeMonthly;
+
+            const totalCloudAnnual = totalCloudNetMonthly * 12;
+            const totalOcultarAnnual = totalOcultarMonthly * 12;
+            let savings = totalCloudAnnual - totalOcultarAnnual;
+            
+            if (savings < 0) savings = 0; 
+
+            cloudGrossCost.textContent = formatter.format(totalCloudGrossMonthly);
+            cloudDiscountAmount.textContent = `-${formatter.format(discountValueMonthly)}`;
+            cloudNetCost.textContent = formatter.format(totalCloudNetMonthly);
+            
+            ocultarComputeCost.textContent = `+${formatter.format(localComputeMonthly)}`;
+            ocultarTotalCost.textContent = formatter.format(totalOcultarMonthly);
+            annualSavings.textContent = formatter.format(savings);
+        }
+
+        providerSelect.addEventListener('change', updateCalculator);
+        volumeSlider.addEventListener('input', updateCalculator);
+        discountSlider.addEventListener('input', updateCalculator);
+        
+        updateCalculator();
+    </script>
+</body>
+</html>
