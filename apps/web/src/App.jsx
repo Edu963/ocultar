@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import {
     Shield, Lock, BarChart3, ChevronRight, Github, Globe,
@@ -89,27 +89,41 @@ const CanvasBackground = () => {
 };
 
 // ── Nav ────────────────────────────────────────────────────────────────────────
-const Nav = () => (
-    <nav className="fixed top-0 left-0 w-full z-50 py-5 transition-all duration-300">
-        <div className="max-container flex justify-between items-center">
-            <Link to="/" className="flex items-center gap-3">
-                <span className="font-mono font-black text-xl tracking-widest text-gray-900">OCULTAR</span>
-            </Link>
-            <div className="hidden md:flex items-center gap-10 text-[12px] font-bold uppercase tracking-widest">
-                <Link to="/" className="text-gray-500 hover:text-gray-900 transition-colors">Platform</Link>
-                <Link to="/solutions" className="text-gray-500 hover:text-gray-900 transition-colors">Product Suite</Link>
-                <Link to="/calculator" className="text-gray-500 hover:text-gray-900 transition-colors">ROI Calculator</Link>
-                <a href="https://github.com/Edu963/ocultar" className="text-gray-500 hover:text-gray-900 transition-colors">GitHub</a>
+const Nav = () => {
+    const [scrolled, setScrolled] = useState(false);
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 12);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+    return (
+        <nav
+            className={`fixed top-0 left-0 w-full z-50 py-5 transition-all duration-300 ${
+                scrolled
+                    ? 'backdrop-blur-xl bg-zinc-950/95 border-b border-zinc-800 shadow-lg shadow-black/30'
+                    : 'bg-transparent border-b border-transparent'
+            }`}
+        >
+            <div className="max-container flex justify-between items-center">
+                <Link to="/" className="flex items-center gap-3">
+                    <span className="font-mono font-black text-xl tracking-widest text-white">OCULTAR</span>
+                </Link>
+                <div className="hidden md:flex items-center gap-10 text-[12px] font-bold uppercase tracking-widest">
+                    <Link to="/" className="text-zinc-400 hover:text-white transition-colors duration-200">Platform</Link>
+                    <Link to="/solutions" className="text-zinc-400 hover:text-white transition-colors duration-200">Product Suite</Link>
+                    <Link to="/calculator" className="text-zinc-400 hover:text-white transition-colors duration-200">ROI Calculator</Link>
+                    <a href="https://github.com/Edu963/ocultar" className="text-zinc-400 hover:text-white transition-colors duration-200">GitHub</a>
+                </div>
+                <a
+                    href={REQUEST_ACCESS_URL}
+                    className="bg-orange-500 text-white text-[11px] font-bold px-6 py-3 rounded uppercase tracking-wider hover:bg-orange-600 transition-colors"
+                >
+                    Request Access
+                </a>
             </div>
-            <a
-                href={REQUEST_ACCESS_URL}
-                className="bg-orange-500 text-white text-[11px] font-bold px-6 py-3 rounded uppercase tracking-wider hover:bg-orange-600 transition-colors"
-            >
-                Request Access
-            </a>
-        </div>
-    </nav>
-);
+        </nav>
+    );
+};
 
 // ── Footer ────────────────────────────────────────────────────────────────────
 const Footer = () => (
@@ -171,8 +185,8 @@ const Hero = () => (
             </div>
 
             <h1 className="max-w-5xl mx-auto mb-8 text-white">
-                Your AI provider will be hacked.{' '}
-                <span className="text-orange-500">What do they have on your customers?</span>
+                Sending customer data to OpenAI is a GDPR violation by default.{' '}
+                <span className="text-orange-500">Most teams haven't noticed.</span>
             </h1>
 
             <p className="max-w-2xl mx-auto text-xl text-zinc-400 mb-12">
@@ -255,7 +269,7 @@ const PainCards = () => {
                     {cards.map(card => (
                         <div
                             key={card.label}
-                            className="bg-zinc-900 rounded-xl p-6 space-y-4 border border-zinc-800 border-t-2 border-t-orange-500"
+                            className="bg-zinc-900 rounded-xl p-6 space-y-4 border-x border-b border-zinc-800 border-t-2 border-t-orange-500"
                         >
                             <div className="text-sm font-black text-white uppercase tracking-wider">{card.label}</div>
                             <p className="text-sm text-zinc-400 leading-relaxed">{card.body}</p>
@@ -269,7 +283,7 @@ const PainCards = () => {
 
 // ── 4. Trust Strip ────────────────────────────────────────────────────────────
 const TrustStrip = () => (
-    <div className="bg-white border-y border-gray-100 py-10">
+    <div className="bg-zinc-950 border-y border-zinc-800 py-10">
         <div className="max-container grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
                 { icon: <Lock className="w-5 h-5" />, title: 'Zero-Egress', sub: 'Data never leaves your VPC' },
@@ -279,8 +293,8 @@ const TrustStrip = () => (
             ].map(item => (
                 <div key={item.title} className="flex flex-col items-center md:items-start gap-2 text-center md:text-left">
                     <div className="text-orange-500">{item.icon}</div>
-                    <div className="text-[11px] font-bold text-gray-900 uppercase tracking-wider">{item.title}</div>
-                    <div className="text-[10px] text-gray-500">{item.sub}</div>
+                    <div className="text-[11px] font-bold text-white uppercase tracking-wider">{item.title}</div>
+                    <div className="text-[10px] text-zinc-500">{item.sub}</div>
                 </div>
             ))}
         </div>
@@ -289,9 +303,9 @@ const TrustStrip = () => (
 
 // ── 5. Sovereign PII Packs ────────────────────────────────────────────────────
 const SovereignPacks = () => (
-    <div className="bg-white border-b border-gray-100 py-8">
+    <div className="bg-zinc-950 border-b border-zinc-800 py-8">
         <div className="max-container flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400 shrink-0">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-500 shrink-0">
                 Region-specific PII detection built-in:
             </span>
             <div className="flex flex-wrap gap-2">
@@ -306,7 +320,7 @@ const SovereignPacks = () => (
                 ].map(badge => (
                     <span
                         key={badge}
-                        className="px-2.5 py-1 rounded border border-gray-200 bg-gray-50 text-gray-600 text-[10px] font-mono"
+                        className="px-2.5 py-1 rounded border border-zinc-800 bg-zinc-900 text-zinc-400 text-[10px] font-mono"
                     >
                         {badge}
                     </span>
@@ -344,17 +358,17 @@ const AFTER_CODE = `const response = await openai.chat.completions.create({
 });`;
 
 const CodeIntegration = () => (
-    <section className="section-padding bg-gray-50 border-t border-gray-100">
+    <section className="section-padding bg-zinc-950 border-t border-zinc-800">
         <div className="max-container">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div>
                     <p className="text-orange-500 text-[10px] font-mono font-bold uppercase tracking-[0.4em] mb-4">Integration</p>
                     <h2 className="mb-6">Ship in an afternoon.<br />Not a quarter.</h2>
-                    <p className="text-gray-600 mb-8">
+                    <p className="text-zinc-400 mb-8">
                         OCULTAR runs as a transparent reverse proxy. Point your existing AI calls at it.
                         No SDK. No code changes. No retraining your team.
                     </p>
-                    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[10px] font-mono font-bold">
+                    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] font-mono font-bold">
                         <Check className="w-3 h-3" /> Zero code changes to your application logic
                     </span>
                 </div>
@@ -592,7 +606,7 @@ const AuditLog = () => (
 
 // ── 9. Agent Block ────────────────────────────────────────────────────────────
 const AgentBlock = () => (
-    <section className="section-padding bg-white border-t border-gray-100">
+    <section className="section-padding bg-zinc-950 border-t border-zinc-800">
         <div className="max-container">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div className="bg-zinc-950 rounded-xl p-8 border border-zinc-800 space-y-6">
@@ -620,13 +634,13 @@ const AgentBlock = () => (
 
                 <div>
                     <p className="text-orange-500 text-[10px] font-mono font-bold uppercase tracking-[0.4em] mb-4">Agentic AI</p>
-                    <h2 className="mb-6">Built for agents.<br />Not just chat.</h2>
-                    <p className="text-gray-600 mb-6">
+                    <h2 className="text-white mb-6">Built for agents.<br />Not just chat.</h2>
+                    <p className="text-zinc-400 mb-6">
                         Autonomous AI agents make dozens of tool calls per workflow — each one a potential PII leak.
                         OCULTAR's Sombra gateway wraps every agent interaction, every MCP tool call, and every
                         A2A handoff in the same zero-egress privacy guarantee.
                     </p>
-                    <p className="text-gray-500 text-sm leading-relaxed">
+                    <p className="text-zinc-500 text-sm leading-relaxed">
                         The same architectural guarantee that protects chat completions extends to
                         every tool invocation, every agent handoff, and every intermediate state
                         in a multi-agent workflow.
@@ -661,23 +675,23 @@ const WhoItsFor = () => {
     ];
 
     return (
-        <section className="section-padding bg-gray-50 border-t border-gray-100">
+        <section className="section-padding bg-zinc-950 border-t border-zinc-800">
             <div className="max-container">
                 <div className="max-w-xl mb-16">
                     <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Who It's For</h4>
-                    <h2>Built for the people who <span className="text-orange-500">own the risk</span></h2>
+                    <h2 className="text-white">Built for the people who <span className="text-orange-500">own the risk</span></h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {personas.map(p => (
                         <div key={p.role} className="card group space-y-6 hover:border-orange-500/30 transition-all">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-orange-50 border border-orange-200 rounded-xl flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                                <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all">
                                     {p.icon}
                                 </div>
-                                <div className="text-sm font-bold text-gray-900">{p.role}</div>
+                                <div className="text-sm font-bold text-white">{p.role}</div>
                             </div>
-                            <p className="text-sm text-gray-600 leading-relaxed">{p.body}</p>
-                            <div className="text-[10px] font-mono font-bold text-orange-500/60 uppercase tracking-widest border-t border-gray-100 pt-4">
+                            <p className="text-sm text-zinc-400 leading-relaxed">{p.body}</p>
+                            <div className="text-[10px] font-mono font-bold text-orange-500/60 uppercase tracking-widest border-t border-zinc-800 pt-4">
                                 {p.tag}
                             </div>
                         </div>
@@ -696,12 +710,12 @@ const ROISection = () => {
     const savings = Math.max(0, cloudCost - ocultarCost);
 
     return (
-        <section className="section-padding bg-gray-50 border-b border-gray-100 relative overflow-hidden">
+        <section className="section-padding bg-zinc-950 border-b border-zinc-800 relative overflow-hidden">
             <div className="max-container">
                 <div className="max-w-xl mb-16">
                     <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Cost Analysis</h4>
-                    <h2 className="mb-4">What are you paying to send PII to the cloud?</h2>
-                    <p className="text-gray-600">
+                    <h2 className="text-white mb-4">What are you paying to send PII to the cloud?</h2>
+                    <p className="text-zinc-400">
                         Compare OCULTAR's fixed annual license against what AWS Comprehend or Google Cloud DLP
                         costs at your volume. The price doesn't scale with traffic.
                     </p>
@@ -709,37 +723,37 @@ const ROISection = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                     <div className="space-y-8">
-                        <div className="space-y-6 bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
+                        <div className="space-y-6 bg-zinc-900 p-8 rounded-2xl border border-zinc-800">
                             <div className="space-y-4">
-                                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block">
+                                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">
                                     Monthly Token Volume (Millions)
                                 </label>
                                 <input
                                     type="range" min="1" max="100" step="1"
                                     value={volume} onChange={e => setVolume(parseInt(e.target.value))}
-                                    className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                                    className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
                                 />
-                                <div className="flex justify-between text-[11px] font-mono text-gray-500">
+                                <div className="flex justify-between text-[11px] font-mono text-zinc-500">
                                     <span>1M</span>
-                                    <span className="text-gray-900 font-bold">{volume}M tokens/mo</span>
+                                    <span className="text-white font-bold">{volume}M tokens/mo</span>
                                     <span>100M+</span>
                                 </div>
                             </div>
 
-                            <div className="space-y-3 pt-6 border-t border-gray-100">
+                            <div className="space-y-3 pt-6 border-t border-zinc-800">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Cloud DLP / yr</span>
-                                    <span className="text-xl font-bold text-rose-500 font-mono">${cloudCost.toLocaleString()}</span>
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Cloud DLP / yr</span>
+                                    <span className="text-xl font-bold text-rose-400 font-mono">${cloudCost.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">OCULTAR Enterprise / yr</span>
-                                    <span className="text-xl font-bold text-gray-900 font-mono">€{ocultarCost.toLocaleString()}</span>
+                                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">OCULTAR Enterprise / yr</span>
+                                    <span className="text-xl font-bold text-white font-mono">€{ocultarCost.toLocaleString()}</span>
                                 </div>
-                                <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                                <div className="flex justify-between items-center pt-3 border-t border-zinc-800">
                                     <span className="text-[10px] font-bold text-orange-500/60 uppercase tracking-widest">You save (approx.)</span>
                                     <span className="text-xl font-bold text-orange-500 font-mono">~${savings.toLocaleString()}</span>
                                 </div>
-                                <p className="text-[10px] text-gray-400 font-mono pt-1">
+                                <p className="text-[10px] text-zinc-600 font-mono pt-1">
                                     Fixed annual license · price does not scale with volume
                                 </p>
                             </div>
@@ -756,9 +770,9 @@ const ROISection = () => {
 
                     <div className="relative">
                         <div className="absolute inset-0 bg-orange-500/5 blur-3xl rounded-full scale-150" />
-                        <div className="bg-white border border-gray-200 rounded-2xl p-8 relative shadow-lg space-y-6">
+                        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 relative space-y-6">
                             <Activity className="text-orange-500 w-8 h-8" />
-                            <h3>Zero-Egress SLA</h3>
+                            <h3 className="text-white">Zero-Egress SLA</h3>
                             <div className="space-y-3">
                                 {[
                                     { label: 'Enforcement Rate', value: '100.00%' },
@@ -766,8 +780,8 @@ const ROISection = () => {
                                     { label: 'Egress Blocks', value: 'Real-time' },
                                     { label: 'Vault Encryption', value: 'AES-256-GCM' },
                                 ].map(m => (
-                                    <div key={m.label} className="flex justify-between items-center py-2 border-b border-gray-100">
-                                        <span className="text-[11px] text-gray-500 uppercase">{m.label}</span>
+                                    <div key={m.label} className="flex justify-between items-center py-2 border-b border-zinc-800">
+                                        <span className="text-[11px] text-zinc-500 uppercase">{m.label}</span>
                                         <span className="text-xs font-mono font-bold text-orange-500">{m.value}</span>
                                     </div>
                                 ))}
@@ -800,7 +814,7 @@ const FinalCTA = () => (
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
             <p className="text-zinc-600 text-xs font-mono uppercase tracking-widest">
-                Enterprise · No credit card · We'll reach out within 24h
+                Enterprise · Not self-serve · We'll reach out within 24h
             </p>
         </div>
     </section>
