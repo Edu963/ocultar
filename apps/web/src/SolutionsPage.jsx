@@ -138,7 +138,86 @@ export default function SolutionsPage() {
                 </div>
             </section>
 
-            {/* ── PILLAR 1: SOMBRA ── */}
+            {/* ── PILLAR 1: REFINERY ── */}
+            <section className="py-24 bg-[#0A0A0C] border-b border-white/5">
+                <div className="max-container flex flex-col gap-16">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
+                        <div className="flex flex-col gap-6">
+                            <div className="flex items-center gap-3 text-emerald-500">
+                                <Cpu className="w-5 h-5" />
+                                <p className="text-xs font-mono font-semibold uppercase tracking-widest">Product 01</p>
+                            </div>
+                            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight text-balance">
+                                Ocultar Refinery
+                            </h2>
+                            <h3 className="text-xl text-slate-400 text-balance">The High-Throughput Privacy Engine</h3>
+                            <p className="text-lg text-slate-400 leading-relaxed">
+                                A 4-tier detection pipeline that sequentially escalates from deterministic
+                                pattern matching to local neural inference — achieving near-zero false negative
+                                rates with sub-millisecond latency for most payload sizes.
+                            </p>
+                            <div className="flex flex-col gap-3 pt-2">
+                                {[
+                                    "AES-256-GCM encryption for every vault entry",
+                                    "Concurrent batch processing — bounded 100-worker pool",
+                                    "Session cache eliminates redundant lookups within a run",
+                                    "Base64, URL-encoded, and nested JSON evasion detection",
+                                    "Fail-Closed: any batch error blocks the entire payload",
+                                ].map(f => (
+                                    <div key={f} className="flex items-start gap-3 text-base text-slate-400">
+                                        <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                                        {f}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Refinery terminal — left column, below bullet list */}
+                            <div className="bg-[#050505] ring-1 ring-white/10 rounded-xl p-8 w-full mt-12 shadow-2xl">
+                                <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
+                                    <p className="text-xs font-mono font-semibold uppercase tracking-widest text-slate-500">
+                                        Refinery Flow — Fail-Closed Batch
+                                    </p>
+                                    <Terminal className="w-4 h-4 text-emerald-500" />
+                                </div>
+                                <pre className="text-xs font-mono leading-relaxed overflow-x-auto">
+                                    <span className="text-slate-500">{'// RefineBatch — bounded 100-worker goroutine pool\n'}</span>
+                                    <span className="text-slate-300">{'for _, item := range items {\n'}</span>
+                                    <span className="text-slate-300">{'    go func(idx int, val interface{}) {\n'}</span>
+                                    <span className="text-slate-300">{'        res, err := e.'}</span><span className="text-emerald-400">{'ProcessInterface'}</span><span className="text-slate-300">{'(val, actor)\n'}</span>
+                                    <span className="text-slate-500">{'        // ...\n'}</span>
+                                    <span className="text-slate-300">{'    }(i, item)\n'}</span>
+                                    <span className="text-slate-300">{'}\n\n'}</span>
+                                    <span className="text-slate-500">{'// Fail-Closed: any single error blocks the entire batch\n'}</span>
+                                    <span className="text-slate-300">{'for _, err := range errs {\n'}</span>
+                                    <span className="text-slate-300">{'    if err != nil {\n'}</span>
+                                    <span className="text-slate-300">{'        return nil, fmt.Errorf('}</span><span className="text-emerald-400">{'"secure block: %w"'}</span><span className="text-slate-300">{', err)\n'}</span>
+                                    <span className="text-slate-300">{'    }\n'}</span>
+                                    <span className="text-slate-300">{'}'}</span>
+                                </pre>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-4">
+                            {REFINERY_TIERS.map(t => (
+                                <div
+                                    key={t.tier}
+                                    className="bg-[#111114] ring-1 ring-white/5 rounded-xl p-6 hover:ring-emerald-500/30 transition-all duration-300 shadow-xl flex flex-col gap-3"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-xs font-mono font-semibold text-emerald-400 bg-emerald-500/10 ring-1 ring-emerald-500/20 px-2.5 py-0.5 rounded-full">
+                                            {t.tier}
+                                        </span>
+                                        <span className="text-sm font-bold text-white">{t.name}</span>
+                                    </div>
+                                    <p className="text-sm text-slate-400 leading-relaxed">{t.desc}</p>
+                                </div>
+                            ))}
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── PILLAR 2: SOMBRA ── */}
             <section className="py-24 bg-[#050505]">
                 <div className="max-container flex flex-col gap-24">
 
@@ -146,7 +225,7 @@ export default function SolutionsPage() {
                     <div className="max-w-3xl flex flex-col gap-4">
                         <div className="flex items-center gap-3 text-emerald-500">
                             <Network className="w-5 h-5" />
-                            <p className="text-xs font-mono font-semibold uppercase tracking-widest">Product 01</p>
+                            <p className="text-xs font-mono font-semibold uppercase tracking-widest">Product 02</p>
                         </div>
                         <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight text-balance">Ocultar Sombra</h2>
                         <h3 className="text-xl text-slate-400 text-balance">The Agentic Privacy Gateway</h3>
@@ -371,84 +450,6 @@ export default function SolutionsPage() {
                         </p>
                     </div>
 
-                </div>
-            </section>
-
-            {/* ── PILLAR 2: REFINERY ── */}
-            <section className="py-24 bg-[#0A0A0C] border-y border-white/5">
-                <div className="max-container flex flex-col gap-16">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
-                        <div className="flex flex-col gap-6">
-                            <div className="flex items-center gap-3 text-emerald-500">
-                                <Cpu className="w-5 h-5" />
-                                <p className="text-xs font-mono font-semibold uppercase tracking-widest">Product 02</p>
-                            </div>
-                            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight text-balance">
-                                Ocultar Refinery
-                            </h2>
-                            <h3 className="text-xl text-slate-400 text-balance">The High-Throughput Privacy Engine</h3>
-                            <p className="text-lg text-slate-400 leading-relaxed">
-                                A 4-tier detection pipeline that sequentially escalates from deterministic
-                                pattern matching to local neural inference — achieving near-zero false negative
-                                rates with sub-millisecond latency for most payload sizes.
-                            </p>
-                            <div className="flex flex-col gap-3 pt-2">
-                                {[
-                                    "AES-256-GCM encryption for every vault entry",
-                                    "Concurrent batch processing — bounded 100-worker pool",
-                                    "Session cache eliminates redundant lookups within a run",
-                                    "Base64, URL-encoded, and nested JSON evasion detection",
-                                    "Fail-Closed: any batch error blocks the entire payload",
-                                ].map(f => (
-                                    <div key={f} className="flex items-start gap-3 text-base text-slate-400">
-                                        <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                                        {f}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-4">
-                            {REFINERY_TIERS.map(t => (
-                                <div
-                                    key={t.tier}
-                                    className="bg-[#0A0A0C] ring-1 ring-white/5 rounded-xl p-6 hover:ring-emerald-500/30 transition-all duration-300 shadow-xl flex flex-col gap-3"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-xs font-mono font-semibold text-emerald-400 bg-emerald-500/10 ring-1 ring-emerald-500/20 px-2.5 py-0.5 rounded-full">
-                                            {t.tier}
-                                        </span>
-                                        <span className="text-sm font-bold text-white">{t.name}</span>
-                                    </div>
-                                    <p className="text-sm text-slate-400 leading-relaxed">{t.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Refinery terminal */}
-                    <div className="bg-[#050505] ring-1 ring-white/10 rounded-xl p-8 max-w-3xl mx-auto w-full shadow-2xl">
-                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
-                            <p className="text-xs font-mono font-semibold uppercase tracking-widest text-slate-500">
-                                Refinery Flow — Fail-Closed Batch
-                            </p>
-                            <Terminal className="w-4 h-4 text-emerald-500" />
-                        </div>
-                        <pre className="text-xs font-mono leading-relaxed overflow-x-auto">
-                            <span className="text-slate-500">{'// RefineBatch — bounded 100-worker goroutine pool\n'}</span>
-                            <span className="text-slate-300">{'for _, item := range items {\n'}</span>
-                            <span className="text-slate-300">{'    go func(idx int, val interface{}) {\n'}</span>
-                            <span className="text-slate-300">{'        res, err := e.'}</span><span className="text-emerald-400">{'ProcessInterface'}</span><span className="text-slate-300">{'(val, actor)\n'}</span>
-                            <span className="text-slate-500">{'        // ...\n'}</span>
-                            <span className="text-slate-300">{'    }(i, item)\n'}</span>
-                            <span className="text-slate-300">{'}\n\n'}</span>
-                            <span className="text-slate-500">{'// Fail-Closed: any single error blocks the entire batch\n'}</span>
-                            <span className="text-slate-300">{'for _, err := range errs {\n'}</span>
-                            <span className="text-slate-300">{'    if err != nil {\n'}</span>
-                            <span className="text-slate-300">{'        return nil, fmt.Errorf('}</span><span className="text-emerald-400">{'"secure block: %w"'}</span><span className="text-slate-300">{', err)\n'}</span>
-                            <span className="text-slate-300">{'    }\n'}</span>
-                            <span className="text-slate-300">{'}'}</span>
-                        </pre>
-                    </div>
                 </div>
             </section>
 
