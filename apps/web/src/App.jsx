@@ -194,7 +194,7 @@ const Hero = () => (
                     Every time your team sends a message to OpenAI, patient records, credit card numbers,
                     and customer names leave your network. Permanently.
                 </p>
-                <p className="text-center text-xl font-semibold text-orange-500">
+                <p className="text-center text-5xl md:text-6xl font-black text-orange-500 tracking-tight mt-2">
                     OCULTAR stops that.
                 </p>
             </div>
@@ -279,48 +279,84 @@ const PainCards = () => {
 
 // ── 4. Trust Strip ────────────────────────────────────────────────────────────
 const TrustStrip = () => (
-    <div className="bg-zinc-950 border-y border-zinc-800 py-10">
-        <div className="max-container grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-                { icon: <Lock className="w-5 h-5" />, title: 'Zero-Egress', sub: 'Data never leaves your VPC' },
-                { icon: <ShieldCheck className="w-5 h-5" />, title: 'Fail-Closed', sub: 'Blocks on any error — never passthrough' },
-                { icon: <Terminal className="w-5 h-5" />, title: 'Local NER', sub: 'No external scanning APIs' },
-                { icon: <Database className="w-5 h-5" />, title: 'Deterministic', sub: 'Same input → same token' },
-            ].map(item => (
-                <div key={item.title} className="flex flex-col items-center md:items-start gap-2 text-center md:text-left">
-                    <div className="text-orange-500">{item.icon}</div>
-                    <div className="text-[11px] font-bold text-white uppercase tracking-wider">{item.title}</div>
-                    <div className="text-[10px] text-zinc-500">{item.sub}</div>
-                </div>
-            ))}
+    <div className="bg-zinc-950 border-t border-zinc-800 py-20">
+        <div className="max-container">
+            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.4em] text-zinc-500 mb-12 text-center">
+                Core Security Architecture
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                {[
+                    {
+                        icon: <Lock className="w-6 h-6" />,
+                        title: 'Zero-Egress',
+                        sub: 'Data never leaves your VPC. Technically impossible, not contractually forbidden.',
+                    },
+                    {
+                        icon: <ShieldCheck className="w-6 h-6" />,
+                        title: 'Fail-Closed',
+                        sub: 'Blocks on any error — never falls back to passthrough.',
+                    },
+                    {
+                        icon: <Terminal className="w-6 h-6" />,
+                        title: 'Local NER',
+                        sub: 'All entity recognition runs on-premise. No external scanning APIs.',
+                    },
+                    {
+                        icon: <Database className="w-6 h-6" />,
+                        title: 'Deterministic',
+                        sub: 'Same input always produces the same token. Vault lookups are consistent.',
+                    },
+                ].map(item => (
+                    <div
+                        key={item.title}
+                        className="group flex flex-col gap-4 p-6 rounded-xl border border-zinc-800 bg-zinc-900/40 hover:border-zinc-700 hover:bg-zinc-900 transition-all duration-200"
+                    >
+                        <div className="text-orange-500 transition-transform duration-200 group-hover:scale-110 w-fit">
+                            {item.icon}
+                        </div>
+                        <div>
+                            <div className="text-sm font-bold text-white uppercase tracking-wider mb-2">{item.title}</div>
+                            <div className="text-sm text-zinc-400 leading-relaxed">{item.sub}</div>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     </div>
 );
 
 // ── 5. Sovereign PII Packs ────────────────────────────────────────────────────
 const SovereignPacks = () => (
-    <div className="bg-zinc-950 border-b border-zinc-800 py-8">
-        <div className="max-container flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-zinc-500 shrink-0">
-                Region-specific PII detection built-in:
-            </span>
-            <div className="flex flex-wrap gap-2">
-                {[
-                    'FR_NIR · French SSN',
-                    'ES_DNI · Spanish ID',
-                    'EU_VAT · Tax ID',
-                    'IBAN · Bank Account',
-                    'FR_PHONE · Validated',
-                    'SSN · US Social Security',
-                    '40+ entity types',
-                ].map(badge => (
-                    <span
-                        key={badge}
-                        className="px-2.5 py-1 rounded border border-zinc-800 bg-zinc-900 text-zinc-400 text-[10px] font-mono"
-                    >
-                        {badge}
-                    </span>
-                ))}
+    <div className="bg-[#0A0A0F] border-t border-zinc-800 py-20">
+        <div className="max-container">
+            <div className="flex flex-col md:flex-row md:items-start gap-12">
+                <div className="shrink-0 md:max-w-sm">
+                    <p className="text-[10px] font-mono font-bold uppercase tracking-[0.4em] text-orange-500 mb-4">
+                        Detection Coverage
+                    </p>
+                    <h3 className="text-2xl font-bold text-white mb-4">Global &amp; Customizable Detection</h3>
+                    <p className="text-base text-zinc-400 leading-relaxed">
+                        Fully customizable via dictionaries and regex rules — extend coverage to any entity type, language, or jurisdiction.
+                    </p>
+                </div>
+                <div className="flex flex-wrap gap-2 content-start md:pt-10">
+                    {[
+                        'FR_NIR · French SSN',
+                        'ES_DNI · Spanish ID',
+                        'EU_VAT · Tax ID',
+                        'IBAN · Bank Account',
+                        'FR_PHONE · Validated',
+                        'SSN · US Social Security',
+                        '40+ entity types',
+                    ].map(badge => (
+                        <span
+                            key={badge}
+                            className="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900 text-zinc-300 text-xs font-mono hover:border-zinc-600 hover:text-zinc-200 transition-colors"
+                        >
+                            {badge}
+                        </span>
+                    ))}
+                </div>
             </div>
         </div>
     </div>
@@ -389,47 +425,53 @@ const CodeIntegration = () => (
                     </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="flex flex-col gap-8">
                     {/* Before */}
-                    <div className="bg-zinc-950 rounded-xl overflow-hidden border border-zinc-800">
-                        <div className="flex items-center gap-3 px-4 py-2.5 border-b border-zinc-800 bg-zinc-900">
-                            <div className="flex gap-1.5">
-                                <div className="w-2.5 h-2.5 rounded-full bg-rose-500/50" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/50" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/50" />
+                    <div>
+                        <p className="text-[9px] font-mono font-bold uppercase tracking-[0.3em] text-zinc-600 mb-3 pl-1">Before</p>
+                        <div className="opacity-60 rounded-xl overflow-hidden border border-zinc-700/50 shadow-lg shadow-black/40">
+                            <div className="flex items-center gap-3 px-4 py-2.5 border-b border-zinc-700/50 bg-zinc-900">
+                                <div className="flex gap-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-rose-500/40" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500/40" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/40" />
+                                </div>
+                                <span className="text-[10px] font-mono text-rose-400/80 uppercase tracking-widest ml-2">
+                                    Before — PII reaches OpenAI
+                                </span>
                             </div>
-                            <span className="text-[10px] font-mono text-rose-400 uppercase tracking-widest ml-2">
-                                Before — PII reaches OpenAI
-                            </span>
-                        </div>
-                        <pre className="p-5 text-xs font-mono text-zinc-400 leading-relaxed overflow-x-auto">{`const response = await openai.chat.completions.create({
+                            <pre className="p-5 text-xs font-mono text-zinc-500 leading-relaxed overflow-x-auto bg-zinc-900/60">{`const response = await openai.chat.completions.create({
   model: "gpt-4o",
   messages: [{ role: "user", content: userMessage }]
 });`}</pre>
+                        </div>
                     </div>
 
                     {/* After */}
-                    <div className="bg-zinc-950 rounded-xl overflow-hidden border border-orange-500/40">
-                        <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-900">
-                            <div className="flex items-center gap-3">
-                                <div className="flex gap-1.5">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-rose-500/50" />
-                                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500/50" />
-                                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/50" />
+                    <div>
+                        <p className="text-[9px] font-mono font-bold uppercase tracking-[0.3em] text-orange-500/70 mb-3 pl-1">After — Zero-Egress</p>
+                        <div className="rounded-xl overflow-hidden border border-orange-500/50 shadow-xl shadow-orange-500/10">
+                            <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-900">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex gap-1.5">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-rose-500/50" />
+                                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500/50" />
+                                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/50" />
+                                    </div>
+                                    <span className="text-[10px] font-mono text-orange-400 uppercase tracking-widest ml-2">
+                                        After — Zero-egress guaranteed
+                                    </span>
                                 </div>
-                                <span className="text-[10px] font-mono text-orange-400 uppercase tracking-widest ml-2">
-                                    After — Zero-egress guaranteed
-                                </span>
+                                <CopyButton text={AFTER_CODE} />
                             </div>
-                            <CopyButton text={AFTER_CODE} />
+                            <pre className="p-5 text-xs font-mono leading-relaxed overflow-x-auto bg-zinc-950">
+                                <span className="text-zinc-400">{'const response = await openai.chat.completions.create({\n'}</span>
+                                <span className="text-orange-400">{'  baseURL: "https://your-ocultar-instance/proxy/openai",  // ← only change\n'}</span>
+                                <span className="text-zinc-400">{'  model: "gpt-4o",\n'}</span>
+                                <span className="text-zinc-400">{'  messages: [{ role: "user", content: userMessage }]\n'}</span>
+                                <span className="text-zinc-400">{'});'}</span>
+                            </pre>
                         </div>
-                        <pre className="p-5 text-xs font-mono leading-relaxed overflow-x-auto">
-                            <span className="text-zinc-400">{'const response = await openai.chat.completions.create({\n'}</span>
-                            <span className="text-orange-400">{'  baseURL: "https://your-ocultar-instance/proxy/openai",  // ← only change\n'}</span>
-                            <span className="text-zinc-400">{'  model: "gpt-4o",\n'}</span>
-                            <span className="text-zinc-400">{'  messages: [{ role: "user", content: userMessage }]\n'}</span>
-                            <span className="text-zinc-400">{'});'}</span>
-                        </pre>
                     </div>
                 </div>
             </div>
