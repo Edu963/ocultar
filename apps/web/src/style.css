@@ -1,17 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  /* Clean Light Palette */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --bg-card: rgba(0, 0, 0, 0.015);
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
-  --accent-primary: #f97316; /* Orange 500 */
-  --accent-secondary: #ea580c; /* Orange 600 */
-  --border-color: rgba(0, 0, 0, 0.07);
+  /* Dark Palette */
+  --bg-primary: #0A0A0F;
+  --bg-secondary: #09090b;       /* zinc-950 */
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;     /* zinc-400 */
+  --text-muted: #71717a;         /* zinc-500 */
+  --accent-primary: #f97316;     /* orange-500 */
+  --accent-secondary: #ea580c;   /* orange-600 */
+  --border-color: rgba(255, 255, 255, 0.07);
   --border-hover: rgba(249, 115, 22, 0.35);
 
   /* Typography */
@@ -35,34 +35,38 @@ html {
 
 body {
   background-color: var(--bg-primary);
-  color: var(--text-primary);
+  color: var(--text-secondary);
   font-family: var(--font-sans);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Typography Hierarchy */
+/* Typography Hierarchy
+   NOTE: No color override here — let Tailwind text-* utilities
+   control color per-section. Fallback is white for dark bg. */
 h1, h2, h3, h4, .font-heading {
   font-family: var(--font-heading);
   font-weight: 800;
   letter-spacing: -0.04em;
-  color: var(--text-primary);
 }
 
 h1 {
   font-size: clamp(3.5rem, 10vw, 6rem);
   line-height: 1;
+  color: #ffffff;
 }
 
 h2 {
   font-size: clamp(2.5rem, 6vw, 4rem);
   line-height: 1.1;
+  color: #ffffff;
 }
 
 h3 {
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  color: #ffffff;
 }
 
 p {
@@ -99,42 +103,42 @@ p {
 }
 
 .btn-secondary {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover {
-  background-color: rgba(0, 0, 0, 0.06);
+  background-color: rgba(255, 255, 255, 0.08);
   border-color: var(--text-muted);
   transform: translateY(-1px);
 }
 
-/* Cards */
+/* Cards — dark by default */
 .card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: #18181b;           /* zinc-900 */
+  border: 1px solid #27272a;    /* zinc-800 */
   padding: 2rem;
   border-radius: 12px;
   transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .card:hover {
   border-color: var(--border-hover);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
-/* Navigation */
+/* Navigation — dark backdrop */
 nav {
   backdrop-filter: blur(20px);
-  background-color: rgba(255, 255, 255, 0.85);
-  border-bottom: 1px solid var(--border-color);
+  background-color: rgba(10, 10, 15, 0.0);  /* starts transparent; JS adds class */
+  border-bottom: 1px solid transparent;
 }
 
 /* Utilities */
 .text-gradient {
-  background: linear-gradient(180deg, #111827 0%, rgba(17, 24, 39, 0.5) 100%);
+  background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.5) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -156,11 +160,11 @@ nav {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f3f4f6;
+  background: #09090b;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: #3f3f46;
   border-radius: 10px;
 }
 
@@ -205,7 +209,7 @@ nav {
 
 /* Boxed Style Utilities */
 .bg-boxed-card {
-  background: rgba(0, 0, 0, 0.015);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-color);
 }
 
