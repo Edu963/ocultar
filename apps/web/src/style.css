@@ -9,10 +9,10 @@
   --text-primary: #111827;
   --text-secondary: #6b7280;
   --text-muted: #9ca3af;
-  --accent-primary: #0891b2; /* Cyan 600 — darker for light bg contrast */
-  --accent-secondary: #2563eb;
+  --accent-primary: #f97316; /* Orange 500 */
+  --accent-secondary: #ea580c; /* Orange 600 */
   --border-color: rgba(0, 0, 0, 0.07);
-  --border-hover: rgba(8, 145, 178, 0.35);
+  --border-hover: rgba(249, 115, 22, 0.35);
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
@@ -89,13 +89,13 @@ p {
 .btn-primary {
   background-color: var(--accent-primary);
   color: #fff;
-  box-shadow: 0 1px 3px rgba(8, 145, 178, 0.2);
+  box-shadow: 0 1px 3px rgba(249, 115, 22, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: #0e7490; /* Cyan 700 */
+  background-color: var(--accent-secondary);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.25);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
 }
 
 .btn-secondary {
@@ -186,8 +186,8 @@ nav {
   align-items: center;
   gap: 0.5rem;
   padding: 0.25rem 0.75rem;
-  background-color: rgba(8, 145, 178, 0.06);
-  border: 1px solid rgba(8, 145, 178, 0.15);
+  background-color: rgba(249, 115, 22, 0.06);
+  border: 1px solid rgba(249, 115, 22, 0.15);
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
