@@ -41,32 +41,32 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Typography Hierarchy
-   NOTE: No color override here — let Tailwind text-* utilities
-   control color per-section. Fallback is white for dark bg. */
-h1, h2, h3, h4, .font-heading {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-}
+/* Typography Hierarchy — in @layer base so Tailwind utilities can override */
+@layer base {
+  h1, h2, h3, h4, .font-heading {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
 
-h1 {
-  font-size: clamp(3.5rem, 10vw, 6rem);
-  line-height: 1;
-  color: #ffffff;
-}
+  h1 {
+    font-size: clamp(3.5rem, 10vw, 6rem);
+    line-height: 1;
+    color: #ffffff;
+  }
 
-h2 {
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  line-height: 1.1;
-  color: #ffffff;
-}
+  h2 {
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    color: #ffffff;
+  }
 
-h3 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #ffffff;
+  h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+  }
 }
 
 p {
@@ -147,11 +147,23 @@ nav {
 .max-container {
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .max-container {
+    padding: 0 2rem;
+  }
 }
 
 .section-padding {
-  padding: 8rem 0;
+  padding: 4rem 0;
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding: 8rem 0;
+  }
 }
 
 /* Custom Scrollbar */

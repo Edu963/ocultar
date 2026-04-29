@@ -118,37 +118,33 @@ const ENTERPRISE_FEATURES = [
     },
 ];
 
-// ---- Page ----
-
 export default function SolutionsPage() {
     return (
-        <div className="min-h-screen bg-white selection:bg-cyan-600 selection:text-white">
+        <div className="min-h-screen">
 
             {/* Hero */}
-            <section className="pt-40 pb-24 border-b border-gray-100 relative overflow-hidden">
-                <div className="absolute inset-0 bg-cyan-500/[0.04] blur-[120px] scale-150 -translate-y-1/2 rounded-full pointer-events-none"></div>
-                <div className="max-container relative z-10 text-center space-y-8">
-                    <div className="badge mx-auto">Technical Architecture</div>
-                    <h1 className="text-5xl md:text-7xl tracking-tighter max-w-5xl mx-auto">
-                        Product Suite — <span className="text-cyan-600">Source Verified</span>
+            <section className="py-16 pb-20 border-b border-zinc-800 relative overflow-hidden">
+                <div className="max-container relative z-10 space-y-6 text-center flex flex-col items-center">
+                    <h1 className="text-5xl md:text-6xl tracking-tighter max-w-4xl mx-auto">
+                        Product Suite
                     </h1>
-                    <p className="max-w-2xl mx-auto text-xl text-gray-500">
-                        Every feature on this page maps directly to production code. No vaporware.
+                    <p className="max-w-2xl text-xl text-zinc-400 mx-auto">
+                        Every capability listed here runs in your infrastructure. No external dependencies.
                     </p>
                 </div>
             </section>
 
             {/* ── PILLAR 1: SOMBRA ── */}
-            <section className="section-padding bg-white">
+            <section className="section-padding bg-zinc-950">
                 <div className="max-container space-y-20">
                     <div className="max-w-3xl">
-                        <div className="flex items-center gap-3 text-cyan-500 mb-6">
+                        <div className="flex items-center gap-3 text-orange-500 mb-6">
                             <Network className="w-6 h-6" />
                             <span className="text-[10px] font-bold uppercase tracking-widest">Product 01</span>
                         </div>
                         <h2 className="text-4xl md:text-5xl mb-4">Ocultar Sombra</h2>
-                        <h3 className="text-xl text-gray-500 mb-6">The Agentic Privacy Gateway</h3>
-                        <p className="text-lg text-gray-500 leading-relaxed max-w-2xl">
+                        <h3 className="text-xl text-zinc-400 mb-6">The Agentic Privacy Gateway</h3>
+                        <p className="text-lg text-zinc-400 leading-relaxed max-w-2xl">
                             Sombra sits between your infrastructure and every AI provider. It intercepts,
                             sanitizes, routes, and re-hydrates — ensuring only redacted prompts are ever
                             transmitted outbound, and only restored responses are delivered inbound. It is
@@ -159,14 +155,14 @@ export default function SolutionsPage() {
                     {/* Multi-Model Router */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div className="space-y-6">
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-cyan-500">Multi-Model Router</h4>
-                            <p className="text-gray-600 leading-relaxed">
-                                A pluggable <code className="text-cyan-600/80 bg-gray-100 px-1.5 py-0.5 rounded text-xs">ModelAdapter</code> interface
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-orange-500">Multi-Model Router</h4>
+                            <p className="text-zinc-400 leading-relaxed">
+                                A pluggable <code className="text-orange-400 bg-zinc-800 px-1.5 py-0.5 rounded text-xs">ModelAdapter</code> interface
                                 dispatches sanitized prompts to any registered backend. Zero-Egress domain
                                 validation is enforced per-adapter — any unregistered domain is blocked before transmission.
                             </p>
-                            <p className="text-xs text-gray-400 font-mono">
-                                <span className="text-cyan-600/60">Also acts as a drop-in OpenAI-compatible proxy</span> —
+                            <p className="text-xs text-zinc-500 font-mono">
+                                <span className="text-orange-500/60">Also acts as a drop-in OpenAI-compatible proxy</span> —
                                 existing SDKs need zero code changes.
                             </p>
                         </div>
@@ -179,7 +175,7 @@ export default function SolutionsPage() {
                                             <div className="text-sm font-bold">{m.name}</div>
                                             <div className="text-[10px] text-zinc-600 font-mono mt-0.5">{m.file}</div>
                                         </div>
-                                        <div className="text-[10px] font-mono text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+                                        <div className="text-[10px] font-mono text-zinc-400 bg-zinc-800 px-3 py-1 rounded-full border border-zinc-800">
                                             {m.provider}
                                         </div>
                                     </div>
@@ -191,25 +187,29 @@ export default function SolutionsPage() {
                     {/* Connectors */}
                     <div className="space-y-8">
                         <div>
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-cyan-500 mb-2">Data Source Connectors</h4>
-                            <p className="text-gray-500 text-sm">Each connector declares a <code className="text-cyan-600/80 bg-gray-100 px-1 rounded text-xs">DataPolicy</code> that enforces which PII categories are stripped, which models may receive its data, and enforces size limits.</p>
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-orange-500 mb-2">Data Source Connectors</h4>
+                            <p className="text-zinc-400 text-sm">Each connector declares a <code className="text-orange-400 bg-zinc-800 px-1 rounded text-xs">DataPolicy</code> that enforces which PII categories are stripped, which models may receive its data, and enforces size limits.</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {CONNECTORS.map(c => (
-                                <div key={c.name} className={`card hover:border-${c.tagColor}-500/40 p-8 space-y-5 transition-all`}>
+                                <div key={c.name} className="card p-8 space-y-5 hover:border-orange-500/30 transition-all">
                                     <div className="flex items-start justify-between">
-                                        <div className={`w-10 h-10 flex items-center justify-center rounded bg-${c.tagColor}-500/10 text-${c.tagColor}-500`}>
+                                        <div className="w-10 h-10 flex items-center justify-center rounded bg-orange-500/10 text-orange-500">
                                             {c.icon}
                                         </div>
-                                        <span className={`text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-${c.tagColor}-500/20 text-${c.tagColor}-400 bg-${c.tagColor}-500/5`}>
+                                        <span className={`text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${
+                                            c.tag === 'Enterprise'
+                                                ? 'border-zinc-700 text-zinc-400 bg-zinc-800/50'
+                                                : 'border-orange-500/20 text-orange-400 bg-orange-500/5'
+                                        }`}>
                                             {c.tag}
                                         </span>
                                     </div>
                                     <div>
-                                        <h3 className="text-base font-bold mb-2">{c.name}</h3>
-                                        <p className="text-sm text-zinc-500 leading-relaxed">{c.desc}</p>
+                                        <h3 className="text-base font-bold text-white mb-2">{c.name}</h3>
+                                        <p className="text-sm text-zinc-400 leading-relaxed">{c.desc}</p>
                                     </div>
-                                    <div className="text-[9px] font-mono text-gray-400 pt-2 border-t border-gray-100">{c.source}</div>
+                                    <div className="text-[9px] font-mono text-zinc-600 pt-2 border-t border-zinc-800">{c.source}</div>
                                 </div>
                             ))}
                         </div>
@@ -218,28 +218,28 @@ export default function SolutionsPage() {
                     {/* Policy Enforcement Matrix */}
                     <div className="space-y-8">
                         <div>
-                            <div className="flex items-center gap-3 text-cyan-500 mb-2">
+                            <div className="flex items-center gap-3 text-orange-500 mb-2">
                                 <ClipboardCheck className="w-5 h-5" />
                                 <h4 className="text-[10px] font-bold uppercase tracking-widest">Per-Connector Policy Enforcement</h4>
                             </div>
-                            <p className="text-gray-500 text-sm max-w-2xl">
-                                Every connector enforces a <code className="text-cyan-600/80 bg-gray-100 px-1 rounded text-xs">DataPolicy</code> at the gateway layer — before a single byte reaches the Refinery. Sensitive data sources are hard-restricted to local inference; no configuration drift can bypass this.
+                            <p className="text-zinc-400 text-sm max-w-2xl">
+                                Every connector enforces a <code className="text-orange-400 bg-zinc-800 px-1 rounded text-xs">DataPolicy</code> at the gateway layer — before a single byte reaches the Refinery. Sensitive data sources are hard-restricted to local inference; no configuration drift can bypass this.
                             </p>
                         </div>
-                        <div className="overflow-x-auto rounded-xl border border-gray-200">
+                        <div className="overflow-x-auto rounded-xl border border-zinc-800">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="border-b border-gray-200 bg-gray-50">
-                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Connector</th>
-                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Strip Categories</th>
-                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Allowed Models</th>
-                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Size Limit</th>
+                                    <tr className="border-b border-zinc-800 bg-zinc-900">
+                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Connector</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Strip Categories</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Allowed Models</th>
+                                        <th className="text-left px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Size Limit</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100 bg-white">
+                                <tbody className="divide-y divide-zinc-800 bg-zinc-950">
                                     {POLICY_MATRIX.map(row => (
-                                        <tr key={row.connector} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-6 py-4 font-mono text-xs text-cyan-600">{row.connector}</td>
+                                        <tr key={row.connector} className="hover:bg-zinc-900 transition-colors">
+                                            <td className="px-6 py-4 font-mono text-xs text-orange-400">{row.connector}</td>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {row.strip.map(cat => (
@@ -250,48 +250,48 @@ export default function SolutionsPage() {
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {row.models.map(m => (
-                                                        <span key={m} className="text-[9px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200">{m}</span>
+                                                        <span key={m} className="text-[9px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">{m}</span>
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 font-mono text-xs text-gray-500">{row.limit}</td>
+                                            <td className="px-6 py-4 font-mono text-xs text-zinc-500">{row.limit}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
-                        <p className="text-[10px] font-mono text-gray-400">source: apps/sombra/configs/sombra.yaml · pkg/connector/connector.go</p>
+                        <p className="text-[10px] font-mono text-zinc-500">source: apps/sombra/configs/sombra.yaml · pkg/connector/connector.go</p>
                     </div>
 
                     {/* OpenAI Drop-in Compatibility */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div className="space-y-6">
-                            <div className="flex items-center gap-3 text-cyan-500">
+                            <div className="flex items-center gap-3 text-orange-500">
                                 <GitMerge className="w-5 h-5" />
                                 <h4 className="text-[10px] font-bold uppercase tracking-widest">Drop-in OpenAI Compatibility</h4>
                             </div>
-                            <p className="text-gray-600 leading-relaxed">
-                                Sombra exposes a <code className="text-cyan-600/80 bg-gray-100 px-1.5 py-0.5 rounded text-xs">/v1/chat/completions</code> endpoint that is wire-compatible with the OpenAI API. Change one URL — every existing SDK, agent, or tool works without modification. No wrapper libraries. No forked SDKs.
+                            <p className="text-zinc-400 leading-relaxed">
+                                Sombra exposes a <code className="text-orange-400 bg-zinc-800 px-1.5 py-0.5 rounded text-xs">/v1/chat/completions</code> endpoint that is wire-compatible with the OpenAI API. Change one URL — every existing SDK, agent, or tool works without modification. No wrapper libraries. No forked SDKs.
                             </p>
-                            <p className="text-gray-500 text-sm leading-relaxed">
+                            <p className="text-zinc-400 text-sm leading-relaxed">
                                 All traffic is scrubbed by the Refinery before dispatch. Responses are optionally rehydrated before returning to the caller. Your application never sees tokenized output unless you opt in.
                             </p>
-                            <p className="text-[10px] font-mono text-gray-400">source: apps/sombra/pkg/handler/handler.go · HandleV1ChatCompletions</p>
+                            <p className="text-[10px] font-mono text-zinc-500">source: apps/sombra/pkg/handler/handler.go · HandleV1ChatCompletions</p>
                         </div>
                         <div className="card p-6 space-y-0 font-mono text-xs">
-                            <div className="text-[10px] uppercase tracking-widest text-gray-400 mb-5">Migration — one line changes</div>
+                            <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-5">Migration — one line changes</div>
                             {OPENAI_COMPAT_STEPS.map((step, i) => (
-                                <div key={i} className="py-4 border-b border-gray-100 last:border-0">
-                                    <div className="text-[9px] uppercase tracking-widest text-gray-400 mb-2">{step.label}</div>
+                                <div key={i} className="py-4 border-b border-zinc-800 last:border-0">
+                                    <div className="text-[9px] uppercase tracking-widest text-zinc-500 mb-2">{step.label}</div>
                                     <div className="flex flex-col gap-1.5">
                                         <div className="flex items-center gap-2">
                                             <span className="text-red-500/60 text-[10px]">−</span>
-                                            <span className={`text-gray-500 ${step.before !== step.after ? 'line-through decoration-red-500/40' : ''}`}>{step.before}</span>
+                                            <span className={`text-zinc-400 ${step.before !== step.after ? 'line-through decoration-red-500/40' : ''}`}>{step.before}</span>
                                         </div>
                                         {step.before !== step.after && (
                                             <div className="flex items-center gap-2">
-                                                <span className="text-cyan-600/60 text-[10px]">+</span>
-                                                <span className="text-cyan-600">{step.after}</span>
+                                                <span className="text-orange-500/60 text-[10px]">+</span>
+                                                <span className="text-orange-500">{step.after}</span>
                                             </div>
                                         )}
                                     </div>
@@ -301,51 +301,48 @@ export default function SolutionsPage() {
                     </div>
 
                     {/* Immutable Audit Trail */}
-                    <div className="relative overflow-hidden rounded-2xl border border-cyan-200 bg-cyan-50/50 p-10 space-y-8">
-                        <div className="absolute top-0 right-0 p-10 opacity-5">
-                            <Fingerprint className="w-48 h-48 text-cyan-600" />
-                        </div>
+                    <div className="relative overflow-hidden rounded-2xl border border-orange-500/20 bg-zinc-900 p-10 space-y-8">
                         <div className="relative z-10 space-y-4 max-w-2xl">
-                            <div className="flex items-center gap-3 text-cyan-600">
+                            <div className="flex items-center gap-3 text-orange-500">
                                 <Fingerprint className="w-5 h-5" />
                                 <h4 className="text-[10px] font-bold uppercase tracking-widest">Immutable Audit Trail</h4>
                             </div>
-                            <h3 className="text-2xl font-bold">Every vault event is cryptographically signed and hash-chained.</h3>
-                            <p className="text-gray-600 leading-relaxed">
-                                Sombra initializes an <code className="text-cyan-600/80 bg-white px-1.5 py-0.5 rounded text-xs border border-cyan-200">ImmutableLogger</code> backed by an ephemeral Ed25519 keypair on startup. Every vault, match, and rehydration event carries the SHA-256 hash of the previous entry — a tamper-evident chain. The public key is printed to stdout at boot; auditors verify the entire log offline without any access to your infrastructure.
+                            <h3 className="text-2xl font-bold text-white">Every vault event is cryptographically signed and hash-chained.</h3>
+                            <p className="text-zinc-400 leading-relaxed">
+                                Sombra initializes an <code className="text-orange-400 bg-zinc-800 px-1.5 py-0.5 rounded text-xs border border-zinc-700">ImmutableLogger</code> backed by an ephemeral Ed25519 keypair on startup. Every vault, match, and rehydration event carries the SHA-256 hash of the previous entry — a tamper-evident chain. The public key is printed to stdout at boot; auditors verify the entire log offline without any access to your infrastructure.
                             </p>
                         </div>
                         <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4">
                             {[
-                                { label: "Signature", value: "Ed25519", sub: "FIPS 186-5 compliant" },
-                                { label: "Chain", value: "SHA-256 hash chain", sub: "Append-only JSON log" },
-                                { label: "Verification", value: "Offline / Air-gapped", sub: "No infra access required" },
+                                { label: 'Signature',     value: 'Ed25519',               sub: 'FIPS 186-5 compliant' },
+                                { label: 'Chain',         value: 'SHA-256 hash chain',    sub: 'Append-only JSON log' },
+                                { label: 'Verification',  value: 'Offline / Air-gapped',  sub: 'No infra access required' },
                             ].map(item => (
-                                <div key={item.label} className="bg-white border border-cyan-100 rounded-xl p-5 space-y-1 shadow-sm">
-                                    <div className="text-[9px] uppercase tracking-widest text-gray-400">{item.label}</div>
-                                    <div className="text-sm font-bold text-gray-900">{item.value}</div>
-                                    <div className="text-[10px] font-mono text-gray-400">{item.sub}</div>
+                                <div key={item.label} className="bg-zinc-800 border border-zinc-700 rounded-xl p-5 space-y-1">
+                                    <div className="text-[9px] uppercase tracking-widest text-zinc-500">{item.label}</div>
+                                    <div className="text-sm font-bold text-white">{item.value}</div>
+                                    <div className="text-[10px] font-mono text-zinc-500">{item.sub}</div>
                                 </div>
                             ))}
                         </div>
-                        <div className="relative z-10 text-[10px] font-mono text-gray-400">source: pkg/audit/audit.go · audit.NewImmutableLogger</div>
+                        <div className="relative z-10 text-[10px] font-mono text-zinc-600">source: pkg/audit/audit.go · audit.NewImmutableLogger</div>
                     </div>
 
                 </div>
             </section>
 
             {/* ── PILLAR 2: REFINERY ── */}
-            <section className="section-padding border-y border-gray-100 bg-gray-50">
+            <section className="section-padding border-y border-zinc-800 bg-zinc-950">
                 <div className="max-container space-y-16">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
                         <div className="space-y-6">
-                            <div className="flex items-center gap-3 text-sky-600">
+                            <div className="flex items-center gap-3 text-orange-500">
                                 <Cpu className="w-6 h-6" />
                                 <span className="text-[10px] font-bold uppercase tracking-widest">Product 02</span>
                             </div>
                             <h2 className="text-4xl md:text-5xl">Ocultar Refinery</h2>
-                            <h3 className="text-xl text-gray-500">The High-Throughput Privacy Engine</h3>
-                            <p className="text-lg text-gray-500 leading-relaxed">
+                            <h3 className="text-xl text-zinc-400">The High-Throughput Privacy Engine</h3>
+                            <p className="text-lg text-zinc-400 leading-relaxed">
                                 A 4-tier detection pipeline that sequentially escalates from deterministic
                                 pattern matching to local neural inference — achieving near-zero false negative
                                 rates with sub-millisecond latency for most payload sizes.
@@ -358,8 +355,8 @@ export default function SolutionsPage() {
                                     "Base64, URL-encoded, and nested JSON evasion detection",
                                     "Fail-Closed: any batch error blocks the entire payload",
                                 ].map(f => (
-                                    <div key={f} className="flex items-center gap-3 text-sm text-gray-600">
-                                        <ShieldCheck className="w-4 h-4 text-cyan-600 flex-shrink-0" />
+                                    <div key={f} className="flex items-center gap-3 text-sm text-zinc-400">
+                                        <ShieldCheck className="w-4 h-4 text-orange-500 flex-shrink-0" />
                                         {f}
                                     </div>
                                 ))}
@@ -369,10 +366,10 @@ export default function SolutionsPage() {
                             {REFINERY_TIERS.map(t => (
                                 <div key={t.tier} className="card p-6 space-y-2">
                                     <div className="flex items-center gap-3 mb-3">
-                                        <span className="text-[9px] font-mono font-bold text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded-full">{t.tier}</span>
+                                        <span className="text-[9px] font-mono font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">{t.tier}</span>
                                         <span className="text-sm font-bold">{t.name}</span>
                                     </div>
-                                    <p className="text-xs text-gray-500 leading-relaxed">{t.desc}</p>
+                                    <p className="text-xs text-zinc-400 leading-relaxed">{t.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -381,10 +378,10 @@ export default function SolutionsPage() {
                     {/* Code Visual — intentionally dark terminal */}
                     <div className="card bg-gray-900 border-gray-700 p-8 max-w-3xl mx-auto">
                         <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
-                            <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Refinery Flow — Fail-Closed Batch</span>
-                            <Terminal className="w-4 h-4 text-cyan-500" />
+                            <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest">Refinery Flow — Fail-Closed Batch</span>
+                            <Terminal className="w-4 h-4 text-orange-500" />
                         </div>
-                        <pre className="text-xs font-mono text-cyan-500/70 leading-relaxed overflow-x-auto">
+                        <pre className="text-xs font-mono text-orange-500/70 leading-relaxed overflow-x-auto">
                             <code>{`// RefineBatch — bounded 100-worker goroutine pool
 for _, item := range items {
     go func(idx int, val interface{}) {
@@ -405,17 +402,17 @@ for _, err := range errs {
             </section>
 
             {/* ── PILLAR 3: ENTERPRISE ── */}
-            <section className="section-padding bg-white relative overflow-hidden">
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-cyan-500/[0.04] blur-[140px] rounded-full pointer-events-none"></div>
+            <section className="section-padding bg-zinc-950 relative overflow-hidden">
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-orange-500/100/[0.04] blur-[140px] rounded-full pointer-events-none"></div>
                 <div className="max-container relative z-10 space-y-16">
                     <div className="max-w-3xl">
-                        <div className="flex items-center gap-3 text-cyan-600 mb-6">
+                        <div className="flex items-center gap-3 text-orange-500 mb-6">
                             <Layout className="w-6 h-6" />
                             <span className="text-[10px] font-bold uppercase tracking-widest">Product 03</span>
                         </div>
                         <h2 className="text-4xl md:text-5xl mb-4">Ocultar Enterprise</h2>
-                        <h3 className="text-xl text-gray-500 mb-6">Governance, Audit, and Sovereign Operations</h3>
-                        <p className="text-lg text-gray-500 leading-relaxed">
+                        <h3 className="text-xl text-zinc-400 mb-6">Governance, Audit, and Sovereign Operations</h3>
+                        <p className="text-lg text-zinc-400 leading-relaxed">
                             Extended capabilities, license-gated at the binary level. Enterprise unlocks
                             deep-scan NER, the SharePoint connector, structured audit logging, and
                             SIEM-compatible syslog forwarding.
@@ -424,20 +421,20 @@ for _, err := range errs {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {ENTERPRISE_FEATURES.map(f => (
-                            <div key={f.title} className="card hover:border-cyan-500/30 p-10 space-y-5 transition-all">
-                                <div className="w-12 h-12 bg-cyan-50 border border-cyan-100 rounded flex items-center justify-center text-cyan-600">
+                            <div key={f.title} className="card hover:border-orange-500/30 p-8 space-y-5 transition-all">
+                                <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded flex items-center justify-center text-orange-500">
                                     {f.icon}
                                 </div>
-                                <h3 className="text-lg font-bold">{f.title}</h3>
-                                <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
+                                <h3 className="text-lg font-bold text-white">{f.title}</h3>
+                                <p className="text-sm text-zinc-400 leading-relaxed">{f.desc}</p>
                             </div>
                         ))}
                     </div>
 
                     {/* Syslog SIEM callout — intentionally dark terminal */}
                     <div className="card bg-gray-900 border-gray-700 p-8 max-w-3xl">
-                        <div className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-6">syslog.go — SIEM Forward Architecture</div>
-                        <pre className="text-xs font-mono text-cyan-400/80 leading-relaxed overflow-x-auto">
+                        <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest mb-6">syslog.go — SIEM Forward Architecture</div>
+                        <pre className="text-xs font-mono text-orange-400/80 leading-relaxed overflow-x-auto">
                             <code>{`// SyslogServer: PII-scrub every log line before SIEM delivery
 refined, err := s.eng.RefineString(msg, "syslog_proxy", nil)
 if err != nil {
@@ -449,7 +446,7 @@ if upstream != nil {
     upstreamConn.Write([]byte(refined))
 }`}</code>
                         </pre>
-                        <p className="text-xs text-gray-500 mt-4 font-mono">
+                        <p className="text-xs text-zinc-400 mt-4 font-mono">
                             Note: Syslog forwarding is SIEM-agnostic via standard UDP. Tested with any compliant upstream endpoint.
                         </p>
                     </div>
@@ -463,19 +460,18 @@ if upstream != nil {
             </section>
 
             {/* Footer status bar */}
-            <section className="py-16 border-t border-gray-100 bg-gray-50">
-                <div className="max-container flex flex-col md:flex-row justify-between items-center gap-6 text-[9px] font-mono text-gray-400 uppercase tracking-[0.2em]">
+            <section className="py-16 border-t border-zinc-800 bg-zinc-950">
+                <div className="max-container flex flex-col md:flex-row justify-between items-center gap-6 text-[9px] font-mono text-zinc-600 uppercase tracking-[0.2em]">
                     <div className="flex items-center gap-6">
-                        <span className="flex items-center gap-2 text-cyan-600/50">
-                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></div>
+                        <span className="flex items-center gap-2 text-orange-500/50">
+                            <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></div>
                             Sombra_Gateway_Active
                         </span>
                         <span>Build: 4.12.26</span>
                     </div>
                     <div className="flex gap-10">
                         <span>Features sourced from /pkg</span>
-                        <span>Zero vaporware</span>
-                        <span className="text-cyan-600/40">Fail_Closed_By_Default</span>
+                        <span className="text-orange-500/40">Fail_Closed_By_Default</span>
                     </div>
                 </div>
             </section>

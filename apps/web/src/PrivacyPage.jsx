@@ -69,33 +69,33 @@ export default function PrivacyPage() {
         <div className="animate-fade-in-up">
             <section className="section-padding">
                 <div className="max-container max-w-3xl">
-                    <h4 className="text-cyan-600 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Legal</h4>
+                    <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Legal</h4>
                     <h1 className="mb-4">Privacy Policy</h1>
-                    <p className="text-[11px] font-mono text-gray-400 uppercase tracking-widest mb-16">
+                    <p className="text-[11px] font-mono text-zinc-500 uppercase tracking-widest mb-16">
                         Effective date: 28 April 2026 &nbsp;·&nbsp; Product: OCULTAR PII Refinery
                     </p>
 
                     <div className="space-y-16">
                         {SECTIONS.map(section => (
                             <div key={section.num} className="flex gap-8">
-                                <div className="text-[11px] font-mono font-bold text-cyan-600/40 tracking-widest shrink-0 mt-1 w-6">
+                                <div className="text-[11px] font-mono font-bold text-orange-500/40 tracking-widest shrink-0 mt-1 w-6">
                                     {section.num}
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="text-base font-bold text-gray-900 mb-4 uppercase tracking-wide">
+                                    <h3 className="text-base font-bold text-white mb-4 uppercase tracking-wide">
                                         {section.title}
                                     </h3>
                                     {section.body && (
-                                        <p className="text-sm text-gray-600 leading-relaxed">{section.body}</p>
+                                        <p className="text-sm text-zinc-400 leading-relaxed">{section.body}</p>
                                     )}
                                     {section.items && (
                                         <div className="space-y-6">
                                             {section.items.map(item => (
-                                                <div key={item.label} className="border-l-2 border-cyan-100 pl-4">
-                                                    <div className="text-[10px] font-bold text-cyan-600 uppercase tracking-widest mb-2">
+                                                <div key={item.label} className="border-l-2 border-orange-500/20 pl-4">
+                                                    <div className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2">
                                                         {item.label}
                                                     </div>
-                                                    <p className="text-sm text-gray-600 leading-relaxed">{item.text}</p>
+                                                    <p className="text-sm text-zinc-400 leading-relaxed">{item.text}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -105,7 +105,7 @@ export default function PrivacyPage() {
                         ))}
                     </div>
 
-                    <div className="mt-20 pt-8 border-t border-gray-100 text-[10px] text-gray-400 font-mono uppercase tracking-widest">
+                    <div className="mt-20 pt-8 border-t border-zinc-800 text-[10px] text-zinc-500 font-mono uppercase tracking-widest">
                         OCULTAR SECURITY &nbsp;·&nbsp; ZERO-EGRESS BY ARCHITECTURE
                     </div>
                 </div>
