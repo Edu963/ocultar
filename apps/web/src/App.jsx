@@ -184,27 +184,20 @@ const Hero = () => (
                 </span>
             </div>
 
-            <h1 className="max-w-5xl mx-auto mb-8 text-white">
+            <h1 className="max-w-5xl mx-auto mb-8 text-white text-center">
                 Sending customer data to OpenAI is a GDPR violation by default.{' '}
                 <span className="text-orange-500">Most teams haven't noticed.</span>
             </h1>
 
-            <p className="max-w-2xl mx-auto text-xl text-zinc-400 mb-12">
-                Every time your team sends a message to OpenAI, patient records, credit card numbers,
-                and customer names leave your network. Permanently.{' '}
-                <span className="text-white font-semibold">OCULTAR stops that.</span>
-            </p>
-
-            <a
-                href={REQUEST_ACCESS_URL}
-                className="inline-flex items-center gap-3 bg-orange-500 hover:bg-orange-600 text-white font-bold px-12 py-5 text-lg rounded transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-orange-500/20 group"
-            >
-                Request Access
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </a>
-            <p className="mt-5 text-zinc-600 text-xs font-mono uppercase tracking-widest">
-                Enterprise · Not self-serve · We'll reach out within 24h
-            </p>
+            <div className="max-w-5xl mx-auto text-left">
+                <p className="text-xl text-zinc-400 mb-10">
+                    Every time your team sends a message to OpenAI, patient records, credit card numbers,
+                    and customer names leave your network. Permanently.
+                </p>
+                <p className="text-center text-xl font-semibold text-orange-500">
+                    OCULTAR stops that.
+                </p>
+            </div>
         </div>
     </section>
 );
@@ -259,9 +252,12 @@ const PainCards = () => {
     return (
         <section className="bg-zinc-950 border-t border-zinc-800 section-padding">
             <div className="max-container">
-                <div className="text-center mb-16">
-                    <p className="text-zinc-500 text-[10px] font-mono font-bold uppercase tracking-[0.4em] mb-4">The Problem</p>
-                    <h2 className="text-white max-w-2xl mx-auto">
+                <div className="text-center flex flex-col items-center mb-16">
+                    <p className="text-zinc-500 text-[10px] font-mono font-bold uppercase tracking-[0.4em] mb-6">The Problem</p>
+                    <h2
+                        style={{ textAlign: 'center', maxWidth: '42rem', margin: '0 auto 4rem auto', fontSize: '2rem' }}
+                        className="text-white"
+                    >
                         Why most AI deployments are a compliance time bomb
                     </h2>
                 </div>
@@ -360,17 +356,37 @@ const AFTER_CODE = `const response = await openai.chat.completions.create({
 const CodeIntegration = () => (
     <section className="section-padding bg-zinc-950 border-t border-zinc-800">
         <div className="max-container">
+            <div className="max-w-2xl mb-20 text-center mx-auto flex flex-col items-center">
+                <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Implementation</h4>
+                <h2 className="text-white mb-6">Drop-in replacement for the OpenAI SDK</h2>
+                <p className="text-zinc-400 max-w-xl">
+                    Change one line of code. Redirect your SDK to your OCULTAR instance. 
+                    Local redaction and vaulting happen automatically.
+                </p>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div>
-                    <p className="text-orange-500 text-[10px] font-mono font-bold uppercase tracking-[0.4em] mb-4">Integration</p>
-                    <h2 className="mb-6">Ship in an afternoon.<br />Not a quarter.</h2>
-                    <p className="text-zinc-400 mb-8">
-                        OCULTAR runs as a transparent reverse proxy. Point your existing AI calls at it.
-                        No SDK. No code changes. No retraining your team.
-                    </p>
-                    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] font-mono font-bold">
-                        <Check className="w-3 h-3" /> Zero code changes to your application logic
-                    </span>
+                <div className="space-y-8">
+                    <div>
+                        <h3 className="text-2xl font-bold text-white mb-4">Ship in an afternoon.<br />Not a quarter.</h3>
+                        <p className="text-zinc-400 leading-relaxed mb-6">
+                            OCULTAR runs as a transparent reverse proxy. Point your existing AI calls at it.
+                            No SDK. No code changes. No retraining your team.
+                        </p>
+                        <div className="space-y-4">
+                            {[
+                                'Zero code changes to application logic',
+                                'Supports all OpenAI-compatible SDKs',
+                                'Deploy as a sidecar or central gateway'
+                            ].map(item => (
+                                <div key={item} className="flex items-center gap-3">
+                                    <div className="w-5 h-5 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+                                        <Check className="w-3 h-3 text-orange-500" />
+                                    </div>
+                                    <span className="text-sm text-zinc-300">{item}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 <div className="space-y-3">
@@ -466,8 +482,8 @@ const DemoSection = () => {
 
     return (
         <section className="section-padding bg-[#0A0A0F] border-t border-zinc-800">
-            <div className="max-container">
-                <div className="max-w-xl mb-16">
+            <div className="max-container flex flex-col items-center">
+                <div className="max-w-xl mb-16 text-center mx-auto flex flex-col items-center">
                     <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Live Demo</h4>
                     <h2 className="text-white mb-6">See OCULTAR intercept a request</h2>
                     <p className="text-zinc-400">
@@ -711,8 +727,8 @@ const ROISection = () => {
 
     return (
         <section className="section-padding bg-zinc-950 border-b border-zinc-800 relative overflow-hidden">
-            <div className="max-container">
-                <div className="max-w-xl mb-16">
+            <div className="max-container flex flex-col items-center">
+                <div className="max-w-xl mb-16 text-center">
                     <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Cost Analysis</h4>
                     <h2 className="text-white mb-4">What are you paying to send PII to the cloud?</h2>
                     <p className="text-zinc-400">
