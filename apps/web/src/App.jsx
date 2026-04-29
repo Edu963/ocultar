@@ -251,13 +251,10 @@ const PainCards = () => {
 
     return (
         <section className="bg-zinc-950 border-t border-zinc-800 section-padding">
-            <div className="max-container">
-                <div className="text-center flex flex-col items-center mb-16">
-                    <p className="text-zinc-500 text-[10px] font-mono font-bold uppercase tracking-[0.4em] mb-6">The Problem</p>
-                    <h2
-                        style={{ textAlign: 'center', maxWidth: '42rem', margin: '0 auto 4rem auto', fontSize: '2rem' }}
-                        className="text-white"
-                    >
+            <div className="max-container flex flex-col gap-16">
+                <div className="flex flex-col items-center gap-4 text-center">
+                    <p className="text-sm font-mono text-orange-500 uppercase tracking-widest">The Problem</p>
+                    <h2 className="text-3xl font-bold text-white tracking-tight max-w-2xl">
                         Why most AI deployments are a compliance time bomb
                     </h2>
                 </div>
@@ -268,7 +265,7 @@ const PainCards = () => {
                             className="bg-zinc-900 rounded-xl p-6 space-y-4 border-x border-b border-zinc-800 border-t-2 border-t-orange-500"
                         >
                             <div className="text-sm font-black text-white uppercase tracking-wider">{card.label}</div>
-                            <p className="text-sm text-zinc-400 leading-relaxed">{card.body}</p>
+                            <p className="text-base text-zinc-400 leading-relaxed">{card.body}</p>
                         </div>
                     ))}
                 </div>
@@ -279,9 +276,9 @@ const PainCards = () => {
 
 // ── 4. Trust Strip ────────────────────────────────────────────────────────────
 const TrustStrip = () => (
-    <div className="bg-zinc-950 border-t border-zinc-800 py-20">
-        <div className="max-container">
-            <p className="text-[10px] font-mono font-bold uppercase tracking-[0.4em] text-zinc-500 mb-12 text-center">
+    <div className="bg-zinc-950 border-t border-zinc-800 py-24">
+        <div className="max-container flex flex-col gap-12">
+            <p className="text-sm font-mono text-orange-500 uppercase tracking-widest text-center">
                 Core Security Architecture
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
@@ -316,7 +313,7 @@ const TrustStrip = () => (
                         </div>
                         <div>
                             <div className="text-sm font-bold text-white uppercase tracking-wider mb-2">{item.title}</div>
-                            <div className="text-sm text-zinc-400 leading-relaxed">{item.sub}</div>
+                            <div className="text-base text-zinc-400 leading-relaxed">{item.sub}</div>
                         </div>
                     </div>
                 ))}
@@ -327,14 +324,14 @@ const TrustStrip = () => (
 
 // ── 5. Sovereign PII Packs ────────────────────────────────────────────────────
 const SovereignPacks = () => (
-    <div className="bg-[#0A0A0F] border-t border-zinc-800 py-20">
+    <div className="bg-[#0A0A0F] border-t border-zinc-800 py-24">
         <div className="max-container">
             <div className="flex flex-col md:flex-row md:items-start gap-12">
                 <div className="shrink-0 md:max-w-sm">
-                    <p className="text-[10px] font-mono font-bold uppercase tracking-[0.4em] text-orange-500 mb-4">
+                    <p className="text-sm font-mono text-orange-500 uppercase tracking-widest mb-4">
                         Detection Coverage
                     </p>
-                    <h3 className="text-2xl font-bold text-white mb-4">Global &amp; Customizable Detection</h3>
+                    <h3 className="text-3xl font-bold text-white tracking-tight mb-4">Global &amp; Customizable Detection</h3>
                     <p className="text-base text-zinc-400 leading-relaxed">
                         Fully customizable via dictionaries and regex rules — extend coverage to any entity type, language, or jurisdiction.
                     </p>
@@ -392,33 +389,33 @@ const AFTER_CODE = `const response = await openai.chat.completions.create({
 const CodeIntegration = () => (
     <section className="section-padding bg-zinc-950 border-t border-zinc-800">
         <div className="max-container">
-            <div className="max-w-2xl mb-20 text-center mx-auto flex flex-col items-center">
-                <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Implementation</h4>
-                <h2 className="text-white mb-6">Drop-in replacement for the OpenAI SDK</h2>
-                <p className="text-zinc-400 max-w-xl">
-                    Change one line of code. Redirect your SDK to your OCULTAR instance. 
+            <div className="flex flex-col items-center gap-4 text-center mb-16">
+                <p className="text-sm font-mono text-orange-500 uppercase tracking-widest">Implementation</p>
+                <h2 className="text-3xl font-bold text-white tracking-tight">Drop-in replacement for the OpenAI SDK</h2>
+                <p className="text-base text-zinc-400 leading-relaxed max-w-xl">
+                    Change one line of code. Redirect your SDK to your OCULTAR instance.
                     Local redaction and vaulting happen automatically.
                 </p>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div className="space-y-8">
+                <div className="flex flex-col gap-8">
                     <div>
-                        <h3 className="text-2xl font-bold text-white mb-4">Ship in an afternoon.<br />Not a quarter.</h3>
-                        <p className="text-zinc-400 leading-relaxed mb-6">
+                        <h3 className="text-3xl font-bold text-white tracking-tight mb-4">Ship in an afternoon.<br />Not a quarter.</h3>
+                        <p className="text-base text-zinc-400 leading-relaxed mb-6">
                             OCULTAR runs as a transparent reverse proxy. Point your existing AI calls at it.
                             No SDK. No code changes. No retraining your team.
                         </p>
-                        <div className="space-y-4">
+                        <div className="flex flex-col gap-3">
                             {[
                                 'Zero code changes to application logic',
                                 'Supports all OpenAI-compatible SDKs',
                                 'Deploy as a sidecar or central gateway'
                             ].map(item => (
                                 <div key={item} className="flex items-center gap-3">
-                                    <div className="w-5 h-5 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+                                    <div className="w-5 h-5 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
                                         <Check className="w-3 h-3 text-orange-500" />
                                     </div>
-                                    <span className="text-sm text-zinc-300">{item}</span>
+                                    <span className="text-base text-zinc-300">{item}</span>
                                 </div>
                             ))}
                         </div>
@@ -525,10 +522,10 @@ const DemoSection = () => {
     return (
         <section className="section-padding bg-[#0A0A0F] border-t border-zinc-800">
             <div className="max-container flex flex-col items-center">
-                <div className="max-w-xl mb-16 text-center mx-auto flex flex-col items-center">
-                    <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Live Demo</h4>
-                    <h2 className="text-white mb-6">See OCULTAR intercept a request</h2>
-                    <p className="text-zinc-400">
+                <div className="flex flex-col items-center gap-4 text-center mb-16">
+                    <p className="text-sm font-mono text-orange-500 uppercase tracking-widest">Live Demo</p>
+                    <h2 className="text-3xl font-bold text-white tracking-tight">See OCULTAR intercept a request</h2>
+                    <p className="text-base text-zinc-400 leading-relaxed max-w-xl">
                         Every request passes through three stages before reaching the AI provider.
                         Nothing sensitive crosses the boundary.
                     </p>
@@ -608,16 +605,16 @@ const AuditLog = () => (
     <section className="section-padding bg-zinc-950 border-t border-zinc-800">
         <div className="max-container">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div>
-                    <p className="text-orange-500 text-[10px] font-mono font-bold uppercase tracking-[0.4em] mb-4">Audit Trail</p>
-                    <h2 className="text-white mb-6">
+                <div className="flex flex-col gap-6">
+                    <p className="text-sm font-mono text-orange-500 uppercase tracking-widest">Audit Trail</p>
+                    <h2 className="text-3xl font-bold text-white tracking-tight">
                         Every token. Every request.<br />Every decision. Logged.
                     </h2>
-                    <p className="text-zinc-400 mb-8">
+                    <p className="text-base text-zinc-400 leading-relaxed">
                         Every vaulted and matched event is written to a tamper-proof, SIEM-ready audit log.
                         When a regulator asks what data touched which model, you have the answer in seconds.
                     </p>
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-3">
                         {[
                             'Ed25519-signed — each entry cryptographically linked to the last',
                             'SHA-256 hash-chained — deletion or modification is detectable',
@@ -626,7 +623,7 @@ const AuditLog = () => (
                         ].map(point => (
                             <div key={point} className="flex items-start gap-3">
                                 <Check className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                                <span className="text-sm text-zinc-400">{point}</span>
+                                <span className="text-base text-zinc-400">{point}</span>
                             </div>
                         ))}
                     </div>
@@ -690,15 +687,15 @@ const AgentBlock = () => (
                     </div>
                 </div>
 
-                <div>
-                    <p className="text-orange-500 text-[10px] font-mono font-bold uppercase tracking-[0.4em] mb-4">Agentic AI</p>
-                    <h2 className="text-white mb-6">Built for agents.<br />Not just chat.</h2>
-                    <p className="text-zinc-400 mb-6">
+                <div className="flex flex-col gap-6">
+                    <p className="text-sm font-mono text-orange-500 uppercase tracking-widest">Agentic AI</p>
+                    <h2 className="text-3xl font-bold text-white tracking-tight">Built for agents.<br />Not just chat.</h2>
+                    <p className="text-base text-zinc-400 leading-relaxed">
                         Autonomous AI agents make dozens of tool calls per workflow — each one a potential PII leak.
                         OCULTAR's Sombra gateway wraps every agent interaction, every MCP tool call, and every
                         A2A handoff in the same zero-egress privacy guarantee.
                     </p>
-                    <p className="text-zinc-500 text-sm leading-relaxed">
+                    <p className="text-base text-zinc-400 leading-relaxed">
                         The same architectural guarantee that protects chat completions extends to
                         every tool invocation, every agent handoff, and every intermediate state
                         in a multi-agent workflow.
@@ -735,9 +732,9 @@ const WhoItsFor = () => {
     return (
         <section className="section-padding bg-zinc-950 border-t border-zinc-800">
             <div className="max-container">
-                <div className="max-w-xl mb-16">
-                    <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Who It's For</h4>
-                    <h2 className="text-white">Built for the people who <span className="text-orange-500">own the risk</span></h2>
+                <div className="flex flex-col gap-3 max-w-xl mb-16">
+                    <p className="text-sm font-mono text-orange-500 uppercase tracking-widest">Who It's For</p>
+                    <h2 className="text-3xl font-bold text-white tracking-tight">Built for the people who <span className="text-orange-500">own the risk</span></h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {personas.map(p => (
@@ -746,10 +743,10 @@ const WhoItsFor = () => {
                                 <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all">
                                     {p.icon}
                                 </div>
-                                <div className="text-sm font-bold text-white">{p.role}</div>
+                                <div className="text-base font-bold text-white">{p.role}</div>
                             </div>
-                            <p className="text-sm text-zinc-400 leading-relaxed">{p.body}</p>
-                            <div className="text-[10px] font-mono font-bold text-orange-500/60 uppercase tracking-widest border-t border-zinc-800 pt-4">
+                            <p className="text-base text-zinc-400 leading-relaxed">{p.body}</p>
+                            <div className="text-xs font-mono font-bold text-orange-500/60 uppercase tracking-widest border-t border-zinc-800 pt-4">
                                 {p.tag}
                             </div>
                         </div>
@@ -770,10 +767,10 @@ const ROISection = () => {
     return (
         <section className="section-padding bg-zinc-950 border-b border-zinc-800 relative overflow-hidden">
             <div className="max-container flex flex-col items-center">
-                <div className="max-w-xl mb-16 text-center">
-                    <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Cost Analysis</h4>
-                    <h2 className="text-white mb-4">What are you paying to send PII to the cloud?</h2>
-                    <p className="text-zinc-400">
+                <div className="flex flex-col items-center gap-4 text-center mb-16">
+                    <p className="text-sm font-mono text-orange-500 uppercase tracking-widest">Cost Analysis</p>
+                    <h2 className="text-3xl font-bold text-white tracking-tight max-w-xl">What are you paying to send PII to the cloud?</h2>
+                    <p className="text-base text-zinc-400 leading-relaxed max-w-xl">
                         Compare OCULTAR's fixed annual license against what AWS Comprehend or Google Cloud DLP
                         costs at your volume. The price doesn't scale with traffic.
                     </p>
@@ -856,11 +853,11 @@ const ROISection = () => {
 const FinalCTA = () => (
     <section className="section-padding bg-[#0A0A0F] border-t border-zinc-800 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_100%,rgba(249,115,22,0.05),transparent)]" />
-        <div className="max-container text-center relative z-10 space-y-8">
-            <h2 className="max-w-3xl mx-auto text-white">
+        <div className="max-container text-center relative z-10 flex flex-col items-center gap-8">
+            <h2 className="text-3xl font-bold text-white tracking-tight max-w-2xl">
                 The conversation is free.<br />The compliance risk isn't.
             </h2>
-            <p className="text-zinc-400 max-w-lg mx-auto">
+            <p className="text-base text-zinc-400 leading-relaxed max-w-lg">
                 No shared demo environment. No data sent anywhere. Just a call and a local
                 deployment in your infrastructure — running in 30 minutes.
             </p>
