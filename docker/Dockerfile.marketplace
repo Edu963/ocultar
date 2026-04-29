@@ -1,0 +1,80 @@
+# syntax=docker/dockerfile:1
+#
+# OCULTAR Community Edition — AWS Marketplace / ECR Public image
+#
+# Exposes:
+#   8080  Refinery HTTP API + health  (GET /api/health)
+#   8081  Zero-egress PII proxy
+#
+# Required env vars at runtime:
+#   OCU_MASTER_KEY      32-byte hex AES key   (openssl rand -hex 32)
+#   OCU_SALT            16-byte hex salt       (openssl rand -hex 16)
+#   OCU_PROXY_TARGET    Upstream API base URL  (e.g. https://api.openai.com)
+#
+# Optional:
+#   OCU_PROXY_PORT      Proxy listen port      (default: 8081)
+#   OCU_VAULT_PATH      DuckDB path on volume  (default: /data/vault.db)
+#   OCU_AUDIT_LOG_PATH  Audit log path         (default: /data/audit.log)
+
+FROM golang:1.25-bookworm AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ libc6-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Shared modules — must be present to resolve replace directives in go.mod
+COPY internal/pii/   ./internal/pii/
+COPY services/vault/ ./services/vault/
+
+# ── Refinery binary ──────────────────────────────────────────────────────────
+COPY services/refinery/ ./services/refinery/
+
+# Swap personal entity list with a generic community placeholder before
+# the embed directive compiles it into the binary.
+COPY docker/protected_entities.community.json \
+     ./services/refinery/pkg/config/data/protected_entities.json
+
+WORKDIR /workspace/services/refinery
+RUN CGO_ENABLED=1 GOOS=linux go build -trimpath -a \
+    -o /workspace/bin/ocultar-refinery \
+    ./cmd/main.go
+
+# ── Proxy binary ─────────────────────────────────────────────────────────────
+COPY apps/proxy/ /workspace/apps/proxy/
+
+WORKDIR /workspace/apps/proxy
+RUN CGO_ENABLED=1 GOOS=linux go build -trimpath -a \
+    -o /workspace/bin/ocultar-proxy \
+    ./main.go
+
+# ── Runtime ──────────────────────────────────────────────────────────────────
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates tzdata curl && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /workspace/bin/ocultar-refinery /app/ocultar-refinery
+COPY --from=builder /workspace/bin/ocultar-proxy    /app/ocultar-proxy
+
+# Default community config.  Mount your own at /app/configs/config.yaml
+# to override detection thresholds, add custom regex rules, or switch to
+# the PostgreSQL vault backend.
+COPY configs/config.yaml.sample /app/configs/config.yaml
+
+COPY docker/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Vault DB and audit log — mount a named volume here for persistence
+VOLUME ["/data"]
+
+EXPOSE 8080 8081
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD curl -sf http://localhost:8080/api/health || exit 1
+
+ENTRYPOINT ["/app/entrypoint.sh"]

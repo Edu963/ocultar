@@ -190,11 +190,14 @@ OCULTAR exposes `GET /api/health` on port 8080. A healthy response looks like:
 
 ```json
 {
-  "status": "ok",
-  "vault": "connected",
-  "tier2": "available"
+  "status": "healthy",
+  "vault": {"status": "online"},
+  "slm":   {"status": "offline"},
+  "version": "1.1.0"
 }
 ```
+
+`vault.status` is `"online"` when the DuckDB vault is open. `slm.status` is `"offline"` in Community (Tier 2 AI NER is Enterprise-only). The ALB health check only validates HTTP 200 — the body is informational.
 
 | Check | Target | Healthy | Unhealthy action |
 |---|---|---|---|
@@ -225,7 +228,7 @@ Any gap, deletion, or modification in the chain produces a verification failure 
 
 Before submitting to AWS Marketplace:
 
-- [ ] Container image published to ECR Public (`public.ecr.aws/ocultar/refinery`)
+- [ ] Container image published to ECR Public (`public.ecr.aws/ocultar/refinery`) — build: `docker/Dockerfile.marketplace`, push: `scripts/ecr-push.sh`
 - [ ] `GET /api/health` returns HTTP 200 within 15 seconds of container start
 - [ ] Listing description ≤ 500 characters (see Section 1)
 - [ ] EULA / pricing confirmed: $299/month public, Private Offer for enterprise
