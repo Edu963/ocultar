@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+
 const SECTIONS = [
     {
         num: '01',
@@ -66,50 +69,62 @@ const SECTIONS = [
 
 export default function PrivacyPage() {
     return (
-        <div className="animate-fade-in-up">
-            <section className="section-padding">
-                <div className="max-container max-w-3xl">
-                    <h4 className="text-orange-500 text-[10px] uppercase font-mono tracking-[0.4em] mb-4">Legal</h4>
-                    <h1 className="mb-4">Privacy Policy</h1>
-                    <p className="text-[11px] font-mono text-zinc-500 uppercase tracking-widest mb-16">
+        <div className="min-h-screen bg-[#050505]">
+            <div className="max-container max-w-2xl py-12 md:py-16">
+
+                {/* Back link */}
+                <Link
+                    to="/"
+                    className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-widest text-slate-600 hover:text-slate-300 transition-colors mb-12"
+                >
+                    <ArrowLeft className="w-3 h-3" /> Platform
+                </Link>
+
+                {/* Header */}
+                <div className="mb-16">
+                    <p className="text-xs font-mono font-semibold uppercase tracking-widest text-emerald-500 mb-4">Legal</p>
+                    <h1 className="text-3xl font-bold text-white tracking-tight mb-4">Privacy Policy</h1>
+                    <p className="text-xs font-mono text-slate-600 uppercase tracking-widest">
                         Effective date: 28 April 2026 &nbsp;·&nbsp; Product: OCULTAR PII Refinery
                     </p>
-
-                    <div className="space-y-16">
-                        {SECTIONS.map(section => (
-                            <div key={section.num} className="flex gap-8">
-                                <div className="text-[11px] font-mono font-bold text-orange-500/40 tracking-widest shrink-0 mt-1 w-6">
-                                    {section.num}
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="text-base font-bold text-white mb-4 uppercase tracking-wide">
-                                        {section.title}
-                                    </h3>
-                                    {section.body && (
-                                        <p className="text-sm text-zinc-400 leading-relaxed">{section.body}</p>
-                                    )}
-                                    {section.items && (
-                                        <div className="space-y-6">
-                                            {section.items.map(item => (
-                                                <div key={item.label} className="border-l-2 border-orange-500/20 pl-4">
-                                                    <div className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2">
-                                                        {item.label}
-                                                    </div>
-                                                    <p className="text-sm text-zinc-400 leading-relaxed">{item.text}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="mt-20 pt-8 border-t border-zinc-800 text-[10px] text-zinc-500 font-mono uppercase tracking-widest">
-                        OCULTAR SECURITY &nbsp;·&nbsp; ZERO-EGRESS BY ARCHITECTURE
-                    </div>
                 </div>
-            </section>
+
+                {/* Sections */}
+                <div className="flex flex-col gap-12">
+                    {SECTIONS.map(section => (
+                        <div key={section.num} className="flex gap-8">
+                            <div className="text-xs font-mono font-bold text-emerald-500/30 tracking-widest shrink-0 mt-0.5 w-6">
+                                {section.num}
+                            </div>
+                            <div className="flex-1 flex flex-col gap-4">
+                                <h3 className="text-sm font-bold text-white uppercase tracking-wide">
+                                    {section.title}
+                                </h3>
+                                {section.body && (
+                                    <p className="text-sm text-slate-400 leading-relaxed">{section.body}</p>
+                                )}
+                                {section.items && (
+                                    <div className="flex flex-col gap-6">
+                                        {section.items.map(item => (
+                                            <div key={item.label} className="border-l border-white/10 pl-4 flex flex-col gap-2">
+                                                <div className="text-xs font-mono font-semibold text-emerald-500/70 uppercase tracking-widest">
+                                                    {item.label}
+                                                </div>
+                                                <p className="text-sm text-slate-400 leading-relaxed">{item.text}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Footer line */}
+                <div className="mt-20 pt-8 border-t border-white/5 text-xs font-mono text-slate-700 uppercase tracking-widest">
+                    OCULTAR Security &nbsp;·&nbsp; Zero-Egress by Architecture
+                </div>
+            </div>
         </div>
     );
 }
