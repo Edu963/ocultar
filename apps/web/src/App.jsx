@@ -70,9 +70,9 @@ const CanvasBackground = () => {
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
-                        const opacity = (1 - distance / connectionDistance) * 0.06;
+                        const opacity = (1 - distance / connectionDistance) * 0.12;
                         ctx.strokeStyle = `rgba(249, 115, 22, ${opacity})`;
-                        ctx.lineWidth = 0.5;
+                        ctx.lineWidth = 0.8;
                         ctx.stroke();
                     }
                 }
@@ -132,8 +132,9 @@ const Footer = () => (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
                 <div className="col-span-1 md:col-span-2 space-y-6">
                     <span className="font-mono font-black text-xl tracking-widest text-white">OCULTAR</span>
-                    <p className="max-w-sm text-sm text-zinc-500">
-                        Zero-egress PII refinery for enterprise AI. PII never leaves your infrastructure — technically impossible, not contractually forbidden.
+                    <p className="max-w-sm text-sm text-zinc-500 leading-relaxed">
+                        Zero-egress PII refinery for enterprise AI. 
+                        PII never leaves your infrastructure — technically impossible, not contractually forbidden.
                     </p>
                     <div className="flex gap-4">
                         <a href="https://github.com/Edu963/ocultar" className="text-zinc-600 hover:text-orange-500 transition-colors">
@@ -174,13 +175,13 @@ const Hero = () => (
         <div className="absolute inset-0 bg-[linear-gradient(rgba(249,115,22,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(249,115,22,0.025)_1px,transparent_1px)] bg-[size:64px_64px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(249,115,22,0.06),transparent)]" />
         <div className="max-container text-center relative z-10">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-orange-500/20 bg-orange-500/5 mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 backdrop-blur-md mb-10 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
                 <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
                 </span>
-                <span className="text-orange-400 text-xs font-mono font-bold uppercase tracking-widest">
-                    Zero-Egress · On-Premise · Enterprise
+                <span className="text-orange-400 text-[10px] font-mono font-bold uppercase tracking-[0.2em]">
+                    Zero-Egress · Sovereign · Enterprise
                 </span>
             </div>
 
@@ -189,16 +190,19 @@ const Hero = () => (
             </h1>
 
             <div className="max-w-5xl mx-auto text-left">
-                <p className="text-xl text-zinc-400 mb-10">
+                <p className="text-xl text-zinc-400 mb-10 font-medium tracking-tight">
                     Ensure GDPR and EU AI Act compliance for every LLM your company uses. 
                     Zero-egress, fail-closed, and running entirely within your infrastructure — 
-                    operational before the <span className="text-white font-bold">August 2, 2026</span> enforcement deadline.
+                    operational before the <span className="text-white font-bold border-b border-orange-500/40 pb-0.5">August 2, 2026</span> enforcement deadline.
                 </p>
-                <p className="text-center text-5xl md:text-6xl font-black text-orange-500 tracking-tight mt-2">
-                    Privacy-Preserving AI Runtime.
-                </p>
+                <div className="flex justify-center">
+                    <p className="text-center text-5xl md:text-7xl font-black text-orange-500 tracking-tighter mt-2 drop-shadow-[0_0_20px_rgba(249,115,22,0.3)]">
+                        Privacy-Preserving AI Runtime.
+                    </p>
+                </div>
             </div>
         </div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#0A0A0F] to-transparent pointer-events-none" />
     </section>
 );
 
@@ -261,14 +265,14 @@ const PainCards = () => {
                         Why most AI deployments are a compliance time bomb
                     </h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {cards.map(card => (
                         <div
                             key={card.label}
-                            className="bg-zinc-900 rounded-xl p-6 space-y-4 border-x border-b border-zinc-800 border-t-2 border-t-orange-500"
+                            className="glass-card rounded-2xl p-8 space-y-4 border-t-2 border-t-orange-500/50 border-x-0 border-b-0 border-glow-hover transition-all duration-300"
                         >
-                            <div className="text-sm font-black text-white uppercase tracking-wider">{card.label}</div>
-                            <p className="text-base text-zinc-400 leading-relaxed">{card.body}</p>
+                            <div className="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em]">{card.label}</div>
+                            <p className="text-base text-zinc-400 leading-relaxed font-medium">{card.body}</p>
                         </div>
                     ))}
                 </div>
@@ -285,38 +289,38 @@ const TrustStrip = () => (
                 Core Security Architecture
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                {[
+                { [
                     {
-                        icon: <Lock className="w-6 h-6" />,
+                        icon: <Lock className="w-5 h-5" />,
                         title: 'Zero-Egress',
                         sub: 'Data never leaves your VPC. Technically impossible, not contractually forbidden.',
                     },
                     {
-                        icon: <ShieldCheck className="w-6 h-6" />,
+                        icon: <ShieldCheck className="w-5 h-5" />,
                         title: 'Fail-Closed',
                         sub: 'Blocks on any error — never falls back to passthrough.',
                     },
                     {
-                        icon: <Terminal className="w-6 h-6" />,
-                        title: 'Local NER',
-                        sub: 'All entity recognition runs on-premise. No external scanning APIs.',
+                        icon: <Terminal className="w-5 h-5" />,
+                        title: 'Local SLM',
+                        sub: 'Contextual NER running entirely on-premise for 100% data sovereignty.',
                     },
                     {
-                        icon: <Database className="w-6 h-6" />,
+                        icon: <Database className="w-5 h-5" />,
                         title: 'Deterministic',
-                        sub: 'Same input always produces the same token. Vault lookups are consistent.',
+                        sub: 'Encrypted vault with HKDF key derivation. Secure, consistent re-hydration.',
                     },
                 ].map(item => (
                     <div
                         key={item.title}
-                        className="group flex flex-col gap-4 p-6 rounded-xl border border-zinc-800 bg-zinc-900/40 hover:border-zinc-700 hover:bg-zinc-900 transition-all duration-200"
+                        className="group flex flex-col gap-5 p-8 rounded-2xl border border-zinc-800/50 bg-zinc-900/20 backdrop-blur-sm hover:border-orange-500/30 hover:bg-zinc-900/40 transition-all duration-300"
                     >
-                        <div className="text-orange-500 transition-transform duration-200 group-hover:scale-110 w-fit">
+                        <div className="w-10 h-10 rounded-lg bg-orange-500/5 border border-orange-500/10 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all duration-300">
                             {item.icon}
                         </div>
                         <div>
-                            <div className="text-sm font-bold text-white uppercase tracking-wider mb-2">{item.title}</div>
-                            <div className="text-base text-zinc-400 leading-relaxed">{item.sub}</div>
+                            <div className="text-sm font-bold text-white uppercase tracking-widest mb-2">{item.title}</div>
+                            <div className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">{item.sub}</div>
                         </div>
                     </div>
                 ))}
@@ -551,38 +555,41 @@ const DemoSection = () => {
                     ))}
                 </div>
 
-                <div className="max-w-4xl bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl shadow-black">
-                    <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-800 bg-zinc-900/50">
+                <div className="max-w-4xl w-full scanning-line bg-zinc-950 border border-white/5 rounded-2xl overflow-hidden shadow-2xl shadow-black">
+                    <div className="flex items-center gap-3 px-6 py-4 border-b border-white/5 bg-zinc-900/40 backdrop-blur-md">
                         <div className="flex gap-1.5">
-                            <div className="w-2.5 h-2.5 rounded-full bg-rose-500/40" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-amber-500/40" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/40" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-rose-500/30" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-amber-500/30" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/30" />
                         </div>
                         <div className="ml-2 flex items-center gap-3">
-                            <div className={`w-1.5 h-1.5 rounded-full ${current.dotColor} animate-pulse`} />
+                            <div className={`w-1.5 h-1.5 rounded-full ${current.dotColor} animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.5)]`} />
                             <span className={`text-[10px] font-bold uppercase tracking-[0.3em] ${current.textColor}`}>
                                 {current.label}
                             </span>
-                            <span className="text-zinc-600 text-[10px]">—</span>
-                            <span className="text-[10px] text-zinc-500">{current.desc}</span>
+                            <span className="text-zinc-700 text-[10px]">|</span>
+                            <span className="text-[10px] text-zinc-500 font-mono tracking-tight">{current.desc}</span>
                         </div>
                     </div>
 
-                    <div className="p-8 space-y-6">
-                        <div className="space-y-2">
-                            <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">
+                    <div className="p-10 space-y-8">
+                        <div className="space-y-3">
+                            <div className="text-[9px] font-mono text-zinc-700 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <Activity className="w-3 h-3 text-zinc-800" />
                                 → POST /v1/chat/completions
                             </div>
-                            <div className="bg-black/40 rounded-xl p-6 border border-zinc-800 min-h-[80px] flex items-center">
-                                <pre className={`text-sm font-mono leading-relaxed transition-colors duration-300 ${current.textColor} whitespace-pre-wrap`}>
+                            <div className="bg-black/60 rounded-xl p-8 border border-white/5 min-h-[100px] flex items-center shadow-inner">
+                                <pre className={`text-sm md:text-base font-mono leading-relaxed transition-all duration-500 ${current.textColor} whitespace-pre-wrap`}>
                                     {current.text}
                                 </pre>
                             </div>
                         </div>
                         {current.notice && (
-                            <div className={`p-4 border rounded-lg flex items-start gap-3 ${current.notice.color}`}>
-                                {current.notice.icon}
-                                <span className={`text-[11px] font-mono ${current.notice.textColor}`}>
+                            <div className={`p-5 border-l-2 rounded-r-xl flex items-start gap-4 transition-all duration-500 ${current.notice.color} border-l-orange-500/50`}>
+                                <div className="animate-breath">
+                                    {current.notice.icon}
+                                </div>
+                                <span className={`text-[11px] font-mono leading-relaxed ${current.notice.textColor}`}>
                                     {current.notice.msg}
                                 </span>
                             </div>
@@ -632,27 +639,27 @@ const AuditLog = () => (
                     </div>
                 </div>
 
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-                    <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-800">
+                <div className="scanning-line bg-zinc-900/40 backdrop-blur-sm border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+                    <div className="flex items-center gap-3 px-6 py-4 border-b border-white/5 bg-zinc-900/60">
                         <div className="flex gap-1.5">
-                            <div className="w-2.5 h-2.5 rounded-full bg-rose-500/40" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-amber-500/40" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/40" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-zinc-800" />
                         </div>
-                        <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest ml-2">
+                        <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.3em] ml-2">
                             audit.log — real-time
                         </span>
                     </div>
-                    <div className="p-4 space-y-0 font-mono text-[11px]">
+                    <div className="p-6 space-y-0 font-mono text-[10px] sm:text-[11px]">
                         {AUDIT_ENTRIES.map((entry, i) => (
-                            <div key={i} className="flex flex-wrap gap-x-2 gap-y-0.5 py-2 border-b border-zinc-800/60 last:border-0">
-                                <span className="text-zinc-600">[2026-04-29 {entry.time}]</span>
-                                <span className={`font-bold min-w-[80px] ${opColor[entry.op]}`}>{entry.op}</span>
-                                {entry.type && <span className="text-zinc-500 min-w-[100px]">{entry.type}</span>}
+                            <div key={i} className="flex flex-wrap gap-x-3 gap-y-1 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors">
+                                <span className="text-zinc-600 font-mono">[{entry.time}]</span>
+                                <span className={`font-bold min-w-[90px] ${opColor[entry.op]}`}>{entry.op}</span>
+                                {entry.type && <span className="text-zinc-500 min-w-[100px] border-l border-white/10 pl-3">{entry.type}</span>}
                                 <span className="text-zinc-300">{entry.input}</span>
                                 <span className="text-zinc-600">→</span>
-                                <span className="text-zinc-300">{entry.output}</span>
-                                <span className="text-zinc-700 ml-auto hidden sm:block">req: {entry.req}</span>
+                                <span className="text-zinc-300 font-bold">{entry.output}</span>
+                                <span className="text-zinc-800 ml-auto hidden md:block">8f3a</span>
                             </div>
                         ))}
                     </div>
@@ -739,17 +746,17 @@ const WhoItsFor = () => {
                     <p className="text-sm font-mono text-orange-500 uppercase tracking-widest">Who It's For</p>
                     <h2 className="text-3xl font-bold text-white tracking-tight">Built for the people who <span className="text-orange-500">own the risk</span></h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {personas.map(p => (
-                        <div key={p.role} className="card group space-y-6 hover:border-orange-500/30 transition-all">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                        <div key={p.role} className="glass-card group space-y-8 p-10 rounded-3xl border-glow-hover transition-all duration-500">
+                            <div className="flex items-center gap-5">
+                                <div className="w-14 h-14 bg-orange-500/5 border border-orange-500/10 rounded-2xl flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white group-hover:shadow-[0_0_20px_rgba(249,115,22,0.4)] transition-all duration-500">
                                     {p.icon}
                                 </div>
-                                <div className="text-base font-bold text-white">{p.role}</div>
+                                <div className="text-lg font-bold text-white tracking-tight">{p.role}</div>
                             </div>
-                            <p className="text-base text-zinc-400 leading-relaxed">{p.body}</p>
-                            <div className="text-xs font-mono font-bold text-orange-500/60 uppercase tracking-widest border-t border-zinc-800 pt-4">
+                            <p className="text-base text-zinc-400 leading-relaxed font-medium">{p.body}</p>
+                            <div className="text-[10px] font-mono font-bold text-orange-500/60 uppercase tracking-[0.2em] border-t border-white/5 pt-6">
                                 {p.tag}
                             </div>
                         </div>
@@ -768,14 +775,15 @@ const ROISection = () => {
     const savings = Math.max(0, cloudCost - ocultarCost);
 
     return (
-        <section className="section-padding bg-zinc-950 border-b border-zinc-800 relative overflow-hidden">
-            <div className="max-container flex flex-col items-center">
+        <section className="section-padding bg-[#0A0A0F] border-b border-zinc-800 relative overflow-hidden">
+            <div className="absolute inset-0 bg-spotlight pointer-events-none opacity-40" />
+            <div className="max-container flex flex-col items-center relative z-10">
                 <div className="flex flex-col items-center gap-4 text-center mb-16">
-                    <p className="text-sm font-mono text-orange-500 uppercase tracking-widest">Cost Analysis</p>
-                    <h2 className="text-3xl font-bold text-white tracking-tight max-w-xl">What are you paying to send PII to the cloud?</h2>
-                    <p className="text-base text-zinc-400 leading-relaxed max-w-xl">
-                        Compare OCULTAR's fixed annual license against what AWS Comprehend or Google Cloud DLP
-                        costs at your volume. The price doesn't scale with traffic.
+                    <p className="text-xs font-mono text-orange-500 uppercase tracking-[0.3em]">Cost Analysis</p>
+                    <h2 className="text-4xl font-bold text-white tracking-tight max-w-2xl">What are you paying to send PII to the cloud?</h2>
+                    <p className="text-base text-zinc-400 leading-relaxed max-w-xl font-medium">
+                        Compare OCULTAR's fixed annual license against legacy Cloud DLP providers. 
+                        The price doesn't scale with traffic — your security budget becomes predictable.
                     </p>
                 </div>
 
