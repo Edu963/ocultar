@@ -882,6 +882,9 @@ const FinalCTA = () => (
             <p className="text-zinc-600 text-xs font-mono uppercase tracking-widest">
                 Enterprise · Not self-serve · We'll reach out within 24h
             </p>
+            <Link to="/privacy" className="text-zinc-700 hover:text-zinc-500 text-xs font-mono uppercase tracking-widest transition-colors">
+                Privacy Policy
+            </Link>
         </div>
     </section>
 );
