@@ -185,17 +185,17 @@ const Hero = () => (
             </div>
 
             <h1 className="max-w-5xl mx-auto mb-8 text-white text-center">
-                Sending customer data to OpenAI is a GDPR violation by default.{' '}
-                <span className="text-orange-500">Most teams haven't noticed.</span>
+                The EU-Sovereign Compliance Layer for <span className="text-orange-500">Enterprise AI.</span>
             </h1>
 
             <div className="max-w-5xl mx-auto text-left">
                 <p className="text-xl text-zinc-400 mb-10">
-                    Every time your team sends a message to OpenAI, patient records, credit card numbers,
-                    and customer names leave your network. Permanently.
+                    Ensure GDPR and EU AI Act compliance for every LLM your company uses. 
+                    Zero-egress, fail-closed, and running entirely within your infrastructure — 
+                    operational before the <span className="text-white font-bold">August 2, 2026</span> enforcement deadline.
                 </p>
                 <p className="text-center text-5xl md:text-6xl font-black text-orange-500 tracking-tight mt-2">
-                    OCULTAR stops that.
+                    Privacy-Preserving AI Runtime.
                 </p>
             </div>
         </div>
@@ -223,6 +223,9 @@ const SecurityBadges = () => (
                         {badge}
                     </span>
                 ))}
+                <span className="px-4 py-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-[10px] font-mono font-bold uppercase tracking-wider animate-pulse">
+                    EU AI Act Compliant
+                </span>
             </div>
         </div>
     </div>
@@ -710,22 +713,22 @@ const AgentBlock = () => (
 const WhoItsFor = () => {
     const personas = [
         {
-            role: 'The CISO',
+            role: 'The DPO',
             icon: <ShieldCheck className="w-6 h-6" />,
-            body: 'You need AI adoption without compliance exposure. OCULTAR makes GDPR compliance architectural, not procedural.',
-            tag: 'GDPR · HIPAA · CNIL',
+            body: 'You need a defensible answer for the regulator. OCULTAR provides Article 5 accountability and Article 10 data governance out of the box.',
+            tag: 'GDPR · AI Act · EDPB',
+        },
+        {
+            role: 'The CISO',
+            icon: <Lock className="w-6 h-6" />,
+            body: 'You need AI adoption without compliance exposure. OCULTAR makes data security architectural, not procedural.',
+            tag: 'Zero-Egress · Fail-Closed',
         },
         {
             role: 'The CTO',
             icon: <Server className="w-6 h-6" />,
-            body: 'You need to ship AI features without a 6-month security review. OCULTAR deploys in your infrastructure in under an hour.',
-            tag: 'On-Premise · Docker · <1h Deploy',
-        },
-        {
-            role: 'The Engineering Lead',
-            icon: <Terminal className="w-6 h-6" />,
-            body: 'You need a proxy that works with any upstream AI — OpenAI, Gemini, Mistral, whatever comes next.',
-            tag: 'Any LLM Provider · Drop-in Proxy',
+            body: 'You need to ship AI features without a 6-month security review. OCULTAR deploys in your VPC in under an hour.',
+            tag: 'On-Premise · <1h Deploy',
         },
     ];
 
