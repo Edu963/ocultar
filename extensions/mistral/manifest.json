@@ -1,0 +1,75 @@
+{
+  "manifest_version": "0.3",
+  "name": "ocultar-pii",
+  "display_name": "Ocultar PII Refinery",
+  "version": "0.1.0",
+  "description": "Zero-egress PII redaction for Mistral Le Chat workflows. Redacts names, emails, IBANs, SIRET/SIREN, phone numbers, and credit cards before any AI processing. Runs entirely in your infrastructure — no data ever leaves your environment.",
+  "long_description": "Ocultar est un moteur local de détection et de rédaction des DCP (Données à Caractère Personnel). Cette extension donne à Mistral Le Chat deux outils :\n\n- **refine_text** — rédacte les DCP de tout texte avant qu'il n'atteigne Le Chat, en remplaçant les valeurs sensibles par des jetons déterministes (ex. `[EMAIL_9c8f7a1b]`). Optimisé pour le RGPD, la CNIL, les numéros SIRET/SIREN, IBAN, et les adresses françaises.\n- **reveal_tokens** — re-tokenise les jetons en clair pour les auditeurs autorisés (chaque appel est enregistré dans une piste d'audit immuable signée Ed25519).\n\nTout le traitement se fait sur votre machine via le Refinery Ocultar local. Si le Refinery est injoignable, les deux outils échouent en mode fermé — le texte brut n'est jamais transmis. Zéro-égresssion est une garantie architecturale, pas une politique.",
+  "author": {
+    "name": "Ocultar Security",
+    "email": "edu@ocultar.dev",
+    "url": "https://ocultar.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Edu963/ocultar"
+  },
+  "homepage": "https://ocultar.dev",
+  "documentation": "https://github.com/Edu963/ocultar/blob/main/extensions/mistral/README.md",
+  "support": "https://github.com/Edu963/ocultar/issues",
+  "license": "Apache-2.0",
+  "keywords": ["pii", "dcp", "privacy", "rgpd", "gdpr", "zero-egress", "security", "redaction", "compliance", "france", "mistral"],
+  "privacy_policies": ["https://ocultar.dev/privacy"],
+  "server": {
+    "type": "python",
+    "entry_point": "ocultar_mistral_mcp.py",
+    "mcp_config": {
+      "command": "uvx",
+      "args": ["ocultar-mistral-mcp@0.1.0"],
+      "env": {
+        "OCULTAR_URL": "${user_config.ocultar_url}",
+        "OCULTAR_API_KEY": "${user_config.ocultar_api_key}",
+        "OCULTAR_AUDITOR_TOKEN": "${user_config.ocultar_auditor_token}"
+      }
+    }
+  },
+  "user_config": {
+    "ocultar_url": {
+      "type": "string",
+      "title": "Ocultar Refinery URL",
+      "description": "URL of your locally running Ocultar Refinery",
+      "required": true,
+      "default": "http://localhost:8080"
+    },
+    "ocultar_api_key": {
+      "type": "string",
+      "title": "API Key",
+      "description": "Ocultar API key (leave blank if not configured)",
+      "required": false,
+      "sensitive": true
+    },
+    "ocultar_auditor_token": {
+      "type": "string",
+      "title": "Auditor Token",
+      "description": "Enables the reveal_tokens tool. Must match OCU_AUDITOR_TOKEN on the server. Leave blank to disable token reveal.",
+      "required": false,
+      "sensitive": true
+    }
+  },
+  "tools": [
+    {
+      "name": "refine_text",
+      "description": "Redact PII / DCP from text before sending to Mistral Le Chat"
+    },
+    {
+      "name": "reveal_tokens",
+      "description": "De-tokenize Ocultar tokens back to plaintext (auditor-only)"
+    }
+  ],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "python": ">=3.10"
+    }
+  }
+}
