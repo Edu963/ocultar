@@ -65,9 +65,10 @@ const CalculatorPage = () => {
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20 text-xs font-mono font-semibold text-emerald-400 uppercase tracking-widest">
                         <BarChart3 className="w-3 h-3" /> Cost Analysis
                     </div>
-                    <h1 className="text-white tracking-tight text-balance">ROI Forecast Engine</h1>
+                    <h1 className="text-white tracking-tight text-balance">Compliance & ROI Forecast</h1>
                     <p className="text-slate-400 max-w-2xl text-lg leading-relaxed">
-                        Quantify the financial variance between external AI pipeline costs and OCULTAR's zero-egress local processing.
+                        Quantify the financial variance between legacy cloud DLP and OCULTAR's EU-sovereign runtime. 
+                        Factor in regulatory risk mitigation alongside infrastructure savings.
                     </p>
                 </header>
 
@@ -284,10 +285,12 @@ const CalculatorPage = () => {
                         {/* CTA */}
                         <div className="bg-[#0A0A0C] ring-1 ring-emerald-500/20 rounded-xl p-8 md:p-10 text-center flex flex-col items-center gap-5 shadow-xl shadow-emerald-500/5">
                             <div className="text-xl font-bold text-white tracking-tight text-balance">
-                                Neutralize regulatory risk.<br />Terminate external egress taxation.
+                                Eliminate regulatory risk.<br />Unblock AI adoption.
                             </div>
-                            <p className="text-slate-500 text-sm max-w-sm leading-relaxed">
-                                No shared demo environment. No data sent anywhere. A local deployment in your infrastructure — running in 30 minutes.
+                            <p className="text-slate-500 text-sm max-w-md leading-relaxed">
+                                Don't let a 6-month security review kill your AI roadmap. OCULTAR provides 
+                                the "Privacy-First" green light that DPOs and regulators demand. 
+                                Operational in under 60 minutes.
                             </p>
                             <a
                                 href={REQUEST_ACCESS_URL}

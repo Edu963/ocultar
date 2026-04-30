@@ -82,7 +82,7 @@ const REFINERY_TIERS = [
     { tier: "Tier 0",   name: "Custom Dictionary Engine", desc: "Admin-configurable blocklists for VIP names, internal codenames, and org-specific sensitive terms. Backed by a live CRM/LDAP sync that updates the dictionary without restart." },
     { tier: "Tier 1",   name: "Deterministic Regex Pipeline", desc: "30+ pre-compiled, Luhn-validated patterns: SSNs, IBANs, credit cards, phone numbers, addresses, SIRET/SIREN, health references, and regional IDs across 10+ countries. Credit card false positives are eliminated with Luhn checksum verification." },
     { tier: "Tier 1.5", name: "Contextual Heuristics", desc: "Phone libphonenumber validation, heuristic address parsing, greeting/signature detection (name in 'Dear John' or 'Best, Sarah'). Catches PII that regex misses without any model inference overhead." },
-    { tier: "Tier 2",   name: "OpenAI Privacy Filter (Deep Scan)", desc: "A 1.5B-parameter local bidirectional token classifier (Apache 2.0) performs Named-Entity Recognition for contextual PII — conversational names, implicit references, and finance-specific entities. 97% F1. Runs entirely in your infrastructure. Swappable with any compatible model via TIER2_ENGINE env var." },
+    { tier: "Tier 2",   name: "EU-Sovereign Deep Scan (SLM)", desc: "A 1.5B-parameter local bidirectional token classifier performs Named-Entity Recognition for contextual PII. Optimized for French, German, Italian, Spanish, and Dutch — ensuring parity with regional privacy standards where US-centric models fail. 97% F1." },
 ];
 
 const ENTERPRISE_FEATURES = [
@@ -232,8 +232,9 @@ export default function SolutionsPage() {
                         <p className="text-lg text-slate-400 leading-relaxed max-w-2xl">
                             Sombra sits between your infrastructure and every AI provider. It intercepts,
                             sanitizes, routes, and re-hydrates — ensuring only redacted prompts are ever
-                            transmitted outbound, and only restored responses are delivered inbound. It is
-                            a wire-compatible drop-in for the OpenAI API: change one URL, protect every model call.
+                            transmitted outbound. Built with a **Fail-Closed** architecture: if the refinery 
+                            cannot guarantee sanitization, the request is blocked. It is the only defensible 
+                            answer for an EU DPO.
                         </p>
                     </div>
 
