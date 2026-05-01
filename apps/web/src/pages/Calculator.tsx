@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, ArrowLeft, BarChart3, Box, ChevronRight } from 'lucide-react';
 
-const REQUEST_ACCESS_URL =
-  'mailto:sales@ocultar.dev?subject=Access%20Request&body=Hi%2C%0A%0AWork%20email%3A%20%0ACompany%20name%3A%20%0APrimary%20use%20case%20(Healthcare%20%2F%20Finance%20%2F%20Legal%20%2F%20Government%20%2F%20Other)%3A%20';
+import { toast } from 'sonner';
 
 type ProviderId = 'gcp' | 'aws' | 'azure';
 
@@ -239,13 +238,18 @@ export default function Calculator() {
                 the "Privacy-First" green light that DPOs and regulators demand.
                 Operational in under 60 minutes.
               </p>
-              <a
-                href={REQUEST_ACCESS_URL}
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('sales@ocultar.dev');
+                  toast.success('Email copied to clipboard', {
+                    description: 'Reach out to sales@ocultar.dev to request access.',
+                  });
+                }}
                 className="inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-8 py-4 rounded-lg text-sm uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20"
               >
                 Request Access
                 <ChevronRight className="w-4 h-4" />
-              </a>
+              </button>
             </div>
           </div>
         </div>
