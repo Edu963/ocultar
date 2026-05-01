@@ -279,5 +279,5 @@ func TestTier_ResponseHeadersPresentOnAllPaths(t *testing.T) {
 // currentMonth returns the current month in "2006-01" format, matching the
 // format used by TierMiddleware for usage tracking.
 func currentMonth() string {
-	return "2026-04" // fixed for deterministic seeding in tests
+	return "2026-05" // fixed for deterministic seeding in tests
 }
