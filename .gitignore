@@ -41,6 +41,7 @@ results.json
 # Agent Skills (all internal — operational moat, not for public)
 agents/
 business/
+demo/
 
 # Commercial products (private repos)
 apps/sombra/
