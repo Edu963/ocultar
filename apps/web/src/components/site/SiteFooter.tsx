@@ -1,4 +1,5 @@
 import { Github } from "lucide-react";
+import { toast } from "sonner";
 
 const COLS = [
   {
@@ -55,12 +56,28 @@ export const SiteFooter = () => (
             <ul className="flex flex-col gap-2">
               {c.links.map((l) => (
                 <li key={l.label}>
-                  <a
-                    href={l.href}
-                    className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {l.label}
-                  </a>
+                  {l.href.startsWith("mailto:") ? (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const email = l.href.replace("mailto:", "");
+                        navigator.clipboard.writeText(email);
+                        toast.success("Email copied to clipboard", {
+                          description: `Reach out to ${email} to get in touch.`,
+                        });
+                      }}
+                      className="text-[13px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer text-left"
+                    >
+                      {l.label}
+                    </button>
+                  ) : (
+                    <a
+                      href={l.href}
+                      className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {l.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

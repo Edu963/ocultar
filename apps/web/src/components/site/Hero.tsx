@@ -1,7 +1,6 @@
 import { ArrowRight, ShieldCheck } from "lucide-react";
 
-const REQUEST_ACCESS_URL =
-  "mailto:sales@ocultar.dev?subject=Access%20Request&body=Hi%2C%0A%0AWork%20email%3A%20%0ACompany%20name%3A%20%0APrimary%20use%20case%3A%20";
+import { toast } from "sonner";
 
 export const Hero = () => {
   return (
@@ -44,13 +43,18 @@ export const Hero = () => {
             className="mt-10 flex flex-col sm:flex-row items-center gap-3 animate-fade-up"
             style={{ animationDelay: "180ms" }}
           >
-            <a
-              href={REQUEST_ACCESS_URL}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText("sales@ocultar.dev");
+                toast.success("Email copied to clipboard", {
+                  description: "Reach out to sales@ocultar.dev to request access.",
+                });
+              }}
               className="group inline-flex h-11 items-center gap-2 rounded-md bg-foreground px-5 text-sm font-semibold text-background hover:bg-foreground/90 transition-colors"
             >
               Request enterprise access
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </a>
+            </button>
             <a
               href="#architecture"
               className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-surface/60 px-5 text-sm font-semibold text-foreground hover:border-border-strong hover:bg-surface transition-colors"

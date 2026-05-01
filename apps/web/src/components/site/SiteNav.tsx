@@ -1,8 +1,7 @@
 import { Github, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const REQUEST_ACCESS_URL =
-  "mailto:sales@ocultar.dev?subject=Access%20Request&body=Hi%2C%0A%0AWork%20email%3A%20%0ACompany%20name%3A%20%0APrimary%20use%20case%3A%20";
+import { toast } from "sonner";
 
 const NAV_LINKS = [
   { label: "Platform", href: "/#platform" },
@@ -64,13 +63,18 @@ export const SiteNav = () => {
             <Github className="h-4 w-4" />
             GitHub
           </a>
-          <a
-            href={REQUEST_ACCESS_URL}
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText("sales@ocultar.dev");
+              toast.success("Email copied to clipboard", {
+                description: "Reach out to sales@ocultar.dev to request access.",
+              });
+            }}
             className="group inline-flex h-9 items-center gap-1.5 rounded-md bg-foreground px-4 text-[13px] font-semibold text-background hover:bg-foreground/90 transition-colors"
           >
             Request access
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-          </a>
+          </button>
         </div>
       </div>
     </header>

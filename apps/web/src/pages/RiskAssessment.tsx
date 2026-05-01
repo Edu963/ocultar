@@ -4,6 +4,7 @@ import {
   Shield, Upload, FileText, AlertTriangle, ArrowRight,
   Loader2, CheckCircle2, BarChart3, Activity, Lock, ArrowLeft
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface RegulatoryFinding {
   attribute: string;
@@ -400,9 +401,17 @@ export default function RiskAssessment() {
                             Download PDF Audit
                           </a>
                         )}
-                        <a href="mailto:sales@ocultar.dev" className="border border-white/20 text-white px-12 py-6 rounded-lg text-lg font-bold hover:bg-white/5 transition-all">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText('sales@ocultar.dev');
+                            toast.success('Email copied to clipboard', {
+                              description: 'Reach out to sales@ocultar.dev to request access.',
+                            });
+                          }}
+                          className="border border-white/20 text-white px-12 py-6 rounded-lg text-lg font-bold hover:bg-white/5 transition-all"
+                        >
                           Consult Specialist
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </div>
