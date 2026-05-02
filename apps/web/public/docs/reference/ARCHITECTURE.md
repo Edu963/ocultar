@@ -9,13 +9,12 @@
 1. [System Context (C4 Level 1)](#1-system-context-c4-level-1)
 2. [Container Diagram (C4 Level 2)](#2-container-diagram-c4-level-2)
 3. [Refinery Pipeline — Data Flow](#3-refinery-pipeline--data-flow)
-4. [AI-Driven Governance & Orchestration](#4-ai-driven-governance--orchestration)
-5. [Security Trust Boundaries](#5-security-trust-boundaries)
-6. [Package Dependency Graph](#6-package-dependency-graph)
-7. [Cryptographic Design](#7-cryptographic-design)
-8. [Vault Schema](#8-vault-schema)
-9. [Fail-Closed Guarantees](#9-fail-closed-guarantees)
-10. [Scalability & Concurrency Model](#10-scalability--concurrency-model)
+4. [Security Trust Boundaries](#4-security-trust-boundaries)
+5. [Package Dependency Graph](#5-package-dependency-graph)
+6. [Cryptographic Design](#6-cryptographic-design)
+7. [Vault Schema](#7-vault-schema)
+8. [Fail-Closed Guarantees](#8-fail-closed-guarantees)
+9. [Scalability & Concurrency Model](#9-scalability--concurrency-model)
 
 ---
 
@@ -149,26 +148,7 @@ sequenceDiagram
 
 ---
 
-## 4. AI-Driven Governance & Orchestration
-
-Ocultar uses a decentralized network of **Specialized Agent Skills** to maintain security, compliance, and product integrity. These are orchestrated by the `Continuous AI Orchestrator`.
-
-### Governance Tiers (v2.4)
-
-| Tier | Agent Skills | Focus |
-|---|---|---|
-| **Core Orchestration** | `continuous-ai-orchestrator`, `ai-development-protocol`, `ecosystem-state-tracker`, `repository-knowledge-map` | The master-switch; manages the execution DAG and ensures state-persistence across skill runs. |
-| **Compliance & Intent** | `regulatory-intent-decoder`, `regulation-digest-ingestor`, `policy-schema-generator`, `compliance-integrity-suite`, `compliance-certificate-signer` | The "Legal-to-Technical" refinery; decodes regulations and signs technical evidence. |
-| **Security & Egress** | `zero-egress-validator`, `refinery-architecture-manager`, `secret-scanner`, `secret-rotation-manager`, `red-team-evasion-scanner`, `pii-regression-suite-runner` | The "Fail-Closed" layer; automates PII detection rules and detects "Shadow AI" adoption. |
-| **Business & Infrastructure** | `manage-ocultar-license`, `license-validation-cli`, `tier-compliance-checker`, `pilot-manager`, `roi-cost-efficiency-accountant`, `sombra-gateway-policy-enforcer` | The "Value Layer"; manages Ed25519 licensing, Pilot lifecycles, and financial ROI quantification. |
-
-### The Ocultar Protocol
-The orchestrator triggers a deterministic sequence for repository modifications. See [ROADMAP.md](../../ROADMAP.md) for the implementation status of the 16-step sequence.
-1. **Ingest** (Regs) → 2. **Decode** (Intent) → 3. **Sync** (State) → 4. **Generate** (Policy) → 5. **Simulate** (Impact) → 6. **Sign** (Artifact) → 7. **Audit** (Log check) → 8. **Enforce** (Gateway) → 9. **Verify** (Dash) → 10. **Redact** (Content) → 11. **Scan** (Secrets) → 12. **Visualize** (CIV) → 13. **Red-Team** (Evasion) → 14. **Provision** (Snapshot) → 15. **Account** (ROI) → 16. **Benchmark** (Perf).
-
----
-
-## 5. Security Trust Boundaries
+## 4. Security Trust Boundaries
 
 ```mermaid
 graph LR
@@ -208,7 +188,7 @@ graph LR
 
 ---
 
-## 6. Package Dependency Graph
+## 5. Package Dependency Graph
 
 ```mermaid
 graph TD
@@ -248,7 +228,7 @@ graph TD
 
 ---
 
-## 7. Cryptographic Design
+## 6. Cryptographic Design
 
 ### Key Derivation
 
@@ -309,7 +289,7 @@ Total overhead per PII value: 12 bytes (nonce) + 16 bytes (auth tag) = 28 bytes 
 
 ---
 
-## 8. Vault Schema
+## 7. Vault Schema
 
 ### DuckDB (default)
 
@@ -329,7 +309,7 @@ Same schema created at startup via `CREATE TABLE IF NOT EXISTS`. Connection stri
 
 ---
 
-## 9. Fail-Closed Guarantees
+## 8. Fail-Closed Guarantees
 
 OCULTAR enforces fail-closed at every critical junction:
 
@@ -349,7 +329,7 @@ OCULTAR enforces fail-closed at every critical junction:
 
 ---
 
-## 10. Scalability & Concurrency Model
+## 9. Scalability & Concurrency Model
 
 ### Concurrency limits
 

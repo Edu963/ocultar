@@ -11,6 +11,7 @@ const SECTIONS = [
       { label: "Setup Guide", path: "guides/SETUP_GUIDE.md" },
       { label: "Developer Guide", path: "guides/DEVELOPER_GUIDE.md" },
       { label: "Enterprise Setup", path: "guides/ENTERPRISE_SETUP_GUIDE.md" },
+      { label: "MCP Extensions", path: "guides/MCP_EXTENSIONS.md" },
       { label: "Connectors", path: "guides/CONNECTORS_GUIDE.md" },
       { label: "Refinery Proxy", path: "guides/refinery_proxy_setup.md" },
       { label: "Sombra Guide", path: "guides/SOMBRA_GUIDE.md" },
