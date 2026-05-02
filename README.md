@@ -12,6 +12,7 @@ Runs in your infrastructure. Your data never leaves.
 [![Changelog](https://img.shields.io/badge/changelog-v1.0.0-blue)](CHANGELOG.md)
 [![PyPI goose](https://img.shields.io/pypi/v/ocultar-goose-mcp?label=goose-mcp)](https://pypi.org/project/ocultar-goose-mcp/)
 [![PyPI claude](https://img.shields.io/pypi/v/ocultar-claude-mcp?label=claude-mcp)](https://pypi.org/project/ocultar-claude-mcp/)
+[![PyPI mistral](https://img.shields.io/pypi/v/ocultar-mistral-mcp?label=mistral-mcp)](https://pypi.org/project/ocultar-mistral-mcp/)
 
 ### Quick Security Stats
 | Stat | Value |
@@ -72,6 +73,18 @@ OCULTAR applies the **Luhn algorithm (mod-10 checksum)** to every credit card ca
 Tokens are derived from `SHA-256(original_PII)`. The same input always produces the same token. This allows you to run aggregations, joins, and frequency analysis on fully tokenized data without de-tokenizing it — preserving analytical value while eliminating privacy risk.
 
 ## Extensions
+
+### Mistral Le Chat Extension
+Zero-egress PII protection for Mistral Le Chat workflows.
+```bash
+pip install ocultar-mistral-mcp
+```
+
+### Claude Desktop Extension
+Zero-egress PII protection for Claude AI workflows.
+```bash
+pip install ocultar-claude-mcp
+```
 
 ### Goose AI Workflow Integration
 Zero-egress PII protection for Goose AI workflows.
