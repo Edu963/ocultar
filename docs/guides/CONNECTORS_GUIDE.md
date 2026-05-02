@@ -27,10 +27,16 @@ connectors:
 ```
 
 ### 2.2 Microsoft SharePoint & Teams (Pro ✦)
-The SharePoint connector allows you to ingest documents and messages from Microsoft Graph API. It ensures all data is tokenized before being processed by any AI models.
+The SharePoint connector ingests documents from Microsoft SharePoint via the Microsoft Graph API using OAuth2 Client Credentials. It authenticates as your Azure AD application, polls the drive for new and changed files using delta queries (incremental sync), extracts their text content, and passes everything through the Zero-Egress Refinery before any downstream use.
 
 > [!IMPORTANT]
 > This connector requires a **Pro/Enterprise License** with the SharePoint bitmask (Bit 1) enabled.
+
+**Azure AD setup (one-time):**
+1. Register an app in Azure AD → **App registrations → New registration**.
+2. Under **Certificates & secrets**, create a client secret. Note the value.
+3. Under **API permissions**, add `Sites.Read.All` (Microsoft Graph, Application type) and grant admin consent.
+4. Note the **Application (client) ID** and **Directory (tenant) ID**.
 
 **Configuration:**
 ```yaml
@@ -38,11 +44,29 @@ connectors:
   - id: sharepoint-prod
     type: sharepoint-graph
     config:
-      tenant_id: "your-tenant-id"
-      client_id: "your-client-id"
+      tenant_id: "your-tenant-id"      # Azure AD Directory ID
+      client_id: "your-client-id"      # Azure AD Application ID
       client_secret: "your-client-secret"
-      site_id: "your-site-id" # Optional
+      site_id: "your-site-id"          # SharePoint site ID (optional; required for Fetch)
 ```
+
+**Supported file formats:**
+
+| Format | Extension | Extraction method |
+|---|---|---|
+| Plain text | `.txt`, `.csv`, `.json`, `.md`, `.log`, `.xml`, `.html`, `.eml` | Raw content |
+| Word documents | `.docx` | ZIP/XML — extracts all `<w:t>` run text |
+| Excel workbooks | `.xlsx` | ZIP/XML — extracts shared strings table |
+| PowerPoint | `.pptx` | ZIP/XML — extracts all slide `<a:t>` runs |
+| PDF | `.pdf` | Byte-scan — extracts literal string operands from text blocks |
+
+> [!NOTE]
+> PDF extraction covers standard Latin-character PDFs. Fully-encrypted PDFs and CID-keyed fonts (common in scanned/image-only PDFs) will produce empty output and are skipped with a log warning.
+
+**How it works:**
+- On startup, a background goroutine polls every 30 seconds using `GET /sites/{id}/drive/root/delta`. The first run performs a full enumeration; subsequent runs fetch only changed files (delta links are persisted in memory).
+- Files whose extension is not in the supported list are silently skipped.
+- All extracted text is passed to `refinery.ProcessInterface` before any logging or forwarding — no raw PII ever leaves the connector.
 
 ### 2.3 Dynamic Plugins (Enterprise ✦)
 Enterprise users can load custom connectors as Go plugins (`.so` files).

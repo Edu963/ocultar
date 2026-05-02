@@ -105,7 +105,7 @@ func (s *SharePointConnector) Fetch(ctx context.Context, params map[string]inter
 		if item.File == nil || item.Deleted != nil || !isTextFile(item.Name) {
 			continue
 		}
-		text, err := s.client.DownloadText(ctx, siteID, item.ID)
+		text, err := s.client.DownloadText(ctx, siteID, item.ID, item.Name)
 		if err != nil {
 			log.Printf("[SHAREPOINT-GRAPH] Skipping %s: %v", item.Name, err)
 			continue
@@ -155,7 +155,7 @@ func (s *SharePointConnector) poll() {
 		if item.File == nil || item.Deleted != nil || !isTextFile(item.Name) {
 			continue
 		}
-		text, err := s.client.DownloadText(ctx, s.siteID, item.ID)
+		text, err := s.client.DownloadText(ctx, s.siteID, item.ID, item.Name)
 		if err != nil {
 			log.Printf("[SHAREPOINT-GRAPH] Download error for %s: %v", item.Name, err)
 			continue
@@ -176,11 +176,13 @@ func (s *SharePointConnector) poll() {
 	}
 }
 
-// isTextFile returns true for file extensions the connector can process as plain text.
-// Office binary formats (.docx, .xlsx, .pdf) require a text-extraction library and are skipped.
+// isTextFile returns true for file formats the connector can extract text from.
 func isTextFile(name string) bool {
 	lower := strings.ToLower(name)
-	for _, ext := range []string{".txt", ".csv", ".json", ".md", ".log", ".xml", ".html", ".eml"} {
+	for _, ext := range []string{
+		".txt", ".csv", ".json", ".md", ".log", ".xml", ".html", ".eml",
+		".docx", ".xlsx", ".pptx", ".pdf",
+	} {
 		if strings.HasSuffix(lower, ext) {
 			return true
 		}
@@ -331,9 +333,9 @@ func (c *GraphClient) ListFiles(ctx context.Context, siteID string) ([]DriveItem
 	return items, finalDelta, nil
 }
 
-// DownloadText downloads a drive item's content and returns it as a string.
-// The caller should verify the file is text-processable before calling this.
-func (c *GraphClient) DownloadText(ctx context.Context, siteID, itemID string) (string, error) {
+// DownloadText downloads a drive item and extracts its text content.
+// name is used to select the correct extractor (DOCX, XLSX, PPTX, PDF, or plain text).
+func (c *GraphClient) DownloadText(ctx context.Context, siteID, itemID, name string) (string, error) {
 	token, err := c.bearerToken()
 	if err != nil {
 		return "", err
@@ -352,7 +354,7 @@ func (c *GraphClient) DownloadText(ctx context.Context, siteID, itemID string) (
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20)) // 1 MB cap per file
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 10<<20)) // 10 MB cap per file
 	if err != nil {
 		return "", fmt.Errorf("graph download: read: %w", err)
 	}
@@ -360,5 +362,5 @@ func (c *GraphClient) DownloadText(ctx context.Context, siteID, itemID string) (
 		return "", fmt.Errorf("graph download: HTTP %d: %s", resp.StatusCode, string(body))
 	}
 
-	return string(body), nil
+	return extractText(name, body)
 }
