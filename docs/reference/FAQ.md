@@ -28,8 +28,11 @@ Enterprise clients modify regex rules via the `config.yaml` file. Much like the 
 ### In Tier 2, which SLM (Small Language Model) is being used?
 We primarily utilize Qwen-1.5B or Phi-3-mini, quantized to GGUF format (~1.2 GB). These are chosen for their high performance-to-size ratio, allowing them to run on standard enterprise hardware without a massive GPU.
 
-### Is the SLM included in the installation package and is it trained to find PII?
-Yes, it is included in the Enterprise Docker stack and is automatically downloaded by the `init-slm` container. While the base model has general intelligence, we use few-shot prompting to instruct it specifically on contextual PII detection (e.g., finding names in prose).
+### Are the SLM (Small Language Model) weights shipped directly within the installation files? What is the purpose of the `models` folder?
+No, we do not ship the heavy SLM weights directly in the installation files to avoid bloating the distribution. Instead, when you run the Enterprise Docker Compose stack, an `init-slm` container automatically downloads the necessary model (e.g., Qwen 1.5B) at runtime. The `models` folder serves two purposes: it holds tokenizer configuration files for specific domains, and it serves as the local vault where the downloaded `.gguf` weights are saved and loaded by the proxy.
+
+### If the default model is tuned for specific regions (like French financial formats), can we train or fine-tune the model to recognize other EU formats?
+Yes. OCULTAR uses an open-source, multilingual SLM architecture. Enterprise clients can fine-tune a base model on their specific regional documents (e.g., German tax IDs or Spanish invoices). Once fine-tuned, the model is quantized into a 4-bit `.gguf` file using our provided scripts and placed into the `models` folder. OCULTAR's native CGO `llama.cpp` integration will automatically load the new weights. You can also instantly add static region-specific formats to the Tier 1 Lead Shield via regex in `configs/config.yaml` without touching the AI model.
 
 ### What is the Sombra Gateway?
 The **Sombra Gateway** is the intelligent orchestration layer above Ocultar. It provides multi-model AI routing, allowing you to direct queries to different providers (OpenAI, Gemini, local models) while ensuring consistent PII redaction and response re-hydration across all channels.
@@ -38,8 +41,14 @@ The **Sombra Gateway** is the intelligent orchestration layer above Ocultar. It 
 Sombra natively routes to **OpenAI**, **Gemini**, **Claude**, and **Local AI** providers. 
 Crucially, because Sombra supports the OpenAI-compatible API standard, clients can seamlessly route traffic to **Mistral, DeepSeek, Qwen**, or any other compatible Chinese or open-source model simply by defining them in `sombra.yaml` with the `openai` provider type and updating the `endpoint` URL.
 
+### I see references to `llama.cpp`. I thought we were using the OpenAI SDK?
+You are actually dealing with two different AI models serving two different purposes. Your client application uses the standard **OpenAI SDK** to make requests to your main upstream LLM (like GPT-4 or Claude). However, OCULTAR acts as a proxy intercepting those requests. To scrub the PII from your prompt *before* forwarding it to OpenAI, OCULTAR runs a completely local, ultra-fast privacy filter model directly inside the proxy using **`llama.cpp`**. You use the OpenAI SDK for your primary AI tasks, and `llama.cpp` locally for the zero-egress security filter.
+
 ### Can you explain the Proxy mode further?
 The Proxy is a transparent reverse proxy that sits between the client application and the LLM API. It redacts PII on the way out (Vaulting) and restores it on the way back (Re-hydration). It is the "Aha!" deployment method because it requires zero changes to the client's existing code—they just change their API base URL to point to OCULTAR.
+
+### In the Community version, do we still get the end-to-end interception and redaction shown in the Enterprise demo?
+Yes, the core mechanism (Intercept → Redact → Forward → Rehydrate) absolutely still happens in the Community version. The substitute for the Sombra Gateway is simply called the **OCULTAR Proxy**. The difference is that the Community Proxy is a "one-to-one" proxy hardcoded to a single upstream provider (e.g., it only talks to OpenAI), whereas Sombra is an intelligent gateway that can route to multiple providers dynamically based on the request. Additionally, the Community Proxy only uses Regex and Dictionary detection (Tier 0 and 1) and will miss unstructured PII (like a name in a sentence) because it lacks the local Tier 2 AI engine.
 
 ### What is the Enterprise Dashboard?
 The **Enterprise Dashboard** is a browser-based UI for monitoring and management. it provides:
@@ -99,6 +108,9 @@ Yes. Every component is architected to minimize data exposure. Clear trust bound
 ### What is the difference between Pilot and Enterprise workflows?
 - **Pilot**: A 90-day structured onboarding focused on refinery deployment, PII pattern tuning, and weekly compliance reports.
 - **Enterprise**: Full-scale production deployment with high-availability (PostgreSQL), SIEM integration, and ongoing ROI accounting.
+
+### In production, does the end-user input their message directly into the public chatbox of ChatGPT, Mistral, or Claude?
+No. If the user types directly into the public chatgpt.com web interface, the traffic bypasses OCULTAR entirely. The user must type their prompt into your internal enterprise application, internal chatbot, or an enterprise workspace that points its API requests to the OCULTAR Sombra Gateway.
 
 ### How can I update Refinery rules?
 Rules can be updated via the `config.yaml` file (for Regex and Dictionaries) or automatically generated using the `Refinery Rule Generator` AI skill based on discovered edge cases.
