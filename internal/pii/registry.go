@@ -39,6 +39,8 @@ var Registry = []EntityDef{
 	{Type: "GCP_SERVICE_ACCOUNT", Pattern: regexp.MustCompile(`(?i)\b[a-z0-9-]+@[a-z0-9-]+\.iam\.gserviceaccount\.com\b`), Validator: ValNone, MinLength: 15, Normalization: false},
 	{Type: "IP_ADDRESS", Pattern: regexp.MustCompile(`\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b`), Validator: ValNone, MinLength: 7, Normalization: false},
 	{Type: "PROJECT_CODE", Pattern: regexp.MustCompile(`(?i)\bProject (Phoenix|Ouroboros|Titan)\b`), Validator: ValNone, MinLength: 10, Normalization: false},
+	// Internal cost-center / GL codes: e.g. 6837-CORP-891, 1076-EMEA-824, 5866-US-432
+	{Type: "COST_CENTER", Pattern: regexp.MustCompile(`\b\d{3,6}-[A-Z]{2,8}-\d{3,4}\b`), Validator: ValNone, MinLength: 8, Normalization: false},
 
 	// Financial
 	{Type: "IBAN", Pattern: regexp.MustCompile(`(?i)\b[A-Z]{2}[0-9]{2}(?:[A-Z0-9]{11,30}|(?:[\s-][A-Z0-9]{4}){2,7}[\s-]?[A-Z0-9]{0,3})\b`), Validator: ValMod97, MinLength: 15, Normalization: true, CaptureGroup: 0},

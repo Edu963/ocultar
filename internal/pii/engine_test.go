@@ -30,6 +30,11 @@ func TestEngineEvasionResistance(t *testing.T) {
 		{"Valid CL RUT", "RUT: 12.345.678-5", "12.345.678-5"},
 		{"Valid CL RUT with K", "RUT: 16.222.333-K", "16.222.333-K"},
 		{"Standard Email", "contact john.doe@example.com for info", "john.doe@example.com"},
+		// Cost center / internal GL codes
+		{"Cost Center CORP",    "Transfert interne vers 6837-CORP-891 pour un montant de 78709.65 EUR.", "6837-CORP-891"},
+		{"Cost Center EMEA",    "Transfert interne vers 1076-EMEA-824 pour un montant de 56198.09 EUR.", "1076-EMEA-824"},
+		{"Cost Center US",      "Note de frais de Jean Martin, centre de coût 5866-US-432.", "5866-US-432"},
+		{"Cost Center no match", "Ref 12-XY-3 is too short", ""},
 	}
 
 	for _, tc := range cases {
