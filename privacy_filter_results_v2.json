@@ -1,33 +1,17 @@
 {
   "english_suite": {
-    "detection_rate": "4/11 (36%)",
-    "avg_latency_ms": 682.6,
+    "detection_rate": "0/11 (0%)",
+    "avg_latency_ms": 76.9,
     "rows": [
       {
         "text": "Transfer €84,293 from IBAN FR76 3000 6000 0112 3456 7890 189",
         "expected": [
           "FR76 3000 6000 0112 3456 7890 189"
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": " IBAN",
-            "score": 0.739642858505249
-          },
-          {
-            "label": "account_number",
-            "value": " FR76 3000 6000 0112 3456 7890 ",
-            "score": 0.9951785206794739
-          },
-          {
-            "label": "account_number",
-            "value": "189",
-            "score": 0.9977803826332092
-          }
-        ],
-        "hits": 1,
+        "detected": [],
+        "hits": 0,
         "of": 1,
-        "latency_ms": 3093.9
+        "latency_ms": 277.6
       },
       {
         "text": "Vendor payment to Acme Corp, account 4532015112830366, approved by John Smith",
@@ -36,31 +20,10 @@
           "4532015112830366",
           "John Smith"
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": "453201511283036",
-            "score": 0.9999958276748657
-          },
-          {
-            "label": "account_number",
-            "value": "6",
-            "score": 0.9999992847442627
-          },
-          {
-            "label": "private_person",
-            "value": " John",
-            "score": 0.9999988079071045
-          },
-          {
-            "label": "private_person",
-            "value": " Smith",
-            "score": 0.9999959468841553
-          }
-        ],
-        "hits": 1,
+        "detected": [],
+        "hits": 0,
         "of": 3,
-        "latency_ms": 454.7
+        "latency_ms": 36.6
       },
       {
         "text": "Cost center 4420-EMEA-CORP, GL account 6100, controller Sarah Chen",
@@ -68,21 +31,10 @@
           "4420-EMEA-CORP",
           "Sarah Chen"
         ],
-        "detected": [
-          {
-            "label": "private_person",
-            "value": " Sarah",
-            "score": 0.9999964237213135
-          },
-          {
-            "label": "private_person",
-            "value": " Chen",
-            "score": 0.9999985694885254
-          }
-        ],
-        "hits": 1,
+        "detected": [],
+        "hits": 0,
         "of": 2,
-        "latency_ms": 169.5
+        "latency_ms": 41.6
       },
       {
         "text": "Invoice INV-2026-00847 for Société Générale, SWIFT SOGEFRPP",
@@ -90,21 +42,10 @@
           "Société Générale",
           "SOGEFRPP"
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": " INV-2026-008",
-            "score": 0.970095694065094
-          },
-          {
-            "label": "account_number",
-            "value": "47",
-            "score": 0.8928777575492859
-          }
-        ],
+        "detected": [],
         "hits": 0,
         "of": 2,
-        "latency_ms": 151.9
+        "latency_ms": 41.1
       },
       {
         "text": "Board resolution: CEO approved $2.3M acquisition, confidential until April 30",
@@ -114,7 +55,7 @@
         "detected": [],
         "hits": 0,
         "of": 1,
-        "latency_ms": 122.6
+        "latency_ms": 31.6
       },
       {
         "text": "john.doe@company.fr called +33 6 12 34 56 78 re: Q1 close",
@@ -122,37 +63,16 @@
           "john.doe@company.fr",
           "+33 6 12 34 56 78"
         ],
-        "detected": [
-          {
-            "label": "private_email",
-            "value": "john.doe@company",
-            "score": 0.9998860359191895
-          },
-          {
-            "label": "private_email",
-            "value": ".fr",
-            "score": 0.9999997615814209
-          },
-          {
-            "label": "private_phone",
-            "value": " +33 6 12 34 56 ",
-            "score": 0.9999980926513672
-          },
-          {
-            "label": "private_phone",
-            "value": "78",
-            "score": 0.9999949932098389
-          }
-        ],
-        "hits": 1,
+        "detected": [],
+        "hits": 0,
         "of": 2,
-        "latency_ms": 102.9
+        "latency_ms": 32.9
       }
     ]
   },
   "french_finance_suite": {
-    "rows_with_detection": "16/20 (80%)",
-    "avg_latency_ms": 119.8,
+    "rows_with_detection": "0/20 (0%)",
+    "avg_latency_ms": 36.2,
     "rows": [
       {
         "text": "Transfert interne vers 6837-CORP-891 pour un montant de 78709.65 EUR.",
@@ -170,7 +90,7 @@
         ],
         "detected": [],
         "found_something": false,
-        "latency_ms": 152.1
+        "latency_ms": 35.2
       },
       {
         "text": "Facture INV-2022-57278 de Tech SCI (SIRET 49191959045602).",
@@ -183,30 +103,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": " INV-2022-572",
-            "score": 0.8376821875572205
-          },
-          {
-            "label": "account_number",
-            "value": "78",
-            "score": 0.7512408494949341
-          },
-          {
-            "label": "account_number",
-            "value": "SIRET 491919590456",
-            "score": 0.9970076084136963
-          },
-          {
-            "label": "account_number",
-            "value": "02",
-            "score": 0.9999147653579712
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 112.0
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 32.9
       },
       {
         "text": "Contactez Lea Robert au 04 81 53 90 88 pour le dossier INV-2031-41972.",
@@ -225,40 +124,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "private_person",
-            "value": " Lea",
-            "score": 0.9999986886978149
-          },
-          {
-            "label": "private_person",
-            "value": " Robert",
-            "score": 0.9999960660934448
-          },
-          {
-            "label": "private_phone",
-            "value": "04 81 53 90 ",
-            "score": 0.9763684868812561
-          },
-          {
-            "label": "private_phone",
-            "value": "88",
-            "score": 0.9953622221946716
-          },
-          {
-            "label": "account_number",
-            "value": " INV-2031-419",
-            "score": 0.9994990825653076
-          },
-          {
-            "label": "account_number",
-            "value": "72",
-            "score": 0.999893069267273
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 120.5
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 37.8
       },
       {
         "text": "Transfert interne vers 1076-EMEA-824 pour un montant de 56198.09 EUR.",
@@ -276,7 +144,7 @@
         ],
         "detected": [],
         "found_something": false,
-        "latency_ms": 131.2
+        "latency_ms": 37.3
       },
       {
         "text": "Règlement de 62500.65 € reçu de Finance SCI via FR76 94526 33469 N9841Z3DRGY 36.",
@@ -296,20 +164,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": " FR76 94526 33469 N9841Z3DRGY ",
-            "score": 0.9818564653396606
-          },
-          {
-            "label": "account_number",
-            "value": "36",
-            "score": 0.9999616146087646
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 127.2
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 47.0
       },
       {
         "text": "Facture INV-2039-86487 de Industries SAS (SIRET 51172600971341).",
@@ -322,15 +179,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": "726009713",
-            "score": 0.7627555727958679
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 106.3
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 36.0
       },
       {
         "text": "Règlement de 98920.85 € reçu de Solutions SCI via FR76 95407 45336 XVW53ZWYF87 21.",
@@ -350,30 +201,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": "Règ",
-            "score": 0.6597838997840881
-          },
-          {
-            "label": "account_number",
-            "value": " de",
-            "score": 0.836736798286438
-          },
-          {
-            "label": "account_number",
-            "value": " FR76 95407 45336 XVW53ZWYF87 ",
-            "score": 0.991228461265564
-          },
-          {
-            "label": "account_number",
-            "value": "21",
-            "score": 0.9943957328796387
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 122.1
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 41.5
       },
       {
         "text": "Facture INV-2024-12237 de Finance SARL (SIRET 24224667387521).",
@@ -388,7 +218,7 @@
         ],
         "detected": [],
         "found_something": false,
-        "latency_ms": 104.8
+        "latency_ms": 36.2
       },
       {
         "text": "Contactez Pierre Dupont au 03 36 02 41 89 pour le dossier INV-2100-30372.",
@@ -407,45 +237,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "private_person",
-            "value": " Pierre Dup",
-            "score": 0.9999998807907104
-          },
-          {
-            "label": "private_person",
-            "value": "ont",
-            "score": 0.9999996423721313
-          },
-          {
-            "label": "private_phone",
-            "value": "03 36 02 41 ",
-            "score": 0.99695885181427
-          },
-          {
-            "label": "private_phone",
-            "value": "89",
-            "score": 0.9973512887954712
-          },
-          {
-            "label": "private_phone",
-            "value": " INV",
-            "score": 0.6222135424613953
-          },
-          {
-            "label": "account_number",
-            "value": "-2100-303",
-            "score": 0.9471989870071411
-          },
-          {
-            "label": "account_number",
-            "value": "72",
-            "score": 0.990210771560669
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 100.0
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 33.1
       },
       {
         "text": "Facture INV-2038-84247 de Services SA (SIRET 76899684532177).",
@@ -458,30 +252,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": " INV-2038-84247 de Services",
-            "score": 0.9990419745445251
-          },
-          {
-            "label": "account_number",
-            "value": " SA",
-            "score": 0.9509990811347961
-          },
-          {
-            "label": "account_number",
-            "value": "SIRET 768996845321",
-            "score": 0.998421847820282
-          },
-          {
-            "label": "account_number",
-            "value": "77",
-            "score": 0.9997848868370056
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 98.0
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 31.8
       },
       {
         "text": "Virement de 62 590 EUR vers l'IBAN FR76 06392 55221 W6L1E51OD7Q 65 pour Emma Thomas.",
@@ -502,30 +275,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": "IBAN FR76 06392 55221 W6L1E51OD7Q ",
-            "score": 0.9897753596305847
-          },
-          {
-            "label": "account_number",
-            "value": "65",
-            "score": 0.9999955892562866
-          },
-          {
-            "label": "private_person",
-            "value": " Emma",
-            "score": 0.9999895095825195
-          },
-          {
-            "label": "private_person",
-            "value": " Thomas",
-            "score": 0.9999849796295166
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 130.7
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 38.4
       },
       {
         "text": "Virement de 90570.86 Euros vers l'IBAN FR76 48147 35876 NT3H3ZX88WK 28 pour Emma Richard.",
@@ -545,40 +297,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": "905",
-            "score": 0.9894502758979797
-          },
-          {
-            "label": "account_number",
-            "value": "70",
-            "score": 0.9342822432518005
-          },
-          {
-            "label": "account_number",
-            "value": " FR76 48147 35876 NT3H3ZX88WK ",
-            "score": 0.9990407228469849
-          },
-          {
-            "label": "account_number",
-            "value": "28",
-            "score": 0.9998651742935181
-          },
-          {
-            "label": "private_person",
-            "value": " Emma",
-            "score": 0.9998291730880737
-          },
-          {
-            "label": "private_person",
-            "value": " Richard",
-            "score": 0.9999102354049683
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 151.6
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 37.4
       },
       {
         "text": "Règlement de 35 748 Euros reçu de Solutions SARL via FR76 91766 19304 8G14ZWBBDX3 11.",
@@ -599,20 +320,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": " FR76 91766 19304 8G14ZWBBDX3 ",
-            "score": 0.9999527335166931
-          },
-          {
-            "label": "account_number",
-            "value": "11",
-            "score": 0.9999474287033081
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 119.6
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 35.7
       },
       {
         "text": "Contactez Pierre Robert au 03 70 79 62 82 pour le dossier INV-2069-44987.",
@@ -631,40 +341,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "private_person",
-            "value": " Pierre",
-            "score": 0.9999865293502808
-          },
-          {
-            "label": "private_person",
-            "value": " Robert",
-            "score": 0.9999243021011353
-          },
-          {
-            "label": "private_phone",
-            "value": "03 70 79 62 ",
-            "score": 0.9995644092559814
-          },
-          {
-            "label": "private_phone",
-            "value": "82",
-            "score": 0.9996805191040039
-          },
-          {
-            "label": "account_number",
-            "value": " INV-2069-449",
-            "score": 0.957218587398529
-          },
-          {
-            "label": "account_number",
-            "value": "87",
-            "score": 0.9902644157409668
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 99.2
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 31.8
       },
       {
         "text": "Règlement de 55 072 EUR reçu de Tech SA via FR76 51918 89411 COHSSCGGI4V 03.",
@@ -685,30 +364,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": " FR76 51918 894",
-            "score": 0.9998284578323364
-          },
-          {
-            "label": "account_number",
-            "value": "11",
-            "score": 0.9994072914123535
-          },
-          {
-            "label": "account_number",
-            "value": " COHSSCGGI4V ",
-            "score": 0.9593731164932251
-          },
-          {
-            "label": "account_number",
-            "value": "03",
-            "score": 0.965606153011322
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 126.1
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 35.4
       },
       {
         "text": "Contactez Jean Dupont au 05 11 57 41 21 pour le dossier INV-2075-59420.",
@@ -727,45 +385,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "private_person",
-            "value": " Jean Dup",
-            "score": 0.9999995231628418
-          },
-          {
-            "label": "private_person",
-            "value": "ont",
-            "score": 0.9999998807907104
-          },
-          {
-            "label": "private_date",
-            "value": "05",
-            "score": 0.6789697408676147
-          },
-          {
-            "label": "private_phone",
-            "value": " 11 57 41 ",
-            "score": 0.8162513375282288
-          },
-          {
-            "label": "private_phone",
-            "value": "21",
-            "score": 0.8595623970031738
-          },
-          {
-            "label": "account_number",
-            "value": " INV-2075-594",
-            "score": 0.9950204491615295
-          },
-          {
-            "label": "account_number",
-            "value": "20",
-            "score": 0.9991760849952698
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 97.4
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 31.0
       },
       {
         "text": "Règlement de 61 271 EUR reçu de Acme EURL via FR76 46622 61418 7KR8FMOYPSS 65.",
@@ -786,20 +408,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": " FR76 46622 61418 7KR8FMOYPSS ",
-            "score": 0.9997907280921936
-          },
-          {
-            "label": "account_number",
-            "value": "65",
-            "score": 0.9995638728141785
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 127.5
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 36.0
       },
       {
         "text": "Virement de 40 317 Euros vers l'IBAN FR76 01072 95399 8TSH3D68C3Z 33 pour Pierre Dupont.",
@@ -820,30 +431,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "account_number",
-            "value": " FR76 01072 95399 8TSH3D68C3Z ",
-            "score": 0.9947612881660461
-          },
-          {
-            "label": "account_number",
-            "value": "33",
-            "score": 0.9767343997955322
-          },
-          {
-            "label": "private_person",
-            "value": " Pierre Dup",
-            "score": 0.9999939799308777
-          },
-          {
-            "label": "private_person",
-            "value": "ont",
-            "score": 0.999995231628418
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 145.1
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 39.2
       },
       {
         "text": "Transfert interne vers 6930-CORP-460 pour un montant de 14 797 €.",
@@ -862,7 +452,7 @@
         ],
         "detected": [],
         "found_something": false,
-        "latency_ms": 122.1
+        "latency_ms": 36.8
       },
       {
         "text": "Contactez Pierre Richard au 02 50 34 25 27 pour le dossier INV-2049-27069.",
@@ -881,40 +471,9 @@
           0,
           0
         ],
-        "detected": [
-          {
-            "label": "private_person",
-            "value": " Pierre",
-            "score": 0.9999651908874512
-          },
-          {
-            "label": "private_person",
-            "value": " Richard",
-            "score": 0.9998049139976501
-          },
-          {
-            "label": "private_phone",
-            "value": "02 50 34 25 ",
-            "score": 0.9998442530632019
-          },
-          {
-            "label": "private_phone",
-            "value": "27",
-            "score": 0.9998610019683838
-          },
-          {
-            "label": "account_number",
-            "value": " INV-2049-270",
-            "score": 0.9990548491477966
-          },
-          {
-            "label": "account_number",
-            "value": "69",
-            "score": 0.9997456669807434
-          }
-        ],
-        "found_something": true,
-        "latency_ms": 102.7
+        "detected": [],
+        "found_something": false,
+        "latency_ms": 34.5
       }
     ]
   }
