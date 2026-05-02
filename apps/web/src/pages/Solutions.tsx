@@ -10,8 +10,9 @@ import { SectionHeader } from "@/components/site/ProblemSection";
 
 const MODELS = [
   { name: "GPT-4o", provider: "OpenAI", file: "router/openai.go" },
-  { name: "Claude 3.x", provider: "Anthropic", file: "router/claude.go" },
-  { name: "Gemini 1.5 Pro", provider: "Google", file: "router/gemini.go" },
+  { name: "Mistral Large", provider: "Mistral AI", file: "router/openai.go" },
+  { name: "Claude Sonnet", provider: "Anthropic", file: "router/claude.go" },
+  { name: "Gemini Flash", provider: "Google", file: "router/gemini.go" },
   { name: "Local SLM", provider: "llama.cpp", file: "router/local.go" },
 ];
 
