@@ -1,7 +1,7 @@
 # Privacy Policy
 
 **Effective date:** 28 April 2026
-**Product:** OCULTAR PII Refinery (including `ocultar-claude-mcp`, `ocultar-goose-mcp`, and all related extensions)
+**Product:** OCULTAR PII Refinery (including `ocultar-claude-mcp`, `ocultar-goose-mcp`, `ocultar-mistral-mcp`, and all related extensions)
 **Contact:** e.trejos@gmail.com
 
 ---
@@ -32,9 +32,9 @@ OCULTAR collects no usage analytics, crash reports, or telemetry of any kind. No
 
 ---
 
-## 4. MCP Extensions (`ocultar-claude-mcp`, `ocultar-goose-mcp`)
+## 4. MCP Extensions (`ocultar-claude-mcp`, `ocultar-goose-mcp`, `ocultar-mistral-mcp`)
 
-The MCP extensions communicate exclusively with the locally running OCULTAR Refinery over localhost. They make no outbound network calls to any external service. If the local Refinery is unreachable, both extensions fail closed — they return an error and refuse to forward your text elsewhere.
+The MCP extensions communicate exclusively with the locally running OCULTAR Refinery over localhost. They make no outbound network calls to any external service. If the local Refinery is unreachable, all extensions fail closed — they return an error and refuse to forward your text elsewhere.
 
 ---
 
