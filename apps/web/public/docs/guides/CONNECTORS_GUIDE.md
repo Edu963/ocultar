@@ -1,6 +1,6 @@
 # OCULTAR | Connectors Guide
 
-> **Audience:** DevOps refineryers and developers who need to ingest data from external platforms (Slack, SharePoint, etc.) into OCULTAR.
+> **Audience:** DevOps engineers and developers who need to ingest data from external platforms (Slack, SharePoint, etc.) into OCULTAR.
 
 ---
 
@@ -10,8 +10,11 @@ OCULTAR Connectors are modular ingestion components that fetch or receive data f
 
 ## 2. Supported Connectors
 
-### 2.1 Slack Workspace (Built-in)
+### 2.1 Slack Workspace (Enterprise ✦)
 The Slack connector allows you to ingest channel history and listen for message events.
+
+> [!IMPORTANT]
+> This connector requires an **Enterprise License** with the Slack capability (Bit 0) enabled.
 
 **Configuration:**
 ```yaml
@@ -54,7 +57,7 @@ connectors:
 
 ## 3. Configuration
 
-Connectors are configured via the environment variables (for basic usage) or via a `connectors` section in an enterprise configuration file (coming soon).
+Connectors are configured via environment variables (for basic usage) or via a `connectors` section in the enterprise configuration file.
 
 ### Environment Variables
 - `SLACK_TOKEN`: The API token for your Slack bot.
@@ -70,7 +73,7 @@ Every connector follows the **Refinery-First** principle:
 
 ## 5. Development
 
-To build a new connector, implement the `Connector` interface in `pkg/connector`:
+To build a new connector, implement the `Connector` interface in `services/refinery/pkg/connector`:
 
 ```go
 type Connector interface {
@@ -79,6 +82,7 @@ type Connector interface {
     Init(config map[string]interface{}, eng *refinery.Refinery) error
     Start() error
     Stop() error
+    Fetch(ctx context.Context, params map[string]interface{}) ([]byte, error)
 }
 ```
 
