@@ -11,11 +11,13 @@ from pathlib import Path
 from transformers import pipeline
 
 # ── model ──────────────────────────────────────────────────────────────────
-print("Loading openai/privacy-filter (cached)...")
+import os
+MODEL_PATH = os.environ.get("PRIVACY_FILTER_MODEL_PATH", "openai/privacy-filter")
+print(f"Loading {MODEL_PATH}...")
 t0 = time.time()
 classifier = pipeline(
     "token-classification",
-    model="openai/privacy-filter",
+    model=MODEL_PATH,
     aggregation_strategy="simple",
 )
 print(f"Loaded in {time.time() - t0:.2f}s\n")
