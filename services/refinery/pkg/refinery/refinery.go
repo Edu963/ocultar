@@ -57,6 +57,11 @@ var tokenPattern = regexp.MustCompile(`\[[A-Z_]+_[0-9a-f]+\]`)
 var greetingRegex = regexp.MustCompile(`(?m)(?i)(?:Regards|Best|Cheers|Bonjour|Hello|Hi|Dear|Sincerely|Cordialement)[,.-]*\s+([A-ZÀ-Ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-Ÿ][a-zà-ÿ]+){0,2})\b`)
 var base64Regex = regexp.MustCompile(`([A-Za-z0-9+/=]{20,})`) // Lowered from 40: catches short PII (emails, names, phones) encoded in Base64
 
+// Boundary artifact cleanup: absorb short (1-3 char) orphaned fragments adjacent to tokens
+// left behind by SLM sub-word tokenization.
+var trailingArtifact = regexp.MustCompile(`(\[[A-Za-z_]+_[0-9a-f]+\])([^\s\[\]"'{}\(\),.:;]{1,3})(?:[\s\[\]"'{}\(\),.:;]|$)`)
+var leadingArtifact = regexp.MustCompile(`(?:[\s\[\]"'{}\(\),.:;]|^)([^\s\[\]"'{}\(\),.:;]{1,3})(\[[A-Za-z_]+_[0-9a-f]+\])`)
+
 // Generalized Multilingual Heuristics (Phase 1)
 var conjunctionRegex = regexp.MustCompile(`(?i)\b(ET|AND|Y|UND|CON|WITH|&)\b`)
 var profTitleRegex = regexp.MustCompile(`(?i)\b(DR|DOCTEUR|PROF|MME|MLLE|SR|SRA|HR|FR|MAÎTRE|AVOCAT)\b`)
@@ -237,7 +242,9 @@ func (e *Refinery) Refine(data interface{}) (interface{}, error) {
 func (e *Refinery) processInterfaceRecursive(data interface{}, actor string, preScanMap map[string][]string) (interface{}, error) {
 	switch val := data.(type) {
 	case string:
-		// Attempt Base64 decoding
+		// Attempt Base64 decoding — skip short strings (≤8 chars) which are
+		// almost always false positives (e.g. "No" decodes to "6", "Various" etc.).
+		if len(val) > 8 {
 		if decodedBytes, err := decodeBase64(val); err == nil && len(decodedBytes) > 0 {
 			// Try to treat decoded Base64 as JSON or string
 			var unmarshaled interface{}
@@ -256,6 +263,7 @@ func (e *Refinery) processInterfaceRecursive(data interface{}, actor string, pre
 				return nil, err
 			}
 			return base64.StdEncoding.EncodeToString([]byte(refinedStr)), nil
+		}
 		}
 
 		// Attempt URL decoding
@@ -513,6 +521,12 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		}
 	}
 
+	// TIER 2.5: Boundary Artifact Cleanup
+	// SLM sub-word tokenization can leave orphaned 1-3 char residues adjacent
+	// to tokens (e.g. "[organization_...]7" or "H[organization_...]").
+	// Absorb these fragments to prevent partial PII leakage.
+	refined = boundaryCleanup(refined)
+
 	// TIER 3: Structural Heuristics
 	refined, err = e.applyStructuralHeuristics(refined, actor)
 	if err != nil {
@@ -532,6 +546,41 @@ func containsAnyLower(s string, keywords ...string) bool {
 		}
 	}
 	return false
+}
+
+// boundaryCleanup absorbs orphaned short fragments (1-3 chars) that are
+// immediately adjacent to tokens. These are artifacts of SLM sub-word
+// tokenization where the model's BPE boundaries don't align with PII
+// value boundaries (e.g. "XXX-XX-556" is tokenized but trailing "7" leaks).
+func boundaryCleanup(s string) string {
+	// Pass 1: trailing artifacts — e.g. "[organization_abc12345]7 " → "[organization_abc12345] "
+	s = trailingArtifact.ReplaceAllStringFunc(s, func(match string) string {
+		// Extract the token and the trailing fragment
+		subs := trailingArtifact.FindStringSubmatch(match)
+		if len(subs) < 3 {
+			return match
+		}
+		token := subs[1]
+		// fragment := subs[2]  // the orphaned chars — dropped
+		// Preserve the delimiter that ended the match (space, EOF, or '[')
+		suffix := match[len(token)+len(subs[2]):]
+		return token + suffix
+	})
+
+	// Pass 2: leading artifacts — e.g. " H[organization_abc12345]" → " [organization_abc12345]"
+	s = leadingArtifact.ReplaceAllStringFunc(s, func(match string) string {
+		subs := leadingArtifact.FindStringSubmatch(match)
+		if len(subs) < 3 {
+			return match
+		}
+		fragment := subs[1]
+		token := subs[2]
+		// Preserve the delimiter that started the match (space, BOL, or ']')
+		prefix := match[:len(match)-len(fragment)-len(token)]
+		return prefix + token
+	})
+
+	return s
 }
 
 // applyStructuralHeuristics executes generalized rules for entity expansion and linkages.

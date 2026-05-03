@@ -224,6 +224,7 @@ func main() {
 	identities.StartSyncWorker()
 
 	if *serve != "" {
+		eng.Serve = *serve
 		startServer(eng, *serve)
 		return
 	}
