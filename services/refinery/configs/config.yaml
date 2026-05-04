@@ -1,8 +1,20 @@
 regexes:
     - type: EMAIL
-      pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-    - type: DASHBOARD_TEST
-      pattern: "12345"
+      pattern: '(?i)[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}'
+    - type: URL
+      pattern: '(?i)https?://[^\s"<>\{\}\[\]\\]+|\bwww\.[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}[^\s"<>\{\}\[\]\\]*'
+    - type: SSN
+      pattern: '\b\d{3}-\d{2}-\d{4}\b'
+    - type: CREDENTIAL
+      pattern: '(?i)\bpassword\s*[:=]\s*[^\s,]+'
+    - type: SECRET
+      pattern: '(?i)\b(?:secret|key|token)\s*[:=]\s*[^\s,]+'
+    - type: CREDIT_CARD
+      pattern: '\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})\b'
+    - type: PATIENT_ID
+      pattern: '\b[A-Z]{2,3}[0-9]{6,10}\b'
+    - type: MEDICAL_RECORD
+      pattern: '\bMRN[- ]?[0-9]{7,10}\b'
 dictionaries:
     - type: PERSON
       terms:
