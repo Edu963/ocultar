@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 
@@ -133,7 +134,7 @@ export default function Docs() {
           )}
           {content && (
             <article className="prose prose-invert max-w-none prose-headings:font-mono prose-code:text-primary prose-pre:bg-surface prose-pre:border prose-pre:border-border">
-              <ReactMarkdown>{content}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
             </article>
           )}
         </main>
