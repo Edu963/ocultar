@@ -47,7 +47,6 @@ const SECTIONS = [
   {
     label: "Other",
     items: [
-      { label: "Benchmarks", path: "benchmarks/privacy_filter_eval.md" },
       { label: "Secret Management", path: "SECRETS.md" },
       { label: "Blog: Zero-Egress Supply Chain", path: "blog/zero-egress-supply-chain.md" },
     ],
