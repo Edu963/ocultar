@@ -1,5 +1,6 @@
 import { Github } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const COLS = [
   {
@@ -23,7 +24,7 @@ const COLS = [
     links: [
       { label: "Contact", href: "mailto:sales@ocultar.dev" },
       { label: "Engineering", href: "mailto:engineering@ocultar.dev" },
-      { label: "Privacy", href: "#" },
+      { label: "Privacy", href: "/privacy" },
     ],
   },
 ];
@@ -70,14 +71,21 @@ export const SiteFooter = () => (
                     >
                       {l.label}
                     </button>
-                  ) : (
-                    <a
-                      href={l.href}
-                      className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {l.label}
-                    </a>
-                  )}
+                    ) : l.href.startsWith("/") ? (
+                      <Link
+                        to={l.href}
+                        className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={l.href}
+                        className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {l.label}
+                      </a>
+                    )}
                 </li>
               ))}
             </ul>
