@@ -2,7 +2,7 @@
 
 **Effective date:** 28 April 2026
 **Product:** OCULTAR PII Refinery (including `ocultar-claude-mcp`, `ocultar-goose-mcp`, `ocultar-mistral-mcp`, and all related extensions)
-**Contact:** e.trejos@gmail.com
+**Contact:** [edu@ocultar.com](mailto:edu@ocultar.com)
 
 ---
 
@@ -70,4 +70,4 @@ Material changes will be noted in the [CHANGELOG](https://github.com/Edu963/ocul
 
 ## 10. Contact
 
-For privacy questions or data requests: **e.trejos@gmail.com**
+For privacy questions or data requests: **[edu@ocultar.com](mailto:edu@ocultar.com)**

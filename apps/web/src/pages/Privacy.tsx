@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useEffect } from 'react';
 
 const SECTIONS = [
   {
@@ -23,10 +24,22 @@ const SECTIONS = [
   { num: '07', title: 'Data Retention and Deletion', body: 'Vault contents and audit logs are stored on your infrastructure and subject to your own retention policies. You can delete them at any time. OCULTAR provides no mechanism to transmit this data externally and retains no copy of it.' },
   { num: '08', title: "Children's Data", body: 'OCULTAR is a developer infrastructure tool not directed at children. We do not knowingly process data submitted by or about children.' },
   { num: '09', title: 'Changes to This Policy', body: 'Material changes will be noted in the CHANGELOG and reflected in the effective date above.' },
-  { num: '10', title: 'Contact', body: 'For privacy questions or data requests: edu@ocultar.dev' },
+  { 
+    num: '10', 
+    title: 'Contact', 
+    body: (
+      <span>
+        For privacy questions or data requests: <a href="mailto:edu@ocultar.com" className="text-emerald-500 hover:underline font-bold">edu@ocultar.com</a>
+      </span>
+    )
+  },
 ];
 
 export default function Privacy() {
+  useEffect(() => {
+    document.title = "Privacy Policy — OCULTAR";
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#050505]">
       <div className="max-container max-w-2xl py-12 md:py-16">
@@ -41,8 +54,8 @@ export default function Privacy() {
         <div className="mb-16">
           <p className="text-xs font-mono font-semibold uppercase tracking-widest text-emerald-500 mb-4">Legal</p>
           <h1 className="text-3xl font-bold text-white tracking-tight mb-4">Privacy Policy</h1>
-          <p className="text-xs font-mono text-slate-600 uppercase tracking-widest">
-            Effective date: 28 April 2026 &nbsp;·&nbsp; Product: OCULTAR PII Refinery
+          <p className="text-xs font-mono text-slate-600 uppercase tracking-widest leading-loose">
+            Effective date: 28 April 2026 &nbsp;·&nbsp; Product: OCULTAR PII Refinery &nbsp;·&nbsp; Contact: <a href="mailto:edu@ocultar.com" className="hover:text-slate-300 underline underline-offset-2">edu@ocultar.com</a>
           </p>
         </div>
 
@@ -54,7 +67,11 @@ export default function Privacy() {
               </div>
               <div className="flex-1 flex flex-col gap-4">
                 <h3 className="text-sm font-bold text-white uppercase tracking-wide">{section.title}</h3>
-                {section.body && <p className="text-sm text-slate-400 leading-relaxed">{section.body}</p>}
+                {section.body && (
+                  <div className="text-sm text-slate-400 leading-relaxed">
+                    {section.body}
+                  </div>
+                )}
                 {section.items && (
                   <div className="flex flex-col gap-6">
                     {section.items.map(item => (
