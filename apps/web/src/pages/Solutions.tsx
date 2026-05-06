@@ -13,7 +13,7 @@ const MODELS = [
   { name: "Mistral Large", provider: "Mistral AI", file: "router/openai.go" },
   { name: "Claude Sonnet", provider: "Anthropic", file: "router/claude.go" },
   { name: "Gemini Flash", provider: "Google", file: "router/gemini.go" },
-  { name: "Local SLM", provider: "llama.cpp", file: "router/local.go" },
+  { name: "Local SLM", provider: "privacy-filter", file: "apps/slm-engine/main.go" },
 ];
 
 const CONNECTORS = [
@@ -68,7 +68,7 @@ const REFINERY_TIERS = [
   { tier: "Tier 0", name: "Custom Dictionary Engine", desc: "Admin-configurable blocklists for VIP names, internal codenames, and org-specific sensitive terms. Backed by a live CRM/LDAP sync that updates the dictionary without restart." },
   { tier: "Tier 1", name: "Deterministic Regex Pipeline", desc: "30+ pre-compiled, Luhn-validated patterns: SSNs, IBANs, credit cards, phone numbers, addresses, SIRET/SIREN, health references, and regional IDs across 10+ countries." },
   { tier: "Tier 1.5", name: "Contextual Heuristics", desc: "libphonenumber validation, heuristic address parsing, greeting/signature detection. Catches PII that regex misses without any model inference overhead." },
-  { tier: "Tier 2", name: "EU-Sovereign Deep Scan (SLM)", desc: "A 1.5B-parameter local bidirectional token classifier performs NER for contextual PII. Optimized for FR, DE, IT, ES, and NL. 97% F1." },
+  { tier: "Tier 2", name: "EU-Sovereign Deep Scan (SLM)", desc: "A local bidirectional token classifier (openai/privacy-filter) performs NER for contextual PII. Domain-specific fine-tunes available (fr-finance). ~65% F1 on financial corpora; roadmap targets >90% via fine-tuning." },
 ];
 
 const ENTERPRISE_FEATURES = [

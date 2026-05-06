@@ -28,8 +28,11 @@ Enterprise clients modify regex rules via the `config.yaml` file. Much like the 
 ### In Tier 2, which SLM (Small Language Model) is being used?
 We primarily utilize Qwen-1.5B or Phi-3-mini, quantized to GGUF format (~1.2 GB). These are chosen for their high performance-to-size ratio, allowing them to run on standard enterprise hardware without a massive GPU.
 
-### Is the SLM included in the installation package and is it trained to find PII?
-Yes, it is included in the Enterprise Docker stack and is automatically downloaded by the `init-slm` container. While the base model has general intelligence, we use few-shot prompting to instruct it specifically on contextual PII detection (e.g., finding names in prose).
+### Are the SLM (Small Language Model) weights shipped directly within the installation files? What is the purpose of the `models` folder?
+No. The default model (`openai/privacy-filter`) is downloaded from HuggingFace on first run by the `privacy-filter` container and cached locally — subsequent starts use the cached weights without network access. The `models` folder holds domain-specific fine-tuned adapters (e.g., `privacy-filter-fr-finance`) that are used when `domain_snapshot` is set in `configs/config.yaml`. For strict air-gapped deployments, bake the model weights into the Docker image at build time using `PRIVACY_FILTER_MODEL_PATH=/app/models/...` and copying the weights into the image.
+
+### If the default model is tuned for specific regions (like French financial formats), can we train or fine-tune the model to recognize other EU formats?
+Yes. OCULTAR uses a pluggable domain sidecar architecture. Enterprise clients can fine-tune `openai/privacy-filter` (or `piiranha-v1` for multilingual corpora) on their specific regional documents (e.g., French finance, German tax IDs, Spanish invoices) using the scripts in `scripts/fine_tune_privacy_filter.py`. The fine-tuned adapter is placed in `models/` and activated via `domain_snapshot` and `tier2_domain_sidecars` in `configs/config.yaml`. You can also instantly add static region-specific formats to the Tier 1 Regex Pipeline via `configs/config.yaml` without touching the AI model. A native in-process SLM engine (for fully static, zero-dependency binaries) is on the roadmap.
 
 ### What is the Sombra Gateway?
 The **Sombra Gateway** is the intelligent orchestration layer above Ocultar. It provides multi-model AI routing, allowing you to direct queries to different providers (OpenAI, Gemini, local models) while ensuring consistent PII redaction and response re-hydration across all channels.
@@ -38,8 +41,14 @@ The **Sombra Gateway** is the intelligent orchestration layer above Ocultar. It 
 Sombra natively routes to **OpenAI**, **Gemini**, **Claude**, and **Local AI** providers. 
 Crucially, because Sombra supports the OpenAI-compatible API standard, clients can seamlessly route traffic to **Mistral, DeepSeek, Qwen**, or any other compatible Chinese or open-source model simply by defining them in `sombra.yaml` with the `openai` provider type and updating the `endpoint` URL.
 
+### I see references to `llama.cpp`. I thought we were using the OpenAI SDK?
+These are two different AI systems serving different purposes. Your application uses the OpenAI SDK to talk to its upstream LLM (GPT-4, Claude, etc.). OCULTAR intercepts those requests and scrubs PII *before* forwarding them, using a completely local privacy filter model — currently `openai/privacy-filter`, a bidirectional token classifier running in a Python sidecar (`apps/slm-engine`). No data is sent externally for PII detection. The `llama.cpp` references in older documentation refer to a planned native in-process engine that is not yet active; the Python sidecar is the current Tier 2 implementation.
+
 ### Can you explain the Proxy mode further?
 The Proxy is a transparent reverse proxy that sits between the client application and the LLM API. It redacts PII on the way out (Vaulting) and restores it on the way back (Re-hydration). It is the "Aha!" deployment method because it requires zero changes to the client's existing code—they just change their API base URL to point to OCULTAR.
+
+### In the Community version, do we still get the end-to-end interception and redaction shown in the Enterprise demo?
+Yes, the core mechanism (Intercept → Redact → Forward → Rehydrate) absolutely still happens in the Community version. The substitute for the Sombra Gateway is simply called the **OCULTAR Proxy**. The difference is that the Community Proxy is a "one-to-one" proxy hardcoded to a single upstream provider (e.g., it only talks to OpenAI), whereas Sombra is an intelligent gateway that can route to multiple providers dynamically based on the request. Additionally, the Community Proxy only uses Regex and Dictionary detection (Tier 0 and 1) and will miss unstructured PII (like a name in a sentence) because it lacks the local Tier 2 AI engine.
 
 ### What is the Enterprise Dashboard?
 The **Enterprise Dashboard** is a browser-based UI for monitoring and management. it provides:
@@ -100,6 +109,9 @@ Yes. Every component is architected to minimize data exposure. Clear trust bound
 - **Pilot**: A 90-day structured onboarding focused on refinery deployment, PII pattern tuning, and weekly compliance reports.
 - **Enterprise**: Full-scale production deployment with high-availability (PostgreSQL), SIEM integration, and ongoing ROI accounting.
 
+### In production, does the end-user input their message directly into the public chatbox of ChatGPT, Mistral, or Claude?
+No. If the user types directly into the public chatgpt.com web interface, the traffic bypasses OCULTAR entirely. The user must type their prompt into your internal enterprise application, internal chatbot, or an enterprise workspace that points its API requests to the OCULTAR Sombra Gateway.
+
 ### How can I update Refinery rules?
 Rules can be updated via the `config.yaml` file (for Regex and Dictionaries) or automatically generated using the `Refinery Rule Generator` AI skill based on discovered edge cases.
 
@@ -111,7 +123,7 @@ Rules can be updated via the `config.yaml` file (for Regex and Dictionaries) or 
 Ocultar is delivered as clean, versioned release artifacts (e.g., `.tar` or `.zip` archives) built by specialized AI agents that ensure all secrets are sanitized before delivery.
 
 ### Does Ocultar support air-gapped environments?
-Yes. The Enterprise Tier is specifically designed for air-gapped support, allowing local SLM-based PII detection and on-premise vault management without any external internet requirements.
+Yes, with one setup step. The Enterprise Tier runs all PII detection locally — no user data ever leaves your infrastructure. The only external dependency is the one-time model download from HuggingFace on first run. For fully air-gapped deployments, pre-bake the model weights into the Docker image at build time (copy weights into the image and set `PRIVACY_FILTER_MODEL_PATH` to the local path). After that, the stack runs with zero internet access required.
 
 ---
 
@@ -179,12 +191,19 @@ The demo (`./demo/run_demo.sh`) deliberately starts two lightweight mock service
 GEMINI_API_KEY=your-key ./demo/run_demo.sh --record
 ```
 
-**Mock SLM Sidecar** replaces the real Tier 2 NER engine (`apps/slm-engine`). The real sidecar loads a quantized NLP model (Qwen-1.5B or Phi-3-mini, ~1 GB) and takes 15–30 seconds to warm up — unsuitable for a sub-20-second demo startup. The mock returns empty scan results, meaning Tier 2 contributes no additional detections. However, the demo PII (email, SSN, IBAN, phone) is fully caught by Tiers 0–1.5 (regex, dictionary, phone, IBAN heuristics), so the core zero-egress proof is intact.
+**Mock SLM Sidecar** replaces the real Tier 2 NER engine (`apps/slm-engine`). The real sidecar downloads `openai/privacy-filter` from HuggingFace on first run (~300 MB) and takes 15–30 seconds to warm up — unsuitable for a sub-20-second demo startup. The mock returns empty scan results, meaning Tier 2 contributes no additional detections. However, the demo PII (email, SSN, IBAN, phone) is fully caught by Tiers 0–1.5 (regex, dictionary, phone, IBAN heuristics), so the core zero-egress proof is intact.
 
-If you want Tier 2 to actively catch something — for example, a name buried in prose with no structured pattern — start the real SLM sidecar separately before running the demo:
+If you want Tier 2 to actively catch something — for example, a name buried in prose with no structured pattern — start the real sidecar stack separately before running the demo:
 
 ```bash
-go run ./apps/slm-engine   # starts on :8085
+# Terminal 1 — Python sidecar (downloads model on first run)
+PRIVACY_FILTER_MODEL_PATH=openai/privacy-filter PORT=8086 \
+  python apps/slm-engine/python/serve_privacy_filter.py
+
+# Terminal 2 — Go SLM engine
+PYTHON_SIDECAR_URL=http://localhost:8086 go run ./apps/slm-engine
+
+# Terminal 3
 ./demo/run_demo.sh
 ```
 
