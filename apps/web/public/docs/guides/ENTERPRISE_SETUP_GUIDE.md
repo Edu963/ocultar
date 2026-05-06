@@ -33,8 +33,8 @@
 |---|---|
 | **OS** | Linux or macOS (Windows via WSL 2 or Docker Desktop) |
 | **Docker** | Docker Refinery + Compose plugin, or Docker Desktop |
-| **RAM** | 8 GB minimum (for Tier 2 local AI model) |
-| **Disk** | ~2 GB free for the GGUF model on first run |
+| **RAM** | 4 GB minimum (8 GB recommended for smooth model inference) |
+| **Disk** | ~1 GB free for HuggingFace model cache on first run |
 | **Go** | 1.22+ only if building from source |
 | **`OCU_LICENSE_KEY`** | Obtain from the License Generator (`scripts/keygen.go`) |
 
@@ -130,9 +130,9 @@ docker compose up -d
 ```
 
 **What happens on first run:**
-1. `init-slm` (alpine) downloads the `Qwen 1.5B Q4_K_M` GGUF model (~900 MB) from HuggingFace into the `slm_data` volume.
-2. `ocultar-proxy` runs pre-flight validation (master key entropy, vault directory, SLM model path accessibility), then starts listening.
-3. The refinery uses **Native CGO bindings** to perform inference directly within the proxy process.
+1. `privacy-filter` container starts and downloads `openai/privacy-filter` (~300 MB) from HuggingFace into the local model cache. This only happens once — subsequent starts use the cached weights.
+2. `slm-engine` (Go) connects to the `privacy-filter` Python service and begins health-checking it.
+3. `ocultar-proxy` starts once the SLM sidecar is healthy, then begins listening for requests.
 
 Watch progress:
 ```bash
@@ -141,9 +141,10 @@ docker compose logs -f
 
 Wait for:
 ```
-ocultar-proxy  | [+] All pre-flight checks passed! Starting Proxy.
-ocultar-proxy  | [INFO] SLM: Native llama.cpp initialized (model: /app/models/qwen-1.5b-q4_k_m.gguf)
-ocultar-proxy  | [INFO] OCULTAR proxy listening on :8080
+privacy-filter | Loading model from openai/privacy-filter (schema: privacy-filter)...
+slm-engine     | SLM sidecar running on :8085
+ocultar-proxy  | [INFO] Tier 2 AI active via SLM sidecar: http://slm-engine:8085
+ocultar-proxy  | [INFO] OCULTAR proxy listening on :8081
 ```
 
 ### Step 3 — Verify with the smoke test
@@ -230,6 +231,29 @@ dictionaries:
     terms:
       - "Project Apollo"
       - "Operation Starlight"
+
+# Tier 2 Domain Sidecars ──────────────────────────────────────────────────────
+# domain_snapshot sets the active AI model for this deployment.
+# Each entry in tier2_domain_sidecars maps a domain name to a sidecar URL that
+# exposes GET /health and POST /scan {"text":"..."} → {"TYPE":["value"]}.
+#
+# "standard" (default) — uses openai/privacy-filter, good for English PII.
+# "fr-finance"         — French finance NER (account numbers, amounts, IBAN).
+# Any other string     — must match a key in tier2_domain_sidecars.
+domain_snapshot: standard
+
+# tier2_domain_sidecars:
+#   fr-finance: "http://localhost:8087"
+#
+# To start the fr-finance sidecar:
+#   PRIVACY_FILTER_MODEL_PATH=./models/privacy-filter-fr-finance \
+#   MODEL_SCHEMA=privacy-filter PORT=8087 \
+#   python apps/slm-engine/python/serve_privacy_filter.py
+#
+# To use piiranha-v1 (multilingual, recommended for mixed-language corpora):
+#   PRIVACY_FILTER_MODEL_PATH=iiiorg/piiranha-v1-detect-personal-information \
+#   MODEL_SCHEMA=piiranha PORT=8086 \
+#   python apps/slm-engine/python/serve_privacy_filter.py
 ```
 
 After editing, apply by restarting:
@@ -380,8 +404,8 @@ echo "Exit code: $?"
 
 **Proxy stack:**
 ```bash
-docker compose down        # stops containers, keeps volumes
-docker compose down -v     # stops containers + deletes vault & model
+docker compose down        # stops containers, keeps vault volume
+docker compose down -v     # stops containers + deletes vault volume
 ```
 
 **Standalone binary:** `Ctrl+C` — the vault file (`vault.db`) is preserved.
@@ -395,7 +419,7 @@ docker compose down -v     # stops containers + deletes vault & model
 | `[FATAL] Failed reading protected_entities.json!` | File missing from `configs/` | Create the file with at least one entry (see §6) |
 | `[FATAL] protected_entities.json … contains zero entries` | File is `[]` | Add at least one string to the JSON array |
 | `[!] FATAL: OCU_MASTER_KEY must be set` | `.env` not loaded or key missing | Confirm `source .env` before running binary, or check Docker env vars |
-| SLM container not healthy after 5 minutes | Model download incomplete or `slm_data` volume corrupt | `docker compose down -v && docker compose up -d` |
+| `privacy-filter` container not healthy after 5 minutes | HuggingFace download failed or network issue | Check `docker compose logs privacy-filter`; retry with `docker compose restart privacy-filter` |
 | `Active license tier … does not permit postgres` | `OCU_LICENSE_KEY` missing or expired | Add/renew your license key in `.env` |
 | Proxy returns `429 Too Many Requests` | More than 15 concurrent requests | Scale horizontally with PostgreSQL vault (see §7) |
 | Audit log is empty | Community binary or missing license key | Confirm `OCU_LICENSE_KEY` is set and `Tier: enterprise` is activated (check startup logs) |
