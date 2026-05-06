@@ -173,6 +173,15 @@ func main() {
 		scanner := inference.NewRemoteScanner(sidecarURL)
 		eng.SetAIScanner(scanner)
 		log.Printf("[INFO] Tier 2 AI active via SLM sidecar: %s", sidecarURL)
+
+		// Register per-domain sidecars from config (e.g. fr-finance → http://localhost:8087)
+		for domain, url := range config.Global.Tier2DomainSidecars {
+			ds := inference.NewRemoteScanner(url)
+			eng.SetDomainScanner(domain, ds)
+		}
+		if len(config.Global.Tier2DomainSidecars) > 0 {
+			log.Printf("[INFO] Active domain: '%s'", config.Global.DomainSnapshot)
+		}
 	}
 	eng.AIScanner.SetDomain(config.Global.DomainSnapshot)
 

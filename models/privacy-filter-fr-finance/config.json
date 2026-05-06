@@ -101,6 +101,7 @@
     "S-private_url": 28,
     "S-secret": 32
   },
+  "num_labels": 41,
   "max_position_embeddings": 131072,
   "model_type": "openai_privacy_filter",
   "num_attention_heads": 14,

@@ -37,8 +37,14 @@ type Settings struct {
 	PostgresDSN string `yaml:"postgres_dsn"`
 
 	// Phase 5: SR-SLMs (Domain Snapshots)
-	// DomainSnapshot selects the AI model: "standard", "clinical", or "fintech".
+	// DomainSnapshot selects the active AI model domain for this deployment.
+	// Must match a key in Tier2DomainSidecars, or "standard" for the default scanner.
 	DomainSnapshot string `yaml:"domain_snapshot" json:"domain_snapshot"`
+
+	// Tier2DomainSidecars maps domain names to dedicated sidecar base URLs.
+	// Each URL must expose GET /health and POST /scan (same contract as the default sidecar).
+	// Example: {"fr-finance": "http://localhost:8087"}
+	Tier2DomainSidecars map[string]string `yaml:"tier2_domain_sidecars" json:"tier2_domain_sidecars"`
 
 	// Governance: Regulatory Policy
 	RegulatoryPolicy map[string]interface{} `yaml:"-" json:"regulatory_policy"`

@@ -93,6 +93,10 @@ type Refinery struct {
 	AuditLogger  AuditLogger
 	AIScanner    AIScanner
 
+	// DomainScanners holds optional per-domain scanners registered via SetDomainScanner.
+	// The active scanner is selected at call time using config.Global.DomainSnapshot.
+	DomainScanners map[string]AIScanner
+
 	Hits      []pii.DetectionResult
 	hitsMutex sync.Mutex
 
@@ -131,6 +135,31 @@ func (e *Refinery) SetAIScanner(s AIScanner) {
 	if s != nil {
 		e.AIScanner = s
 	}
+}
+
+// SetDomainScanner registers a domain-specific scanner.
+// When DomainSnapshot in config matches the given domain, this scanner is used instead of AIScanner.
+func (e *Refinery) SetDomainScanner(domain string, s AIScanner) {
+	if domain == "" || s == nil {
+		return
+	}
+	if e.DomainScanners == nil {
+		e.DomainScanners = make(map[string]AIScanner)
+	}
+	e.DomainScanners[domain] = s
+	log.Printf("[INFO] Domain Tier 2 scanner registered: '%s'", domain)
+}
+
+// activeScanner returns the scanner for the currently configured domain,
+// falling back to the default AIScanner if no domain-specific one is registered.
+func (e *Refinery) activeScanner() AIScanner {
+	domain := config.Global.DomainSnapshot
+	if domain != "" && domain != "standard" && e.DomainScanners != nil {
+		if s, ok := e.DomainScanners[domain]; ok {
+			return s
+		}
+	}
+	return e.AIScanner
 }
 
 // GenerateReport aggregates the current session's PII hits into a DryRunReport.
@@ -212,14 +241,15 @@ func (e *Refinery) RefineBatch(items []interface{}, actor string) ([]interface{}
 func (e *Refinery) ProcessInterface(data interface{}, actor string) (interface{}, error) {
 	// 1. If it's a large complex object, extract all text and run SLM ONCE per record
 	var preScanMap map[string][]string
-	if e.AIScanner.IsAvailable() {
+	scanner := e.activeScanner()
+	if scanner.IsAvailable() {
 		// Marshal the record to a flat string to scan it contextually in one go
 		textBytes, err := json.Marshal(data)
 		if err == nil {
 			textStr := string(textBytes)
 			if len(textStr) > 50 && !e.isFullyTokenised(textStr) {
 				var slmErr error
-				preScanMap, slmErr = e.AIScanner.ScanForPII(textStr)
+				preScanMap, slmErr = scanner.ScanForPII(textStr)
 				if slmErr != nil {
 					return nil, fmt.Errorf("SLM inference failed: %w", slmErr)
 				}
@@ -503,8 +533,8 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 				}
 			}
 		}
-	} else if e.AIScanner.IsAvailable() && len(refined) > 15 && !e.isFullyTokenised(refined) {
-		piiMap, slmErr := e.AIScanner.ScanForPII(refined)
+	} else if e.activeScanner().IsAvailable() && len(refined) > 15 && !e.isFullyTokenised(refined) {
+		piiMap, slmErr := e.activeScanner().ScanForPII(refined)
 		if slmErr != nil {
 			return "", fmt.Errorf("SLM inference failed: %w", slmErr)
 		}
