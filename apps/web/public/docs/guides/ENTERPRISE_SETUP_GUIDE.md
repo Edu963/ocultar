@@ -130,9 +130,9 @@ docker compose up -d
 ```
 
 **What happens on first run:**
-1. `privacy-filter` container starts and downloads `openai/privacy-filter` (~300 MB) from HuggingFace into the local model cache. This only happens once — subsequent starts use the cached weights.
-2. `slm-engine` (Go) connects to the `privacy-filter` Python service and begins health-checking it.
-3. `ocultar-proxy` starts once the SLM sidecar is healthy, then begins listening for requests.
+1. `init-slm` (Alpine) downloads `qwen1_5-1_8b-chat-q4_k_m.gguf` (~1.2 GB) from HuggingFace into the `slm_data` named volume. This only happens once — subsequent starts detect the cached file and skip immediately.
+2. `slm-ner` starts the `llama.cpp` server and loads the model into memory. The container is health-checked before the proxy starts.
+3. `ocultar-proxy` starts once `slm-ner` is healthy, then begins listening for requests.
 
 Watch progress:
 ```bash
@@ -141,10 +141,27 @@ docker compose logs -f
 
 Wait for:
 ```
-privacy-filter | Loading model from openai/privacy-filter (schema: privacy-filter)...
-slm-engine     | SLM sidecar running on :8085
-ocultar-proxy  | [INFO] Tier 2 AI active via SLM sidecar: http://slm-engine:8085
-ocultar-proxy  | [INFO] OCULTAR proxy listening on :8081
+ocultar-init-slm | [+] Download complete.
+slm-ner          | llama server listening at http://0.0.0.0:8080
+ocultar-proxy    | [INFO] Tier 2 AI active via Qwen/llama.cpp: http://slm-ner:8080
+ocultar-proxy    | [INFO] OCULTAR proxy listening on :8081
+```
+
+> **Note:** `init-slm` exits after the download completes — this is expected. `docker compose ps` will show it as `Exited (0)`.
+
+**Optional — Domain-specific NER sidecar (privacy-filter / piiranha-v1):**
+
+If you need a token-classifier sidecar for a specific domain (e.g. French finance), start it alongside the default stack using the `domain` profile:
+
+```bash
+docker compose --profile domain up -d
+```
+
+Then activate it in `configs/config.yaml`:
+```yaml
+domain_snapshot: fr-finance
+tier2_domain_sidecars:
+  fr-finance: "http://privacy-filter:8086"
 ```
 
 ### Step 3 — Verify with the smoke test
@@ -404,9 +421,11 @@ echo "Exit code: $?"
 
 **Proxy stack:**
 ```bash
-docker compose down        # stops containers, keeps vault volume
-docker compose down -v     # stops containers + deletes vault volume
+docker compose down        # stops containers, keeps vault and model volumes
+docker compose down -v     # stops containers + deletes ALL volumes (vault.db AND the Qwen model cache)
 ```
+
+> ⚠️ `docker compose down -v` also deletes the `slm_data` volume. The next `docker compose up` will re-download the Qwen model (~1.2 GB). Omit `-v` if you want to preserve the model cache.
 
 **Standalone binary:** `Ctrl+C` — the vault file (`vault.db`) is preserved.
 
@@ -419,7 +438,8 @@ docker compose down -v     # stops containers + deletes vault volume
 | `[FATAL] Failed reading protected_entities.json!` | File missing from `configs/` | Create the file with at least one entry (see §6) |
 | `[FATAL] protected_entities.json … contains zero entries` | File is `[]` | Add at least one string to the JSON array |
 | `[!] FATAL: OCU_MASTER_KEY must be set` | `.env` not loaded or key missing | Confirm `source .env` before running binary, or check Docker env vars |
-| `privacy-filter` container not healthy after 5 minutes | HuggingFace download failed or network issue | Check `docker compose logs privacy-filter`; retry with `docker compose restart privacy-filter` |
+| `init-slm` exits with non-zero code | HuggingFace download failed or network issue | Check `docker compose logs ocultar-init-slm`; ensure outbound HTTPS to `huggingface.co` is allowed, then `docker compose up -d` again (download resumes) |
+| `slm-ner` never becomes healthy | Model file corrupt or insufficient RAM | Check `docker compose logs slm-ner`; ensure ≥ 4 GB RAM free. Delete the volume (`docker compose down -v`) and re-download if the GGUF file is corrupt |
 | `Active license tier … does not permit postgres` | `OCU_LICENSE_KEY` missing or expired | Add/renew your license key in `.env` |
 | Proxy returns `429 Too Many Requests` | More than 15 concurrent requests | Scale horizontally with PostgreSQL vault (see §7) |
 | Audit log is empty | Community binary or missing license key | Confirm `OCU_LICENSE_KEY` is set and `Tier: enterprise` is activated (check startup logs) |

@@ -29,7 +29,7 @@ Enterprise clients modify regex rules via the `config.yaml` file. Much like the 
 We primarily utilize Qwen-1.5B or Phi-3-mini, quantized to GGUF format (~1.2 GB). These are chosen for their high performance-to-size ratio, allowing them to run on standard enterprise hardware without a massive GPU.
 
 ### Are the SLM (Small Language Model) weights shipped directly within the installation files? What is the purpose of the `models` folder?
-No. The default model (`openai/privacy-filter`) is downloaded from HuggingFace on first run by the `privacy-filter` container and cached locally — subsequent starts use the cached weights without network access. The `models` folder holds domain-specific fine-tuned adapters (e.g., `privacy-filter-fr-finance`) that are used when `domain_snapshot` is set in `configs/config.yaml`. For strict air-gapped deployments, bake the model weights into the Docker image at build time using `PRIVACY_FILTER_MODEL_PATH=/app/models/...` and copying the weights into the image.
+No. The default Tier 2 engine is **Qwen1.5-1.8B-Chat Q4_K_M** (~1.2 GB GGUF), served by `ghcr.io/ggml-org/llama.cpp:server`. On first run the `init-slm` container downloads the weights from HuggingFace into a named Docker volume (`slm_data`) — subsequent starts detect the cached file and skip the download. The `models` folder holds domain-specific fine-tuned adapters (e.g., `privacy-filter-fr-finance`) used by the optional token-classifier sidecar when `domain_snapshot` is set in `configs/config.yaml`. For strict air-gapped deployments, bake the GGUF weights into the Docker image at build time and set `SLM_MODEL_PATH` to the local path.
 
 ### If the default model is tuned for specific regions (like French financial formats), can we train or fine-tune the model to recognize other EU formats?
 Yes. OCULTAR uses a pluggable domain sidecar architecture. Enterprise clients can fine-tune `openai/privacy-filter` (or `piiranha-v1` for multilingual corpora) on their specific regional documents (e.g., French finance, German tax IDs, Spanish invoices) using the scripts in `scripts/fine_tune_privacy_filter.py`. The fine-tuned adapter is placed in `models/` and activated via `domain_snapshot` and `tier2_domain_sidecars` in `configs/config.yaml`. You can also instantly add static region-specific formats to the Tier 1 Regex Pipeline via `configs/config.yaml` without touching the AI model. A native in-process SLM engine (for fully static, zero-dependency binaries) is on the roadmap.
@@ -42,7 +42,7 @@ Sombra natively routes to **OpenAI**, **Gemini**, **Claude**, and **Local AI** p
 Crucially, because Sombra supports the OpenAI-compatible API standard, clients can seamlessly route traffic to **Mistral, DeepSeek, Qwen**, or any other compatible Chinese or open-source model simply by defining them in `sombra.yaml` with the `openai` provider type and updating the `endpoint` URL.
 
 ### I see references to `llama.cpp`. I thought we were using the OpenAI SDK?
-These are two different AI systems serving different purposes. Your application uses the OpenAI SDK to talk to its upstream LLM (GPT-4, Claude, etc.). OCULTAR intercepts those requests and scrubs PII *before* forwarding them, using a completely local privacy filter model — currently `openai/privacy-filter`, a bidirectional token classifier running in a Python sidecar (`apps/slm-engine`). No data is sent externally for PII detection. The `llama.cpp` references in older documentation refer to a planned native in-process engine that is not yet active; the Python sidecar is the current Tier 2 implementation.
+These are two different AI systems serving different purposes. Your application uses the OpenAI SDK to talk to its upstream LLM (GPT-4, Claude, etc.). OCULTAR intercepts those requests and scrubs PII *before* forwarding them, using a completely local NER model — no data is sent externally for PII detection. The default Tier 2 engine is `llama.cpp` serving **Qwen1.5-1.8B-Chat** via its OpenAI-compatible `/v1/chat/completions` API (the `slm-ner` Docker service). This is separate from `openai/privacy-filter`, a bidirectional token classifier available as an optional domain sidecar (e.g. for French finance). Both run entirely on your infrastructure.
 
 ### Can you explain the Proxy mode further?
 The Proxy is a transparent reverse proxy that sits between the client application and the LLM API. It redacts PII on the way out (Vaulting) and restores it on the way back (Re-hydration). It is the "Aha!" deployment method because it requires zero changes to the client's existing code—they just change their API base URL to point to OCULTAR.
@@ -193,21 +193,20 @@ GEMINI_API_KEY=your-key ./demo/run_demo.sh --record
 
 **Mock SLM Sidecar** replaces the real Tier 2 NER engine (`apps/slm-engine`). The real sidecar downloads `openai/privacy-filter` from HuggingFace on first run (~300 MB) and takes 15–30 seconds to warm up — unsuitable for a sub-20-second demo startup. The mock returns empty scan results, meaning Tier 2 contributes no additional detections. However, the demo PII (email, SSN, IBAN, phone) is fully caught by Tiers 0–1.5 (regex, dictionary, phone, IBAN heuristics), so the core zero-egress proof is intact.
 
-If you want Tier 2 to actively catch something — for example, a name buried in prose with no structured pattern — start the real sidecar stack separately before running the demo:
+If you want Tier 2 to actively catch something — for example, a name buried in prose with no structured pattern — start the real Qwen/llama.cpp engine before running the demo:
 
 ```bash
-# Terminal 1 — Python sidecar (downloads model on first run)
-PRIVACY_FILTER_MODEL_PATH=openai/privacy-filter PORT=8086 \
-  python apps/slm-engine/python/serve_privacy_filter.py
+# Terminal 1 — llama.cpp server (downloads Qwen ~1.2 GB on first run)
+docker run --rm -p 8080:8080 \
+  -v slm_data:/models \
+  ghcr.io/ggml-org/llama.cpp:server \
+  -m /models/model-q4_k_m.gguf -c 4096 --host 0.0.0.0 --port 8080
 
-# Terminal 2 — Go SLM engine
-PYTHON_SIDECAR_URL=http://localhost:8086 go run ./apps/slm-engine
-
-# Terminal 3
-./demo/run_demo.sh
+# Terminal 2 — demo with Qwen as Tier 2
+TIER2_ENGINE=llama-cpp SLM_SIDECAR_URL=http://localhost:8080 ./demo/run_demo.sh
 ```
 
-The demo will detect port 8085 is already occupied and skip starting the mock, routing the Enterprise Refinery to the real engine instead.
+The demo will detect the existing engine and route the Enterprise Refinery to Qwen/llama.cpp instead of the mock.
 
 ### Why does Sombra return "gemini: HTTP 404 ... is not found"?
 The Google Gemini API requires specific programmatic model names (e.g., `gemini-flash-latest` instead of `gemini-1.5-flash`). If Sombra requests an invalid name, Google's API will return a 404 error. Ensure your `sombra.yaml` configuration uses the exact name found in Google AI Studio, and that your API or `curl` calls request this exact name.

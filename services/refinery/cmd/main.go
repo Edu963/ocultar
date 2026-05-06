@@ -164,17 +164,32 @@ func main() {
 	basicLogger := &BasicFileLogger{path: "audit.log"}
 	eng.AuditLogger = basicLogger
 
-	// Enable Tier 2 AI if forced or licensed
+	// Enable Tier 2 AI if forced or licensed.
+	// TIER2_ENGINE selects the backend:
+	//   "llama-cpp" / "qwen" → QwenScanner (llama.cpp /v1/chat/completions, default port 8080)
+	//   anything else        → RemoteScanner (privacy-filter Python sidecar, default port 8085)
 	if !pilotMode {
-		sidecarURL := os.Getenv("SLM_SIDECAR_URL")
-		if sidecarURL == "" {
-			sidecarURL = "http://localhost:8085"
+		var scanner refinery.AIScanner
+		switch os.Getenv("TIER2_ENGINE") {
+		case "llama-cpp", "qwen":
+			qwenURL := os.Getenv("SLM_SIDECAR_URL")
+			if qwenURL == "" {
+				qwenURL = "http://localhost:8080"
+			}
+			scanner = inference.NewQwenScanner(qwenURL)
+			log.Printf("[INFO] Tier 2 AI active via Qwen/llama.cpp: %s", qwenURL)
+		default:
+			sidecarURL := os.Getenv("SLM_SIDECAR_URL")
+			if sidecarURL == "" {
+				sidecarURL = "http://localhost:8085"
+			}
+			scanner = inference.NewRemoteScanner(sidecarURL)
+			log.Printf("[INFO] Tier 2 AI active via privacy-filter sidecar: %s", sidecarURL)
 		}
-		scanner := inference.NewRemoteScanner(sidecarURL)
 		eng.SetAIScanner(scanner)
-		log.Printf("[INFO] Tier 2 AI active via SLM sidecar: %s", sidecarURL)
 
-		// Register per-domain sidecars from config (e.g. fr-finance → http://localhost:8087)
+		// Register per-domain sidecars from config (e.g. fr-finance → http://localhost:8087).
+		// Domain sidecars always use RemoteScanner (privacy-filter / piiranha-v1).
 		for domain, url := range config.Global.Tier2DomainSidecars {
 			ds := inference.NewRemoteScanner(url)
 			eng.SetDomainScanner(domain, ds)
