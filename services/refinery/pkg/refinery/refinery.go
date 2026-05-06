@@ -89,6 +89,9 @@ type Refinery struct {
 	Report       bool
 	Serve        string
 	PilotMode    bool
+	// SkipDeepScan disables Tier 2 AI scanning for this instance without removing the scanner.
+	// Useful for high-throughput batch jobs where speed takes priority over AI recall.
+	SkipDeepScan bool
 	VaultCount   *atomic.Int64
 	AuditLogger  AuditLogger
 	AIScanner    AIScanner
@@ -242,7 +245,7 @@ func (e *Refinery) ProcessInterface(data interface{}, actor string) (interface{}
 	// 1. If it's a large complex object, extract all text and run SLM ONCE per record
 	var preScanMap map[string][]string
 	scanner := e.activeScanner()
-	if scanner.IsAvailable() {
+	if scanner.IsAvailable() && !e.SkipDeepScan {
 		// Marshal the record to a flat string to scan it contextually in one go
 		textBytes, err := json.Marshal(data)
 		if err == nil {
@@ -533,7 +536,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 				}
 			}
 		}
-	} else if e.activeScanner().IsAvailable() && len(refined) > 15 && !e.isFullyTokenised(refined) {
+	} else if e.activeScanner().IsAvailable() && !e.SkipDeepScan && len(refined) > 15 && !e.isFullyTokenised(refined) {
 		piiMap, slmErr := e.activeScanner().ScanForPII(refined)
 		if slmErr != nil {
 			return "", fmt.Errorf("SLM inference failed: %w", slmErr)

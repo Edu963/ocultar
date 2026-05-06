@@ -52,8 +52,13 @@ func NewRemoteScanner(sidecarURL string) *RemoteScanner {
 	if sidecarURL == "" {
 		sidecarURL = "http://localhost:8085"
 	}
+	transport := &http.Transport{
+		MaxIdleConns:        50,
+		MaxIdleConnsPerHost: 20,
+		IdleConnTimeout:     90 * time.Second,
+	}
 	s := &RemoteScanner{
-		client:          &http.Client{Timeout: 30 * time.Second},
+		client:          &http.Client{Timeout: 30 * time.Second, Transport: transport},
 		sidecarURL:      sidecarURL,
 		state:           stateClosed,
 		lastStateChange: time.Now(),
