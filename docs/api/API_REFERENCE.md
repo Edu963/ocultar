@@ -19,6 +19,7 @@
 6. [HTTP Endpoints](#6-http-endpoints)
    - [POST /api/refine](#61-post-apirefine)
    - [POST /api/refine/file](#62-post-apirefinefile)
+   - [GET /api/compliance/evidence](#612-get-apicomplianceevidence)
 7. [HTTP Proxy Mode](#7-http-proxy-mode)
 8. [Error Reference](#8-error-reference)
 
@@ -512,6 +513,21 @@ Call Sarah at +33 6 12 34 56 78 or email sarah@example.com
 }
 ```
 
+**Response `403 Forbidden` (policy violation):**
+
+When one or more active policies match a detected entity with `action: block`, the request is rejected before the refined output is returned. The response body contains the policy name and the entity *type* (never the raw PII value):
+
+```json
+{
+  "error":          "policy_violation",
+  "message":        "Request blocked by policy 'block-health-data'.",
+  "policy":         "block-health-data",
+  "blocked_entity": "HEALTH_ENTITY"
+}
+```
+
+The block event is written to the audit log with action `POLICY_BLOCK`.
+
 **Size limit:** 5 MB. Payloads exceeding this are rejected with `413 Request Entity Too Large`.
 
 ---
@@ -583,6 +599,54 @@ Returns the **Canonical Entity Registry**: a complete mapping of all OCULTAR int
 ### 6.11 `GET /api/config/system`
 
 Returns system-level limits (`max_concurrency`, `queue_size`).
+
+---
+
+### 6.12 `GET /api/compliance/evidence`
+
+Returns a compliance evidence snapshot suitable for polling by SOC 2 / ISO 27001 audit tools (Vanta, Drata, Secureframe, or any custom collector). No authentication is required by default — protect with a network boundary or reverse proxy ACL in production.
+
+**Response `200 OK`:**
+
+```json
+{
+  "schema_version": "1",
+  "generated_at":   "2026-05-09T14:32:00Z",
+  "engine_version": "1.14",
+  "uptime":         "3h24m15s",
+  "vault_entries":  14823,
+  "policies_active": 2,
+  "policy_snapshot": [
+    {
+      "name":   "block-health-data",
+      "when":   { "entity": ["HEALTH_ENTITY", "SENSITIVE_EVENT"], "min_confidence": 0.8 },
+      "action": "block"
+    }
+  ],
+  "tiers_active": {
+    "tier0_dictionary": true,
+    "tier1_regex":      true,
+    "tier2_ai":         false
+  },
+  "audit_log_tail": [
+    {
+      "timestamp":          "2026-05-09T14:31:55Z",
+      "user":               "192.168.1.10:54321",
+      "action":             "POLICY_BLOCK",
+      "result":             "block-health-data",
+      "compliance_mapping": "HEALTH_ENTITY"
+    }
+  ]
+}
+```
+
+| Field | Description |
+|---|---|
+| `vault_entries` | Total distinct PII tokens stored since last vault reset |
+| `policies_active` | Number of active governance policy rules |
+| `policy_snapshot` | Full policy list as configured — proves policies are defined |
+| `tiers_active` | Which detection tiers are enabled |
+| `audit_log_tail` | Last 10 audit log entries including POLICY_BLOCK events |
 
 ---
 

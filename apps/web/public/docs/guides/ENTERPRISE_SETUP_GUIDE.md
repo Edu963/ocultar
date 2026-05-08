@@ -274,6 +274,72 @@ echo "Patient PTN-001234 was admitted." | ./ocultar-enterprise
 
 ---
 
+## 6. Policy-as-Code (Governance)
+
+Policies are evaluated **after PII detection, before the refined output is returned**. They let you enforce data-governance rules without writing code — just YAML in `configs/config.yaml`.
+
+### Policy Schema
+
+```yaml
+policies:
+  - name: <string>          # human-readable rule name (appears in audit log + 403 body)
+    when:
+      entity: [<TYPE>, ...]  # entity types to match (use "*" for any)
+      min_confidence: 0.0    # optional float 0.0–1.0; skip hits below this threshold
+    action: block            # "block" → HTTP 403 | "redact" → default behavior
+```
+
+### Example Policies
+
+```yaml
+policies:
+  # Hard-stop any request containing medical/sensitive life-event data
+  - name: block-health-data
+    when:
+      entity: [HEALTH_ENTITY, SENSITIVE_EVENT]
+      min_confidence: 0.8
+    action: block
+
+  # Block exposed credentials immediately — regardless of confidence
+  - name: block-credentials-always
+    when:
+      entity: [CREDENTIAL, SECRET, AWS_KEY, AWS_SECRET]
+    action: block
+
+  # Financial identifiers — redact (default), no hard block
+  - name: redact-financials
+    when:
+      entity: [IBAN, CREDIT_CARD, SSN]
+    action: redact
+```
+
+### Block Response
+
+A blocked request returns `HTTP 403` with a sanitized body — no raw PII values are included:
+
+```json
+{
+  "error":          "policy_violation",
+  "message":        "Request blocked by policy 'block-health-data'.",
+  "policy":         "block-health-data",
+  "blocked_entity": "HEALTH_ENTITY"
+}
+```
+
+The block event is recorded in the audit log with action `POLICY_BLOCK`.
+
+### Compliance Evidence Endpoint
+
+Pull a compliance snapshot for any SOC 2 / ISO 27001 audit tool:
+
+```bash
+curl http://localhost:8080/api/compliance/evidence
+```
+
+Returns: vault entry count, active policy list, tier coverage, and the last 10 audit log entries. No credentials required — protect with network ACL in production.
+
+---
+
 ## 6. Dictionary Shield (`configs/protected_entities.json`)
 
 `configs/protected_entities.json` is the **Tier 0 Dictionary Shield** — a mandatory fail-closed dependency. The refinery **will not start** if this file is missing or empty.

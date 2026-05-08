@@ -19,6 +19,20 @@ type RegexRule struct {
 	Compiled *regexp.Regexp `yaml:"-" json:"-"`
 }
 
+// PolicyWhen defines the matching criteria for a governance policy rule.
+type PolicyWhen struct {
+	Entity        []string `yaml:"entity" json:"entity"`
+	MinConfidence float64  `yaml:"min_confidence" json:"min_confidence"`
+}
+
+// Policy is a single governance rule. Policies are evaluated in order;
+// the first matching "block" rule terminates request processing with HTTP 403.
+type Policy struct {
+	Name   string     `yaml:"name" json:"name"`
+	When   PolicyWhen `yaml:"when" json:"when"`
+	Action string     `yaml:"action" json:"action"` // "block" | "redact"
+}
+
 type DictRule struct {
 	Type  string   `yaml:"type" json:"type"`
 	Terms []string `yaml:"terms" json:"terms"`
@@ -56,6 +70,10 @@ type Settings struct {
 	CRMEndpoint  string `yaml:"crm_endpoint"`
 	CRMApiKey    string `yaml:"crm_api_key"`
 	SyncInterval string `yaml:"sync_interval"` // e.g. "5m"
+
+	// Governance: Policy-as-code rules evaluated after PII detection.
+	// Policies are checked in order; first matching "block" returns HTTP 403.
+	Policies []Policy `yaml:"policies" json:"policies"`
 
 	// Debug/Demo Mode: Include internal metadata in responses (e.g., ai_saw)
 	ShowDebugMetadata bool `yaml:"show_debug_metadata" json:"show_debug_metadata"`

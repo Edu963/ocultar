@@ -22,6 +22,7 @@ import (
 	"github.com/Edu963/ocultar/pkg/audit"
 	"github.com/Edu963/ocultar/pkg/config"
 	"github.com/Edu963/ocultar/pkg/connector"
+	"github.com/Edu963/ocultar/pkg/policy"
 	_ "github.com/Edu963/ocultar/pkg/connector/slack"
 	"github.com/Edu963/ocultar/pkg/identities"
 	"github.com/Edu963/ocultar/pkg/inference"
@@ -578,6 +579,51 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		})
 	})
 
+	http.HandleFunc("/api/compliance/evidence", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		vaultEntries := int64(0)
+		if eng.VaultCount != nil {
+			vaultEntries = eng.VaultCount.Load()
+		}
+
+		auditTail, _ := readLastLines("audit.log", 10)
+		var auditEntries []map[string]interface{}
+		for _, line := range auditTail {
+			var entry map[string]interface{}
+			if json.Unmarshal([]byte(line), &entry) == nil {
+				auditEntries = append(auditEntries, entry)
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"schema_version":  "1",
+			"generated_at":    time.Now().UTC().Format(time.RFC3339),
+			"engine_version":  VERSION,
+			"uptime":          time.Since(startTime).String(),
+			"vault_entries":   vaultEntries,
+			"policies_active": len(config.Global.Policies),
+			"policy_snapshot": config.Global.Policies,
+			"tiers_active": map[string]bool{
+				"tier0_dictionary": len(config.Global.Dictionaries) > 0,
+				"tier1_regex":      len(config.Global.Regexes) > 0,
+				"tier2_ai":         eng.AIScanner != nil && eng.AIScanner.IsAvailable(),
+			},
+			"audit_log_tail": auditEntries,
+		})
+	})
+
 	http.HandleFunc("/api/content", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*"); w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE"); w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Content-Type", "application/json")
@@ -1097,6 +1143,21 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		}
 
 		rpt := eng.GenerateReport(1)
+
+		if len(config.Global.Policies) > 0 {
+			if d := policy.Evaluate(config.Global.Policies, rpt.Hits); d.Blocked {
+				eng.AuditLogger.Log(actor, "POLICY_BLOCK", d.PolicyName, d.BlockedEntity)
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				json.NewEncoder(w).Encode(map[string]string{
+					"error":          "policy_violation",
+					"message":        "Request blocked by policy '" + d.PolicyName + "'.",
+					"policy":         d.PolicyName,
+					"blocked_entity": d.BlockedEntity,
+				})
+				return
+			}
+		}
 
 		response := map[string]interface{}{
 			"refined": refinedOutput,
