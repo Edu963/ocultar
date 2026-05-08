@@ -1,0 +1,48 @@
+# OCULTAR — French Finance Sovereign Deployment
+# Pre-configured for GDPR Art. 25/32, CNIL, and PCI-DSS v4.0
+# ─────────────────────────────────────────────────────────────────────────────
+# Drop this file at configs/config.yaml (or mount it via docker-compose.french-finance.yml)
+# to activate French finance governance without touching the base image.
+
+# Tier 2 AI minimum confidence threshold (0.0–1.0)
+slm_confidence: 0.75
+
+# Custom dictionary rules — add your institution's internal project names here
+dictionaries:
+  - type: INTERNAL_PROJECT
+    terms:
+      - "Projet Phoenix"
+      - "Protocole Aurora"
+      - "Dossier Confidentiel"
+
+# ── Governance Policies (evaluated after PII detection, before response) ──────
+#
+# Rules are matched in order. First matching "block" returns HTTP 403.
+# The blocked_entity field in the response contains the entity TYPE only —
+# no raw PII value is ever returned in an error body.
+#
+policies:
+  # OWASP / PCI-DSS: Credentials must never reach an AI model
+  - name: block-credentials-always
+    when:
+      entity: [CREDENTIAL, SECRET, AWS_KEY, AWS_SECRET]
+    action: block
+
+  # GDPR Art. 9: Special category data — block if detected with high confidence
+  - name: block-special-category-data
+    when:
+      entity: [HEALTH_ENTITY, SENSITIVE_EVENT]
+      min_confidence: 0.8
+    action: block
+
+  # PCI-DSS + GDPR Art. 4: Financial identifiers — redact deterministically
+  - name: redact-financial-identifiers
+    when:
+      entity: [IBAN, CREDIT_CARD, FRANCE_SIREN_NUMBER, FRANCE_SIRET_NUMBER, EU_VAT, BIC, TRANSACTION_CODE]
+    action: redact
+
+  # CNIL + GDPR Art. 9: National identity numbers
+  - name: redact-national-ids
+    when:
+      entity: [FR_NIR, SSN, UK_NINO, DE_STEUER_ID, ES_DNI, IT_CODICE_FISCALE, NL_BSN]
+    action: redact

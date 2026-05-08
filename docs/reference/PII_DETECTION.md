@@ -40,7 +40,10 @@ The `method` tag appears in each `DetectionResult.method` field returned by `/ap
 | `[IBAN_...]` | Financial | International Bank Account Numbers. Validated with MOD97 checksum. | GDPR, PCI-DSS |
 | `[CREDIT_CARD_...]` | Financial | Credit card numbers (Visa, Mastercard, Amex, Discover, JCB). Every candidate is validated with the **Luhn algorithm (mod-10 checksum)** before vaulting — sequences that fail are not redacted, eliminating false positives. | PCI-DSS, GDPR |
 | `[EU_VAT_...]` | Financial | EU and UK Value Added Tax numbers. | GDPR, Tax Compliance |
-| `[FR_NIR_...]` | Identity | French Social Security Numbers (NIR). | GDPR Art. 9, CNIL |
+| `[FR_NIR_...]` | Identity | French Social Security Numbers (NIR). Supports spaced formats (`1 85 06 75 115 423 18`). Key digit validated. | GDPR Art. 9, CNIL |
+| `[FRANCE_SIREN_NUMBER_...]` | Business Identity | French company identifier (9 digits). Luhn validated. | GDPR Art. 4(1) |
+| `[FRANCE_SIRET_NUMBER_...]` | Business Identity | French establishment identifier (14 digits = SIREN + NIC). Luhn validated. | GDPR Art. 4(1) |
+| `[BIC_...]` | Financial | BIC/SWIFT codes for international bank identification. | GDPR Art. 4(1), PCI-DSS |
 | `[ES_DNI_...]` | Identity | Spanish National Identity Numbers (DNI/NIE/CIF). | LOPD, GDPR |
 | `[DE_STEUER_ID_...]` | Identity | German Tax Identification Numbers. | GDPR, BDSG |
 | `[IT_CODICE_FISCALE_...]` | Identity | Italian Fiscal Codes. | GDPR, Codice in materia di protezione dei dati personali |
