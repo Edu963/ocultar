@@ -98,29 +98,46 @@ Read the launch story: [OpenAI shipped a model. We built the system.](https://de
 
 Ocultar's responsibility ends at `POST /refine`. It returns `cleanText` and a vault token map. It has no knowledge of downstream AI decisions. Callers must fail loudly if Ocultar is unavailable — never degrade gracefully by passing raw data.
 
-## Getting Started
+## Quick Start
 
-1.  **Secrets Management**:
-    OCULTAR uses **Doppler** for secure secret injection.
-    ```bash
-    doppler setup
-    ```
+Prerequisites: [Docker](https://docs.docker.com/get-docker/) + Docker Compose v2.
 
-2.  **Go Workspace**:
-    ```bash
-    go work sync
-    ```
+```bash
+git clone https://github.com/Edu963/ocultar && cd ocultar
+docker compose up --build
+```
 
-3.  **Build and Run**:
-    ```bash
-    make build
-    ./scripts/start.sh
-    ```
+That's it. The proxy is live at **http://localhost:8081**. First build takes ~5 minutes (compiling Go + CGO for DuckDB). Every subsequent start is instant.
+
+Send a test request through the proxy:
+
+```bash
+curl -s http://localhost:8081/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o","messages":[{"role":"user","content":"My email is alice@example.com and SSN is 123-45-6789"}]}'
+```
+
+PII is tokenized before reaching the upstream — check the echo response to confirm `[EMAIL_...]` and `[SSN_...]` tokens in place of the originals.
+
+**Add AI-powered Tier 2 NER** (downloads ~500 MB model on first run):
+
+```bash
+OCU_PILOT_MODE=0 docker compose --profile ai up --build
+```
+
+**Use real API keys / custom secrets:**
+
+```bash
+cp .env.example .env   # edit with your keys
+docker compose up --build
+```
+
+**Prometheus metrics**: http://localhost:9090/metrics
 
 ## Development
 
 - **Documentation**: See `/docs/reference` for architecture details.
-- **Testing**: Run `go test ./...` to verify all modules.
+- **Testing**: Run `go test ./...` to verify all modules (requires CGO: `cd services/refinery && CGO_ENABLED=1 go test ./...`).
 
 ## Discovery & Community
 

@@ -1,6 +1,53 @@
 # OCULTAR | Setup & Usage Guide
 
-This guide covers how to package OCULTAR for a client, how to run it locally, and how to use the dashboard. Written for non-technical users and hands-on evaluators alike.
+This guide covers how to run OCULTAR locally, package it for a client, and use the dashboard.
+
+---
+
+## Quick Start (5 minutes)
+
+The fastest path to a working demo. You only need [Docker](https://docs.docker.com/get-docker/) and Docker Compose v2 — no secrets manager, no Go toolchain.
+
+```bash
+git clone https://github.com/Edu963/ocultar
+cd ocultar
+docker compose up --build
+```
+
+First build takes ~5 minutes (compiling Go + DuckDB/CGO). Every subsequent start is instant.
+
+**What's running:**
+
+| Service | URL | What it does |
+|---------|-----|--------------|
+| `ocultar-proxy` | http://localhost:8081 | PII detection + redaction proxy |
+| `echo-upstream` | http://localhost:8082 | Mock AI API (reflects the request back) |
+| Prometheus metrics | http://localhost:9090/metrics | Live tier hit rates, latency, vault size |
+
+**Test it:**
+
+```bash
+curl -s http://localhost:8081/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o","messages":[{"role":"user","content":"My email is alice@example.com and SSN is 123-45-6789"}]}'
+```
+
+The echo response shows `[EMAIL_...]` and `[SSN_...]` tokens — the originals never reached the upstream.
+
+**Add AI-powered Tier 2 NER** (downloads ~500 MB model on first run):
+
+```bash
+OCU_PILOT_MODE=0 docker compose --profile ai up --build
+```
+
+**Use real API keys:**
+
+```bash
+cp .env.example .env   # edit with your keys and upstream URL
+docker compose up --build
+```
+
+> **Security note:** The default demo keys in `.env.example` are intentionally insecure. Always set `OCU_MASTER_KEY` and `OCU_SALT` to high-entropy values before connecting real data.
 
 ---
 

@@ -1,0 +1,90 @@
+# docker-compose.yml — OCULTAR demo stack
+#
+# Prerequisites: Docker + Docker Compose v2
+#
+# Quick demo (Tier 1 detection, no AI model needed, ~5 min first build):
+#   docker compose up --build
+#
+# Full AI stack (Tier 2 NER — downloads ~500 MB model on first run):
+#   OCU_PILOT_MODE=0 docker compose --profile ai up --build
+#
+# Custom secrets:
+#   cp .env.example .env   # edit .env with real values
+#   docker compose up --build
+#
+# What runs:
+#   echo-upstream → lightweight mock API (port 8082)
+#   ocultar-proxy → privacy proxy, PII redaction (port 8081), metrics (port 9090)
+#   privacy-filter [profile: ai] → Tier 2 NER sidecar (port 8086)
+
+services:
+
+  # ── Mock upstream "AI API" ────────────────────────────────────────────────
+  echo-upstream:
+    image: ealen/echo-server:latest
+    container_name: ocultar-echo-upstream
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+      - ENABLE__ENVIRONMENT=false
+    ports:
+      - "8082:8080"
+
+  # ── OCULTAR Privacy Proxy ─────────────────────────────────────────────────
+  ocultar-proxy:
+    build:
+      context: .
+      dockerfile: apps/proxy/Dockerfile
+    container_name: ocultar-proxy
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+      - "9090:9090"
+    environment:
+      - OCU_PROXY_TARGET=http://echo-upstream:8080
+      - OCU_PROXY_PORT=8081
+      - OCU_VAULT_PATH=/data/vault.db
+      - OCU_MASTER_KEY=${OCU_MASTER_KEY:-ocultar-demo-master-key-change-in-prod}
+      - OCU_SALT=${OCU_SALT:-ocultar-demo-salt-change-in-prod}
+      - OCU_PILOT_MODE=${OCU_PILOT_MODE:-1}
+      - OCU_LICENSE_KEY=${OCU_LICENSE_KEY:-}
+      - OCU_AUDIT_PRIVATE_KEY=${OCU_AUDIT_PRIVATE_KEY:-}
+      - OCU_AUDIT_LOG_PATH=/data/audit.log
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-mock-demo-key}
+      # Tier 2 sidecar — active only when --profile ai is used
+      - TIER2_ENGINE=${TIER2_ENGINE:-privacy-filter}
+      - SLM_SIDECAR_URL=http://privacy-filter:8086
+    volumes:
+      - vault-data:/data
+    depends_on:
+      echo-upstream:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  # ── Tier 2 AI NER sidecar (opt-in: --profile ai) ──────────────────────────
+  # Downloads the privacy-filter model (~500 MB) on first run.
+  # Subsequent starts use the cached model in the ./models volume.
+  privacy-filter:
+    profiles: [ai]
+    build:
+      context: ./apps/slm-engine/python
+      dockerfile: Dockerfile
+    container_name: ocultar-privacy-filter
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      - PRIVACY_FILTER_MODEL_PATH=${PRIVACY_FILTER_MODEL_PATH:-openai/privacy-filter}
+    volumes:
+      - ./models:/app/models:Z
+
+volumes:
+  vault-data:
+
+networks:
+  default:
+    name: ocultar-net
