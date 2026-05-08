@@ -167,10 +167,25 @@ OCULTAR uses an **Offline Ed25519** model. To activate:
    Regards, [PERSON_5e4f3a2b]
    ```
 
-4. The **Egress Feed** (the live log panel) shows internal refinery events:
-   - `REF_MATCH` — a PII type was intercepted
-   - `VAULT_SAVE` — a new encrypted token was stored
-   - `VAULT_LOCK` — the vault security handshake
+4. The **Detection Attribution** panel appears below the output. For each entity found it shows:
+
+   | Column | What it means |
+   |--------|--------------|
+   | Entity type | `EMAIL`, `PHONE`, `SSN`, `PERSON`, etc. |
+   | Tier · Method | Which pipeline tier caught it and how (e.g. `Tier 1 · Rule Engine`, `Tier 1.5 · Greeting Shield`, `Tier 2 · AI NER`) |
+   | `@offset` | Character position in the original text |
+   | Confidence | Detection certainty (100% for rule-based, lower for contextual) |
+
+   Example output for the text above:
+
+   | Entity | Tier | Method | Location | Confidence |
+   |--------|------|--------|----------|------------|
+   | EMAIL | Tier 1 | Rule Engine | @6-30 | 100% |
+   | PHONE | Tier 1.1 | Phone Shield | @36-55 | 100% |
+   | IBAN | Tier 1 | Rule Engine · Validated | @62-84 | 100% |
+   | PERSON | Tier 1.5 | Greeting Shield | @94-106 | 100% |
+
+5. The **Secure Audit Trail** (right panel) shows the live Ed25519-signed log of vault events.
 
 ### Testing with Large Files
 

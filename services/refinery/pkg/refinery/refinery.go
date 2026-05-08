@@ -445,7 +445,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	// TIER 0: Dynamic Exclusion Dictionaries
 	for _, dictRule := range config.Global.Dictionaries {
 		for _, term := range dictRule.Terms {
-			refined, err = e.applyReplacement(refined, term, dictRule.Type, actor)
+			refined, err = e.applyReplacement(refined, term, dictRule.Type, "dictionary", actor)
 			if err != nil {
 				return "", err
 			}
@@ -487,7 +487,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		var phoneErr error
 		refined, phoneErr = parseAndReplaceWithErr(refined, ParseAndReplacePhonesRaw, func(match string) (string, error) {
 			log.Printf("[DEBUG] Tier 1.1 Phone hit: %s", match)
-			return e.getOrSetSecureToken(match, "PHONE", actor)
+			return e.getOrSetSecureToken(match, "PHONE", "phone", actor)
 		})
 		if phoneErr != nil {
 			return "", phoneErr
@@ -497,7 +497,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 
 	if len(refined) > 10 && (strings.ContainsAny(refined, "0123456789") || containsAnyLower(refined, "rue", "calle", "street", "ave", "road", "str.")) {
 		refined, err = parseAndReplaceWithErr(refined, ParseAndReplaceAddressesRaw, func(match string) (string, error) {
-			return e.getOrSetSecureToken(match, "ADDRESS", actor)
+			return e.getOrSetSecureToken(match, "ADDRESS", "address", actor)
 		})
 		if err != nil {
 			return "", err
@@ -516,7 +516,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 			start, end := match[2], match[3]
 			nameStr := refined[start:end]
 			if !strings.HasPrefix(nameStr, "[") {
-				refined, err = e.applyReplacement(refined, nameStr, "PERSON", actor)
+				refined, err = e.applyReplacement(refined, nameStr, "PERSON", "greeting", actor)
 				if err != nil {
 					return "", err
 				}
@@ -529,7 +529,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		for piiType, items := range preScanMap {
 			for _, item := range items {
 				if len(strings.TrimSpace(item)) > 2 && strings.Contains(refined, item) {
-					refined, err = e.applyReplacement(refined, item, piiType, actor)
+					refined, err = e.applyReplacement(refined, item, piiType, "ai-ner", actor)
 					if err != nil {
 						return "", err
 					}
@@ -545,7 +545,7 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 			for _, item := range items {
 				if len(strings.TrimSpace(item)) > 2 {
 					log.Printf("[DEBUG] Tier 2 SLM hit: %s (%s)", item, piiType)
-					refined, err = e.applyReplacement(refined, item, piiType, actor)
+					refined, err = e.applyReplacement(refined, item, piiType, "ai-ner", actor)
 					if err != nil {
 						return "", err
 					}
@@ -624,7 +624,7 @@ func (e *Refinery) applyStructuralHeuristics(input string, actor string) (string
 	// Done first to ensure it runs even if no tokens are present.
 	refined, _ = replaceAllStringFuncErr(semanticTriggerRegex, refined, func(match string) (string, error) {
 		// Redact the trigger itself to hide the sensitive category
-		return e.getOrSetSecureToken(match, "SENSITIVE_EVENT", actor)
+		return e.getOrSetSecureToken(match, "SENSITIVE_EVENT", "structural", actor)
 	})
 
 	// 2. Professional Shield: [TITLE] [CAPITALIZED_NAME]
@@ -643,14 +643,14 @@ func (e *Refinery) applyStructuralHeuristics(input string, actor string) (string
 					break
 				}
 			}
-			return e.getOrSetSecureToken(expanded, "HEALTH_ENTITY", actor)
+			return e.getOrSetSecureToken(expanded, "HEALTH_ENTITY", "structural", actor)
 		}
 		return match, nil // No expansion
 	})
 
 	// 3. Possessive Catch: [CAPITALIZED_WORD]'s
 	refined, _ = replaceAllStringFuncErr(possessiveRegex, refined, func(match string) (string, error) {
-		return e.getOrSetSecureToken(match, "PERSON", actor)
+		return e.getOrSetSecureToken(match, "PERSON", "structural", actor)
 	})
 
 	// 4. Greedy Neighborhood & Conjunctions: [TOKEN] [CONJUNCTION] [CAPITALIZED_NAME]
@@ -703,7 +703,7 @@ func (e *Refinery) applyStructuralHeuristics(input string, actor string) (string
 			// Expansion occurred
 			expandedPII := refined[start:lookaheadEnd]
 			piiType := strings.Split(strings.Trim(currentToken, "[]"), "_")[0]
-			newToken, err := e.getOrSetSecureToken(expandedPII, piiType, actor)
+			newToken, err := e.getOrSetSecureToken(expandedPII, piiType, "structural", actor)
 			if err != nil {
 				return "", err
 			}
@@ -725,7 +725,7 @@ func (e *Refinery) isFullyTokenised(s string) bool {
 }
 
 // applyReplacement replaces exact target strings with vaulted tokens.
-func (e *Refinery) applyReplacement(line, target, piiType string, actor string) (string, error) {
+func (e *Refinery) applyReplacement(line, target, piiType, source string, actor string) (string, error) {
 	target = strings.TrimSpace(target)
 	if len(target) < 3 {
 		return line, nil
@@ -743,18 +743,17 @@ func (e *Refinery) applyReplacement(line, target, piiType string, actor string) 
 	}
 
 	return replaceAllStringFuncErr(re, line, func(match string) (string, error) {
-		return e.getOrSetSecureToken(match, piiType, actor)
+		return e.getOrSetSecureToken(match, piiType, source, actor)
 	})
 }
 
-func (e *Refinery) getOrSetSecureToken(val, piiType string, actor string) (string, error) {
+func (e *Refinery) getOrSetSecureToken(val, piiType, source string, actor string) (string, error) {
 	res := pii.DetectionResult{
 		Entity:     piiType,
 		Value:      val,
 		Confidence: 1.0,
-		Method:     []string{"heuristic"},
+		Method:     []string{source},
 	}
-	// Note: We don't have start/end offsets here for simple string replacements
 	return e.getOrSetSecureResult(res, actor)
 }
 

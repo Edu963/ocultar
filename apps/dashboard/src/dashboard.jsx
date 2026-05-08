@@ -31,6 +31,7 @@ const Dashboard = () => {
   const [isRefining, setIsRefining] = useState(false);
   const [testInput, setTestInput] = useState('');
   const [testOutput, setTestOutput] = useState('');
+  const [piiHits, setPiiHits] = useState([]);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
@@ -124,6 +125,7 @@ const Dashboard = () => {
   const handleTestRefinery = async () => {
     setIsRefining(true);
     setTestOutput('');
+    setPiiHits([]);
     try {
       const res = await fetch(`${OCULTAR_API}/refine`, {
         method: 'POST',
@@ -132,6 +134,7 @@ const Dashboard = () => {
       });
       const data = await res.json();
       setTestOutput(data.refined || (typeof data === 'string' ? data : JSON.stringify(data, null, 2)));
+      setPiiHits(data.report?.pii_hits || []);
     } catch (e) {
       setTestOutput("ERROR: Refinery unreachable.");
     } finally {
@@ -266,6 +269,9 @@ const Dashboard = () => {
                   <div className="mt-4 p-3 bg-emerald-50/50 border border-emerald-500/20 rounded font-mono text-[10px] text-emerald-700 break-all overflow-auto max-h-40">
                     {testOutput}
                   </div>
+                )}
+                {piiHits.length > 0 && (
+                  <DetectionAttribution hits={piiHits} />
                 )}
               </div>
 
@@ -473,6 +479,59 @@ const LogLine = ({ time, level, msg, color }) => (
     <span className="text-slate-400 shrink-0 select-none py-0.5">{time}</span>
     <span className={`shrink-0 font-bold select-none py-0.5 ${level === 'WARN' ? 'text-amber-600' : 'text-blue-600'}`}>{level}</span>
     <span className={`${color || 'text-slate-700'} break-all font-medium py-0.5`}>{msg}</span>
+  </div>
+);
+
+const TIER_MAP = {
+  'regex':      { tier: 'Tier 1',   label: 'Rule Engine',     bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200' },
+  'phone':      { tier: 'Tier 1.1', label: 'Phone Shield',    bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200' },
+  'address':    { tier: 'Tier 1.2', label: 'Address Shield',  bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200' },
+  'greeting':   { tier: 'Tier 1.5', label: 'Greeting Shield', bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200' },
+  'dictionary': { tier: 'Tier 0',   label: 'Dictionary',      bg: 'bg-slate-100', text: 'text-slate-600',  border: 'border-slate-200' },
+  'ai-ner':     { tier: 'Tier 2',   label: 'AI NER',          bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200' },
+  'structural': { tier: 'Tier 3',   label: 'Structural',      bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200' },
+  'heuristic':  { tier: '—',        label: 'Heuristic',       bg: 'bg-slate-50',  text: 'text-slate-500',  border: 'border-slate-200' },
+};
+
+const getTierInfo = (methods) => {
+  if (!methods?.length) return TIER_MAP['heuristic'];
+  const primary = methods.find(m => m !== 'checksum') || 'heuristic';
+  const info = TIER_MAP[primary] || TIER_MAP['heuristic'];
+  const validated = methods.includes('checksum');
+  return { ...info, label: validated ? info.label + ' · Validated' : info.label };
+};
+
+const DetectionAttribution = ({ hits }) => (
+  <div className="mt-4 border border-slate-200 rounded-lg overflow-hidden">
+    <div className="flex items-center justify-between px-3 py-2 bg-slate-50 border-b border-slate-200">
+      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+        <Shield className="w-3 h-3 text-emerald-500" /> Detection Attribution
+      </span>
+      <span className="text-[10px] font-mono text-slate-400">{hits.length} entit{hits.length === 1 ? 'y' : 'ies'} detected</span>
+    </div>
+    <div className="divide-y divide-slate-100 max-h-48 overflow-y-auto">
+      {hits.map((hit, i) => {
+        const tierInfo = getTierInfo(hit.method);
+        return (
+          <div key={i} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 transition-colors">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-mono text-[10px] font-bold text-slate-800 shrink-0">{hit.entity}</span>
+              <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded border ${tierInfo.bg} ${tierInfo.text} ${tierInfo.border} shrink-0`}>
+                {tierInfo.tier} · {tierInfo.label}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              {hit.location && (
+                <span className="text-[9px] font-mono text-slate-400">@{hit.location}</span>
+              )}
+              <span className="text-[9px] font-mono text-emerald-600 font-bold">
+                {Math.round((hit.confidence || 1) * 100)}%
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   </div>
 );
 
