@@ -10,6 +10,7 @@ const SECTIONS = [
     label: "Guides",
     items: [
       { label: "Setup Guide", path: "guides/SETUP_GUIDE.md" },
+      { label: "French Finance Quickstart", path: "guides/FRENCH_FINANCE_QUICKSTART.md" },
       { label: "Developer Guide", path: "guides/DEVELOPER_GUIDE.md" },
       { label: "Enterprise Setup", path: "guides/ENTERPRISE_SETUP_GUIDE.md" },
       { label: "MCP Extensions", path: "guides/MCP_EXTENSIONS.md" },
@@ -41,6 +42,7 @@ const SECTIONS = [
     label: "Compliance & Security",
     items: [
       { label: "GDPR / Privacy by Design", path: "compliance/GDPR_PRIVACY_BY_DESIGN.md" },
+      { label: "GDPR — French Finance (DPO)", path: "compliance/GDPR_FRENCH_FINANCE.md" },
       { label: "Security Model", path: "security/SECURITY_MODEL.md" },
     ],
   },
