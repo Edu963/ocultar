@@ -91,3 +91,6 @@ ROADMAP.md
 
 # Doppler config
 doppler.yaml
+
+# Training & Knowledge (isolated from git tracking)
+academy/
