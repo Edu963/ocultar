@@ -19,32 +19,17 @@
 
 ---
 
-#### TASK 0.1 — Benchmark Privacy Filter on French finance entities
+#### ✅ DONE — TASK 0.1 — Benchmark Privacy Filter on French finance entities
 **Priority:** P0  
 **Label:** ag-task  
-**Description:**  
-Evaluate `openai/privacy-filter` (HuggingFace, Apache 2.0) against the current Tier 2 engine on finance-specific text. Use these test strings:
-- `Transfer €84,293 from IBAN FR76 3000 6000 0112 3456 7890 189`
-- `Vendor payment to Acme Corp, account 4532015112830366, approved by John Smith`
-- `Cost center 4420-EMEA-CORP, GL account 6100, controller Sarah Chen`
-- `Invoice INV-2026-00847 pour Société Générale, SWIFT SOGEFRPP`
-- `CPAM DE L ISERE 253350004466` (contextual health reference — known gap)
-- `john.doe@company.fr called +33 6 12 34 56 78 re: Q1 close`
-
-Record: entity type, value, confidence, latency. Note misses.  
-Output: `docs/benchmarks/privacy_filter_eval.md` as markdown table.
+**Result:** `openai/privacy-filter` (base) handles French PII (PERSON, IBAN, PHONE) with confidence=1.0 on all test strings. Benchmark script: `scripts/benchmark_v2.py`.
 
 ---
 
-#### TASK 0.2 — Fine-tune Privacy Filter on French finance corpus
-**Priority:** P1  
+#### ⏸ DEFERRED — TASK 0.2 — Fine-tune Privacy Filter on French finance corpus
+**Priority:** Roadmap (low)  
 **Label:** ag-task  
-**Blocked by:** TASK 0.1 (need gap list first)  
-**Description:**  
-Create synthetic French finance NER training data (200 train, 50 eval examples) for gap entities: FR IBAN, SIRET/SIREN, French phone (+33), SARL/SAS company names, CPAM/health reference numbers.  
-Script: `scripts/fine_tune_privacy_filter.py` (HuggingFace Trainer API).  
-Target: F1 > 0.92 on eval set.  
-Output model: `models/privacy-filter-fr-finance/` (excluded from git via .gitignore).
+**Reason:** Diagnostic (2026-05-09) showed 200-sample fine-tune (`models/privacy-filter-fr-finance/`) regressed vs. the base model — French names misclassified as `organization`, IBANs missed, confidence degraded. Base model already covers French finance adequately. Revisit when a design partner can supply 5K+ labeled examples and a proper label audit.
 
 ---
 

@@ -149,19 +149,13 @@ ocultar-proxy    | [INFO] OCULTAR proxy listening on :8081
 
 > **Note:** `init-slm` exits after the download completes — this is expected. `docker compose ps` will show it as `Exited (0)`.
 
-**Optional — Domain-specific NER sidecar (privacy-filter / piiranha-v1):**
+**Optional — Multilingual NER sidecar (piiranha-v1):**
 
-If you need a token-classifier sidecar for a specific domain (e.g. French finance), start it alongside the default stack using the `domain` profile:
+For mixed-language corpora, swap the default model for `piiranha-v1` by setting the model path before starting:
 
 ```bash
-docker compose --profile domain up -d
-```
-
-Then activate it in `configs/config.yaml`:
-```yaml
-domain_snapshot: fr-finance
-tier2_domain_sidecars:
-  fr-finance: "http://privacy-filter:8086"
+PRIVACY_FILTER_MODEL_PATH=iiiorg/piiranha-v1-detect-personal-information \
+MODEL_SCHEMA=piiranha docker compose --profile ai up -d
 ```
 
 ### Step 3 — Verify with the smoke test
@@ -254,20 +248,11 @@ dictionaries:
 # Each entry in tier2_domain_sidecars maps a domain name to a sidecar URL that
 # exposes GET /health and POST /scan {"text":"..."} → {"TYPE":["value"]}.
 #
-# "standard" (default) — uses openai/privacy-filter, good for English PII.
-# "fr-finance"         — French finance NER (account numbers, amounts, IBAN).
-# Any other string     — must match a key in tier2_domain_sidecars.
+# Default: openai/privacy-filter — strong multilingual PII coverage.
+# Alternative: piiranha-v1 — optimized for mixed-language corpora.
 domain_snapshot: standard
 
-# tier2_domain_sidecars:
-#   fr-finance: "http://localhost:8087"
-#
-# To start the fr-finance sidecar:
-#   PRIVACY_FILTER_MODEL_PATH=./models/privacy-filter-fr-finance \
-#   MODEL_SCHEMA=privacy-filter PORT=8087 \
-#   python apps/slm-engine/python/serve_privacy_filter.py
-#
-# To use piiranha-v1 (multilingual, recommended for mixed-language corpora):
+# To use piiranha-v1:
 #   PRIVACY_FILTER_MODEL_PATH=iiiorg/piiranha-v1-detect-personal-information \
 #   MODEL_SCHEMA=piiranha PORT=8086 \
 #   python apps/slm-engine/python/serve_privacy_filter.py

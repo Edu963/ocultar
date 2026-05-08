@@ -119,7 +119,7 @@ out = {
         "rows": en_rows,
     },
     "french_finance_suite": {
-        "rows_with_detection": f"{fr_detected}/{fr_total} ({100*fr_detected//fr_total}%)",
+        "detection_rate": f"{fr_detected}/{fr_total} ({100*fr_detected//fr_total}%)",
         "avg_latency_ms": round(sum(fr_latencies) / len(fr_latencies), 1),
         "rows": fr_rows,
     },
@@ -135,7 +135,7 @@ print(f"  Detection rate : {out['english_suite']['detection_rate']}")
 print(f"  Avg latency    : {out['english_suite']['avg_latency_ms']} ms")
 print()
 print("FRENCH FINANCE SUITE (20 samples, sensitive rows only)")
-print(f"  Rows detected  : {out['french_finance_suite']['rows_with_detection']}")
+print(f"  Rows detected  : {out['french_finance_suite']['detection_rate']}")
 print(f"  Avg latency    : {out['french_finance_suite']['avg_latency_ms']} ms")
 print()
 

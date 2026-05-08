@@ -58,7 +58,7 @@ services:
     ports:
       - "8086:8086"
     environment:
-      - PRIVACY_FILTER_MODEL_PATH=/app/models/privacy-filter-fr-finance
+      - PRIVACY_FILTER_MODEL_PATH=openai/privacy-filter
     volumes:
       - ./models:/app/models:Z
 

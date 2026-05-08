@@ -9,13 +9,18 @@ This document provides a transparency disclosure of the PII types detected by th
 
 The Refinery operates on a multi-tier defense-in-depth model:
 
-| Tier | Name | Methodology |
-|---|---|---|
-| **Tier 0.1** | Base64 Evasion Shield | Decodes and recursively scans every Base64 segment in the payload. PII hidden inside encoded blobs is caught and re-encoded after redaction — the payload structure is preserved, the data is not. |
-| **Tier 0** | Dictionary Shield | Exact match against Enterprise VIP and exclusion lists. |
-| **Tier 1** | Deterministic Registry | High-performance Go regular expressions with **checksum-backed validation** (Luhn mod-10 for credit cards, MOD97 for IBANs, and 12 national ID validators). Pattern matches that fail their checksum are discarded rather than flagged — eliminating false positives at the source. |
-| **Tier 2** | AI Semantic Scan | Domain-aware NER via a pluggable Python sidecar. Default model: `openai/privacy-filter` (bidirectional token classifier, Apache 2.0). Domain-specific models (e.g. `fr-finance`) are registered via `tier2_domain_sidecars` in `configs/config.yaml` and selected by `domain_snapshot`. `piiranha-v1` is supported as a multilingual alternative. Selected via `TIER2_ENGINE=privacy-filter` on the Go sidecar. |
-| **Tier 3** | Structural Heuristics | Context-aware proximity rules and entity expansion. |
+| Tier | Name | Methodology | `method` tag |
+|---|---|---|---|
+| **Tier 0.1** | Base64 Evasion Shield | Decodes and recursively scans every Base64 segment in the payload. PII hidden inside encoded blobs is caught and re-encoded after redaction — the payload structure is preserved, the data is not. | *(inherits inner tier's tag)* |
+| **Tier 0** | Dictionary Shield | Exact match against Enterprise VIP and exclusion lists. | `"dictionary"` |
+| **Tier 1** | Deterministic Registry | High-performance Go regular expressions with **checksum-backed validation** (Luhn mod-10 for credit cards, MOD97 for IBANs, and 12 national ID validators). Pattern matches that fail their checksum are discarded rather than flagged — eliminating false positives at the source. | `"regex"` or `["regex","checksum"]` |
+| **Tier 1.1** | Phone Shield | libphonenumber validation for international and localized formats. Runs after Tier 1 to avoid misidentifying digit sequences already claimed by national IDs. | `"phone"` |
+| **Tier 1.2** | Address Shield | Heuristic street address parser supporting EN/FR/ES/DE formats. | `"address"` |
+| **Tier 1.5** | Greeting/Signature Shield | Extracts names from salutations (`"Regards, Jean"`) and self-introductions (`"My name is..."`). | `"greeting"` |
+| **Tier 2** | AI Semantic Scan | Contextual NER via a pluggable Python sidecar. Default model: `openai/privacy-filter` (bidirectional token classifier, Apache 2.0). `piiranha-v1` is supported as a multilingual alternative for mixed-language corpora. Activated via `TIER2_ENGINE=privacy-filter` and `--profile ai` in Docker Compose. | `"ai-ner"` |
+| **Tier 3** | Structural Heuristics | Context-aware proximity rules and entity expansion (professional titles, possessives, conjunction linkage). | `"structural"` |
+
+The `method` tag appears in each `DetectionResult.method` field returned by `/api/refine` and displayed in the **Detection Attribution** panel of the dashboard. It tells you exactly which pipeline tier caught each entity.
 
 ## 2. PII Type Glossary & Compliance Mapping
 

@@ -114,15 +114,54 @@ Community default: `NoopAIScanner` — `IsAvailable()` always returns `false`.
 
 ---
 
+#### `DetectionResult`
+
+Each PII hit in `pii_hits` is a `DetectionResult` object:
+
+```go
+type DetectionResult struct {
+    Entity        string   `json:"entity"`
+    CanonicalType string   `json:"canonical_type,omitempty"`
+    ValueHash     string   `json:"value_hash"`
+    Confidence    float64  `json:"confidence"`
+    Method        []string `json:"method"`
+    Location      string   `json:"location"`
+}
+```
+
+| Field | Description |
+|---|---|
+| `entity` | PII type: `EMAIL`, `SSN`, `PHONE`, `PERSON`, `IBAN`, etc. |
+| `canonical_type` | Optional alias if an enterprise mapping is configured. |
+| `value_hash` | Full SHA-256 hex of the original value (safe to log — not reversible). |
+| `confidence` | Detection certainty `0.0–1.0`. Rule-based detections are always `1.0`. |
+| `method` | Detection source tags. See **Method Tags** below. |
+| `location` | Character offset of the match in the input string: `"start-end"`. |
+
+**Method Tags** — the `method` array identifies which pipeline tier produced the hit:
+
+| Tag | Tier | Description |
+|---|---|---|
+| `["regex"]` | Tier 1 | Deterministic regex match from the PII registry |
+| `["regex", "checksum"]` | Tier 1 | Regex match + checksum validation (Luhn, MOD97, national ID) |
+| `["dictionary"]` | Tier 0 | Exact match against `protected_entities.json` |
+| `["phone"]` | Tier 1.1 | libphonenumber-validated phone number |
+| `["address"]` | Tier 1.2 | Heuristic address parser |
+| `["greeting"]` | Tier 1.5 | Name extracted from salutation or self-introduction |
+| `["ai-ner"]` | Tier 2 | Semantic NER via AI sidecar (privacy-filter / llama.cpp) |
+| `["structural"]` | Tier 3 | Context-aware proximity rule or entity expansion |
+
+---
+
 #### `DryRunReport`
 
 ```go
 type DryRunReport struct {
-    Mode       string              `json:"mode"`
-    FilesIn    int                 `json:"files_scanned"`
-    Hits       map[string][]string `json:"pii_hits"`
-    TotalCount int                 `json:"total_pii_count"`
-    Blocking   bool                `json:"blocking"`
+    Mode       string                `json:"mode"`
+    FilesIn    int                   `json:"files_scanned"`
+    Hits       []DetectionResult     `json:"pii_hits"`
+    TotalCount int                   `json:"total_pii_count"`
+    Blocking   bool                  `json:"blocking"`
 }
 ```
 
@@ -130,8 +169,8 @@ type DryRunReport struct {
 |---|---|
 | `Mode` | `"dry-run"`, `"report"`, or `"serve"` depending on refinery configuration. |
 | `FilesIn` | Number of files/payloads processed in the session. |
-| `Hits` | Map of PII type → list of truncated hashes (e.g. `{"EMAIL": ["af2101fb…"]}`). |
-| `TotalCount` | Sum of all PII hits across all types. |
+| `Hits` | Ordered array of `DetectionResult` objects — one entry per PII match. |
+| `TotalCount` | Total number of PII hits across all types. |
 | `Blocking` | `true` when at least one PII entity was detected. Useful as a CI/CD gate. |
 
 ---
@@ -447,14 +486,27 @@ Call Sarah at +33 6 12 34 56 78 or email sarah@example.com
 
 ```json
 {
-  "refined": "{\"messages\":[{\"role\":\"user\",\"content\":\"Email [EMAIL_9c8f7a1b] for details.\"}]}",
+  "refined": "Call Sarah at [PHONE_a1b2c3d4] or email [EMAIL_9c8f7a1b]",
   "report": {
     "mode": "serve",
     "files_scanned": 1,
-    "pii_hits": {
-      "EMAIL": ["9c8f7a1b…"]
-    },
-    "total_pii_count": 1,
+    "pii_hits": [
+      {
+        "entity": "PHONE",
+        "value_hash": "a1b2c3d4e5f6...",
+        "confidence": 1.0,
+        "method": ["phone"],
+        "location": "13-31"
+      },
+      {
+        "entity": "EMAIL",
+        "value_hash": "9c8f7a1b2d3e...",
+        "confidence": 1.0,
+        "method": ["regex"],
+        "location": "38-56"
+      }
+    ],
+    "total_pii_count": 2,
     "blocking": true
   }
 }
