@@ -68,7 +68,7 @@ export default function Docs() {
   useEffect(() => {
     setContent(null);
     setError(false);
-    fetch(`/docs/${activePath}`)
+    fetch(`/content/${activePath}`)
       .then((r) => {
         if (!r.ok) throw new Error("not found");
         return r.text();

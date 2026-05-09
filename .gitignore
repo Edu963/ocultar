@@ -94,3 +94,7 @@ doppler.yaml
 
 # Training & Knowledge (isolated from git tracking)
 academy/
+
+# Draft Security Readiness Documentation
+/docs/security_readiness/
+
