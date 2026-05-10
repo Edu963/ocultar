@@ -70,6 +70,13 @@ var possessiveRegex = regexp.MustCompile(`(?i)\b[A-ZÀ-Ÿ][a-zà-ÿ\-]{1,20}['�
 var semanticTriggerRegex = regexp.MustCompile(`(?i)\b(DIVORCE|MARIAGE|WEDDING|AVOCAT|LAWYER|HOSPITAL|CLINIQUE|TREATMENT|TRAITEMENT|CAMPAIGN|POLITICAL|CAMPAGNE|PEA)\b`)
 var nameIntroRegex = regexp.MustCompile(`(?m)(?i)\b(?:my name is|i am|call me|this is)\s+([A-ZÀ-Ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-Ÿ][a-zà-ÿ]+){0,2})\b`)
 
+// nameInSentenceRegex catches proper names (two+ capitalised words) referenced by
+// interrogative or inquiry verbs: "where does John Galt live", "who is Jane Smith",
+// "tell me about Bob Jones", "contact Sarah Lee". This extends Tier 1.5 name
+// detection beyond self-disclosures to cover third-party name mentions in questions.
+var nameInSentenceRegex = regexp.MustCompile(`(?i)\b(?:where(?:\s+does)?|who(?:\s+is)?|about|contact|find|email|call|meet)\s+([A-ZÀ-Ÿ][a-zà-ÿ\-]{1,20}(?:\s+[A-ZÀ-Ÿ][a-zà-ÿ\-]{1,20}){1,3})\b`)
+
+
 // DryRunReport collects PII hit metadata when running in --dry-run or --report mode.
 type DryRunReport struct {
 	Mode       string                `json:"mode"`
@@ -509,7 +516,8 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	// Runs after phone/address parsing to avoid false-positive collisions with numeric fields.
 	greetingMatches := greetingRegex.FindAllStringSubmatchIndex(refined, -1)
 	nameIntroMatches := nameIntroRegex.FindAllStringSubmatchIndex(refined, -1)
-	allNameMatches := append(greetingMatches, nameIntroMatches...)
+	nameSentenceMatches := nameInSentenceRegex.FindAllStringSubmatchIndex(refined, -1)
+	allNameMatches := append(append(greetingMatches, nameIntroMatches...), nameSentenceMatches...)
 
 	for _, match := range allNameMatches {
 		if len(match) > 2 {

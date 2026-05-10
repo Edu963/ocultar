@@ -129,7 +129,36 @@ func initDefaultConfig() {
 	loadProtectedEntities()
 	LoadRegulatoryPolicy()
 	LoadAliasMapping()
+	LoadLocalNames()
 	CompileRegexes()
+}
+
+// LoadLocalNames checks for a configs/names.json file and loads it into the PERSON dictionary.
+func LoadLocalNames() {
+	data, err := os.ReadFile("configs/names.json")
+	if err != nil {
+		// Try relative path from service root
+		data, err = os.ReadFile("services/refinery/configs/names.json")
+	}
+
+	if err != nil {
+		// Not a fatal error, just means no local dictionary is provided
+		return
+	}
+
+	var names []string
+	if err := json.Unmarshal(data, &names); err != nil {
+		log.Printf("[ERROR] Failed to parse names.json: %v", err)
+		return
+	}
+
+	if len(names) > 0 {
+		Global.Dictionaries = append(Global.Dictionaries, DictRule{
+			Type:  "PERSON",
+			Terms: names,
+		})
+		log.Printf("[INFO] Local name dictionary loaded: %d names added to Tier 0 shield.", len(names))
+	}
 }
 
 // LoadAliasMapping reads the Ocultar -> Google InfoType registry from configs/mapping.json

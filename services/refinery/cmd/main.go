@@ -573,6 +573,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"status": "healthy",
+			"tier": license.Active.Tier,
 			"vault": map[string]string{"status": vaultStatus},
 			"slm": map[string]string{"status": slmStatus},
 			"version": VERSION,
