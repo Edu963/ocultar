@@ -13,6 +13,8 @@ import (
 
 	"github.com/Edu963/ocultar/pkg/audit"
 	"github.com/google/uuid"
+	"os/exec"
+	"runtime"
 )
 
 const reportVersion = "3.1"
@@ -412,10 +414,15 @@ const htmlTemplate = `<!DOCTYPE html>
   <div class="risk-banner {{.Risk.OverallRiskLevel}}">
     <div class="risk-dial">{{printf "%.1f" .Risk.OverallRiskScore}}</div>
     <div class="risk-banner-text">
-      <h2>{{.Risk.OverallRiskLevel}} Risk — {{if .Risk.IsGDPRPseudonymized}}✅ Meets Common Thresholds{{else}}⚠️ Elevated Non-Compliance Likelihood{{end}}</h2>
+      {{if eq .Risk.ViolatingRecords 0}}
+      <h2>High Compliance Readiness — ✅ Meets Common Thresholds</h2>
+      <p>The analyzed dataset satisfies commonly cited pseudonymization benchmarks with zero identified violations.</p>
+      {{else}}
+      <h2>{{.Risk.OverallRiskLevel}} Risk — ⚠️ Elevated Non-Compliance Likelihood</h2>
       <p>An estimated {{.Risk.ViolatingRecords}} of {{.Risk.TotalRecords}} records fall below commonly cited pseudonymization benchmarks.</p>
+      {{end}}
       <p style="margin-top:6px">Estimated financial exposure range: <strong>€{{printf "%.0f" .Risk.Exposure.VaRMin}} – €{{printf "%.0f" .Risk.Exposure.VaRMax}}</strong> (simulated — see Assumptions).</p>
-      <p style="margin-top:6px; font-size:11px; opacity:0.7">This dataset <strong>{{if .Risk.IsGDPRPseudonymized}}satisfies common pseudonymization thresholds for use{{else}}presents elevated technical risk for use{{end}}</strong> with external AI APIs without prior sanitisation.</p>
+      <p style="margin-top:6px; font-size:11px; opacity:0.7">This dataset <strong>{{if eq .Risk.ViolatingRecords 0}}satisfies common pseudonymization thresholds for use{{else}}presents elevated technical risk for use{{end}}</strong> with external AI APIs without prior sanitisation.</p>
     </div>
   </div>
 
@@ -546,8 +553,23 @@ const htmlTemplate = `<!DOCTYPE html>
   <!-- Remediation -->
   <div class="section">
     <h2>Remediation Plan</h2>
+    {{if eq .Risk.LDiversity 1}}
+    <div class="step" style="border: 1px solid var(--high); padding: 12px; border-radius: 8px; background: #fff7ed;">
+      <div class="step-num" style="background: var(--high);">!</div>
+      <div class="step-body">
+        <strong style="color: var(--high);">Homogeneity Attack Mitigation (L=1)</strong>
+        <p>The dataset exhibits critical attribute homogeneity. An adversary can infer sensitive values with 100% probability for certain groups. 
+        <strong>Action:</strong> Apply <em>t-closeness</em> suppression or value generalization to sensitive fields before vector indexing.</p>
+      </div>
+    </div>
+    {{end}}
+    
     <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Tokenization</strong><p>Replace all Name, IBAN, and Email fields with OCULTAR reversible vault tokens. Zero-knowledge re-hydration available on authorised request.</p></div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Generalization</strong><p>Replace precise Region sub-categories with broader geographic tiers to increase K-Anonymity group size above the commonly recommended threshold of K≥3.</p></div></div>
+    
+    {{if lt .Risk.KAnonymity 3}}
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Generalization (Target K≥3)</strong><p>Replace precise Region sub-categories with broader geographic tiers to increase K-Anonymity group size above the commonly recommended threshold of K≥3.</p></div></div>
+    {{end}}
+    
     <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Format-Preserving Encryption (FPE)</strong><p>Apply FPE to IBAN and financial fields to maintain data utility for analytics while preventing plaintext exposure.</p></div></div>
     <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Automate via OCULTAR Pipeline</strong><p>All steps above can be automated via the OCULTAR Enterprise proxy. Route your LLM API calls through the proxy and all PII is intercepted and redacted in real-time, with zero changes to your application code.</p></div></div>
   </div>
@@ -625,5 +647,26 @@ func main() {
 			log.Fatalf("Failed to render HTML: %v", err)
 		}
 		fmt.Printf("✅  HTML report: %s\n", *htmlPath)
+		
+		// Attempt to auto-open the dashboard
+		openBrowser(*htmlPath)
+	}
+}
+
+// openBrowser opens the specified URL in the default user browser.
+func openBrowser(url string) {
+	var err error
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", url).Start()
+	case "windows":
+		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+	case "darwin":
+		err = exec.Command("open", url).Start()
+	default:
+		err = fmt.Errorf("unsupported platform")
+	}
+	if err != nil {
+		fmt.Printf("⚠️  Could not auto-open browser: %v\n", err)
 	}
 }

@@ -59,6 +59,7 @@ type RiskReport struct {
 
 	// --- Derived Risk Scoring ---
 	DatasetRiskScore float64 `json:"dataset_risk_score"` // 0.0–1.0 normalised composite
+	GranularRisk     string  `json:"granular_risk"`     // MINIMAL/LOW/MODERATE/HIGH/CRITICAL
 	RiskMultiplier   float64 `json:"risk_multiplier"`    // Midpoint of the range
 
 	// --- Weighted Scorecard ---
@@ -97,10 +98,12 @@ type RegulatoryFinding struct {
 // scoreToLabel converts a 0–10 numeric score to a qualitative risk label.
 func scoreToLabel(score float64) string {
 	switch {
+	case score <= 1.0:
+		return "MINIMAL"
 	case score <= 2.5:
 		return "LOW"
 	case score <= 5.0:
-		return "MEDIUM"
+		return "MODERATE"
 	case score <= 7.5:
 		return "HIGH"
 	default:
@@ -222,20 +225,23 @@ func computeRiskMultiplier(k, l int) (minMult, maxMult float64) {
 //
 // Formula: VaR = (RegulatoryExposure + OperationalCost) × RiskMultiplier
 //
-// Component 1 — Regulatory Exposure (simulation anchor, not a per-record fine):
-//   RegulatoryMin = DatasetRiskScore × €10,000   (base anchor — low scenario)
-//   RegulatoryMax = DatasetRiskScore × €100,000  (base anchor — high scenario)
+// Component 1 — Regulatory Exposure (scaled by record count for accuracy):
+//   For N < 200: Base anchors scale at €50–€500 per record.
+//   For N >= 200: Flat enterprise anchors (€10k–€100k).
 //
 // Component 2 — Operational Cost (industry breach benchmarks):
 //   OperationalMin = records × €100  (lower bound, IBM/Ponemon range)
 //   OperationalMax = records × €300  (upper bound, IBM/Ponemon range)
-//
-// Component 3 — Risk Multiplier (K/L driven):
-//   K=1 → 1.5–2.0x | K<3 → 1.3–1.5x | else → 1.0–1.2x
 func computeVaRRange(records int, datasetRiskScore float64, k, l int) FinancialExposure {
-	// Pillar 1: Regulatory exposure simulation (anchors, not legal fines)
-	const baseLow = 10_000.0
-	const baseHigh = 100_000.0
+	// Pillar 1: Proportional Regulatory exposure simulation
+	var baseLow, baseHigh float64
+	if records < 200 {
+		baseLow = float64(records) * 50.0
+		baseHigh = float64(records) * 500.0
+	} else {
+		baseLow = 10_000.0
+		baseHigh = 100_000.0
+	}
 	regMin := datasetRiskScore * baseLow
 	regMax := datasetRiskScore * baseHigh
 
@@ -447,6 +453,7 @@ func AnalyzeDatasetRisk(dataset []map[string]interface{}, quasiIdentifiers []str
 		ViolatingRecords:         violatingRecords,
 		TotalRecords:             total,
 		DatasetRiskScore:         datasetRiskScore,
+		GranularRisk:             scoreToLabel(overallScore),
 		RiskMultiplier:           riskMultiplierMid,
 		OverallRiskScore:         overallScore,
 		OverallRiskLevel:         scoreToLabel(overallScore),
