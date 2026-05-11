@@ -91,6 +91,11 @@ Zero-egress PII protection for Goose AI workflows.
 ```bash
 pip install ocultar-goose-mcp
 ```
+
+### Ki! Desktop Distribution 🫏
+The "Zero-Friction" desktop gateway for Ocultar. Built with Tauri and Rust, it bundles the Refinery engine into a native desktop app for individual researchers and enterprise workstations.
+[Explore the Ki! Repo](https://github.com/Edu963/kii)
+
 Read the launch story: [OpenAI shipped a model. We built the system.](https://dev.to/oculter_dev/openai-shipped-a-model-we-built-the-system-33pl)
 
 

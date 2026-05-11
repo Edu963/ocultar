@@ -113,18 +113,18 @@ const mdTemplate = `# OCULTAR Data Risk Assessment Report
 
 {{if eq .Risk.OverallRiskLevel "CRITICAL"}}> [!CAUTION]
 > **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
-> **Compliance Likelihood: {{if .Risk.IsGDPRCompliant}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ High Non-Compliance Likelihood (External Processing Scenarios){{end}}**{{end}}
+> **Compliance Likelihood: {{if .Risk.IsGDPRPseudonymized}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ High Non-Compliance Likelihood (External Processing Scenarios){{end}}**{{end}}
 {{if eq .Risk.OverallRiskLevel "HIGH"}}> [!WARNING]
 > **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
-> **Compliance Likelihood: {{if .Risk.IsGDPRCompliant}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ High Non-Compliance Likelihood (External Processing Scenarios){{end}}**{{end}}
+> **Compliance Likelihood: {{if .Risk.IsGDPRPseudonymized}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ High Non-Compliance Likelihood (External Processing Scenarios){{end}}**{{end}}
 {{if eq .Risk.OverallRiskLevel "MEDIUM"}}> [!IMPORTANT]
 > **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
-> **Compliance Likelihood: {{if .Risk.IsGDPRCompliant}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ Elevated Risk — Review Recommended{{end}}**{{end}}
+> **Compliance Likelihood: {{if .Risk.IsGDPRPseudonymized}}✅ Meets Common Pseudonymization Thresholds{{else}}⚠️ Elevated Risk — Review Recommended{{end}}**{{end}}
 {{if eq .Risk.OverallRiskLevel "LOW"}}> [!NOTE]
 > **Overall Risk Level: {{.Risk.OverallRiskLevel}} ({{printf "%.1f" .Risk.OverallRiskScore}}/10)**
 > **Compliance Likelihood: ✅ Meets Common Pseudonymization Thresholds**{{end}}
 
-The dataset identified in this report contains an estimated **{{.Risk.ViolatingRecords}} records** that fall below commonly cited EU pseudonymization thresholds. In its current state, this data **{{if .Risk.IsGDPRCompliant}}satisfies commonly cited thresholds for use{{else}}presents elevated risk for use{{end}} with external AI systems and LLM APIs** without prior sanitisation.
+The dataset identified in this report contains an estimated **{{.Risk.ViolatingRecords}} records** that fall below commonly cited EU pseudonymization thresholds. In its current state, this data **{{if .Risk.IsGDPRPseudonymized}}satisfies commonly cited thresholds for use{{else}}presents elevated risk for use{{end}} with external AI systems and LLM APIs** without prior sanitisation.
 
 The estimated financial exposure associated with unauthorised disclosure of this dataset is in the range of **€{{printf "%.0f" .Risk.Exposure.VaRMin}} – €{{printf "%.0f" .Risk.Exposure.VaRMax}}** (simulated estimate based on industry breach benchmarks). This range encompasses regulatory exposure modelling, operational incident response costs, and a risk multiplier derived from the dataset's anonymization profile. Actual impact may vary significantly based on enforcement context and organisational factors.
 
@@ -412,10 +412,10 @@ const htmlTemplate = `<!DOCTYPE html>
   <div class="risk-banner {{.Risk.OverallRiskLevel}}">
     <div class="risk-dial">{{printf "%.1f" .Risk.OverallRiskScore}}</div>
     <div class="risk-banner-text">
-      <h2>{{.Risk.OverallRiskLevel}} Risk — {{if .Risk.IsGDPRCompliant}}✅ Meets Common Thresholds{{else}}⚠️ Elevated Non-Compliance Likelihood{{end}}</h2>
+      <h2>{{.Risk.OverallRiskLevel}} Risk — {{if .Risk.IsGDPRPseudonymized}}✅ Meets Common Thresholds{{else}}⚠️ Elevated Non-Compliance Likelihood{{end}}</h2>
       <p>An estimated {{.Risk.ViolatingRecords}} of {{.Risk.TotalRecords}} records fall below commonly cited pseudonymization benchmarks.</p>
       <p style="margin-top:6px">Estimated financial exposure range: <strong>€{{printf "%.0f" .Risk.Exposure.VaRMin}} – €{{printf "%.0f" .Risk.Exposure.VaRMax}}</strong> (simulated — see Assumptions).</p>
-      <p style="margin-top:6px; font-size:11px; opacity:0.7">This dataset <strong>{{if .Risk.IsGDPRCompliant}}satisfies common pseudonymization thresholds for use{{else}}presents elevated technical risk for use{{end}}</strong> with external AI APIs without prior sanitisation.</p>
+      <p style="margin-top:6px; font-size:11px; opacity:0.7">This dataset <strong>{{if .Risk.IsGDPRPseudonymized}}satisfies common pseudonymization thresholds for use{{else}}presents elevated technical risk for use{{end}}</strong> with external AI APIs without prior sanitisation.</p>
     </div>
   </div>
 

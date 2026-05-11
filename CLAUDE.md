@@ -84,7 +84,7 @@ Requests flow through the Refinery pipeline in order:
 | 1 | Rule Engine | Regex rules from `configs/config.yaml` (EMAIL, SSN, PHONE, CC, etc.) |
 | 1.1 | Phone Shield | libphonenumber validation with Luhn-style checksum reduction |
 | 1.2 | Address Shield | Heuristic address parser |
-| 1.5 | Greeting/Signature Shield | Detects PII embedded in email salutations and signatures |
+| 1.5 | Contextual Shield | Interrogative name detection (e.g., "Where does [NAME] live?") and greeting/signature logic |
 | 2 | AI NER (Enterprise) | Sends text to SLM sidecar for deep named-entity recognition. Optimized for French Finance. |
 | 3 | Structural Heuristics | Context-aware detection for structured document types |
 
@@ -104,6 +104,7 @@ Vault backends: **DuckDB** (default, zero-config) or **PostgreSQL** (enterprise 
 |---|---|
 | `configs/config.yaml` | Detection thresholds, vault backend, enabled tiers |
 | `configs/protected_entities.json` | Named entities (VIPs, orgs) for Tier 0 dictionary matching |
+| `configs/names.json` | Zero-Config local name dictionary (used by Ki! distribution) |
 | `configs/automation_commands.json` | Command definitions for the automation bridge |
 
 ### Tiers and Licensing
