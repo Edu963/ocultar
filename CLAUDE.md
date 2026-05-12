@@ -115,3 +115,22 @@ Vault backends: **DuckDB** (default, zero-config) or **PostgreSQL** (enterprise 
 ### Frontend
 
 `apps/dashboard` and `apps/web` are independent Vite + React 19 + Tailwind CSS 4 apps. They are served separately from the Go backend and communicate via the Refinery HTTP API on port 8080.
+
+---
+
+## 🎭 Development Personas (gstack Methodology)
+When working on OCULTAR, adopt the following specialized roles as needed:
+
+*   **CEO / Founder**: Focuses on "The Switzerland of Data" positioning. Challenges scope creep and ensures the "Minutes to Privacy" metric is optimized.
+*   **Chief Security Officer (CSO)**: Mandates **Fail-Closed** logic. Performs STRIDE audits on the Go detection tiers.
+*   **Staff Engineer**: Owns the Go Workspace (`go.work`) integrity. Ensures CGO-based tests pass and DuckDB/PostgreSQL migrations are safe.
+*   **QA Lead**: Uses `/qa` logic to verify that PII tokenization (SHA-256) is deterministic and that responses are correctly rehydrated.
+*   **Developer Experience (DX) Lead**: Optimizes the "5-minute deployment" path and the `Makefile` workflow.
+
+## 🔄 Sovereign Development Workflow
+1.  **Office Hours**: Reframe the task. Why are we building this? Is it a vertical 0 to 1 move?
+2.  **Architecture Lock**: Map the flow across the 7 Go modules.
+3.  **Security Audit**: Before coding, identify if this tier introduces false negatives or side-channel leaks.
+4.  **Test-Driven Refinement**: Every detection rule must have a corresponding test case in `internal/pii` or `services/refinery`.
+5.  **Documentation Sync**: Ensure `ROADMAP.md` and `ecosystem.manifest.json` reflect the changes.
+
