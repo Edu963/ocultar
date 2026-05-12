@@ -37,6 +37,7 @@
 | **Disk** | ~1 GB free for HuggingFace model cache on first run |
 | **Go** | 1.22+ only if building from source |
 | **`OCU_LICENSE_KEY`** | Obtain from the License Generator (`scripts/keygen.go`) |
+| **`OCU_JWT_SECRET`** | HS256 secret for Sombra Bearer token validation. Generate: `openssl rand -hex 32`. Required for Sombra gateway deployments; not used by the standalone refinery binary. |
 
 ---
 
@@ -466,6 +467,14 @@ echo "Exit code: $?"
 4. Update `OCU_MASTER_KEY` / `OCU_SALT` in `.env`.
 5. Restart services — a fresh vault will be created.
 
+**Rotating `OCU_JWT_SECRET` (Sombra gateway):**
+
+This is a non-destructive rotation — no vault data depends on this key.
+
+1. Generate a new secret: `openssl rand -hex 32`
+2. Update in Doppler: `doppler secrets set OCU_JWT_SECRET=<new_value>`
+3. Restart Sombra. All existing clients must present JWTs signed with the new secret immediately after restart — there is no grace period for old tokens.
+
 ---
 
 ## 11. Shutting Down
@@ -494,6 +503,7 @@ docker compose down -v     # stops containers + deletes ALL volumes (vault.db AN
 | `Active license tier … does not permit postgres` | `OCU_LICENSE_KEY` missing or expired | Add/renew your license key in `.env` |
 | Proxy returns `429 Too Many Requests` | More than 15 concurrent requests | Scale horizontally with PostgreSQL vault (see §7) |
 | Audit log is empty | Community binary or missing license key | Confirm `OCU_LICENSE_KEY` is set and `Tier: enterprise` is activated (check startup logs) |
+| Sombra returns `401 Unauthorized` | `OCU_JWT_SECRET` unset or client sending unsigned/expired token | Check startup logs for `[WARN] OCU_JWT_SECRET is not set`; ensure clients send a valid HS256 JWT in `Authorization: Bearer <token>` |
 
 ---
 
