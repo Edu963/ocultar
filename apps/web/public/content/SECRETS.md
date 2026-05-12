@@ -10,6 +10,7 @@ Start: ./scripts/start.sh
 |--------|-------------|---------- |
 | OCU_MASTER_KEY | 32-byte AES key for vault encryption | Quarterly |
 | OCU_SALT | 16-byte HKDF salt | With master key |
+| OCU_JWT_SECRET | HS256 secret for Sombra Bearer token validation (enterprise) | Quarterly |
 | OCU_LICENSE_KEY | Enterprise license | On expiry |
 | OPENAI_API_KEY | OpenAI API access | Monthly recommended |
 | GEMINI_API_KEY | Gemini API access | Monthly recommended |

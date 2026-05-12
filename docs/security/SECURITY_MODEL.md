@@ -209,6 +209,22 @@ The unspecified address `0.0.0.0` (and its IPv6 equivalent `::`) is not a loopba
 
 **Fix:** Added `ip.IsUnspecified()` as the first check in `isPrivateIP`.
 
+### Sombra Gateway — Actor Authentication
+
+Sombra enforces JWT-based actor identity on all data-handling endpoints (`/query` and `/v1/chat/completions`). The implementation is in `apps/sombra/pkg/handler/handler.go` (`extractActor`).
+
+| Property | Detail |
+|---|---|
+| Algorithm | HS256 (`github.com/golang-jwt/jwt/v5`) |
+| Secret source | `OCU_JWT_SECRET` environment variable, loaded via `config.Global.JWTSecret` |
+| Claim preference | `sub` claim; fallback to `email` claim |
+| On missing/invalid token | `401 Unauthorized` — both endpoints fail closed |
+| On missing secret (dev fallback) | Raw Bearer string accepted as actor — **insecure, dev only** |
+
+**Production requirement:** `OCU_JWT_SECRET` must be set. Sombra logs `[WARN] OCU_JWT_SECRET is not set` at startup when running in insecure mode. Generate with `openssl rand -hex 32` and inject via Doppler or AWS Secrets Manager.
+
+The `actor` value extracted from the JWT is threaded through the audit log, giving every vault redaction and rehydration event a cryptographically attested identity.
+
 ---
 
 ## 7. Key Management
@@ -299,8 +315,8 @@ OCULTAR inspects content for PII patterns. It does not analyse whether a request
 **OCULTAR does not encrypt data in transit.**
 TLS between the client and the OCULTAR proxy, and between the proxy and the upstream, is the caller's and operator's responsibility. OCULTAR does not terminate, upgrade, or enforce TLS.
 
-**OCULTAR does not provide access control beyond tier enforcement.**
-API key validation and per-tier monthly rate limits are enforced at the `TierMiddleware` layer (Section 2). There is no per-user or per-document authorization model. All callers with a valid API key at a given tier can access the same proxy functionality.
+**The core proxy does not provide per-user access control beyond tier enforcement.**
+API key validation and per-tier monthly rate limits are enforced at the `TierMiddleware` layer (Section 2). All callers with a valid API key at a given tier can access the same proxy functionality. The Sombra enterprise gateway adds JWT-based actor identity (see Section 6 — Sombra Gateway Authentication); the core refinery proxy does not.
 
 **OCULTAR does not guarantee detection of all PII.**
 The detection pipeline (Tiers 0–1.5 in community, Tier 2 in enterprise) operates on statistical and pattern-based methods. Novel PII formats, obfuscated values, or application-specific sensitive data not covered by the configured rules may not be detected. Operators are responsible for validating detection coverage against their specific data formats.

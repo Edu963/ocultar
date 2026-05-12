@@ -33,6 +33,7 @@ All environment variables are read at startup by the `main` entrypoint. No varia
 |---|---|---|---|
 | `OCU_MASTER_KEY` | ✅ | AES-256 master key — any UTF-8 string; SHA-256-hashed internally to 32 bytes. **Never commit this.** | `openssl rand -hex 32` |
 | `OCU_LICENSE_KEY` | Enterprise only | Activates Enterprise tier features (Tier 2 AI scan, PostgreSQL vault, SIEM audit log). Absent → Community tier. | `ENTER-PRISE-KEY-HERE` |
+| `OCU_JWT_SECRET` | Enterprise (Sombra) | HS256 secret for validating Bearer tokens on Sombra endpoints (`/query`, `/v1/chat/completions`). If unset, Sombra accepts any Bearer value as actor identity — insecure outside dev. Generate: `openssl rand -hex 32`. | `openssl rand -hex 32` |
 | `OCU_PROXY_TARGET` | Proxy mode | Default upstream URL the proxy forwards sanitised requests to. | `https://api.openai.com` |
 | `OCU_PROXY_PORT` | Proxy mode | Port the proxy listener binds to. Defaults to `8080`. | `8080` |
 | `OCU_VAULT_PATH` | Optional | Override the DuckDB vault file path. Defaults to `vault.db`. Use `:memory:` for ephemeral operation. | `/data/vault.db` |

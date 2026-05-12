@@ -163,6 +163,7 @@ This architecture satisfies the "appropriate safeguards" requirement of GDPR Art
 
 - [ ] `OCU_MASTER_KEY` is set to a high-entropy value (≥ 32 bytes) and stored in a secrets manager (not in `.env` committed to source control)
 - [ ] `OCU_SALT` is set to a unique per-deployment value
+- [ ] `OCU_JWT_SECRET` is set to a high-entropy value and stored in a secrets manager (controls actor identity on all Sombra endpoints)
 - [ ] `OCU_AUDIT_PRIVATE_KEY` is set and the audit log path is write-protected
 - [ ] Active policies reviewed and approved: `configs/config.french-finance.yaml`
 - [ ] `GET /api/compliance/evidence` integrated with your SOC 2 / ISO 27001 audit tool

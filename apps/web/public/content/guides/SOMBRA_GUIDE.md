@@ -53,6 +53,7 @@
 | **Go** | 1.22+ |
 | **OCULTAR** | The core refinery repo cloned and buildable (Sombra imports `github.com/Edu963/ocultar/pkg/refinery`) |
 | **`OCU_MASTER_KEY`** | Same key used by OCULTAR — Sombra shares the vault |
+| **`OCU_JWT_SECRET`** | HS256 secret for Bearer token validation. Generate: `openssl rand -hex 32`. If unset, any Bearer value is accepted as actor identity (dev only — insecure). |
 | **LLM API key(s)** | At least one: `OPENAI_API_KEY`, `GEMINI_API_KEY`, or a local Ollama endpoint |
 
 ---
