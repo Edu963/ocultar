@@ -92,6 +92,8 @@ type Settings struct {
 	MaxPayloadSize int64 `yaml:"max_payload_size" json:"max_payload_size"`
 	// PrometheusEnabled enables the /metrics endpoint and internal instrumentation.
 	PrometheusEnabled bool `yaml:"prometheus_enabled" json:"prometheus_enabled"`
+	// JWTSecret is the HS256 secret used to validate Bearer tokens in Sombra.
+	JWTSecret string `yaml:"jwt_secret" json:"jwt_secret"`
 }
 
 var Global Settings
@@ -125,6 +127,7 @@ func initDefaultConfig() {
 		InferenceTimeout:         "5s",
 		MaxPayloadSize:           5 * 1024 * 1024, // 5MB
 		PrometheusEnabled:        true,
+		JWTSecret:                os.Getenv("OCU_JWT_SECRET"),
 	}
 	loadProtectedEntities()
 	LoadRegulatoryPolicy()
