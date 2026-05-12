@@ -95,8 +95,8 @@ type RegulatoryFinding struct {
 	Severity   string `json:"severity"` // HIGH / MEDIUM / LOW
 }
 
-// scoreToLabel converts a 0–10 numeric score to a qualitative risk label.
-func scoreToLabel(score float64) string {
+// ScoreToLabel converts a 0–10 numeric score to a qualitative risk label.
+func ScoreToLabel(score float64) string {
 	switch {
 	case score <= 1.0:
 		return "MINIMAL"
@@ -136,7 +136,7 @@ func computeIdentifiability(k int) CategoryScore {
 		score = 1.0
 		impl = fmt.Sprintf("K=%d: Strong pseudonymization level. Re-identification risk is estimated to be low under typical adversarial models. Residual risks from auxiliary information cannot be mathematically excluded.", k)
 	}
-	return CategoryScore{Score: score, Label: scoreToLabel(score), Implication: impl}
+	return CategoryScore{Score: score, Label: ScoreToLabel(score), Implication: impl}
 }
 
 // computeFinancialSensitivity scores based on sensitive attribute density.
@@ -152,7 +152,7 @@ func computeFinancialSensitivity(sensitiveCount, total int) CategoryScore {
 			"Risk assessments are subject to contextual factors including jurisdiction, controller agreements, and processing purpose.",
 		ratio*100,
 	)
-	return CategoryScore{Score: score, Label: scoreToLabel(score), Implication: impl}
+	return CategoryScore{Score: score, Label: ScoreToLabel(score), Implication: impl}
 }
 
 // computeReidentification scores based on combined K and L scores.
@@ -175,7 +175,7 @@ func computeReidentification(k, l int) CategoryScore {
 			"This is a modelled estimate; actual risk depends on the adversary model and available external data.",
 		score, k, l,
 	)
-	return CategoryScore{Score: score, Label: scoreToLabel(score), Implication: impl}
+	return CategoryScore{Score: score, Label: ScoreToLabel(score), Implication: impl}
 }
 
 // computeComplianceReadiness scores overall regulatory readiness.
@@ -185,19 +185,19 @@ func computeComplianceReadiness(isCompliant bool, violating, total int) Category
 		return CategoryScore{
 			Score: 1.5,
 			Label: "LOW",
-			Implication: "Dataset appears to satisfy commonly cited K-Anonymity and L-Diversity thresholds for statistical pseudonymization. " +
-				"This is a technical heuristic simulation and does not constitute a legal determination of compliance.",
+			Implication: "This dataset satisfies commonly cited pseudonymization thresholds and presents a high likelihood of compliance in external processing scenarios. " +
+				"This is a technical heuristic simulation and does not constitute a legal determination.",
 		}
 	}
 	ratio := float64(violating) / float64(total)
 	score := math.Min(ratio*10, 10)
 	impl := fmt.Sprintf(
-		"An estimated %.0f%% of records (%d/%d) fall below commonly cited minimum pseudonymization thresholds. "+
-			"This dataset presents a high likelihood of non-compliance in external processing scenarios. "+
-			"Actual regulatory exposure depends on jurisdiction, processing context, and applicable exemptions.",
-		ratio*100, violating, total,
+		"An estimated %.0f%% of records fall below commonly cited pseudonymization benchmarks. "+
+			"This dataset presents elevated technical risk and a high likelihood of non-compliance in external processing scenarios. "+
+			"Actual regulatory exposure depends on context and applicable exemptions.",
+		ratio*100,
 	)
-	return CategoryScore{Score: score, Label: scoreToLabel(score), Implication: impl}
+	return CategoryScore{Score: score, Label: ScoreToLabel(score), Implication: impl}
 }
 
 // computeDatasetRiskScore derives a normalised 0.0–1.0 composite score used as
@@ -284,6 +284,9 @@ func computeAIReadiness(k int, isCompliant bool, sensitiveRatio float64) AIReadi
 	if isCompliant && k >= 5 {
 		status = "ALLOW"
 		llmExposure = "LOW"
+		if sensitiveRatio > 0.05 {
+			llmExposure = "MODERATE"
+		}
 		ragGuidance = "Estimated safe for RAG indexing under current pseudonymization thresholds. Dataset meets commonly cited minimum anonymization benchmarks. Recommend ongoing monitoring of embedding queries for indirect re-identification patterns."
 		rec = "Dataset may be considered for use with external LLM APIs and vector databases, subject to applicable Data Processing Agreements and your organisation's data governance policies."
 	} else if isCompliant || k >= 3 {
@@ -453,10 +456,10 @@ func AnalyzeDatasetRisk(dataset []map[string]interface{}, quasiIdentifiers []str
 		ViolatingRecords:         violatingRecords,
 		TotalRecords:             total,
 		DatasetRiskScore:         datasetRiskScore,
-		GranularRisk:             scoreToLabel(overallScore),
+		GranularRisk:             ScoreToLabel(overallScore),
 		RiskMultiplier:           riskMultiplierMid,
 		OverallRiskScore:         overallScore,
-		OverallRiskLevel:         scoreToLabel(overallScore),
+		OverallRiskLevel:         ScoreToLabel(overallScore),
 		Identifiability:          identifiability,
 		FinancialSensitivity:     financialSensitivity,
 		ReidentificationRisk:     reidentification,

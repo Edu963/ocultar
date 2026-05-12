@@ -79,7 +79,7 @@ func buildScenarios(r audit.RiskReport) (scenarioSummary, scenarioSummary) {
 
 	after := scenarioSummary{
 		Label:     "Scenario B — After OCULTAR Processing",
-		RiskLevel: "LOW",
+		RiskLevel: audit.ScoreToLabel(afterScoreMax),
 		RiskScore: fmt.Sprintf("%.1f – %.1f / 10 (projected, subject to contextual factors)", afterScoreMin, afterScoreMax),
 		VaRRange: fmt.Sprintf("€%.0f – €%.0f (projected residual)",
 			afterVaRMin, afterVaRMax),
@@ -356,8 +356,11 @@ const htmlTemplate = `<!DOCTYPE html>
   .scenario-after h3 { color: var(--low); }
   
   /* Remediation steps */
-  .step { display: flex; gap: 12px; margin-bottom: 14px; }
+  .remediation-list { counter-reset: step-counter; list-style: none; }
+  .step { display: flex; gap: 12px; margin-bottom: 14px; position: relative; }
   .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .numbered-step { counter-increment: step-counter; }
+  .numbered-step .step-num::before { content: counter(step-counter); }
   .step-body strong { display: block; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
   .step-body p { font-size: 12px; color: var(--muted); }
 
@@ -553,25 +556,27 @@ const htmlTemplate = `<!DOCTYPE html>
   <!-- Remediation -->
   <div class="section">
     <h2>Remediation Plan</h2>
-    {{if eq .Risk.LDiversity 1}}
-    <div class="step" style="border: 1px solid var(--high); padding: 12px; border-radius: 8px; background: #fff7ed;">
-      <div class="step-num" style="background: var(--high);">!</div>
-      <div class="step-body">
-        <strong style="color: var(--high);">Homogeneity Attack Mitigation (L=1)</strong>
-        <p>The dataset exhibits critical attribute homogeneity. An adversary can infer sensitive values with 100% probability for certain groups. 
-        <strong>Action:</strong> Apply <em>t-closeness</em> suppression or value generalization to sensitive fields before vector indexing.</p>
+    <div class="remediation-list">
+      {{if eq .Risk.LDiversity 1}}
+      <div class="step" style="border: 1px solid var(--high); padding: 12px; border-radius: 8px; background: #fff7ed;">
+        <div class="step-num" style="background: var(--high);">!</div>
+        <div class="step-body">
+          <strong style="color: var(--high);">Homogeneity Attack Mitigation (L=1)</strong>
+          <p>The dataset exhibits critical attribute homogeneity. An adversary can infer sensitive values with 100% probability for certain groups. 
+          <strong>Action:</strong> Apply <em>t-closeness</em> suppression or value generalization to sensitive fields before vector indexing.</p>
+        </div>
       </div>
+      {{end}}
+      
+      <div class="step numbered-step"><div class="step-num"></div><div class="step-body"><strong>Tokenization</strong><p>Replace all Name, IBAN, and Email fields with OCULTAR reversible vault tokens. Zero-knowledge re-hydration available on authorised request.</p></div></div>
+      
+      {{if lt .Risk.KAnonymity 3}}
+      <div class="step numbered-step"><div class="step-num"></div><div class="step-body"><strong>Generalization (Target K≥3)</strong><p>Replace precise Region sub-categories with broader geographic tiers to increase K-Anonymity group size above the commonly recommended threshold of K≥3.</p></div></div>
+      {{end}}
+      
+      <div class="step numbered-step"><div class="step-num"></div><div class="step-body"><strong>Format-Preserving Encryption (FPE)</strong><p>Apply FPE to IBAN and financial fields to maintain data utility for analytics while preventing plaintext exposure.</p></div></div>
+      <div class="step numbered-step"><div class="step-num"></div><div class="step-body"><strong>Automate via OCULTAR Pipeline</strong><p>All steps above can be automated via the OCULTAR Enterprise proxy. Route your LLM API calls through the proxy and all PII is intercepted and redacted in real-time, with zero changes to your application code.</p></div></div>
     </div>
-    {{end}}
-    
-    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Tokenization</strong><p>Replace all Name, IBAN, and Email fields with OCULTAR reversible vault tokens. Zero-knowledge re-hydration available on authorised request.</p></div></div>
-    
-    {{if lt .Risk.KAnonymity 3}}
-    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Generalization (Target K≥3)</strong><p>Replace precise Region sub-categories with broader geographic tiers to increase K-Anonymity group size above the commonly recommended threshold of K≥3.</p></div></div>
-    {{end}}
-    
-    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Format-Preserving Encryption (FPE)</strong><p>Apply FPE to IBAN and financial fields to maintain data utility for analytics while preventing plaintext exposure.</p></div></div>
-    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Automate via OCULTAR Pipeline</strong><p>All steps above can be automated via the OCULTAR Enterprise proxy. Route your LLM API calls through the proxy and all PII is intercepted and redacted in real-time, with zero changes to your application code.</p></div></div>
   </div>
 
   <!-- Footer -->
