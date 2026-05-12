@@ -55,6 +55,7 @@ OCULTAR primarily uses **Doppler** for secret management. If running manually, c
 | `SLM_MODEL_PATH` | Path to GGUF model file (llama-cpp engine only) |
 | `PYTHON_SIDECAR_URL` | Python service URL for privacy-filter engine (default `http://localhost:8086`) |
 | `PRIVACY_FILTER_MODEL_PATH` | Path or HuggingFace ID for the privacy-filter model (default `openai/privacy-filter`) |
+| `OCU_JWT_SECRET` | HS256 secret for Sombra JWT Bearer validation (enterprise; generate: `openssl rand -hex 32`). If unset, Sombra is in insecure dev mode. |
 | `OCU_LICENSE_KEY` | Base64-encoded Ed25519 license (enterprise only) |
 | `OCU_AUDIT_PRIVATE_KEY` | Hex-encoded 32-byte Ed25519 seed for immutable audit log (enterprise; generate: `openssl rand -hex 32`) |
 | `OCU_AUDIT_LOG_PATH` | Audit log file path (default: `audit.log` alongside vault file) |
