@@ -21,8 +21,11 @@ var localizedAddressParsers = []*regexp.Regexp{
 	// LATAM: "Calle 123 # 45-67", "Cra. 15 #10-20"
 	regexp.MustCompile(`(?i)(?:^|\W)((?:calle|carrera|cra\.?|avenida|av\.?|diagonal|transversal)\s+(?:[a-záéíóúñ0-9\-]+\s+){0,2}[a-záéíóúñ0-9\-]+\s*#\s*\d+\s*-\s*\d+)(?:$|\W)`),
 
-	// EU FR: "12 rue de la paix 75001"
-	regexp.MustCompile(`(?i)(?:^|\W)(\d{1,4}[a-z]?\s+(?:rue|avenue|boulevard|blvd|chemin|all[eé]e|place)\s+(?:[a-záéíóúñß\-]+\s+){0,3}[a-záéíóúñß\-]+(?:[\s,]+\d{4,5})?)(?:$|\W)`),
+	// EU FR: "12 rue de la paix 75001" / "4, Allée de la Draye de la Bruyanda • 38640 CLAIX"
+	// - Allow trailing comma after street number (e.g. "4,")
+	// - Allow up to 5 words after street keyword to cover long French place-names
+	// - Accept bullet • as postal-code separator (common in French footer addresses)
+	regexp.MustCompile(`(?i)(?:^|\W)(\d{1,4}[a-z]?,?\s+(?:rue|avenue|boulevard|blvd|chemin|all[eé]e|place)\s+(?:[a-záéíóúñß\-]+\s+){0,5}[a-záéíóúñß\-]+(?:[\s,•·]+\d{4,5})?)(?:$|\W)`),
 
 	// EU DE: "Hauptstraße 15, 10115"
 	regexp.MustCompile(`(?i)(?:^|\W)([a-záéíóúñß\-]{2,30}\s?(?:strasse|straße|str\.?)\s+\d{1,4}[a-z]?(?:[\s,]+\d{4,5})?)(?:$|\W)`),

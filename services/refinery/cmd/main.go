@@ -175,14 +175,14 @@ func main() {
 		case "llama-cpp", "qwen":
 			qwenURL := os.Getenv("SLM_SIDECAR_URL")
 			if qwenURL == "" {
-				qwenURL = "http://localhost:8080"
+				qwenURL = "http://localhost:8086"
 			}
 			scanner = inference.NewQwenScanner(qwenURL)
 			log.Printf("[INFO] Tier 2 AI active via Qwen/llama.cpp: %s", qwenURL)
 		default:
 			sidecarURL := os.Getenv("SLM_SIDECAR_URL")
 			if sidecarURL == "" {
-				sidecarURL = "http://localhost:8085"
+				sidecarURL = "http://localhost:8086"
 			}
 			scanner = inference.NewRemoteScanner(sidecarURL)
 			log.Printf("[INFO] Tier 2 AI active via privacy-filter sidecar: %s", sidecarURL)

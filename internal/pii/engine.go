@@ -134,9 +134,11 @@ func (e *Refinery) Redact(input string, tokenFunc func(DetectionResult) (string,
 		if lenI != lenJ {
 			return lenI > lenJ
 		}
-		// Tie-breaker: contextual extractors take precedence over pure regex IDs
+		// Tie-breaker: specific national IDs and contextual extractors beat generic financial patterns.
+		// FRANCE_SIRET_NUMBER / FRANCE_SIREN_NUMBER must beat CREDIT_CARD when both pass Luhn on the same range.
 		score := func(t string) int {
-			if t == "ACCOUNT_NUMBER" || t == "PERSON" || t == "MEMO_TEXT" || t == "IBAN" {
+			if t == "ACCOUNT_NUMBER" || t == "PERSON" || t == "MEMO_TEXT" || t == "IBAN" ||
+				t == "FRANCE_SIRET_NUMBER" || t == "FRANCE_SIREN_NUMBER" {
 				return 2
 			}
 			return 1

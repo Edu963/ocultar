@@ -54,6 +54,31 @@ func (n NoopAIScanner) IsAvailable() bool                                   { re
 func (n NoopAIScanner) SetDomain(domain string)                             {}
 
 var tokenPattern = regexp.MustCompile(`\[[A-Z_]+_[0-9a-f]+\]`)
+
+// slmLabelBlocklist contains document/legal keywords that the SLM sometimes
+// misclassifies as person names or entity values. These are structural labels,
+// not PII, and must survive redaction intact.
+var slmLabelBlocklist = map[string]struct{}{
+	"siret": {}, "siren": {}, "tva": {}, "vat": {}, "iban": {}, "bic": {},
+	"facture": {}, "invoice": {}, "ref": {}, "date": {}, "total": {},
+	"psychologue": {}, "psychologist": {}, "docteur": {}, "doctor": {},
+	"monsieur": {}, "madame": {}, "mr": {}, "mme": {}, "ms": {},
+}
+
+// isBlockedSLMLabel returns true if item is a blocked label keyword or a
+// BPE subword fragment of one (e.g. "iret" is a suffix fragment of "siret").
+func isBlockedSLMLabel(item string) bool {
+	lower := strings.ToLower(strings.TrimSpace(item))
+	if _, ok := slmLabelBlocklist[lower]; ok {
+		return true
+	}
+	for label := range slmLabelBlocklist {
+		if len(label) > len(lower) && (strings.HasSuffix(label, lower) || strings.HasPrefix(label, lower)) {
+			return true
+		}
+	}
+	return false
+}
 var greetingRegex = regexp.MustCompile(`(?m)(?i)(?:Regards|Best|Cheers|Bonjour|Hello|Hi|Dear|Sincerely|Cordialement)[,.-]*\s+([A-ZÀ-Ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-Ÿ][a-zà-ÿ]+){0,2})\b`)
 var base64Regex = regexp.MustCompile(`([A-Za-z0-9+/=]{20,})`) // Lowered from 40: catches short PII (emails, names, phones) encoded in Base64
 
@@ -535,28 +560,56 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 	// TIER 2: SLM NER Scan (Mandatory Phase)
 	if preScanMap != nil {
 		for piiType, items := range preScanMap {
+			canonType := strings.ToUpper(strings.ReplaceAll(strings.TrimSpace(piiType), " ", "_"))
+			if canonType == "" {
+				continue
+			}
 			for _, item := range items {
-				if len(strings.TrimSpace(item)) > 2 && strings.Contains(refined, item) {
-					refined, err = e.applyReplacement(refined, item, piiType, "ai-ner", actor)
-					if err != nil {
-						return "", err
-					}
+				trimmed := strings.TrimSpace(item)
+				if len(trimmed) < 3 || !strings.Contains(refined, trimmed) {
+					continue
+				}
+				if isBlockedSLMLabel(trimmed) {
+					continue
+				}
+				refined, err = e.applyReplacement(refined, trimmed, canonType, "ai-ner", actor)
+				if err != nil {
+					return "", err
 				}
 			}
 		}
 	} else if e.activeScanner().IsAvailable() && !e.SkipDeepScan && len(refined) > 15 && !e.isFullyTokenised(refined) {
-		piiMap, slmErr := e.activeScanner().ScanForPII(refined)
+		// Strip existing Tier-1 tokens before sending to SLM.
+		// Without this, the SLM sees token content like "HEALTH_ENTITY_f62c" and
+		// misclassifies the hex hashes as account numbers or person names, producing
+		// double-bracket artifacts such as [[private_person_...]3b20].
+		textForSLM := tokenPattern.ReplaceAllString(refined, " ")
+		piiMap, slmErr := e.activeScanner().ScanForPII(textForSLM)
 		if slmErr != nil {
 			return "", fmt.Errorf("SLM inference failed: %w", slmErr)
 		}
 		for piiType, items := range piiMap {
+			// Normalize SLM entity type to UPPERCASE so tokens are consistent with
+			// Tier-1 output (e.g. "private_person" → "PRIVATE_PERSON").
+			// This ensures ki!'s build_replacement_map and extract_tokens recognize
+			// SLM tokens, and that tokenPattern protects them from re-processing.
+			canonType := strings.ToUpper(strings.ReplaceAll(strings.TrimSpace(piiType), " ", "_"))
+			if canonType == "" {
+				continue
+			}
 			for _, item := range items {
-				if len(strings.TrimSpace(item)) > 2 {
-					log.Printf("[DEBUG] Tier 2 SLM hit: %s (%s)", item, piiType)
-					refined, err = e.applyReplacement(refined, item, piiType, "ai-ner", actor)
-					if err != nil {
-						return "", err
-					}
+				trimmed := strings.TrimSpace(item)
+				if len(trimmed) < 3 {
+					continue
+				}
+				if isBlockedSLMLabel(trimmed) {
+					log.Printf("[DEBUG] Tier 2 SLM: skipping blocked label %q", trimmed)
+					continue
+				}
+				log.Printf("[DEBUG] Tier 2 SLM hit: %s (%s)", trimmed, canonType)
+				refined, err = e.applyReplacement(refined, trimmed, canonType, "ai-ner", actor)
+				if err != nil {
+					return "", err
 				}
 			}
 		}
@@ -732,7 +785,10 @@ func (e *Refinery) isFullyTokenised(s string) bool {
 	return regexp.MustCompile(`^[\s\p{P}\p{Z}>*_|\-=+#@~]+$`).MatchString(stripped)
 }
 
-// applyReplacement replaces exact target strings with vaulted tokens.
+// applyReplacement replaces exact target strings with vaulted tokens,
+// skipping any match that falls entirely inside an already-tokenized span.
+// This prevents SLM items (e.g. "Siret") from clobbering existing Tier-1 tokens
+// that happen to contain the same substring (e.g. "[FRANCE_SIRET_NUMBER_…]").
 func (e *Refinery) applyReplacement(line, target, piiType, source string, actor string) (string, error) {
 	target = strings.TrimSpace(target)
 	if len(target) < 3 {
@@ -750,9 +806,38 @@ func (e *Refinery) applyReplacement(line, target, piiType, source string, actor 
 		return line, nil
 	}
 
-	return replaceAllStringFuncErr(re, line, func(match string) (string, error) {
-		return e.getOrSetSecureToken(match, piiType, source, actor)
-	})
+	tokenRanges := tokenPattern.FindAllStringIndex(line, -1)
+	matches := re.FindAllStringIndex(line, -1)
+	if len(matches) == 0 {
+		return line, nil
+	}
+
+	var out strings.Builder
+	lastPos := 0
+	for _, match := range matches {
+		start, end := match[0], match[1]
+		// Skip if the match is fully contained within an existing token
+		inside := false
+		for _, t := range tokenRanges {
+			if start >= t[0] && end <= t[1] {
+				inside = true
+				break
+			}
+		}
+		out.WriteString(line[lastPos:start])
+		if inside {
+			out.WriteString(line[start:end])
+		} else {
+			token, tokenErr := e.getOrSetSecureToken(line[start:end], piiType, source, actor)
+			if tokenErr != nil {
+				return "", tokenErr
+			}
+			out.WriteString(token)
+		}
+		lastPos = end
+	}
+	out.WriteString(line[lastPos:])
+	return out.String(), nil
 }
 
 func (e *Refinery) getOrSetSecureToken(val, piiType, source string, actor string) (string, error) {
