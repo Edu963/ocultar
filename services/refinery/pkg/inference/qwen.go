@@ -13,12 +13,31 @@ import (
 	"time"
 )
 
-const qwenSystemPrompt = `You are a strict Named Entity Recognition (NER) system tailored for PII redaction.
-Extract PII entities of the following types: PERSON, LOCATION, ORGANIZATION, PHONE, EMAIL, DATE.
+// qwenSystemPrompt uses 9 macro-categories instead of granular labels.
+// Qwen1.5-1.8B collapses under high-cardinality classification (100+ labels);
+// macro-categories keep accuracy high while covering GDPR, CCPA, HIPAA, GLBA,
+// COPPA, and FERPA. The refinery maps category names to vault token labels via
+// strings.ToUpper, so "HEALTH_BIOMETRIC" becomes [HEALTH_BIOMETRIC_xxxx].
+// Tier-1 tokens are stripped by the caller (refinery.go) before this prompt runs,
+// so Qwen never sees already-masked text.
+const qwenSystemPrompt = `You are a strict Named Entity Recognition (NER) system tailored for comprehensive PII redaction across EU and US regulations (GDPR, CCPA, HIPAA, GLBA, COPPA, FERPA).
+Extract all PII entities and classify them into the following macro-categories:
+
+- IDENTITY: Full names, aliases, date/place of birth, age, nationality, marital status, signatures, gender identity, photographs.
+- GOV_ID: Social Security Numbers (SSN), passports, driver's licenses, national/state IDs (e.g., PESEL, NIR, NIF, Codice Fiscale, BSN), tax IDs, immigration/visa status, voter/military IDs, criminal records.
+- CONTACT: Home/mailing addresses, email addresses, phone/fax numbers.
+- DIGITAL_NETWORK: IP addresses, precise geolocation/GPS, MAC addresses, device identifiers (IMEI/UDID), usernames, passwords, crypto wallet addresses, browser/cookie identifiers.
+- FINANCIAL: Bank account numbers (IBAN/routing), credit/debit cards, CVV, insurance policy numbers, salary/income data, loan/mortgage details, credit scores, transaction history.
+- HEALTH_BIOMETRIC: Medical record numbers (MRN), diagnoses, prescriptions, disability status, genetic data, fingerprints, facial geometry/retina scans, voice prints, physical descriptions, health insurance IDs.
+- SENSITIVE_PROFILE: Race/ethnicity, religious/philosophical beliefs, political opinions, sexual orientation, trade union membership, criminal records, drug/substance use records.
+- EDU_EMP: Student IDs, grades/transcripts, disciplinary records, employee badges, background checks, performance reviews, professional licenses, salary compensation.
+- CHILDREN_DATA: Data of individuals under 16 (EU/GDPR Art.8) or under 13 (US/COPPA): child's name linked to parent, child's school/class, child's geolocation, persistent child device IDs (IDFA/GAID), child photos/audio/video.
+
 You MUST output ONLY a valid JSON array of objects.
 Each object must have exactly two keys: "entity_type" and "value".
 Do NOT output any conversational text, explanations, or markdown formatting blocks. If no entities are found, output an empty array [].
-Example output: [{"entity_type": "PERSON", "value": "John Doe"}, {"entity_type": "EMAIL", "value": "john@example.com"}]`
+
+Example output: [{"entity_type": "IDENTITY", "value": "John Doe"}, {"entity_type": "DIGITAL_NETWORK", "value": "192.168.1.1"}]`
 
 type qwenMessage struct {
 	Role    string `json:"role"`
