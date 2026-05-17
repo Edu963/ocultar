@@ -166,24 +166,34 @@ func main() {
 	eng.AuditLogger = basicLogger
 
 	// Enable Tier 2 AI if forced or licensed.
-	// TIER2_ENGINE selects the backend:
-	//   "llama-cpp" / "qwen" → QwenScanner (llama.cpp /v1/chat/completions, default port 8080)
-	//   anything else        → RemoteScanner (privacy-filter Python sidecar, default port 8085)
+	// SLM_ADAPTER selects the NER backend protocol:
+	//   "openai-chat"    → QwenScanner  (llama.cpp /v1/chat/completions)
+	//   "privacy-filter" → RemoteScanner (privacy-filter / piiranha sidecar) [default]
+	// TIER2_ENGINE is a deprecated alias; SLM_ADAPTER takes precedence when set.
 	if !pilotMode {
 		var scanner refinery.AIScanner
-		switch os.Getenv("TIER2_ENGINE") {
-		case "llama-cpp", "qwen":
-			qwenURL := os.Getenv("SLM_SIDECAR_URL")
-			if qwenURL == "" {
-				qwenURL = "http://localhost:8086"
+		adapter := os.Getenv("SLM_ADAPTER")
+		if adapter == "" {
+			if legacy := os.Getenv("TIER2_ENGINE"); legacy != "" {
+				log.Printf("[DEPRECATED] TIER2_ENGINE renamed to SLM_ADAPTER. Please update your config.")
+				// Map legacy values to new adapter names.
+				switch legacy {
+				case "llama-cpp", "qwen":
+					adapter = "openai-chat"
+				default:
+					adapter = "privacy-filter"
+				}
 			}
-			scanner = inference.NewQwenScanner(qwenURL)
-			log.Printf("[INFO] Tier 2 AI active via Qwen/llama.cpp: %s", qwenURL)
+		}
+		sidecarURL := os.Getenv("SLM_SIDECAR_URL")
+		if sidecarURL == "" {
+			sidecarURL = "http://localhost:8086"
+		}
+		switch adapter {
+		case "openai-chat":
+			scanner = inference.NewQwenScanner(sidecarURL)
+			log.Printf("[INFO] Tier 2 AI active via openai-chat (Qwen/llama.cpp): %s", sidecarURL)
 		default:
-			sidecarURL := os.Getenv("SLM_SIDECAR_URL")
-			if sidecarURL == "" {
-				sidecarURL = "http://localhost:8086"
-			}
 			scanner = inference.NewRemoteScanner(sidecarURL)
 			log.Printf("[INFO] Tier 2 AI active via privacy-filter sidecar: %s", sidecarURL)
 		}
