@@ -124,6 +124,12 @@ type Refinery struct {
 	// SkipDeepScan disables Tier 2 AI scanning for this instance without removing the scanner.
 	// Useful for high-throughput batch jobs where speed takes priority over AI recall.
 	SkipDeepScan bool
+	// FailClosedOnSLMError makes SLM failures propagate as hard errors instead of
+	// degrading gracefully to Tier 1. Set to true in proxy mode (security requirement:
+	// an unreachable SLM must block the request rather than risk PII leaking names).
+	// Defaults to false so the /api/refine preview endpoint stays responsive even
+	// when the SLM sidecar is not running.
+	FailClosedOnSLMError bool
 	VaultCount   *atomic.Int64
 	AuditLogger  AuditLogger
 	AIScanner    AIScanner
@@ -286,7 +292,11 @@ func (e *Refinery) ProcessInterface(data interface{}, actor string) (interface{}
 				var slmErr error
 				preScanMap, slmErr = scanner.ScanForPII(textStr)
 				if slmErr != nil {
-					return nil, fmt.Errorf("SLM inference failed: %w", slmErr)
+					if e.FailClosedOnSLMError {
+						return nil, fmt.Errorf("SLM inference failed: %w", slmErr)
+					}
+					log.Printf("[WARN] Tier 2 SLM unavailable, degrading to Tier 1: %v", slmErr)
+					preScanMap = nil
 				}
 				if len(preScanMap) > 0 {
 					log.Printf("[INFO] SLM Batch Scan: %d entity type(s) detected in record", len(preScanMap))
@@ -586,7 +596,11 @@ func (e *Refinery) RefineString(input string, actor string, preScanMap map[strin
 		textForSLM := tokenPattern.ReplaceAllString(refined, " ")
 		piiMap, slmErr := e.activeScanner().ScanForPII(textForSLM)
 		if slmErr != nil {
-			return "", fmt.Errorf("SLM inference failed: %w", slmErr)
+			if e.FailClosedOnSLMError {
+				return "", fmt.Errorf("SLM inference failed: %w", slmErr)
+			}
+			log.Printf("[WARN] Tier 2 SLM unavailable, degrading to Tier 1: %v", slmErr)
+			piiMap = nil
 		}
 		for piiType, items := range piiMap {
 			// Normalize SLM entity type to UPPERCASE so tokens are consistent with

@@ -42,7 +42,10 @@ type Handler struct {
 // NewHandler constructs a Handler pointed at the given upstream targetURL.
 // The refinery is used for Tier 1 + Tier 2 redaction on the request body.
 // masterKey and vault are used for re-hydration on the response body.
+// Proxy mode is always fail-closed: an unreachable SLM blocks the request
+// rather than risking PII names leaking through Tier 1 alone.
 func NewHandler(eng *refinery.Refinery, v vault.Provider, masterKey []byte, targetURL string) (*Handler, error) {
+	eng.FailClosedOnSLMError = true
 	u, err := url.Parse(targetURL)
 	if err != nil {
 		return nil, fmt.Errorf("invalid OCU_PROXY_TARGET %q: %w", targetURL, err)
