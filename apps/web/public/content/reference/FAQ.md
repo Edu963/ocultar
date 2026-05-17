@@ -31,6 +31,27 @@ We primarily utilize Qwen-1.5B or Phi-3-mini, quantized to GGUF format (~1.2 GB)
 ### Are the SLM (Small Language Model) weights shipped directly within the installation files? What is the purpose of the `models` folder?
 No. The default Tier 2 engine is `openai/privacy-filter` (~500 MB), downloaded from HuggingFace on first run into a named Docker volume — subsequent starts use the cached model and skip the download. The `models` folder can hold locally-placed model weights for air-gapped deployments; set `PRIVACY_FILTER_MODEL_PATH` to the local path in that case. For strict offline setups, bake the weights into the Docker image at build time.
 
+### How do you leverage the OpenAI Privacy Filter, and does it require calling external APIs?
+We leverage the OpenAI Privacy Filter model, but it runs entirely locally—we **never** call OpenAI's API. 
+
+OpenAI released the model weights for their privacy filter to the open-source community. We have integrated these weights directly into our engine. The model executes fully self-contained on your own hardware within your secure perimeter.
+
+The prompt flow is completely local:
+1. The user inputs their prompt.
+2. Our local engine analyzes the text.
+3. The PII is redacted and securely vaulted *before* any text leaves your environment.
+
+This allows us to deliver the exact same high-standard PII detection architecture developed by OpenAI, with absolute **zero network egress** and complete sovereign compliance.
+
+### If the system is fully air-gapped, why are there separate sidecar services?
+This is a modular, high-performance architecture design. All processing occurs strictly on `localhost` (within the same machine or host container) and never leaves your network. 
+
+We separate our processing into specialized local engines to optimize performance and security:
+- **Core Logic Engine**: Handles high-speed operations like custom rule matching and structural dictionary lookups with near-zero latency.
+- **Deep Analytics Engine**: Executes semantic scans using highly optimized local Small Language Models (SLMs) and token classifiers.
+
+By decoupling these components into lightweight local micro-services, we ensure that resource-heavy AI inference doesn't block high-speed operations, while maintaining an ironclad, single-host security boundary. No internet access is required.
+
 ### If the default model is tuned for specific regions (like French financial formats), can we train or fine-tune the model to recognize other EU formats?
 Yes. The Tier 1 regex pipeline is the fastest path: add patterns directly to `configs/config.yaml` to cover any region-specific format (German tax IDs, Spanish NIE, Dutch BSN, etc.) without touching the AI model. For deeper semantic coverage, OCULTAR supports `piiranha-v1` as a multilingual NER alternative — set `PRIVACY_FILTER_MODEL_PATH=iiiorg/piiranha-v1-detect-personal-information` and `MODEL_SCHEMA=piiranha` in the sidecar environment. Domain-specific fine-tuning (e.g., a French-finance-optimized model trained on 5K+ labeled examples) is on the roadmap as a partner-driven engagement.
 
