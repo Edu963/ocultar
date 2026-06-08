@@ -1,0 +1,41 @@
+# OCULTAR French Finance Sovereign Deployment — Docker Compose Override
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.french-finance.yml up --build
+#
+# What this adds on top of docker-compose.yml:
+#   • Mounts configs/config.french-finance.yaml as the active policy config
+#   • Starts the ocultar-refinery server (port 8080) for API + compliance evidence
+#   • Pre-wired for GDPR Art. 25/32, CNIL, PCI-DSS v4.0
+
+services:
+
+  # Override: inject French finance policy config into the proxy
+  ocultar-proxy:
+    volumes:
+      - vault-data:/data
+      - ./configs/config.french-finance.yaml:/app/configs/config.yaml:ro
+
+  # New: standalone refinery server — exposes /api/refine, /api/compliance/evidence,
+  # and the operational dashboard on port 8080
+  ocultar-refinery:
+    build:
+      context: .
+      dockerfile: services/refinery/Dockerfile
+    container_name: ocultar-refinery
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - OCU_MASTER_KEY=${OCU_MASTER_KEY:-ocultar-demo-master-key-change-in-prod}
+      - OCU_SALT=${OCU_SALT:-ocultar-demo-salt-16b}
+      - OCU_LICENSE_KEY=${OCU_LICENSE_KEY:-}
+      - OCU_PILOT_MODE=${OCU_PILOT_MODE:-1}
+    volumes:
+      - vault-data:/data
+      - ./configs/config.french-finance.yaml:/app/configs/config.yaml:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10

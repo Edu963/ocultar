@@ -1,0 +1,21 @@
+# docker-compose.qwen.yml — Qwen1.5-1.8B SLM override
+#
+# Activates the local Qwen SLM backend for ocultar-proxy.
+# The llama-qwen service (profile: qwen) must also be started.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.qwen.yml \
+#     --profile qwen up
+#
+# Or set in your .env:
+#   SLM_ADAPTER=openai-chat
+#   SLM_SIDECAR_URL=http://llama-qwen:8080
+
+services:
+  ocultar-proxy:
+    environment:
+      - SLM_ADAPTER=openai-chat
+      - SLM_SIDECAR_URL=http://llama-qwen:8080
+    depends_on:
+      llama-qwen:
+        condition: service_healthy

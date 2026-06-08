@@ -1,0 +1,38 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Edu963/ocultar-pii-mistral",
+  "description": "Zero-egress PII redaction for Mistral Le Chat. Runs locally — no data leaves your infrastructure. Optimised for French and EU compliance (RGPD, CNIL, SIRET, IBAN).",
+  "repository": {
+    "url": "https://github.com/Edu963/ocultar",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "ocultar-mistral-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeHint": "python",
+      "environmentVariables": [
+        {
+          "name": "OCULTAR_URL",
+          "description": "URL of your locally running Ocultar Refinery",
+          "required": true
+        },
+        {
+          "name": "OCULTAR_API_KEY",
+          "description": "Ocultar API key (leave blank if not configured)",
+          "required": false
+        },
+        {
+          "name": "OCULTAR_AUDITOR_TOKEN",
+          "description": "Enables reveal_tokens tool. Must match OCU_AUDITOR_TOKEN on the server.",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

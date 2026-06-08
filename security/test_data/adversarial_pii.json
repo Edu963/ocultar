@@ -1,0 +1,16 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Contact me at john (dot) doe (at) gmail (dot) com or j0hn.doe@gmail.com. Phone is (five-five-five) zero-one-nine-nine."
+    },
+    {
+      "role": "user",
+      "content": "Encoded: am9obi5kb2VAZXhhbXBsZS5jb20= (base64) and %6a%6f%68%6e%2e%64%6f%65%40%67%6d%61%69%6c%2e%63%6f%6d (URL)."
+    },
+    {
+      "role": "user",
+      "content": "Noise: j.o.h.n.d.o.e@g.m.a.i.l.c.o.m"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+id: ocultar-pii
+name: Ocultar PII Refinery
+description: >
+  Zero-egress PII protection for Goose AI workflows.
+  Redacts names, IBANs, emails, phone numbers, and financial identifiers
+  before any upstream processing. Runs entirely in your infrastructure —
+  no data leaves your environment.
+version: 0.1.0
+author: ocultar-dev
+license: Apache-2.0
+repository: https://github.com/Edu963/ocultar
+tags:
+  - security
+  - privacy
+  - pii
+  - finance
+  - zero-egress
+  - gdpr
+transport: stdio
+command: python
+args:
+  - extensions/goose/ocultar_mcp.py
+env:
+  OCULTAR_URL:
+    description: URL of your local Ocultar instance
+    default: http://localhost:8080
+    required: true
+  OCULTAR_API_KEY:
+    description: Your Ocultar API key
+    required: false
+tools:
+  - name: refine_text
+    description: >
+      Redacts PII from text locally before AI processing.
+      Returns clean text and a token map for re-hydration.

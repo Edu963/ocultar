@@ -1,0 +1,133 @@
+# docker-compose.yml — OCULTAR demo stack
+#
+# Prerequisites: Docker + Docker Compose v2
+#
+# Quick demo (Tier 1 detection, no AI model needed, ~5 min first build):
+#   docker compose up --build
+#
+# Full AI stack (Tier 2 NER — piiranha model, downloads ~500 MB on first run):
+#   OCU_PILOT_MODE=0 docker compose --profile ai up --build
+#
+# Qwen SLM stack (Tier 2 NER — local Qwen1.5-1.8B, no internet required):
+#   docker compose --profile qwen up --build
+#   Requires: models/qwen-1.5b-q4_k_m.gguf (already present)
+#
+# Custom secrets:
+#   cp .env.example .env   # edit .env with real values
+#   docker compose up --build
+#
+# What runs:
+#   echo-upstream → lightweight mock API (port 8082)
+#   ocultar-proxy → privacy proxy, PII redaction (port 8081), metrics (port 9090)
+#   privacy-filter [profile: ai]   → Tier 2 NER via piiranha sidecar (port 8086)
+#   llama-qwen    [profile: qwen]  → Tier 2 NER via local Qwen1.5-1.8B (port 8080)
+
+services:
+
+  # ── Mock upstream "AI API" ────────────────────────────────────────────────
+  echo-upstream:
+    image: ealen/echo-server:latest
+    container_name: ocultar-echo-upstream
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+      - ENABLE__ENVIRONMENT=false
+    ports:
+      - "8082:8080"
+
+  # ── OCULTAR Privacy Proxy ─────────────────────────────────────────────────
+  ocultar-proxy:
+    build:
+      context: .
+      dockerfile: apps/proxy/Dockerfile
+    container_name: ocultar-proxy
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+      - "9090:9090"
+    environment:
+      - OCU_PROXY_TARGET=http://echo-upstream:8080
+      - OCU_PROXY_PORT=8081
+      - OCU_VAULT_PATH=/data/vault.db
+      - OCU_MASTER_KEY=${OCU_MASTER_KEY:-ocultar-demo-master-key-change-in-prod}
+      - OCU_SALT=${OCU_SALT:-ocultar-demo-salt-change-in-prod}
+      - OCU_PILOT_MODE=${OCU_PILOT_MODE:-1}
+      - OCU_LICENSE_KEY=${OCU_LICENSE_KEY:-}
+      - OCU_AUDIT_PRIVATE_KEY=${OCU_AUDIT_PRIVATE_KEY:-}
+      - OCU_AUDIT_LOG_PATH=/data/audit.log
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-mock-demo-key}
+      # Tier 2 sidecar: set SLM_ADAPTER to select backend.
+      #   (unset / privacy-filter) → piiranha RemoteScanner on port 8086
+      #   openai-chat              → QwenScanner on llama-qwen port 8080
+      - TIER2_ENGINE=${TIER2_ENGINE:-privacy-filter}
+      - SLM_ADAPTER=${SLM_ADAPTER:-}
+      - SLM_SIDECAR_URL=${SLM_SIDECAR_URL:-http://privacy-filter:8086}
+    volumes:
+      - vault-data:/data
+    depends_on:
+      echo-upstream:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  # ── Tier 2 AI NER sidecar — piiranha (opt-in: --profile ai) ─────────────
+  # Downloads the privacy-filter model (~500 MB) on first run.
+  # Subsequent starts use the cached model in the ./models volume.
+  privacy-filter:
+    profiles: [ai]
+    build:
+      context: ./apps/slm-engine/python
+      dockerfile: Dockerfile
+    container_name: ocultar-privacy-filter
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      - PRIVACY_FILTER_MODEL_PATH=${PRIVACY_FILTER_MODEL_PATH:-openai/privacy-filter}
+    volumes:
+      - ./models:/app/models:Z
+
+  # ── Tier 2 AI NER sidecar — Qwen1.5-1.8B via llama.cpp (opt-in: --profile qwen) ──
+  # Uses the GGUF model already present at ./models/qwen-1.5b-q4_k_m.gguf.
+  # No model download needed. Exposes OpenAI-compatible /v1/chat/completions.
+  # Start with: docker compose --profile qwen up
+  # The ocultar-proxy must also have SLM_ADAPTER=openai-chat and
+  # SLM_SIDECAR_URL=http://llama-qwen:8080 — set via docker-compose.qwen.yml.
+  llama-qwen:
+    profiles: [qwen]
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: ocultar-llama-qwen
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./models:/models:ro
+    command:
+      - "--model"
+      - "/models/qwen-1.5b-q4_k_m.gguf"
+      - "--ctx-size"
+      - "2048"
+      - "-n"
+      - "512"
+      - "--port"
+      - "8080"
+      - "--host"
+      - "0.0.0.0"
+      - "--threads"
+      - "4"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+volumes:
+  vault-data:
+
+networks:
+  default:
+    name: ocultar-net

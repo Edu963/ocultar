@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            runner: ubuntu-latest
+            ext: ""
+          - goos: darwin
+            goarch: arm64
+            runner: macos-latest
+            ext: ""
+          - goos: windows
+            goarch: amd64
+            runner: windows-latest
+            ext: ".exe"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.work
+
+      - name: Drop private modules from workspace
+        shell: bash
+        run: go work edit -dropuse ./apps/slm-engine
+
+      - name: Install C compiler (linux)
+        if: matrix.goos == 'linux'
+        run: sudo apt-get install -y gcc
+
+      - name: Install C compiler (windows)
+        if: matrix.goos == 'windows'
+        shell: bash
+        run: choco install mingw -y
+
+      - name: Build ocultar (refinery server)
+        shell: bash
+        env:
+          CGO_ENABLED: "1"
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CC: ${{ matrix.goos == 'windows' && 'gcc' || '' }}
+        run: |
+          mkdir -p dist
+          go build -o dist/ocultar-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }} \
+            ./services/refinery/cmd
+
+      - name: Build proxy
+        shell: bash
+        env:
+          CGO_ENABLED: "1"
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CC: ${{ matrix.goos == 'windows' && 'gcc' || '' }}
+        run: |
+          go build -o dist/ocultar-proxy-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }} \
+            ./apps/proxy
+
+      - name: Checksum
+        shell: bash
+        run: |
+          cd dist
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum ocultar-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }} \
+                      ocultar-proxy-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}
+          else
+            shasum -a 256 ocultar-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }} \
+                          ocultar-proxy-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}
+          fi >> SHA256SUMS-${{ matrix.goos }}-${{ matrix.goarch }}.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          merge-multiple: true
+
+      - name: Stage all release files
+        run: mkdir -p dist && cp artifacts/* dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist/**

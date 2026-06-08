@@ -1,0 +1,73 @@
+services:
+  echo-upstream:
+    image: ealen/echo-server:latest
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+      - ENABLE__ENVIRONMENT=false
+    ports:
+      - "8082:8080"
+
+  ocultar-proxy:
+    image: ghcr.io/edu963/ocultar-sombra:latest
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - OCU_PROXY_TARGET=http://echo-upstream:8080
+      - OCU_PROXY_PORT=8081
+      - SOMBRA_PORT=8081
+      # Vault DB path — must match the volume mount below so tokens survive restarts.
+      - OCU_VAULT_PATH=/data/vault.db
+      # Secrets injected by Doppler — run with: doppler run -- docker compose up
+      - OCU_MASTER_KEY=${OCU_MASTER_KEY}
+      - OCU_SALT=${OCU_SALT}
+      - OCU_LICENSE_KEY=${OCU_LICENSE_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - SLM_SIDECAR_URL=http://slm-engine:8085
+      # Enterprise audit log — set OCU_AUDIT_PRIVATE_KEY in Doppler to activate.
+      # Generate: openssl rand -hex 32
+      - OCU_AUDIT_PRIVATE_KEY=${OCU_AUDIT_PRIVATE_KEY}
+      - OCU_AUDIT_LOG_PATH=/data/audit.log
+    volumes:
+      - vault-data:/data
+    depends_on:
+      - echo-upstream
+      - slm-engine
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  slm-engine:
+    image: slm-engine:latest
+    restart: unless-stopped
+    environment:
+      - TIER2_ENGINE=privacy-filter
+      - PYTHON_SIDECAR_URL=http://privacy-filter:8086
+    depends_on:
+      - privacy-filter
+
+  privacy-filter:
+    build:
+      context: ./apps/slm-engine/python
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      - PRIVACY_FILTER_MODEL_PATH=openai/privacy-filter
+    volumes:
+      - ./models:/app/models:Z
+
+volumes:
+  # Named volume keeps the DuckDB vault file across container recreation.
+  # Without this, vault.db lives in the container layer and every
+  # `docker compose up --force-recreate` silently destroys all stored tokens.
+  vault-data:
+
+networks:
+  default:
+    name: ocultar-proxy-net
