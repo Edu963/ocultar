@@ -107,3 +107,4 @@ doppler.yaml
 # Draft Security Readiness Documentation
 /docs/security_readiness/
 
+.wrangler/

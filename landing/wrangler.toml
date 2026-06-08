@@ -3,4 +3,4 @@ pages_build_output_dir = "."
 
 [[kv_namespaces]]
 binding = "WAITLIST"
-id      = ""        # fill in after: wrangler kv namespace create ocultar-waitlist
+id      = "2ce6e5f6c678448fa95913281c52352d"
