@@ -29,7 +29,6 @@ services:
     environment:
       - OCU_MASTER_KEY=${OCU_MASTER_KEY:-ocultar-demo-master-key-change-in-prod}
       - OCU_SALT=${OCU_SALT:-ocultar-demo-salt-16b}
-      - OCU_LICENSE_KEY=${OCU_LICENSE_KEY:-}
       - OCU_PILOT_MODE=${OCU_PILOT_MODE:-1}
     volumes:
       - vault-data:/data

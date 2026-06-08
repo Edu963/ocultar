@@ -52,7 +52,6 @@ services:
       - OCU_MASTER_KEY=${OCU_MASTER_KEY:-ocultar-demo-master-key-change-in-prod}
       - OCU_SALT=${OCU_SALT:-ocultar-demo-salt-change-in-prod}
       - OCU_PILOT_MODE=${OCU_PILOT_MODE:-1}
-      - OCU_LICENSE_KEY=${OCU_LICENSE_KEY:-}
       - OCU_AUDIT_PRIVATE_KEY=${OCU_AUDIT_PRIVATE_KEY:-}
       - OCU_AUDIT_LOG_PATH=/data/audit.log
       - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-mock-demo-key}

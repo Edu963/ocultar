@@ -5,8 +5,8 @@
 version: "2.1.1"
 
 distributions:
-  community:
-    name: "ocultar-community"
+  default:
+    name: "ocultar"
     format: "zip"
     components:
       - name: "refinery"
@@ -18,7 +18,7 @@ distributions:
         type: "npm-build"
         dest: "dashboard"
       - name: "docker-compose"
-        src: "./docker-compose.community.yml"
+        src: "./docker-compose.yml"
         type: "file"
         dest: "docker-compose.yml"
       - name: "env-example"
@@ -40,32 +40,10 @@ distributions:
           - "run_zero_egress_validator.sh"
           - "smoke_test.sh"
         dest: "scripts/"
-
-  enterprise:
-    name: "ocultar-enterprise"
-    format: "tar.gz"
-    extends: "community"
-    components:
-      - name: "enterprise-refinery"
-        src: "./enterprise/refinery-extensions/cmd/ocultar-enterprise/main.go"
-        type: "go-binary"
-        dest: "ocultar-enterprise"
-        optional: true
       - name: "config-template"
         src: "./services/refinery/configs/config.yaml"
         type: "file"
         dest: "config.yaml"
-      - name: "enterprise-scripts"
-        src: "./tools/scripts/scripts"
-        type: "directory"
-        include:
-          - "setup-enterprise.sh"
-          - "integrity_validator.sh"
-          - "run_secret_scanner.sh"
-          - "run_arch_linter.sh"
-          - "run_zero_egress_validator.sh"
-          - "smoke_test.sh"
-        dest: "scripts/"
       - name: "mock-api"
         src: "./services/mock-api/main.go"
         type: "go-binary"
@@ -99,18 +77,11 @@ distributions:
 security:
   sanitization: true
   egress_audit: true
-  license_enforcement: true
   cryptographic_gating: true
 
-# Validation Profiles
+# Validation Profile
 validation:
-  community:
+  default:
     test_script: "scripts/setup-community.sh"
-    distribution_type: "community"
     allowed_ports: [8081, 3030]
-    required_signatures: ["ocultar-community.zip.sig"]
-  enterprise:
-    test_script: "scripts/setup-enterprise.sh"
-    distribution_type: "enterprise"
-    allowed_ports: [8081, 3030]
-    required_signatures: ["ocultar-enterprise.tar.gz.sig"]
+    required_signatures: ["ocultar.zip.sig"]

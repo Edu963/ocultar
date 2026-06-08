@@ -16,7 +16,7 @@ Optimised for French and EU compliance: SIRET/SIREN, IBAN, RGPD Article 25, CNIL
 
 - Ocultar Refinery running locally:
   ```bash
-  docker compose -f docker-compose.community.yml up
+  docker compose up
   ```
 - Python 3.10+
 

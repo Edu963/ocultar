@@ -4,7 +4,7 @@ Zero-egress PII protection for Goose AI workflows.
 Runs entirely in your infrastructure — no data leaves your environment.
 
 ### Prerequisites
-- Ocultar running locally (docker compose -f docker-compose.community.yml up)
+- Ocultar running locally (docker compose up)
 - Python 3.10+
 
 ### Installation

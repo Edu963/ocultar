@@ -115,7 +115,7 @@ Because `token_id = SHA-256(plaintext)[:8]`, the same PII value always produces 
 
 ### Key management
 
-Secrets (`OCU_MASTER_KEY`, `OCU_SALT`) are injected at runtime via Doppler and are never present in the codebase, Docker images, or container layers. The `docker-compose.community.yml` file references `${OCU_MASTER_KEY}` as an environment placeholder; the actual value is populated by `doppler run --`.
+Secrets (`OCU_MASTER_KEY`, `OCU_SALT`) are injected at runtime via Doppler and are never present in the codebase, Docker images, or container layers. The `docker-compose.yml` file references `${OCU_MASTER_KEY}` as an environment placeholder; the actual value is populated by `doppler run --`.
 
 ---
 
@@ -249,7 +249,7 @@ Operators are strongly advised to store `OCU_MASTER_KEY` in a durable secrets ma
 
 ### Codebase hygiene
 
-`OCU_MASTER_KEY`, `OCU_SALT`, and all other secrets are absent from the codebase. The `.env` file (local development only) is listed in `.gitignore`. The `docker-compose.community.yml` file references secrets as environment variable placeholders (`${OCU_MASTER_KEY}`) injected at runtime by `doppler run --`.
+`OCU_MASTER_KEY`, `OCU_SALT`, and all other secrets are absent from the codebase. The `.env` file (local development only) is listed in `.gitignore`. The `docker-compose.yml` file references secrets as environment variable placeholders (`${OCU_MASTER_KEY}`) injected at runtime by `doppler run --`.
 
 ---
 
@@ -261,11 +261,11 @@ The vault uses DuckDB, an embedded analytical database. In the default community
 
 ### Container persistence
 
-The vault file is mounted via a named Docker volume (`vault-data:/data`) defined in `docker-compose.community.yml`. Named volumes survive container recreation, image upgrades, and `docker compose down`.
+The vault file is mounted via a named Docker volume (`vault-data:/data`) defined in `docker-compose.yml`. Named volumes survive container recreation, image upgrades, and `docker compose down`.
 
 ### Production defect found and fixed
 
-An anonymous volume configuration was identified during development in which `vault.db` resided in the container's writable layer rather than in a named volume. Every execution of `docker compose up --force-recreate` silently destroyed the vault file and all stored tokens — with no error message. This defect was fixed by adding the `vault-data` named volume to `docker-compose.community.yml` before any production use.
+An anonymous volume configuration was identified during development in which `vault.db` resided in the container's writable layer rather than in a named volume. Every execution of `docker compose up --force-recreate` silently destroyed the vault file and all stored tokens — with no error message. This defect was fixed by adding the `vault-data` named volume to `docker-compose.yml` before any production use.
 
 **Operators who deployed using the earlier anonymous-volume configuration should verify their current deployment uses the named volume** by running `docker volume ls` and confirming `ocultar-proxy-net_vault-data` (or equivalent) is present.
 

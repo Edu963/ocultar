@@ -18,7 +18,7 @@ Runs entirely in your infrastructure — no data ever leaves your environment.
 
 - Ocultar Refinery running locally:
   ```bash
-  docker compose -f docker-compose.community.yml up
+  docker compose up
   ```
 - Python 3.10+
 

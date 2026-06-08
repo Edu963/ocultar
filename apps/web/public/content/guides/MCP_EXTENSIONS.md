@@ -21,7 +21,7 @@ All three packages require **Python 3.10+** and the OCULTAR Refinery running loc
 Start the Refinery before connecting any MCP client:
 
 ```bash
-docker compose -f docker-compose.community.yml up
+docker compose up
 ```
 
 Or manually:
