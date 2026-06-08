@@ -1,0 +1,50 @@
+sombra:
+  listen_port: "8084"
+  vault_path: "vault_data/vault.db"
+  allowed_domains: ["api.openai.com", "generativelanguage.googleapis.com", "api.mistral.ai", "api.anthropic.com", "127.0.0.1"]
+
+  models:
+    - name: local-slm
+      provider: local
+      endpoint: http://127.0.0.1:8085
+    - name: gpt-4o
+      provider: openai
+      api_key_env: OPENAI_API_KEY
+    - name: gemini-flash-latest
+      provider: gemini
+      api_key_env: GEMINI_API_KEY
+    - name: mistral-large-latest
+      provider: mistral
+      endpoint: https://api.mistral.ai/v1
+      api_key_env: MISTRAL_API_KEY
+    - name: claude-sonnet-4-6
+      provider: anthropic
+      api_key_env: ANTHROPIC_API_KEY
+
+  connectors:
+    - name: file
+      type: file
+      policy:
+        # strip_categories: High-sensitivity data to be REMOVED (not just pseudonymized)
+        strip_categories: ["SSN", "ACCOUNT_NUMBER"]
+        # allowed_models: Restriction of which LLM backends can process this connector's data
+        allowed_models: ["local-slm", "gpt-4o", "gpt-4o-mini", "gemini-flash-latest", "mistral-large-latest", "claude-sonnet-4-6"]
+        max_body_bytes: 10485760 # 10MB limit
+
+    - name: banking
+      type: api
+      endpoint: https://api.example-bank.com/v1
+      auth_type: bearer
+      api_key_env: BANK_API_KEY
+      policy:
+        strip_categories: ["SSN", "ROUTING_NUMBER"]
+        allowed_models: ["local-slm"] # Enforce sensitive APIs only go to local models
+
+#    - name: slack-prod
+#      type: slack
+#      config:
+#        workspace_id: "TFYQQ6Z2M"
+#        token: "${SLACK_TOKEN}"
+#      policy:
+#        strip_categories: ["SSN", "CREDENTIAL", "SECRET", "PHONE_NUMBER"]
+#        allowed_models: ["gemini-flash-latest"]

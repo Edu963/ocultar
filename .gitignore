@@ -1,0 +1,108 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+
+# Build artifacts
+dist/
+bin/
+ocultar
+/sombra
+main
+refinery_bin
+ocultar-proxy
+apps/slm-engine/slm-engine
+*.tar.gz
+*.zip
+release-checksum.txt
+
+# Environment and Secrets
+.env
+configs/config.yaml
+apps/sombra/src/.env
+*.db
+*.db-wal
+*.db-shm
+*.db.wal
+*.db.shm
+vault_data/
+license.key
+*.key
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test Outputs & Reports
+results.json
+*_test_output.txt
+*.log
+/reports/
+/pilot_data/
+privacy_filter_results.json
+privacy_filter_results_v2.json
+
+# Scratch / local dev playgrounds
+scratch/
+
+# Symlink build artifacts
+dashboard
+
+# Agent Skills (all internal — operational moat, not for public)
+agents/
+business/
+demo/
+
+
+# Documentation Binaries
+*.pdf
+
+audit.log
+/sombra.yaml
+temp/
+models/privacy-filter-fr-finance/model.safetensors
+
+# Model files (large binaries — never commit)
+*.gguf
+*.ggml
+*.safetensors
+models/
+
+# Fine-tuning data (bulky synthetic corpora)
+data/fine-tune/
+
+# Go test artifacts
+coverage.out
+coverage.html
+*.test
+*.prof
+cpu.pprof
+mem.pprof
+
+# TLS / certificate files
+*.pem
+*.crt
+*.p12
+*.p8
+
+# Internal docs (private — business strategy, roadmap tasks, investor materials)
+docs/fundraising/
+docs/tasks/
+apps/web/public/content/tasks/
+
+# Claude Code local settings (dev environment hooks, not for public)
+.claude/settings.local.json
+
+# Internal scripts
+test_sombra_query.sh
+
+# License generation (verification is public, generation is private)
+tools/license-manager/generate_license.go
+
+# Doppler config
+doppler.yaml
+
+
+# Draft Security Readiness Documentation
+/docs/security_readiness/
+

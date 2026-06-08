@@ -1,0 +1,216 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  OCULTAR — Enterprise infrastructure design system.
+  Dark, precise, Stripe / Datadog inspired. Orange signal accent (sparingly).
+  All colors are HSL.
+*/
+
+@layer base {
+  :root {
+    /* Surfaces */
+    --background: 240 14% 4%;          /* near-black with slight cool tint */
+    --foreground: 210 20% 96%;
+    --surface: 240 12% 6%;             /* card / nav bg */
+    --surface-elevated: 240 10% 8%;
+    --surface-muted: 240 8% 11%;
+
+    /* Cards */
+    --card: 240 12% 6%;
+    --card-foreground: 210 20% 96%;
+    --popover: 240 12% 7%;
+    --popover-foreground: 210 20% 96%;
+
+    /* Brand */
+    --primary: 22 96% 56%;             /* OCULTAR orange */
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 28 100% 62%;
+    --primary-soft: 22 96% 56%;
+
+    /* Secondary / muted */
+    --secondary: 240 8% 12%;
+    --secondary-foreground: 210 16% 86%;
+    --muted: 240 8% 11%;
+    --muted-foreground: 218 11% 58%;
+    --accent: 240 8% 12%;
+    --accent-foreground: 210 20% 96%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 64% 48%;
+    --warning: 38 95% 58%;
+
+    /* Borders */
+    --border: 240 8% 14%;
+    --border-strong: 240 8% 20%;
+    --input: 240 8% 14%;
+    --ring: 22 96% 56%;
+
+    --radius: 0.625rem;
+
+    /* Gradients */
+    --gradient-hero: radial-gradient(ellipse 90% 55% at 50% -10%, hsl(var(--primary) / 0.18), transparent 60%);
+    --gradient-glow: radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.35), transparent 70%);
+    --gradient-line: linear-gradient(90deg, transparent, hsl(var(--border-strong)), transparent);
+    --gradient-text: linear-gradient(180deg, hsl(var(--foreground)) 0%, hsl(218 14% 70%) 100%);
+    --gradient-orange: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%);
+
+    /* Shadows */
+    --shadow-glow: 0 0 60px -10px hsl(var(--primary) / 0.45);
+    --shadow-card: 0 1px 0 0 hsl(0 0% 100% / 0.04) inset, 0 20px 40px -20px hsl(0 0% 0% / 0.6);
+    --shadow-elevated: 0 30px 60px -30px hsl(0 0% 0% / 0.8), 0 1px 0 0 hsl(0 0% 100% / 0.05) inset;
+
+    /* Motion */
+    --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+    --transition-base: 200ms var(--ease-out-quint);
+
+    /* Sidebar (kept for shadcn) */
+    --sidebar-background: 240 12% 5%;
+    --sidebar-foreground: 210 16% 86%;
+    --sidebar-primary: 22 96% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 8% 12%;
+    --sidebar-accent-foreground: 210 20% 96%;
+    --sidebar-border: 240 8% 14%;
+    --sidebar-ring: 22 96% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply scroll-smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "ss01", "cv11", "rlig" 1, "calt" 1;
+  }
+  ::selection {
+    background: hsl(var(--primary) / 0.3);
+    color: hsl(var(--foreground));
+  }
+
+  h1, h2, h3, h4 {
+    @apply tracking-tight text-foreground;
+    font-feature-settings: "ss01", "cv11";
+  }
+}
+
+@layer components {
+  /* Layout */
+  .container-page {
+    @apply mx-auto w-full max-w-[1200px] px-6 lg:px-8;
+  }
+
+  /* Subtle technical grid background */
+  .bg-grid {
+    background-image:
+      linear-gradient(hsl(var(--border) / 0.6) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.6) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: -1px -1px;
+  }
+  .bg-grid-fade {
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 30%, transparent 80%);
+            mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 30%, transparent 80%);
+  }
+
+  /* Eyebrow label */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-[11px] font-mono font-medium uppercase tracking-[0.18em] text-muted-foreground;
+  }
+  .eyebrow-accent {
+    @apply text-primary;
+  }
+
+  /* Pill */
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-border bg-surface/80 px-3 py-1 text-[11px] font-mono uppercase tracking-[0.14em] text-muted-foreground backdrop-blur;
+  }
+  .pill-accent {
+    @apply border-primary/30 bg-primary/5 text-primary;
+  }
+
+  /* Card */
+  .card-surface {
+    @apply rounded-xl border border-border bg-card/70 backdrop-blur-sm;
+    box-shadow: var(--shadow-card);
+  }
+  .card-surface-hover {
+    @apply transition-colors duration-200;
+  }
+  .card-surface-hover:hover {
+    @apply border-border-strong;
+  }
+
+  /* Hairline divider with gradient */
+  .hairline {
+    height: 1px;
+    background: var(--gradient-line);
+  }
+
+  /* Mono label */
+  .mono-label {
+    @apply font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground;
+  }
+
+  /* Section padding */
+  .section {
+    @apply py-20 md:py-28;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+  }
+
+  /* Glow */
+  .glow-primary {
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* Animated marquee for logos */
+  .marquee-mask {
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+            mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+  }
+}
+
+@layer utilities {
+  .bg-surface { background-color: hsl(var(--surface)); }
+  .bg-surface-elevated { background-color: hsl(var(--surface-elevated)); }
+  .bg-surface-muted { background-color: hsl(var(--surface-muted)); }
+  .border-border-strong { border-color: hsl(var(--border-strong)); }
+  .text-success { color: hsl(var(--success)); }
+  .text-warning { color: hsl(var(--warning)); }
+  .max-container { max-width: 1200px; margin: 0 auto; padding: 0 1.25rem; }
+  @media (min-width: 640px) { .max-container { padding: 0 2rem; } }
+  .card { background: #18181b; border: 1px solid #27272a; padding: 2rem; border-radius: 12px; transition: all 0.3s ease; }
+}
+
+/* Keyframes */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.9); }
+}
+@keyframes scroll-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
+.animate-scroll-x { animation: scroll-x 40s linear infinite; }
+.animate-fade-up { animation: fade-up 0.6s var(--ease-out-quint) both; }

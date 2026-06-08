@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "ocultar-pii": {
+      "command": "ocultar-claude-mcp",
+      "env": {
+        "OCULTAR_URL": "http://localhost:8080",
+        "OCULTAR_API_KEY": "your-api-key",
+        "OCULTAR_AUDITOR_TOKEN": "your-auditor-token-optional"
+      }
+    }
+  }
+}

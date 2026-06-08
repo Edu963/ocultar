@@ -1,0 +1,11 @@
+go 1.25.8
+
+use (
+	./apps/proxy
+	./apps/slm-engine
+	./apps/sombra
+	./internal/pii
+	./pkg/gateway
+	./services/refinery
+	./services/vault
+)

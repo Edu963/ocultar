@@ -1,0 +1,53 @@
+entities:
+  - name: IP_ADDRESS
+    canonical_type: IP_ADDRESS
+    tier: 1
+    action: STRIP
+    regex: '\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b'
+
+  - name: SE_PIN
+    canonical_type: SWEDEN_PERSONAL_IDENTITY_NUMBER
+    regex: '\b(18|19|20)?\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[-+]?\d{4}\b'
+    validation: Luhn
+    tier: 1
+    action: STRIP
+    
+  - name: DK_CPR
+    canonical_type: DENMARK_CPR_NUMBER
+    regex: '\b(?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2}[-]?\d{4}\b'
+    validation: Modulo11
+    tier: 1
+    action: STRIP
+    
+  - name: FI_HETU
+    canonical_type: FINLAND_NATIONAL_ID_NUMBER
+    regex: '\b(?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2}[A+-]\d{3}[0-9A-FHJ-NPR-Y]\b'
+    validation: Modulo31
+    tier: 1
+    action: STRIP
+
+  - name: FRANCE_SIREN_NUMBER
+    canonical_type: FRANCE_SIREN_NUMBER
+    regex: '\b[0-9]{3}\s*[0-9]{3}\s*[0-9]{3}\b'
+    validation: Luhn
+    tier: 1
+    action: STRIP
+
+  - name: FRANCE_SIRET_NUMBER
+    canonical_type: FRANCE_SIRET_NUMBER
+    regex: '\b[0-9]{3}\s*[0-9]{3}\s*[0-9]{3}\s*[0-9]{5}\b'
+    validation: Luhn
+    tier: 1
+    action: STRIP
+
+  - name: US_PASSPORT
+    canonical_type: US_PASSPORT
+    regex: '(?i)(?:\bpassport\b|\bppt\b)[^0-9]{1,15}?([0-9]{9})\b'
+    tier: 1
+    action: VAULT
+
+  - name: US_DRIVERS_LICENSE_NUMBER
+    canonical_type: US_DRIVERS_LICENSE_NUMBER
+    regex: '(?i)(?:\bdl\b|\bdriver['']?s?\s*lic(?:ense)?\b)[^A-Z0-9]{1,15}?([A-Z0-9-]{6,20})\b'
+    tier: 1
+    action: VAULT
