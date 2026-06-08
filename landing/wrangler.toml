@@ -1,0 +1,6 @@
+name = "ocultar-landing"
+pages_build_output_dir = "."
+
+[[kv_namespaces]]
+binding = "WAITLIST"
+id      = ""        # fill in after: wrangler kv namespace create ocultar-waitlist

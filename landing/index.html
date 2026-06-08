@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OCULTAR — Coming Soon</title>
+  <meta name="description" content="Zero-egress PII protection for AI workflows. No data leaves your infrastructure." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080c0c;
+      --surface:  #0f1a1a;
+      --teal:     #2a9d8f;
+      --teal-dim: #1e706a;
+      --text:     #e8f4f3;
+      --muted:    #6b9e9a;
+      --border:   #1e3534;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      gap: 0;
+    }
+
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.5rem;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .donkey {
+      width: 180px;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      padding: 12px;
+      filter: drop-shadow(0 0 24px rgba(42, 157, 143, 0.15));
+    }
+
+    .wordmark {
+      text-align: center;
+    }
+
+    .wordmark h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 0.35em;
+      color: var(--teal);
+      text-transform: uppercase;
+    }
+
+    .wordmark p {
+      margin-top: 0.6rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .copy {
+      text-align: center;
+    }
+
+    .copy .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--teal);
+      border: 1px solid var(--teal-dim);
+      border-radius: 4px;
+      padding: 3px 10px;
+      margin-bottom: 1rem;
+    }
+
+    .copy h2 {
+      font-size: 1.35rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .copy h2 span {
+      color: var(--teal);
+    }
+
+    .copy small {
+      display: block;
+      margin-top: 0.8rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      line-height: 1.6;
+    }
+
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .field-row:focus-within {
+      border-color: var(--teal-dim);
+    }
+
+    input[type="email"] {
+      flex: 1;
+      background: var(--surface);
+      border: none;
+      outline: none;
+      padding: 0.75rem 1rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      color: var(--text);
+      min-width: 0;
+    }
+
+    input[type="email"]::placeholder {
+      color: var(--muted);
+    }
+
+    button[type="submit"] {
+      background: var(--teal);
+      border: none;
+      padding: 0.75rem 1.25rem;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    button[type="submit"]:hover { background: #238276; }
+    button[type="submit"]:disabled { background: var(--teal-dim); cursor: default; }
+
+    .status {
+      font-size: 0.78rem;
+      text-align: center;
+      min-height: 1.2em;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .status.ok  { color: var(--teal); }
+    .status.err { color: #e07070; }
+
+    footer {
+      position: fixed;
+      bottom: 1.5rem;
+      font-size: 0.7rem;
+      color: var(--border);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <img class="donkey" src="donkey.png" alt="OCULTAR mascot" />
+
+    <div class="wordmark">
+      <h1>OCULTAR</h1>
+      <p>Zero-egress PII protection for AI workflows</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="copy">
+      <span class="badge">Coming Soon</span>
+      <h2>Your data stays<br /><span>where it belongs.</span></h2>
+      <small>
+        Intercepts prompts before they reach any cloud LLM.<br />
+        Tokenizes PII in-place. Encrypts it locally. Ships nothing.
+      </small>
+    </div>
+
+    <form id="form">
+      <div class="field-row">
+        <input
+          type="email"
+          name="email"
+          placeholder="you@company.com"
+          autocomplete="email"
+          required
+        />
+        <button type="submit" id="btn">Notify me</button>
+      </div>
+      <div class="status" id="status"></div>
+    </form>
+  </div>
+
+  <footer>ocultar.dev &mdash; Apache 2.0</footer>
+
+  <script>
+    const form   = document.getElementById('form');
+    const btn    = document.getElementById('btn');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = form.querySelector('input[type="email"]').value.trim();
+      btn.disabled = true;
+      btn.textContent = '...';
+      status.className = 'status';
+      status.textContent = '';
+
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, source: 'ocultar.dev' }),
+        });
+        if (res.ok) {
+          status.className = 'status ok';
+          status.textContent = 'You\'re on the list.';
+          form.querySelector('input').value = '';
+        } else {
+          throw new Error(await res.text());
+        }
+      } catch {
+        status.className = 'status err';
+        status.textContent = 'Something went wrong — try again.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Notify me';
+      }
+    });
+  </script>
+</body>
+</html>
