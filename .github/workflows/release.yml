@@ -35,6 +35,7 @@ jobs:
           go-version-file: go.work
 
       - name: Drop private modules from workspace
+        shell: bash
         run: go work edit -dropuse ./apps/slm-engine
 
       - name: Install C compiler (linux)
@@ -43,9 +44,11 @@ jobs:
 
       - name: Install C compiler (windows)
         if: matrix.goos == 'windows'
+        shell: bash
         run: choco install mingw -y
 
       - name: Build ocultar (refinery server)
+        shell: bash
         env:
           CGO_ENABLED: "1"
           GOOS: ${{ matrix.goos }}
@@ -57,6 +60,7 @@ jobs:
             ./services/refinery/cmd
 
       - name: Build proxy
+        shell: bash
         env:
           CGO_ENABLED: "1"
           GOOS: ${{ matrix.goos }}
