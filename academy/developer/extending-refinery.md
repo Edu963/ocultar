@@ -3,9 +3,9 @@
 There are two ways to extend OCULTAR's detection capabilities: adding simple rules (No-Code) or adding complex validation (Code).
 
 ## 1. Adding a Detection Rule (No-Code)
-*Target: Enterprise Users / Fast Iteration*
+*Target: Fast iteration — no recompilation required.*
 
-In the Enterprise edition, you can add rules via `configs/config.yaml`. These take effect at the next startup.
+Add rules via `configs/config.yaml`. They take effect at the next startup.
 
 ```yaml
 # Custom regex rule
@@ -24,7 +24,7 @@ dictionaries:
 ---
 
 ## 2. Adding a Detection Rule (In Code)
-*Target: Core Contributors / Community Edition*
+*Target: Core contributors adding a permanent rule to the registry.*
 
 To add a permanent rule to the OCULTAR registry:
 

@@ -188,8 +188,7 @@ Traditional exams are not used here. Instead, prove operational competency throu
 ## 11. Recommended Documentation and Learning Materials
 
 After completing this course, reference the following materials for in-depth technical knowledge:
-1. **PITCH.md**: For sales and marketing messaging on Value Proposition.
-2. **FAQ.md**: The definitive "cheat sheet" for answering complex client questions on zero-egress, pricing, and latency.
-3. **ARCHITECTURE.md**: For developers wanting to understand the Go Refinery structure.
-4. **SOMBRA_GUIDE.md**: Detailed instructions on configuring Multi-Model routing and connectors.
-5. **DEVELOPER_GUIDE.md**: Internal code standards, CI/CD checklist, and refinery extension tutorials.
+1. **FAQ.md**: The definitive "cheat sheet" for technical questions on zero-egress, detection tiers, and latency.
+2. **ARCHITECTURE.md**: For developers wanting to understand the Go Refinery structure.
+3. **SOMBRA_GUIDE.md**: Detailed instructions on configuring Multi-Model routing and connectors.
+4. **DEVELOPER_GUIDE.md**: Internal code standards, CI/CD checklist, and refinery extension tutorials.

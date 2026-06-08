@@ -365,7 +365,7 @@ OCULTAR enforces fail-closed at every critical junction:
 |---|---|---|
 | Proxy (per instance) | `chan struct{}` semaphore | Configurable (Default: 10, Fallback: 15) |
 | DuckDB | File-level lock | Single-process only |
-| PostgreSQL (Enterprise) | Connection pool (15 max) | Horizontally scalable |
+| PostgreSQL (HA) | Connection pool (15 max) | Horizontally scalable |
 
 ### Horizontal scaling
 

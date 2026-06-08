@@ -36,7 +36,7 @@
 
 ## 2. Deployment Mode A: Standalone Binary + Dashboard
 
-Use this mode to run the Enterprise refinery locally with the browser dashboard — ideal for demos, pilots, and batch processing.
+Use this mode to run the OCULTAR refinery locally with the browser dashboard — ideal for demos, pilots, and batch processing.
 
 ### Step 1 — Prepare the environment
 
@@ -60,7 +60,7 @@ export OCU_SALT=<output of: openssl rand -hex 16>
 
 > ⚠️ **Important:** `OCU_MASTER_KEY` and `OCU_SALT` derive your vault encryption key. **Changing either value after first run invalidates all vault entries.** Back them up securely before going to production.
 
-### Step 2 — Start the Enterprise binary
+### Step 2 — Start the OCULTAR binary
 
 ```bash
 source .env
@@ -85,7 +85,7 @@ Or for batch file processing from the CLI:
 
 Navigate to **http://localhost:3030/index.html**
 
-The Enterprise dashboard shows:
+The dashboard shows:
 - **Extraction Breakdown** — entity counts by type
 - **Global Regulatory Risk Matrix** — GDPR/HIPAA/AI Act/NIS2 compliance status per dataset
 - **"Payload Successfully Anonymized"** banner when all PII is caught

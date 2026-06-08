@@ -12,8 +12,6 @@ local vault. Callers with the auditor token can restore them.
 
 No PII ever reaches the upstream model.
 
-**Built on Ocultar:** [Ki!](https://getki.ai) — desktop app for private AI workflows.
-
 ---
 
 ## Quick start — Docker
@@ -179,4 +177,3 @@ CGO_ENABLED=1 go test ./...
 
 Apache 2.0 — see [LICENSE](LICENSE).
 
-Ki! (the desktop app) is a separate commercial product built on Ocultar: [getki.ai](https://getki.ai).

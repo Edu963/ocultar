@@ -6,7 +6,7 @@ The OCULTAR Vault stores the mapping between tokens and original PII. Losing thi
 
 ## 💾 Backup Strategy
 
-### 1. DuckDB (Community/Default)
+### 1. DuckDB (Default)
 DuckDB is a file-based database. Backing it up is as simple as copying the file.
 
 - **Source**: The file specified in `OCU_VAULT_PATH` (default: `sombra_vault.db`).
@@ -17,7 +17,7 @@ DuckDB is a file-based database. Backing it up is as simple as copying the file.
   ```
 - **Frequency**: Daily (Automated via CRON).
 
-### 2. PostgreSQL (Enterprise)
+### 2. PostgreSQL (HA Deployments)
 For HA deployments, use standard PostgreSQL backup tools.
 
 - **Procedure**:

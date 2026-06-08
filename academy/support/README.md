@@ -5,7 +5,7 @@ Welcome to the Support & Operations Path. This track is designed for IT administ
 ## 🎯 Learning Objectives
 By the end of this path, you will be able to:
 - Deploy OCULTAR using Docker and Docker Compose.
-- Manage secrets and licenses using Doppler.
+- Manage secrets using Doppler.
 - Troubleshoot common connectivity and performance issues.
 - Perform critical maintenance tasks like key rotation and vault backups.
 - Interpret audit logs for security investigations.
@@ -15,7 +15,7 @@ By the end of this path, you will be able to:
 ## 📚 Curriculum
 
 ### 1. [Deployment Guide](./deployment-guide.md)
-Step-by-step instructions for local and enterprise deployments.
+Step-by-step instructions for local and production deployments.
 
 ### 2. [Troubleshooting & Diagnostics](./troubleshooting.md)
 How to identify and fix common issues with the refinery, vault, and SLM engine.

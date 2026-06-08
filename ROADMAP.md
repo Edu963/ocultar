@@ -20,7 +20,7 @@ This document outlines the development trajectory of the OCULTAR engine.
 
 ---
 
-## ✅ Phase 2: Enterprise Hardening (COMPLETE)
+## ✅ Phase 2: Security & Compliance Hardening (COMPLETE)
 *Focus: Scalability, distribution, and compliance readiness.*
 
 - [x] **Test Suite Coverage** — Go and React test suites across all 8 modules: proxy, refinery, vault, slm-engine, sombra, automation_bridge, dashboard, internal/pii.
@@ -40,7 +40,7 @@ This document outlines the development trajectory of the OCULTAR engine.
 
 - [x] **Persistent Entity Registry** — Session-spanning identity resolution that collapses all name variants (`"John"`, `"Doe"`, `"J. Doe"`) to a single canonical token (`[PERSON_1]`). Ships two new DuckDB/PostgreSQL tables, five new `Provider` interface methods, and three Sombra API endpoints (`POST /v1/entities`, `POST /v1/entities/seed`, `GET /v1/entities`).
 - [ ] **Cursor / Windsurf MCP Connector** — Developer-facing extension for AI coding assistants.
-- [ ] **Native CGO Decoding Loop** — Move SLM inference from Python sidecar to in-process CGO for ~40% latency reduction. Removes the Python runtime dependency in the community build.
+- [ ] **Native CGO Decoding Loop** — Move SLM inference from Python sidecar to in-process CGO for ~40% latency reduction. Removes the Python runtime dependency from the default build.
 - [ ] **Regulatory Intent Decoder** — Auto-generate Refinery detection rules from uploaded PDF regulations (CNIL decisions, GDPR guidance, sector-specific rules).
 - [ ] **Shadow AI Discovery** — Passive scanning of egress traffic to identify unmanaged AI API usage within the network perimeter.
 - [ ] **Remote Model Orchestration** — Migrate large model binaries to a private Hugging Face repository with automated download scripts; keeps the repository lightweight.

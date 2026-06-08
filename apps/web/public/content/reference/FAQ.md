@@ -226,7 +226,7 @@ docker run --rm -p 8080:8080 \
 TIER2_ENGINE=llama-cpp SLM_SIDECAR_URL=http://localhost:8080 ./demo/run_demo.sh
 ```
 
-The demo will detect the existing engine and route the Enterprise Refinery to Qwen/llama.cpp instead of the mock.
+The demo will detect the existing engine and route the OCULTAR Refinery to Qwen/llama.cpp instead of the mock.
 
 ### Why does Sombra return "gemini: HTTP 404 ... is not found"?
 The Google Gemini API requires specific programmatic model names (e.g., `gemini-flash-latest` instead of `gemini-1.5-flash`). If Sombra requests an invalid name, Google's API will return a 404 error. Ensure your `sombra.yaml` configuration uses the exact name found in Google AI Studio, and that your API or `curl` calls request this exact name.

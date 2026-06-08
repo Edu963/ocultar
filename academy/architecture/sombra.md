@@ -1,6 +1,6 @@
 # The Sombra Gateway
 
-Sombra is the enterprise API gateway for the Ocultar ecosystem. It is a drop-in replacement
+Sombra is the agentic API gateway for the Ocultar ecosystem. It is a drop-in replacement
 for the OpenAI API: any OpenAI-compatible SDK can point `OPENAI_BASE_URL` at Sombra and
 every prompt is scrubbed before it reaches any upstream model.
 
@@ -121,5 +121,4 @@ Default approved domains: `generativelanguage.googleapis.com`, `api.openai.com`,
 | `GEMINI_API_KEY` | Google Gemini key |
 | `MISTRAL_API_KEY` | Mistral key |
 | `SLM_SIDECAR_URL` | Local SLM NER sidecar (default: `http://localhost:8085`) |
-| `OCU_FORCE_ENTERPRISE` | `true` = activate Tier 2 AI without a licence file |
 | `SOMBRA_MOCK_AI_URL` | Register a mock AI adapter for offline testing |

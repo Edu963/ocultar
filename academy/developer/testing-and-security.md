@@ -33,7 +33,7 @@ Check `pkg/proxy/fail_closed_test.go` for examples of how we simulate:
 ## 3. The 16-Step AI Orchestrator
 OCULTAR uses a 16-step Continuous AI Orchestrator (`scripts/orchestrate.sh`). This script runs:
 1.  **PII Detection Tests**: Verifies no regressions in the refinery.
-2.  **Cross-Version Sync**: Ensures Community and Enterprise tiers are in sync.
+2.  **Cross-Module Sync**: Ensures proxy, refinery, and sombra modules remain in sync.
 3.  **Secret Scanner**: Scans for hardcoded keys or high-entropy strings in code.
 4.  **Architectural Linter**: Enforces package boundaries (no illegal imports).
 5.  **Zero-Egress Validator**: Checks configuration manifests for dangerous settings.

@@ -42,7 +42,7 @@ ocultar/                          ← root — shared library (github.com/Edu963
 │   ├── proxy/        proxy.go      ← HTTP reverse proxy (Handler)
 │   │                 vault.go      ← re-hydration helpers
 │   ├── reporter/                   ← HTML risk-report generation
-│   └── license/                   ← license stub (always-enterprise)
+│   └── license/                   ← license stub (all features always enabled)
 │
 ├── cmd/                            ← CLI entrypoints
 │   ├── ocultar/    main.go       ← shared CLI bootstrap (not directly runnable)
@@ -55,7 +55,7 @@ ocultar/                          ← root — shared library (github.com/Edu963
 │
 ├── scripts/                        ← Setup, smoke-test, and sync scripts
 │   ├── orchestrate.sh              ← Main DEV Orchestrator (PII tests + Sync + Release)
-│   ├── sync_cores.sh               ← Core Sync (DEV → Sombra Lab / Community)
+│   ├── sync_cores.sh               ← Core Sync (DEV → Sombra Lab)
 │   ├── check_docs.sh               ← Documentation Link & Quality Checker
 │   └── ocu-pre-commit.sh           ← Lead Shield Git Hook
 └── documentation/                  ← All user-facing docs (you are here)

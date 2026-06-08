@@ -25,10 +25,6 @@ Before diving deep, check these three points:
 - **Cause**: The `slm-engine` is not reachable.
 - **Fix**: Verify `SLM_SIDECAR_URL` is correct. Check if the AI container is running: `docker ps | grep slm-engine`.
 
-### 4. License Activation Failed
-- **Cause**: `OCU_LICENSE_KEY` is missing or the signature is invalid.
-- **Fix**: Ensure the license key is correctly set in your `.env` or Doppler. Check for whitespace or line breaks in the key.
-
 ---
 
 ## 📈 Performance Bottlenecks
