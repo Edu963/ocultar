@@ -100,7 +100,7 @@ jobs:
           merge-multiple: true
 
       - name: Stage all release files
-        run: cp artifacts/* dist/
+        run: mkdir -p dist && cp artifacts/* dist/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
