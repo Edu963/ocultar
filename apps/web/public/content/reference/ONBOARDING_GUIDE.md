@@ -1,9 +1,9 @@
-# OCULTAR Internal Training Program: Zero-Egress Data Mastery
+# OCULTAR Onboarding Guide: Zero-Egress Data Mastery
 
 ## 1. Course Overview
 
 **Purpose of the Training**
-This course is designed to equip all internal team members—sales, marketing, developers, support, and operations—with a robust understanding of the OCULTAR platform and the Sombra Gateway. You will learn what the platform does, how it works, how to run it, and how to effectively explain its value to enterprise clients.
+This guide is designed to equip users and contributors—developers, security teams, integrators, and operators—with a solid understanding of the OCULTAR platform and the Sombra Gateway. You will learn what the platform does, how it works, how to run it, and how to effectively evaluate its value for your organization.
 
 **Expected Outcomes**
 By the end of this course, you will be able to:
@@ -168,7 +168,7 @@ You can access the Dashboard at `http://localhost:8080` (or the port defined in 
 
 ## 9. Evaluation Framework
 
-Traditional exams are not used here. Instead, employees will prove operational competency:
+Traditional exams are not used here. Instead, prove operational competency through:
 - **Task 1:** Successfully run OCULTAR proxy and Sombra locally.
 - **Task 2:** Write a prompt containing 3 distinct types of PII (a name, an email, and an IBAN).
 - **Task 3:** Send the prompt through Sombra, capture the output, and show the terminal log proving it was tokenised in transit.
