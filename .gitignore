@@ -91,6 +91,10 @@ docs/fundraising/
 docs/tasks/
 apps/web/public/content/tasks/
 
+# Website and automation bridge (internal — not part of the public OSS engine)
+apps/web/
+apps/automation_bridge/
+
 # Claude Code local settings (dev environment hooks, not for public)
 .claude/settings.local.json
 

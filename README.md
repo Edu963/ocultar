@@ -1,7 +1,7 @@
 # Ocultar
 
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Go 1.25+](https://img.shields.io/badge/go-1.25%2B-00ADD8.svg)](https://go.dev)
+[![Go 1.22+](https://img.shields.io/badge/go-1.22%2B-00ADD8.svg)](https://go.dev)
 
 Ocultar is an open-source local PII/PHI masking engine for AI workflows.
 
@@ -157,7 +157,7 @@ privacy-filter protocol (default).
 
 ## Building from source
 
-Requires Go 1.25+ with CGO enabled (DuckDB and libphonenumber need a C compiler).
+Requires Go 1.22+ with CGO enabled (DuckDB and libphonenumber need a C compiler).
 
 ```bash
 git clone https://github.com/Edu963/ocultar.git
