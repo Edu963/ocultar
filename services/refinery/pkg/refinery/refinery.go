@@ -39,14 +39,14 @@ type AIScanner interface {
 	CircuitStateName() string
 }
 
-// NoopAuditLogger is the default nil-logger for the Community tier
+// NoopAuditLogger is a no-op implementation used when no audit logger is wired in.
 type NoopAuditLogger struct{}
 
 func (n NoopAuditLogger) Init(filePath string) error               { return nil }
 func (n NoopAuditLogger) Log(user, action, result, mapping string) {}
 func (n NoopAuditLogger) Close()                                   {}
 
-// NoopAIScanner is the default nil-scanner for the Community tier
+// NoopAIScanner is a no-op implementation used when no Tier 2 scanner is configured.
 type NoopAIScanner struct{}
 
 func (n NoopAIScanner) ScanForPII(text string) (map[string][]string, error) { return nil, nil }

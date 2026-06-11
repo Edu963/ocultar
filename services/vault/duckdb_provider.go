@@ -12,7 +12,7 @@ import (
 )
 
 // duckdbProvider implements Provider against a local DuckDB file (or :memory:).
-// This is the default backend for Community and single-server Enterprise deployments.
+// This is the default backend for single-server and local deployments.
 type duckdbProvider struct {
 	db    *sql.DB
 	count atomic.Int64
