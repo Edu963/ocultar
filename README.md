@@ -17,25 +17,26 @@ No PII ever reaches the upstream model.
 ## Quick start — Docker
 
 ```bash
+export OCU_MASTER_KEY=$(openssl rand -hex 32)
+export OCU_SALT=$(openssl rand -hex 16)
+export OCU_AUDITOR_TOKEN=$(openssl rand -hex 24)
+
 docker run --rm -p 4141:4141 \
-  -e OCU_MASTER_KEY=<64-hex-chars> \
-  -e OCU_SALT=<32-hex-chars> \
-  -e OCU_AUDITOR_TOKEN=<your-secret-token> \
+  -e OCU_MASTER_KEY \
+  -e OCU_SALT \
+  -e OCU_AUDITOR_TOKEN \
   ghcr.io/edu963/ocultar:latest -serve 4141
 ```
 
-## Quick start — prebuilt binary
+## Quick start — build from source
 
 ```bash
-OCU_MASTER_KEY=<64-hex> OCU_SALT=<32-hex> OCU_AUDITOR_TOKEN=<token> ./ocultar -serve 4141
-```
+CGO_ENABLED=1 go build -o ocultar ./services/refinery/cmd/
 
-Generate the key and salt once and store them securely:
-
-```bash
-OCU_MASTER_KEY=$(openssl rand -hex 32)
-OCU_SALT=$(openssl rand -hex 16)
-OCU_AUDITOR_TOKEN=$(openssl rand -hex 24)
+OCU_MASTER_KEY=$(openssl rand -hex 32) \
+OCU_SALT=$(openssl rand -hex 16) \
+OCU_AUDITOR_TOKEN=$(openssl rand -hex 24) \
+./ocultar -serve 4141
 ```
 
 ---

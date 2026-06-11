@@ -1786,8 +1786,8 @@ const htmlTemplate = `<!DOCTYPE html>
     </div>
 
     <div class="footer">
-      Generated automatically by OCULTAR Enterprise. Methodology v{{.Meta.MethodologyVersion}}<br>
-      © 2026 OCULTAR Security. All rights reserved.
+      Generated automatically by OCULTAR. Methodology v{{.Meta.MethodologyVersion}}<br>
+      © 2026 Hector Eduardo Trejos Cabezas. Licensed under Apache 2.0.
     </div>
   </div>
 </body>
