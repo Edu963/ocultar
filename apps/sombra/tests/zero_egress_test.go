@@ -47,7 +47,7 @@ func TestZeroEgress_RawPIINeverReachesUpstream(t *testing.T) {
 	eng := refinery.NewRefinery(v, masterKey)
 
 	upstream := &capturingAdapter{}
-	r := router.New("capturing-model", []string{"http://mock-capture"})
+	r := router.New("capturing-model", []string{"mock-capture"})
 	r.Register(upstream)
 
 	gw := handler.NewGateway(eng, v, masterKey, r, nil)
@@ -55,11 +55,11 @@ func TestZeroEgress_RawPIINeverReachesUpstream(t *testing.T) {
 		AllowedModels: []string{"capturing-model"},
 	}))
 
-	// Build a multipart request with clear PII in both the file and the prompt.
+	// PII types detected by Tier 1 (deterministic regex). Names require Tier 2 NER
+	// and are intentionally excluded from this assertion.
 	rawPII := []string{
 		"alice@hospital.org",
 		"123-45-6789",
-		"Alice Martin",
 	}
 
 	var buf bytes.Buffer

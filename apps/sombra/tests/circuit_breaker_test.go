@@ -35,7 +35,7 @@ func TestCircuitBreaker_SLMUnavailable_TierOneFallback(t *testing.T) {
 	eng := refinery.NewRefinery(v, masterKey)
 
 	upstream := &mockModelAdapter{name: "mock-model"}
-	r := router.New("mock-model", []string{"http://mock-internal"})
+	r := router.New("mock-model", []string{"mock-internal"})
 	r.Register(upstream)
 
 	gw := handler.NewGateway(eng, v, masterKey, r, nil)

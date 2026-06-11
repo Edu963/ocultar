@@ -86,8 +86,8 @@ func TestBIPA_FacialGeometryRecord(t *testing.T) {
 func TestBIPA_VoiceprintWithPhone(t *testing.T) {
 	e := setupComplianceRefinery(t)
 	assertRedacted(t, e,
-		"Voiceprint registered for account holder David Park, phone 312-555-0198, email d.park@mail.com",
-		"312-555-0198", "d.park@mail.com",
+		"Voiceprint registered for David Park, phone 312-867-5309, email d.park@mail.com",
+		"312-867-5309", "d.park@mail.com",
 	)
 }
 

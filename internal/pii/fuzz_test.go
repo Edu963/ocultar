@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 	"unicode/utf8"
+
+	"github.com/Edu963/ocultar/internal/pii"
 )
 
 // FuzzScan feeds arbitrary byte sequences to the PII engine and verifies that:
@@ -13,7 +15,7 @@ import (
 //
 // Run with: CGO_ENABLED=1 go test -fuzz=FuzzScan ./internal/pii/ -fuzztime=60s
 func FuzzScan(f *testing.F) {
-	eng := NewRefinery()
+	eng := pii.NewRefinery()
 
 	// Seed corpus — real PII and adversarial inputs
 	seeds := []string{
@@ -45,7 +47,7 @@ func FuzzScan(f *testing.F) {
 			if !utf8.ValidString(r.Value) {
 				t.Errorf("non-UTF-8 value in result: %q", r.Value)
 			}
-			if r.Type == "" {
+			if r.Entity == "" {
 				t.Errorf("empty entity type for value %q", r.Value)
 			}
 		}
@@ -57,7 +59,7 @@ func FuzzScan(f *testing.F) {
 //
 // Run with: CGO_ENABLED=1 go test -fuzz=FuzzRefineString ./internal/pii/ -fuzztime=60s
 func FuzzRefineString(f *testing.F) {
-	eng := NewRefinery()
+	eng := pii.NewRefinery()
 
 	seeds := []string{
 		"Patient Alice Martin, SSN 123-45-6789, email alice@hospital.org",
