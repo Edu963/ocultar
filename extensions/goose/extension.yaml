@@ -23,7 +23,7 @@ args:
 env:
   OCULTAR_URL:
     description: URL of your local Ocultar instance
-    default: http://localhost:8080
+    default: http://localhost:4141
     required: true
   OCULTAR_API_KEY:
     description: Your Ocultar API key

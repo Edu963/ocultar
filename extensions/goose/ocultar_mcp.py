@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Ocultar PII Refinery — Goose MCP Extension (stdio transport).
 
-Zero-egress guarantee: if Ocultar is unreachable this server returns an MCP
+Fail-closed design: if Ocultar is unreachable this server returns an MCP
 error and refuses to forward the raw text to the caller.
 """
 
@@ -15,7 +15,7 @@ import mcp.server.stdio
 import mcp.types as types
 from mcp.server import Server
 
-OCULTAR_URL = os.environ.get("OCULTAR_URL", "http://localhost:8080").rstrip("/")
+OCULTAR_URL = os.environ.get("OCULTAR_URL", "http://localhost:4141").rstrip("/")
 OCULTAR_API_KEY = os.environ.get("OCULTAR_API_KEY", "")
 
 # Matches tokens like [EMAIL_9c8f7a1b] produced by the Ocultar tokenizer
@@ -75,14 +75,15 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
     except httpx.ConnectError:
         raise RuntimeError(
             f"Cannot connect to Ocultar at {OCULTAR_URL}. "
-            "Start the Refinery first: `docker compose up` or "
-            "`go run ./services/refinery/cmd/main.go --serve 8080`. "
-            "Raw text withheld to preserve zero-egress guarantee."
+            "Start the Refinery first: "
+            "`docker run --rm -p 4141:4141 -e OCU_MASTER_KEY=<key> -e OCU_SALT=<salt> "
+            "-e OCU_AUDITOR_TOKEN=<token> ghcr.io/edu963/ocultar:latest -serve 4141`. "
+            "Raw text withheld — fail-closed."
         )
     except httpx.TimeoutException:
         raise RuntimeError(
             f"Ocultar request timed out (15 s) at {OCULTAR_URL}. "
-            "Raw text withheld to preserve zero-egress guarantee."
+            "Raw text withheld to preserve zero-egress design."
         )
     except httpx.HTTPStatusError as exc:
         raise RuntimeError(

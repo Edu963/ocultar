@@ -19,7 +19,7 @@ import mcp.server.stdio
 import mcp.types as types
 from mcp.server import Server
 
-OCULTAR_URL = os.environ.get("OCULTAR_URL", "http://localhost:8080").rstrip("/")
+OCULTAR_URL = os.environ.get("OCULTAR_URL", "http://localhost:4141").rstrip("/")
 OCULTAR_API_KEY = os.environ.get("OCULTAR_API_KEY", "")
 OCULTAR_AUDITOR_TOKEN = os.environ.get("OCULTAR_AUDITOR_TOKEN", "")
 

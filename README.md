@@ -1,7 +1,7 @@
 # Ocultar
 
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Go 1.22+](https://img.shields.io/badge/go-1.22%2B-00ADD8.svg)](https://go.dev)
+[![Go 1.24+](https://img.shields.io/badge/go-1.24%2B-00ADD8.svg)](https://go.dev)
 
 Ocultar is an open-source local PII/PHI masking engine for AI workflows.
 
@@ -142,6 +142,15 @@ privacy-filter protocol (default).
 
 ---
 
+## Privacy model
+
+- **Zero-egress design.** Masked tokens (`[EMAIL_9c8f7a1b]`, …) are the only data forwarded to the upstream model. Raw text is not transmitted.
+- **Local vault only.** The mapping of each token back to its original value is stored in an encrypted DuckDB vault (`vault.db`) on the local filesystem using AES-256-GCM with HKDF-SHA256. The vault file is never transmitted.
+- **Raw prompt retention.** The refinery logs each raw (unmasked) prompt locally to the vault to support the audit diff view. This data is encrypted at rest alongside the token mappings and is not sent anywhere. If prompt retention is not desired, do not configure `OCU_AUDITOR_TOKEN` — without an auditor token the reveal endpoint returns `403` and the diff view is inaccessible.
+- **Fail-closed design.** If the refinery encounters an error or is unavailable, the gateway returns a `5xx` error and stops — it does not forward raw text as a fallback.
+
+---
+
 ## Configuration
 
 | Variable | Required | Default | Purpose |
@@ -157,7 +166,7 @@ privacy-filter protocol (default).
 
 ## Building from source
 
-Requires Go 1.22+ with CGO enabled (DuckDB and libphonenumber need a C compiler).
+Requires Go 1.24+ with CGO enabled (DuckDB and libphonenumber need a C compiler).
 
 ```bash
 git clone https://github.com/Edu963/ocultar.git

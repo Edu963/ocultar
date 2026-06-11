@@ -6,5 +6,9 @@ description = "Ignore mock values and test credentials used in demos, documentat
 regexes = [
     '''any-value-in-dev-mode''',
     '''sk-prod-xK9mN2pQ7rL4wV8yB3cF6jD1hT0sZ5uE''',
-    '''AKIA1234567890123456'''
+    '''AKIA1234567890123456''',
+    # Base64 dev license key used in license_dev_test.go — not a real credential
+    '''5Kbs4nRFC5wWOvAwp/tEmr66WIAO3f37wna47b7wCpnAhOL/bXt61jBWtp0XC/ARdRd7qjX35vazK6IwONZLBQ==''',
+    # All-ones hex test key used in security/verify_ocultar.sh — obviously synthetic
+    '''1{64}'''
 ]
