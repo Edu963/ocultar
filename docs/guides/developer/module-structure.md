@@ -23,7 +23,7 @@ To maintain security and stability, we enforce strict dependency rules:
 | `/services/vault` | Secure Storage | `vault.go`, `duckdb_provider.go` |
 | `/internal/pii` | Detection Registry| `registry.go`, `engine.go`, `validators.go` |
 | `/pkg/audit` | Audit Logging | `immutable_logger.go` |
-| `/enterprise` | Refinery Extensions | Advanced detection modules and contrib extensions |
+| `/pkg/policy` | Policy Engine | Runtime policy evaluation and access control rules |
 
 ---
 

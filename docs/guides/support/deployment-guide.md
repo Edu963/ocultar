@@ -6,16 +6,20 @@ OCULTAR is designed to run anywhere you have Docker. This guide covers the two m
 *Target: Individual developers and trial evaluations.*
 
 ### Prerequisites
-- Docker Desktop installed and running.
-- Port 3030 (Dashboard) and 8086 (Sombra) available.
+- Docker or Go 1.24+ with CGO enabled (GCC required).
+- Port 4141 available.
 
 ### Steps
 1.  **Clone the repo**: `git clone https://github.com/Edu963/ocultar.git && cd ocultar`
-2.  **Run the setup script**:
-    - **Windows**: `scripts/setup-community.ps1`
-    - **Mac/Linux**: `scripts/setup-community.sh`
-3.  **Wait for the model**: The first run will pull a ~1.2GB AI model.
-4.  **Access the Dashboard**: Go to `http://localhost:3030`.
+2.  **Start the server**:
+    ```bash
+    export OCU_MASTER_KEY=$(openssl rand -hex 32)
+    export OCU_SALT=$(openssl rand -hex 16)
+    export OCU_AUDITOR_TOKEN=dev
+    docker run -e OCU_MASTER_KEY -e OCU_SALT -e OCU_AUDITOR_TOKEN \
+      -p 4141:4141 ghcr.io/edu963/ocultar:latest -serve 4141
+    ```
+3.  **Verify**: `curl http://localhost:4141/api/health`
 
 ---
 

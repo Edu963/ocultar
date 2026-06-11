@@ -10,27 +10,14 @@ import (
 )
 
 var (
-	// APICallsTotal counts every request that reaches the tier middleware,
-	// labelled by the resolved tier. Use this to track revenue-weighted traffic.
-	APICallsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "ocultar_api_calls_total",
-		Help: "Total API calls processed, by tier.",
-	}, []string{"tier"})
-
-	// TierUpgradeRequiredTotal counts free-tier requests blocked because the
-	// Tier 2 AI scanner is active. A rising rate signals conversion opportunity.
-	TierUpgradeRequiredTotal = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "ocultar_tier_upgrade_required_total",
-		Help: "Free-tier requests blocked because Tier 2 AI is active.",
-	})
+	// RequestsTotal counts every request processed by the proxy, labelled by endpoint.
+	RequestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "ocultar_requests_total",
+		Help: "Total requests processed by the proxy, by endpoint.",
+	}, []string{"endpoint"})
 )
 
-// IncAPICall records one call for the given tier label.
-func IncAPICall(tier string) {
-	APICallsTotal.WithLabelValues(tier).Inc()
-}
-
-// IncTierUpgradeRequired records one free-tier block event.
-func IncTierUpgradeRequired() {
-	TierUpgradeRequiredTotal.Inc()
+// IncRequest records one request for the given endpoint label.
+func IncRequest(endpoint string) {
+	RequestsTotal.WithLabelValues(endpoint).Inc()
 }

@@ -235,7 +235,7 @@ func CompileRegexes() {
 	}
 }
 
-// Load applies base rules for community edition and then overrides with local config.yaml if present.
+// Load applies base detection rules and then overrides with local config.yaml if present.
 func Load() {
 	initDefaultConfig()
 
