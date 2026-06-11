@@ -3,7 +3,7 @@ set -e
 
 # OCULTAR Enterprise Proxy Pre-Flight Validator
 echo "================================================="
-echo "   OCULTAR Enterprise Startup Validation      "
+echo "   OCULTAR Proxy Pre-Flight Validator         "
 echo "================================================="
 
 # 1. Master Key Validation

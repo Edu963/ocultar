@@ -18,8 +18,6 @@ NC='\033[0m'
 
 # 1. Health Check
 if ! curl -s -f "$HEALTH_URL" > /dev/null; then
-    # Some older community versions might not have /healthz on 8081, 
-    # instead checking if port is open
     if ! curl -s "http://localhost:${PROXY_PORT}/" > /dev/null; then
         echo -e "${RED}[!] Proxy is NOT responding on port ${PROXY_PORT}. Ensure it is running.${NC}"
         exit 1
