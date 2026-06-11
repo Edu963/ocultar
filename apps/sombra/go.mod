@@ -12,6 +12,7 @@ require (
 	github.com/Edu963/ocultar v0.0.0-00010101000000-000000000000
 	github.com/Edu963/ocultar/internal/pii v0.0.0-00010101000000-000000000000
 	github.com/Edu963/ocultar/vault v0.0.0-00010101000000-000000000000
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/nguyenthenguyen/docx v0.0.0-20230621112118-9c8e795a11db
 	golang.org/x/crypto v0.48.0
 )
@@ -20,9 +21,8 @@ require (
 	github.com/apache/arrow-go/v18 v18.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
-	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/flatbuffers v25.1.24+incompatible // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect

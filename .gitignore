@@ -112,3 +112,4 @@ doppler.yaml
 /docs/security_readiness/
 
 .wrangler/
+.gstack/
