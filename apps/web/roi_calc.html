@@ -209,7 +209,7 @@
                         <div class="font-mono text-sm space-y-4 mb-8">
                             <div class="flex justify-between border-b border-white/20 pb-2">
                                 <span class="text-gray-400">Software License</span>
-                                <span>$10,000 / mo</span>
+                                <span class="text-teal-400">$0 — Apache 2.0</span>
                             </div>
                             <div class="flex justify-between border-b border-white/20 pb-2">
                                 <span class="text-gray-400">Hardware Dep.</span>
@@ -221,10 +221,10 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="pt-6 border-t border-white/30">
-                        <span class="block font-mono text-xs text-gray-400 uppercase mb-2">Fixed Resource Cost (Mo)</span>
-                        <span class="font-sans text-4xl font-bold tracking-tight" id="ocultar-total-cost">$10,200</span>
+                        <span class="block font-mono text-xs text-gray-400 uppercase mb-2">Infrastructure Cost (Mo)</span>
+                        <span class="font-sans text-4xl font-bold tracking-tight" id="ocultar-total-cost">$200</span>
                     </div>
                 </div>
 
@@ -247,8 +247,8 @@
                     </p>
                     
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-4 font-mono text-xs uppercase tracking-widest font-bold">
-                        <a href="mailto:edu@ocultar.dev?subject=Enterprise%20Pilot%20Request" class="w-full sm:w-auto px-8 py-4 border border-black bg-transparent text-black hover:bg-black hover:text-white transition-colors">
-                            [ Init Pilot Protocol ]
+                        <a href="mailto:edu@ocultar.dev?subject=Ocultar%20Deployment%20Inquiry" class="w-full sm:w-auto px-8 py-4 border border-black bg-transparent text-black hover:bg-black hover:text-white transition-colors">
+                            [ Get in Touch ]
                         </a>
                         <a href="https://github.com/Edu963/ocultar" target="_blank" class="w-full sm:w-auto px-8 py-4 border border-black bg-transparent text-black hover:bg-black hover:text-white transition-colors">
                             [ Audit Source Code ]
@@ -392,8 +392,7 @@
         const ocultarTotalCost = document.getElementById('ocultar-total-cost');
         const annualSavings = document.getElementById('annual-savings');
 
-        const OCULTAR_MONTHLY = 10000;
-        const LOCAL_COMPUTE_PER_TB = 20; 
+        const LOCAL_COMPUTE_PER_TB = 20;
         const GB_PER_TB = 1000;
 
         async function updateCalculator() {
@@ -418,9 +417,8 @@
             const effectiveRate = listPricePerGB * (1 - discountMultiplier);
             displayEffectiveRate.textContent = `${rateFormatter.format(effectiveRate)} / GB`;
 
-            // Static Manual Model (Zero-Egress isolation for public web)
             const localComputeMonthly = tb * LOCAL_COMPUTE_PER_TB;
-            const totalOcultarMonthly = OCULTAR_MONTHLY + localComputeMonthly;
+            const totalOcultarMonthly = localComputeMonthly;
 
             const totalCloudAnnual = totalCloudNetMonthly * 12;
             const totalOcultarAnnual = totalOcultarMonthly * 12;
