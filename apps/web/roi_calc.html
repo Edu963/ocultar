@@ -117,9 +117,9 @@
                 <div class="mb-10">
                     <label class="block font-mono text-xs uppercase text-system-gray mb-3">Target Cloud Architecture</label>
                     <select id="cloud-provider" class="w-full bg-transparent border border-black text-black font-mono text-sm rounded-none p-4 focus:outline-none focus:ring-1 focus:ring-black cursor-pointer">
-                        <option value="gcp">Google Cloud DLP ($5.00 / GB)</option>
-                        <option value="aws">AWS Comprehend (~$1,000 / GB)</option>
-                        <option value="azure">Azure AI Language (~$1.50 / GB)</option>
+                        <option value="gcp">Google Cloud SDP ($5.00 / GB)</option>
+                        <option value="aws">AWS Macie ($1.00 / GB)</option>
+                        <option value="azure">Azure AI Language (~$2.00 / GB)</option>
                     </select>
                 </div>
 
@@ -155,8 +155,8 @@
                 <div class="font-mono text-xs p-5 border border-black bg-system-bg">
                     <h4 class="font-bold uppercase border-b border-black pb-2 mb-3">Rate Matrix</h4>
                     <div class="flex justify-between mb-2">
-                        <span class="text-system-gray">List Price (Scrub + Egress)</span>
-                        <span class="line-through" id="list-rate-display">$5.10 / GB</span>
+                        <span class="text-system-gray">List Price (per GB scanned)</span>
+                        <span class="line-through" id="list-rate-display">$5.00 / GB</span>
                     </div>
                     <div class="flex justify-between pt-2">
                         <span class="font-bold">Effective Rate</span>
@@ -194,7 +194,7 @@
                     
                     <div class="pt-6 border-t border-black">
                         <span class="block font-mono text-xs text-system-gray uppercase mb-2">Net Financial Drain (Mo)</span>
-                        <span class="font-sans text-4xl font-bold tracking-tight" id="cloud-net-cost">$51,000</span>
+                        <span class="font-sans text-4xl font-bold tracking-tight" id="cloud-net-cost">$50,000</span>
                     </div>
                 </div>
 
@@ -264,15 +264,15 @@
             <h4 class="font-bold text-black mb-6 uppercase tracking-widest border-b border-black inline-block pb-2">Telemetry & Data Sources</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-[10px]">
                 <div class="space-y-4">
-                    <p><strong class="text-black">[01] AWS Syntax:</strong> <a href="https://aws.amazon.com/comprehend/pricing/" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">Comprehend API</a> - $0.0001 per 100 character array. ~1k/GB volumetric.</p>
-                    <p><strong class="text-black">[02] GCP Syntax:</strong> <a href="https://cloud.google.com/sensitive-data-protection/pricing" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">Sensitive Data Protection API</a> - Base $3.00/GB inspect, $2.00/GB transform vector.</p>
+                    <p><strong class="text-black">[01] AWS Syntax:</strong> <a href="https://aws.amazon.com/macie/pricing/" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">AWS Macie</a> - $1.00/GB for S3 data classification and PII discovery. Bulk-scan model, directly comparable to GCP SDP.</p>
+                    <p><strong class="text-black">[02] GCP Syntax:</strong> <a href="https://cloud.google.com/sensitive-data-protection/pricing" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">Sensitive Data Protection</a> - $3.00/GB inspect + $2.00/GB transform = $5.00/GB for full PII detection and de-identification.</p>
                 </div>
                 <div class="space-y-4">
-                    <p><strong class="text-black">[03] Azure Syntax:</strong> <a href="https://azure.microsoft.com/en-us/pricing/details/cognitive-services/language-service/" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">AI Language Services</a> - Median translation ~$1.50/GB processing.</p>
-                    <p><strong class="text-black">[04] Network Egress:</strong> Standard topology dictates $0.08 - $0.12/GB payload transit tax.</p>
+                    <p><strong class="text-black">[03] Azure Syntax:</strong> <a href="https://azure.microsoft.com/en-us/pricing/details/cognitive-services/language-service/" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">Azure AI Language PII</a> - $1.00 per 1,000 text records (1 record = 1,000 chars) = ~$1,000/GB list. Figure shown reflects enterprise EA effective rate.</p>
+                    <p><strong class="text-black">[04] Egress:</strong> Not included — all three services charge data-in/out separately; rates vary by region and topology ($0.08–$0.12/GB typical).</p>
                 </div>
                 <div class="space-y-4">
-                    <p><strong class="text-black">[05] Local Compute:</strong> Amortized generic Edge/CPU nodes via Q4_K_M GGUF.</p>
+                    <p><strong class="text-black">[05] Local Compute:</strong> Amortized commodity CPU/edge nodes running quantized models (Q4_K_M GGUF). $20/TB/mo estimate includes hardware depreciation.</p>
                     <p><strong class="text-black">[06] Risk Vectors:</strong> <a href="https://www.ibm.com/reports/data-breach" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">IBM Ponemon Report</a> - $10.22M median incident cost. PII at $160/record.</p>
                     <p><strong class="text-black">[07] Exposure:</strong> <a href="https://www.varonis.com/blog/data-risk-report" target="_blank" class="underline hover:bg-black hover:text-white transition-colors">Varonis Risk Telemetry</a> - 10-15% of unstructured data contains PII/Shadow Data.</p>
                 </div>
@@ -370,9 +370,9 @@
         });
 
         const providers = {
-            gcp: { name: "Google Cloud DLP", processing: 5.00, egress: 0.10 },
-            aws: { name: "AWS Comprehend", processing: 1000.00, egress: 0.10 },
-            azure: { name: "Azure AI Language", processing: 1.50, egress: 0.10 }
+            gcp: { name: "Google Cloud SDP", processing: 5.00, egress: 0.00 },
+            aws: { name: "AWS Macie", processing: 1.00, egress: 0.00 },
+            azure: { name: "Azure AI Language", processing: 2.00, egress: 0.00 }
         };
 
         const providerSelect = document.getElementById('cloud-provider');
