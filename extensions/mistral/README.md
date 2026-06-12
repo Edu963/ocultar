@@ -41,7 +41,7 @@ In Mistral Le Chat, open **Settings → Tools → MCP Servers** and add:
     "ocultar-pii": {
       "command": "ocultar-mistral-mcp",
       "env": {
-        "OCULTAR_URL": "http://localhost:8080",
+        "OCULTAR_URL": "http://localhost:4141",
         "OCULTAR_API_KEY": "your-api-key"
       }
     }
@@ -58,7 +58,7 @@ Or with `uvx` (no prior install required):
       "command": "uvx",
       "args": ["ocultar-mistral-mcp"],
       "env": {
-        "OCULTAR_URL": "http://localhost:8080",
+        "OCULTAR_URL": "http://localhost:4141",
         "OCULTAR_API_KEY": "your-api-key"
       }
     }
@@ -70,7 +70,7 @@ Or with `uvx` (no prior install required):
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `OCULTAR_URL` | Yes | URL of your local Ocultar Refinery (default: `http://localhost:8080`) |
+| `OCULTAR_URL` | Yes | URL of your local Ocultar Refinery (default: `http://localhost:4141`) |
 | `OCULTAR_API_KEY` | No | Bearer token for Refinery auth |
 | `OCULTAR_AUDITOR_TOKEN` | No | Enables `reveal_tokens` — must match `OCU_AUDITOR_TOKEN` on the server |
 

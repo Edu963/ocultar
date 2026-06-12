@@ -27,7 +27,7 @@ OCULTAR is designed to run anywhere you have Docker. This guide covers the two m
 *Target: Production environments and private clouds.*
 
 ### Prerequisites
-- **Doppler account** (recommended) or a secure `.env` file for secret injection.
+- A secure `.env` file or your preferred secret manager for secret injection.
 - **Hardware**: Minimum 4 vCPUs and 8GB RAM (for local SLM inference).
 
 ### Configuration (The `.env` file)
@@ -35,16 +35,14 @@ OCULTAR is designed to run anywhere you have Docker. This guide covers the two m
 OCU_MASTER_KEY="<output of: openssl rand -hex 32>"
 OCU_SALT="<output of: openssl rand -hex 16>"
 OCU_VAULT_PATH="/var/lib/ocultar/vault.db"
-SLM_SIDECAR_URL="http://slm-engine:8086"
+SLM_SIDECAR_URL="http://slm-engine:8085"
 ```
 
 ### Steps
-1.  **Setup Secrets**: Two options:
-    - **Doppler** (recommended for production): `doppler run -- docker compose up -d`
-    - **`.env` file** (air-gapped): `cp .env.example .env`, fill in real values, then `docker compose up -d`
+1.  **Setup Secrets**: `cp .env.example .env`, fill in real values, then `docker compose up -d`
 2.  **Verify Status**: Check the health endpoint:
     ```bash
-    curl http://localhost:8081/healthz
+    curl http://localhost:4141/api/health
     ```
 
 ---

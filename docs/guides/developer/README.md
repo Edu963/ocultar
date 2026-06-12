@@ -21,7 +21,7 @@ Understand how we use Go Workspaces to manage multiple modules and where each co
 Learn how to add new PII types, from simple regex rules to complex checksum-validated entities.
 
 ### 3. [Testing & Security Gates](./testing-and-security.md)
-How to run the test suite, use the race detector, and pass the 16-step AI Orchestrator.
+How to run the test suite, use the race detector, and pass the CI security gates.
 
 ### 4. [SLM Engine Deep-Dive](../architecture/refinery-pipeline.md#tier-2-ai-ner-small-language-model)
 Understanding the local inference engine and how to swap backends (llama.cpp vs. Python sidecar).
@@ -39,7 +39,7 @@ cd ocultar
 docker compose up --build
 ```
 
-Proxy is live at `http://localhost:8081`. No secrets setup required — dev defaults are pre-filled in `.env.example` and picked up automatically.
+Refinery is live at `http://localhost:4141`. No secrets setup required — dev defaults are pre-filled in `.env.example` and picked up automatically.
 
 For full AI Tier 2 NER:
 ```bash
@@ -48,7 +48,7 @@ OCU_PILOT_MODE=0 docker compose --profile ai up --build
 
 ### Option B — Native Go (for active contributors)
 Required tools:
-- **Go 1.22+**
+- **Go 1.24+**
 - **GCC / CGO** (required for DuckDB)
 - **Docker + Compose** (for integration tests)
 
@@ -59,7 +59,7 @@ go work sync
 make build
 ```
 
-Secrets: copy `.env.example` to `.env` and fill in values, or use Doppler (`doppler run -- ./bin/proxy`).
+Secrets: copy `.env.example` to `.env` and fill in values, then `make build && ./bin/proxy`.
 
 ---
 

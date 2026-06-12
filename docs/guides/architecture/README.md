@@ -57,4 +57,3 @@ graph TD
 | **Refinery** | `/services/refinery` | Go | PII Detection Engine |
 | **SLM Engine**| `/apps/slm-engine` | Python | AI-powered NER (Tier 2) |
 | **Vault** | `/services/vault` | Go | Secure PII Storage |
-| **Dashboard** | `/apps/dashboard` | JS/React | Management UI |

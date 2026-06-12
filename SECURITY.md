@@ -6,8 +6,7 @@ We currently provide security updates for the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
-| < 1.0.0 | :x:                |
+| 1.14.x  | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
@@ -17,7 +16,7 @@ We take the security of Ocultar seriously. If you believe you have found a secur
 
 ### Disclosure Process
 
-1.  **Report**: Send an email to edu@ocultar.dev with a description of the vulnerability.
+1.  **Report**: Send an email to security@getki.ai with a description of the vulnerability.
 2.  **Acknowledge**: We will acknowledge receipt of your report within 48 hours.
 3.  **Investigate**: We will investigate the issue and may contact you for further information.
 4.  **Fix**: We will work on a fix and coordinate a release date with you.

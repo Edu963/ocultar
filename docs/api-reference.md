@@ -115,7 +115,7 @@ Every call to this endpoint is recorded in the immutable Ed25519-signed audit lo
 }
 ```
 
-Tokens not found in the vault are omitted from `results` rather than returning an error.
+Tokens not found in the vault return the string `"ERR_NOT_FOUND"` as their value in the `results` map.
 
 **Error responses:**
 
@@ -137,11 +137,10 @@ List all entries in the persistent entity registry.
 ```json
 [
   {
-    "id": 1,
-    "label": "PERSON",
-    "canonical": "Alice Martin",
-    "variants": ["Alice", "A. Martin", "alice martin"],
-    "token": "[PERSON_3a12b4cd]"
+    "id": "PERSON_1",
+    "entity_type": "PERSON",
+    "canonical_name": "Alice Martin",
+    "variants": ["Alice", "A. Martin", "alice martin"]
   }
 ]
 ```
@@ -160,18 +159,17 @@ Pre-seeding entities ensures that all variants of a name or identifier map to th
 
 ```json
 {
-  "label": "PERSON",
-  "canonical": "Alice Martin",
+  "entity_type": "PERSON",
+  "canonical_name": "Alice Martin",
   "variants": ["Alice", "A. Martin"]
 }
 ```
 
-**Response `201 Created`:**
+**Response `200 OK`:**
 
 ```json
 {
-  "id": 42,
-  "token": "[PERSON_3a12b4cd]"
+  "canonical_token": "[PERSON_3a12b4cd]"
 }
 ```
 
@@ -183,18 +181,16 @@ Bulk-insert multiple entity registry entries in one call.
 
 **Authentication:** `Authorization: Bearer <OCU_AUDITOR_TOKEN>` required.
 
-**Request body:** Array of entity objects (same schema as `POST /api/entities`).
+**Request body:** JSON array of entity objects, or `{"entities": [...]}` wrapper — same schema as `POST /api/entities`.
 
 **Response `200 OK`:**
 
 ```json
 {
-  "inserted": 12,
-  "skipped": 1
+  "seeded": 12,
+  "tokens": ["[PERSON_3a12b4cd]", "[PERSON_7e2f1a9b]"]
 }
 ```
-
-`skipped` entries are those that already exist in the registry (matched by canonical value).
 
 ---
 

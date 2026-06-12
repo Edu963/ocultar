@@ -32,12 +32,13 @@ To maintain security and stability, we enforce strict dependency rules:
 The workspace allows you to work on multiple modules simultaneously without `replace` directives.
 
 ```go
-go 1.22
+go 1.25.8
 
 use (
-    .
+    ./apps/proxy
     ./apps/sombra
-    ./apps/slm-engine
+    ./internal/pii
+    ./pkg/gateway
     ./services/refinery
     ./services/vault
 )

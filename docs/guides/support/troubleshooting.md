@@ -6,7 +6,7 @@ This guide helps you identify and resolve common issues encountered while runnin
 
 Before diving deep, check these three points:
 1.  **Docker Health**: `docker ps` — Are all containers running?
-2.  **Health Endpoint**: `curl localhost:8086/healthz` — Is Sombra responsive?
+2.  **Health Endpoint**: `curl localhost:4141/api/health` — Is the Refinery responsive?
 3.  **Logs**: `docker compose logs -f sombra` — Any error messages?
 
 ---
@@ -50,10 +50,10 @@ duckdb /path/to/vault.db "SELECT * FROM tokens LIMIT 10;"
 ```
 
 ### Forcing a Rule Match
-To verify if a specific regex is working, use cURL to send a targeted payload:
+To verify if a specific regex is working, send a payload directly to the Refinery:
 ```bash
-curl -X POST http://localhost:8086/query \
+curl -s -X POST http://localhost:4141/api/refine \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "My email is test@example.com", "model": "mock-ai"}'
+  -d '{"text": "My email is test@example.com", "actor": "debug"}'
 ```
-Check if the response contains `[EMAIL_...]`.
+Check if the `refined` field in the response contains `[EMAIL_...]`.

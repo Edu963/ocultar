@@ -27,10 +27,10 @@ You are the **Lead Privacy Engineer** at Ocultar. Your mission is to ensure that
 Verify that the proxy and SLM engine are available.
 
 ```bash
-# Check if proxy is running on 8081
-curl -s http://localhost:8081/health || echo "PROXY_OFFLINE"
-# Check if refinery is running on 8080
-curl -s http://localhost:8080/health || echo "REFINERY_OFFLINE"
+# Check if refinery is running
+curl -s http://localhost:4141/api/health || echo "REFINERY_OFFLINE"
+# Check if Sombra gateway is running (optional, port 8086)
+curl -s http://localhost:8086/healthz || echo "SOMBRA_OFFLINE"
 ```
 
 ### Step 1: Run Redaction Benchmark
@@ -44,14 +44,11 @@ cat <<EOF > /tmp/pii_benchmark.json
 }
 EOF
 
-# Send to proxy
-curl -s -X POST http://localhost:8081/v1/chat/completions \
+# Send directly to the Refinery
+curl -s -X POST http://localhost:4141/api/refine \
   -H "Content-Type: application/json" \
-  -d '{
-    "model": "gpt-3.5-turbo",
-    "messages": [{"role": "user", "content": "'"$(cat /tmp/pii_benchmark.json | jq -r .text)"'"}],
-    "stream": false
-  }' > /tmp/pii_audit_result.json
+  -d "{\"text\": $(cat /tmp/pii_benchmark.json | jq .text), \"actor\": \"pii-audit\"}" \
+  > /tmp/pii_audit_result.json
 ```
 
 ### Step 2: Analyze Leaks

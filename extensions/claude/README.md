@@ -39,7 +39,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
     "ocultar-pii": {
       "command": "ocultar-claude-mcp",
       "env": {
-        "OCULTAR_URL": "http://localhost:8080",
+        "OCULTAR_URL": "http://localhost:4141",
         "OCULTAR_API_KEY": "your-api-key"
       }
     }
@@ -61,7 +61,7 @@ Or add to `.claude/settings.json`:
     "ocultar-pii": {
       "command": "ocultar-claude-mcp",
       "env": {
-        "OCULTAR_URL": "http://localhost:8080",
+        "OCULTAR_URL": "http://localhost:4141",
         "OCULTAR_API_KEY": "your-api-key"
       }
     }
@@ -73,7 +73,7 @@ Or add to `.claude/settings.json`:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `OCULTAR_URL` | Yes | URL of your local Ocultar Refinery (default: `http://localhost:8080`) |
+| `OCULTAR_URL` | Yes | URL of your local Ocultar Refinery (default: `http://localhost:4141`) |
 | `OCULTAR_API_KEY` | No | Bearer token for Refinery auth |
 | `OCULTAR_AUDITOR_TOKEN` | No | Enables `reveal_tokens` — must match `OCU_AUDITOR_TOKEN` on the server |
 
