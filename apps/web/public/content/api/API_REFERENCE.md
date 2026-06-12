@@ -1,0 +1,799 @@
+# OCULTAR | API Reference
+
+> **Audience:** Go developers embedding OCULTAR as a library, and operators calling the HTTP API.
+> All types come from `github.com/Edu963/ocultar`.
+
+---
+
+## Table of Contents
+
+1. [Environment Variables](#1-environment-variables)
+2. [Refinery Package (`services/refinery/pkg/refinery`)](#2-refinery-package-servicesrefinerypkgrefinery)
+   - [Types & Interfaces](#21-types--interfaces)
+   - [Constructor](#22-constructor)
+   - [Methods](#23-methods)
+   - [Cryptography Helpers](#24-cryptography-helpers)
+3. [Vault Package (`services/vault`)](#3-vault-package-servicesvault)
+4. [Config Package (`services/refinery/pkg/config`)](#4-config-package-servicesrefinerypkgconfig)
+5. [Proxy Package (`services/refinery/pkg/proxy`)](#5-proxy-package-servicesrefinerypkgproxy)
+6. [HTTP Endpoints](#6-http-endpoints)
+   - [POST /api/refine](#61-post-apirefine)
+   - [POST /api/refine/file](#62-post-apirefinefile)
+   - [GET /api/compliance/evidence](#612-get-apicomplianceevidence)
+7. [HTTP Proxy Mode](#7-http-proxy-mode)
+8. [Error Reference](#8-error-reference)
+
+---
+
+## 1. Environment Variables
+
+All environment variables are read at startup by the `main` entrypoint. No variable is optional unless marked as such.
+
+| Variable | Required | Description | Example |
+|---|---|---|---|
+| `OCU_MASTER_KEY` | ✅ | AES-256 master key — any UTF-8 string; SHA-256-hashed internally to 32 bytes. **Never commit this.** | `openssl rand -hex 32` |
+| `OCU_JWT_SECRET` | Sombra | HS256 secret for validating Bearer tokens on Sombra endpoints (`/query`, `/v1/chat/completions`). If unset, all requests are assigned actor `"dev-anonymous"` — insecure outside dev. Generate: `openssl rand -hex 32`. | `openssl rand -hex 32` |
+| `OCU_PROXY_TARGET` | Proxy mode | Default upstream URL the proxy forwards sanitised requests to. | `https://api.openai.com` |
+| `OCU_PROXY_PORT` | Proxy mode | Port the proxy listener binds to. Defaults to `8081`. | `8081` |
+| `OCU_VAULT_PATH` | Optional | Override the DuckDB vault file path. Defaults to `vault.db`. Use `:memory:` for ephemeral operation. | `/data/vault.db` |
+| `OCU_SALT` | Optional | Per-deployment HKDF salt. Strongly recommended in production; a built-in default is used if unset (logged as `[WARN]`). | `openssl rand -hex 16` |
+
+---
+
+## 2. Refinery Package (`services/refinery/pkg/refinery`)
+
+### 2.1 Types & Interfaces
+
+#### `Refinery`
+
+```go
+type Refinery struct {
+    Vault       vault.Provider
+    MasterKey   []byte
+    DryRun      bool
+    Report      bool
+    Serve       string
+    VaultCount  *atomic.Int64
+    AuditLogger AuditLogger
+    AIScanner   AIScanner
+}
+```
+
+| Field | Description |
+|---|---|
+| `Vault` | Storage backend (DuckDB or PostgreSQL). Must not be `nil`. |
+| `MasterKey` | 32-byte AES key (after SHA-256 hashing of the raw env value). |
+| `DryRun` | When `true`, PII is detected and reported but no tokens are written to the vault. |
+| `Report` | When `true`, per-request PII hit metadata is accumulated for `GenerateReport`. |
+| `Serve` | Non-empty string when running in HTTP serve mode (e.g. `"9090"`). Activates hit tracking. |
+| `VaultCount` | Atomic counter of vault entries — shared with the dashboard for live metrics. |
+| `AuditLogger` | SIEM audit logger. Defaults to `NoopAuditLogger` when `OCU_AUDIT_PRIVATE_KEY` is unset. |
+| `AIScanner` | Local SLM scanner for Tier 2 NER. Defaults to `NoopAIScanner` when `SLM_SIDECAR_URL` is unset. |
+
+---
+
+#### `AuditLogger` interface
+
+```go
+type AuditLogger interface {
+    Init(filePath string) error
+    Log(user, action, result, mapping string)
+    Close()
+}
+```
+
+| Method | Description |
+|---|---|
+| `Init(filePath string) error` | Opens or creates the SIEM log file at `filePath`. Must be called before `Log`. |
+| `Log(user, action, result, mapping string)` | Appends a structured JSON line to the log. `action` is `"vaulted"`, `"matched"`, or `"POLICY_BLOCK"`. `mapping` is the canonical entity type string (e.g. `"EMAIL"`). |
+| `Close()` | Flushes and closes the log file. |
+
+Default (when `OCU_AUDIT_PRIVATE_KEY` unset): `NoopAuditLogger` — all methods are no-ops.
+
+---
+
+#### `AIScanner` interface
+
+```go
+type AIScanner interface {
+    ScanForPII(text string) (map[string][]string, error)
+    CheckHealth(host string)
+    IsAvailable() bool
+    SetDomain(domain string)
+    CircuitStateName() string
+}
+```
+
+| Method | Description |
+|---|---|
+| `ScanForPII(text string) (map[string][]string, error)` | Sends `text` to the local SLM and returns a map of `PII_TYPE → []detected_string`. Returns `nil, nil` when no PII is found. |
+| `CheckHealth(host string)` | Pings the SLM host. Sets internal availability flag. |
+| `IsAvailable() bool` | Returns `true` only when the SLM is healthy and responding. Returns `false` when no SLM sidecar is configured. |
+| `SetDomain(domain string)` | Selects the active domain snapshot (e.g. `"fr-finance"`). No-op on `NoopAIScanner`. |
+| `CircuitStateName() string` | Returns the circuit breaker state: `"closed"` (healthy), `"open"` (failing), or `"half-open"` (recovering). Always `"closed"` on `NoopAIScanner`. |
+
+Default (when `SLM_SIDECAR_URL` unset): `NoopAIScanner` — `IsAvailable()` always returns `false`.
+
+---
+
+#### `DetectionResult`
+
+Each PII hit in `pii_hits` is a `DetectionResult` object:
+
+```go
+type DetectionResult struct {
+    Entity        string   `json:"entity"`
+    CanonicalType string   `json:"canonical_type,omitempty"`
+    ValueHash     string   `json:"value_hash"`
+    Confidence    float64  `json:"confidence"`
+    Method        []string `json:"method"`
+    Location      string   `json:"location"`
+}
+```
+
+| Field | Description |
+|---|---|
+| `entity` | PII type: `EMAIL`, `SSN`, `PHONE`, `PERSON`, `IBAN`, etc. |
+| `canonical_type` | Optional alias from the entity registry, if configured. |
+| `value_hash` | Full SHA-256 hex of the original value (safe to log — not reversible). |
+| `confidence` | Detection certainty `0.0–1.0`. Rule-based detections are always `1.0`. |
+| `method` | Detection source tags. See **Method Tags** below. |
+| `location` | Character offset of the match in the input string: `"start-end"`. |
+
+**Method Tags** — the `method` array identifies which pipeline tier produced the hit:
+
+| Tag | Tier | Description |
+|---|---|---|
+| `["regex"]` | Tier 1 | Deterministic regex match from the PII registry |
+| `["regex", "checksum"]` | Tier 1 | Regex match + checksum validation (Luhn, MOD97, national ID) |
+| `["dictionary"]` | Tier 0 | Exact match against `protected_entities.json` |
+| `["phone"]` | Tier 1.1 | libphonenumber-validated phone number |
+| `["address"]` | Tier 1.2 | Heuristic address parser |
+| `["greeting"]` | Tier 1.5 | Name extracted from salutation or self-introduction |
+| `["ai-ner"]` | Tier 2 | Semantic NER via AI sidecar (privacy-filter / llama.cpp) |
+| `["structural"]` | Tier 3 | Context-aware proximity rule or entity expansion |
+
+---
+
+#### `DryRunReport`
+
+```go
+type DryRunReport struct {
+    Mode       string                `json:"mode"`
+    FilesIn    int                   `json:"files_scanned"`
+    Hits       []DetectionResult     `json:"pii_hits"`
+    TotalCount int                   `json:"total_pii_count"`
+    Blocking   bool                  `json:"blocking"`
+}
+```
+
+| Field | Description |
+|---|---|
+| `Mode` | `"dry-run"`, `"report"`, or `"serve"` depending on refinery configuration. |
+| `FilesIn` | Number of files/payloads processed in the session. |
+| `Hits` | Ordered array of `DetectionResult` objects — one entry per PII match. |
+| `TotalCount` | Total number of PII hits across all types. |
+| `Blocking` | `true` when at least one PII entity was detected. Useful as a CI/CD gate. |
+
+---
+
+### 2.2 Constructor
+
+#### `NewRefinery`
+
+```go
+func NewRefinery(v vault.Provider, key []byte) *Refinery
+```
+
+Creates a `Refinery` wired to the given vault and 32-byte AES master key.
+
+**Parameters:**
+- `v` — vault backend (DuckDB or PostgreSQL). Must not be `nil`.
+- `key` — 32-byte derived AES key (output of HKDF). Pass the result of `getMasterKey()`.
+
+**Returns:** `*Refinery` — ready to use; never `nil`. Pre-seeds `VaultCount` from the vault on construction.
+
+---
+
+### 2.3 Methods
+
+#### `RefineString`
+
+```go
+func (e *Refinery) RefineString(input string, actor string, preScanMap map[string][]string) (string, error)
+```
+
+Core redaction function. Detects and tokenizes PII in a single string by running all enabled tiers in order.
+
+**Pipeline order:**
+
+| Tier | Shield | Source |
+|---|---|---|
+| 0.1 | Embedded Base64 Evasion | Inline in `RefineString` |
+| 0 | Dictionary Shield | `config.Global.Dictionaries` |
+| 0.5 | Pattern + Entropy Shield | `config.Global.Regexes` (regex + Shannon scoring) |
+| 1 | Rule Engine | `config.Global.Regexes` (EMAIL, SSN, IBAN, CC, etc.) |
+| 1.1 | Phone Shield | `pkg/refinery/phone_parser.go` (`libphonenumber`) |
+| 1.2 | Address Shield | `pkg/refinery/address_parser.go` |
+| 1.5 | Greeting & Signature Shield | `greetingRegex` |
+| 2 | AI NER Scan | `AIScanner.ScanForPII` (active only when sidecar is available) |
+
+**Parameters:**
+- `input` — raw string to redact.
+- `actor` — identifier of the originating client (IP or `RemoteAddr`) used in audit log entries.
+- `preScanMap` — pre-computed SLM results from a parent `ProcessInterface` call; pass `nil` for standalone use.
+
+**Returns:** `(redacted string, error)` — error only on vault failure or SLM inference error.
+
+> **Note:** A returned `error` is always fatal — the caller must not persist the output.
+
+---
+
+#### `ProcessInterface`
+
+```go
+func (e *Refinery) ProcessInterface(data interface{}, actor string) (interface{}, error)
+```
+
+Recursively traverses a JSON-decoded Go value (`map[string]interface{}`, `[]interface{}`, or `string`). Handles:
+- **Base64-encoded strings** — decoded, refined, re-encoded.
+- **URL-encoded strings** — decoded, refined, re-encoded with `url.QueryEscape`.
+- **Nested JSON strings** — un-marshalled, refined recursively, re-marshalled.
+- **SLM batch optimisation** — for complex objects, marshals the entire record to a flat string and runs one SLM scan before recursing.
+
+**Parameters:**
+- `data` — the decoded JSON value (root or node). Pass the output of `json.Unmarshal`.
+- `actor` — see `RefineString`.
+
+**Returns:** `(interface{}, error)` — the refined value (same type as input), or an error.
+
+---
+
+#### `GenerateReport`
+
+```go
+func (e *Refinery) GenerateReport(filesScanned int) DryRunReport
+```
+
+Aggregates the in-session PII hit map (accumulated by `getOrSetSecureToken`) into a `DryRunReport`. Thread-safe.
+
+**Parameters:**
+- `filesScanned` — number of files or payloads processed (caller-supplied, for the `files_scanned` field).
+
+---
+
+#### `ResetHits`
+
+```go
+func (e *Refinery) ResetHits()
+```
+
+Clears the in-memory hit map. Call between requests in serve mode to prevent cross-contamination of reports. Thread-safe.
+
+---
+
+### 2.4 Cryptography Helpers
+
+#### `Encrypt`
+
+```go
+func Encrypt(plaintext, key []byte) (string, error)
+```
+
+Encrypts `plaintext` with **AES-256-GCM**. Returns a hex-encoded string structured as:
+
+```
+[12-byte nonce][GCM ciphertext + 16-byte auth tag]
+```
+
+All encoded as a single continuous hex string. The nonce is randomly generated per call using `crypto/rand`.
+
+---
+
+#### `Decrypt`
+
+```go
+func Decrypt(hexCiphertext string, key []byte) ([]byte, error)
+```
+
+Decrypts a hex-encoded AES-256-GCM ciphertext produced by `Encrypt`. Returns the original plaintext bytes.
+
+**Error cases:**
+- Malformed hex → `hex.DecodeString` error.
+- Ciphertext too short (< nonce size) → `"ciphertext too short"`.
+- GCM authentication failure (wrong key or tampered ciphertext) → `cipher.Open` error.
+
+---
+
+#### `DecryptToken`
+
+```go
+func DecryptToken(v vault.Provider, masterKey []byte, token string) (string, error)
+```
+
+Looks up an OCULTAR token (e.g. `[EMAIL_af2101fb]` or `[PERSON_1]`) in the vault and returns the original PII string.
+
+**Behaviour — two routing paths based on token format:**
+
+| Token format | Example | Path |
+|---|---|---|
+| Entity token (numeric suffix) | `[PERSON_1]` | `GetEntityByToken` → returns `canonical_name` directly. No AES decryption. |
+| Hash token (8-char hex suffix) | `[EMAIL_9c8f7a1b]` | Reverse lookup in `vault` table → AES-256-GCM decryption. |
+
+The numeric-suffix regex (`^\[([A-Z_]+)_(\d+)\]$`) is checked first. If it matches, the entity registry path is taken. If the token is not found in `canonical_entities`, execution falls through to the AES path.
+
+- If the token is not found in either path → returns the token unchanged (safe fallback — no data loss).
+- If AES decryption fails (e.g. key rotation) → logs the error and returns the token unchanged (**fail-safe**, not fail-closed).
+
+Used internally by the proxy re-hydration layer. Not intended for direct use.
+
+---
+
+## 3. Vault Package (`services/vault`)
+
+### `Provider` interface
+
+```go
+type Provider interface {
+    // Core token vault
+    StoreToken(hash, token, encryptedPII string) (bool, error)
+    GetToken(hash string) (string, bool)
+    CountAll() int64
+    Close() error
+    // Entity Registry (Path 3 — Persistent Identity Resolution)
+    RegisterEntity(entityType, canonicalName string, variants []string) (canonicalToken string, err error)
+    LookupVariant(variantName string) (canonicalToken string, found bool)
+    GetEntityByToken(token string) (canonicalName string, found bool)
+    SeedEntities(entries []EntitySeed) error
+    ListEntities() ([]EntityRecord, error)
+}
+```
+
+| Method | Description |
+|---|---|
+| `StoreToken(hash, token, encryptedPII string) (bool, error)` | Persists a PII mapping. Returns `(true, nil)` on new insertion, `(false, nil)` if the hash already exists (idempotent). |
+| `GetToken(hash string) (string, bool)` | Looks up the token for a given SHA-256 PII hash. Returns `("", false)` on miss. |
+| `CountAll() int64` | Returns the total number of vault entries. Used for dashboard live metrics. |
+| `Close() error` | Releases database connections. Always defer `Close()` after obtaining a provider. |
+| `RegisterEntity(entityType, canonicalName string, variants []string) (string, error)` | Creates or merges a canonical entity in `canonical_entities`. All variants are inserted into `entity_variants`. Returns the canonical token (e.g. `[PERSON_1]`). Idempotent — re-registering the same `canonicalName` merges new variants and returns the existing token. |
+| `LookupVariant(variantName string) (string, bool)` | Case-insensitive lookup of a name fragment against `entity_variants`. Returns the canonical token if found. Used by the refinery before the SHA-256 hash path. |
+| `GetEntityByToken(token string) (string, bool)` | Reverse-lookup: given a numeric entity token (`[PERSON_1]`), returns the `canonical_name`. Used by `DecryptToken` to rehydrate without AES decryption. |
+| `SeedEntities(entries []EntitySeed) error` | Bulk-inserts a slice of `EntitySeed` records idempotently. Safe to re-run — duplicate `canonical_name` values are skipped. |
+| `ListEntities() ([]EntityRecord, error)` | Returns all registered canonical entities ordered by type then ID, each with their full variant list. |
+
+### Supporting types
+
+```go
+// EntitySeed is the input type for SeedEntities and POST /v1/entities/seed.
+type EntitySeed struct {
+    EntityType    string
+    CanonicalName string
+    Variants      []string
+}
+
+// EntityRecord is the output type for ListEntities and GET /v1/entities.
+type EntityRecord struct {
+    ID            string   `json:"id"`             // e.g. "PERSON_1"
+    EntityType    string   `json:"entity_type"`    // e.g. "PERSON"
+    CanonicalName string   `json:"canonical_name"` // e.g. "John Doe"
+    Variants      []string `json:"variants"`        // sorted alphabetically
+}
+```
+
+### `New` factory
+
+```go
+func New(cfg config.Settings, vaultPath string) (Provider, error)
+```
+
+Selects and constructs the correct backend:
+
+| `cfg.VaultBackend` | Selected backend |
+|---|---|
+| `""` or `"duckdb"` | `duckdbProvider` — embedded local file |
+| `"postgres"` | `postgresProvider` — external PostgreSQL cluster |
+
+**Parameters:**
+- `cfg` — loaded `config.Settings` (from `config.Global`).
+- `vaultPath` — file path for DuckDB (ignored for postgres). Pass `":memory:"` for ephemeral in-process vaulting.
+
+---
+
+## 4. Config Package (`services/refinery/pkg/config`)
+
+### `Settings` struct
+
+```go
+type Settings struct {
+    Regexes      []RegexRule `yaml:"regexes"`
+    Dictionaries []DictRule  `yaml:"dictionaries"`
+
+    SLMConfidence float64 `yaml:"slm_confidence"`
+
+    // Storage backend
+    VaultBackend string `yaml:"vault_backend"`  // "duckdb" (default) or "postgres"
+    PostgresDSN  string `yaml:"postgres_dsn"`
+
+    // Domain-specific Tier 2 sidecars
+    DomainSnapshot      string            `yaml:"domain_snapshot"`
+    Tier2DomainSidecars map[string]string `yaml:"tier2_domain_sidecars"`
+
+    // Policy-as-code governance rules
+    Policies []Policy `yaml:"policies"`
+
+    // CRM identity sync
+    CRMEndpoint  string `yaml:"crm_endpoint"`
+    CRMApiKey    string `yaml:"crm_api_key"`
+    SyncInterval string `yaml:"sync_interval"` // e.g. "1h"
+
+    // Concurrency and performance
+    MaxConcurrency           int    `yaml:"max_concurrency"`
+    QueueSize                int    `yaml:"queue_size"`
+    InferenceTimeout         string `yaml:"inference_timeout"`
+    RehydrateFallbackEnabled bool   `yaml:"rehydrate_fallback_enabled"`
+
+    // Debug / demo
+    ShowDebugMetadata bool `yaml:"show_debug_metadata"`
+}
+```
+
+### `RegexRule`
+
+```go
+type RegexRule struct {
+    Type     string         `yaml:"type"`
+    Pattern  string         `yaml:"pattern"`
+    Compiled *regexp.Regexp // set automatically by CompileRegexes()
+}
+```
+
+| Field | Description |
+|---|---|
+| `Type` | Token label prefix in `UPPER_SNAKE_CASE` (e.g. `EMAIL`, `INTERNAL_ID`). |
+| `Pattern` | Go `regexp/syntax` compatible regex. Prefix with `(?i)` for case-insensitive. Does **not** support look-ahead/look-behind. |
+
+### `DictRule`
+
+```go
+type DictRule struct {
+    Type  string   `yaml:"type"`
+    Terms []string `yaml:"terms"`
+}
+```
+
+| Field | Description |
+|---|---|
+| `Type` | Token label prefix. |
+| `Terms` | Exact strings to redact. Matching is case-insensitive (handled by `applyReplacement`). |
+
+### Functions
+
+| Function | Description |
+|---|---|
+| `config.Load()` | Initialises `config.Global` with defaults + loads `configs/protected_entities.json` + compiles regexes. Called once at startup. **Fatal** if `protected_entities.json` is missing or empty (fail-closed). |
+| `config.InitDefaults()` | Alias for `Load()`, used in tests. |
+| `config.CompileRegexes()` | Compiles all `RegexRule.Pattern` fields. Called automatically by `Load()`. |
+
+### Built-in Regex Rules (defaults)
+
+| Type | Pattern | Matches |
+|---|---|---|
+| `EMAIL` | `(?i)[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}` | Standard email addresses |
+| `URL` | `(?i)https?://[^\s"<>{}\[\]\\]+\|www\.…` | HTTP/S URLs and bare `www.` domains |
+| `SSN` | `\b\d{3}-\d{2}-\d{4}\b` | US Social Security Numbers |
+| `CREDENTIAL` | `(?i)\bpassword\s*[:=]\s*[^\s,]+` | In-line passwords (e.g., "password: mypass") |
+| `SECRET` | `(?i)\b(?:secret\|key\|token)\s*[:=]\s*[^\s,]+` | In-line secrets/keys |
+
+---
+
+## 5. Proxy Package (`services/refinery/pkg/proxy`)
+
+### `Handler`
+
+```go
+type Handler struct { /* unexported fields */ }
+```
+
+Implements `http.Handler`. Constructed via `NewHandler`.
+
+### `NewHandler`
+
+```go
+func NewHandler(eng *refinery.Refinery, v vault.Provider, masterKey []byte, targetURL string) (*Handler, error)
+```
+
+**Parameters:**
+- `eng` — shared refinery instance.
+- `v` — vault provider for re-hydration lookups.
+- `masterKey` — decryption key.
+- `targetURL` — default upstream URL (value of `OCU_PROXY_TARGET`).
+
+**Returns:** `(*Handler, error)` — error if `targetURL` cannot be parsed.
+
+**Internals:**
+- Concurrency semaphore capped at **15** concurrent requests (matches PostgreSQL connection pool limit).
+- `ResponseHeaderTimeout` set to **120 seconds** for upstream calls.
+- Body reads capped at **5 MB** per request.
+
+---
+
+## 6. HTTP Endpoints
+
+The dashboard/API server (`--serve <port>`) exposes the following endpoints.
+
+### 6.1 `POST /api/refine`
+
+Refines a raw text or JSON payload.
+
+**Request:**
+
+```http
+POST /api/refine HTTP/1.1
+Content-Type: application/json
+
+{"messages": [{"role": "user", "content": "Email john@example.com for details."}]}
+```
+
+Or plain text:
+
+```http
+POST /api/refine HTTP/1.1
+Content-Type: text/plain
+
+Call Sarah at +33 6 12 34 56 78 or email sarah@example.com
+```
+
+**Response `200 OK`:**
+
+```json
+{
+  "refined": "Call Sarah at [PHONE_a1b2c3d4] or email [EMAIL_9c8f7a1b]",
+  "report": {
+    "mode": "serve",
+    "files_scanned": 1,
+    "pii_hits": [
+      {
+        "entity": "PHONE",
+        "value_hash": "a1b2c3d4e5f6...",
+        "confidence": 1.0,
+        "method": ["phone"],
+        "location": "13-31"
+      },
+      {
+        "entity": "EMAIL",
+        "value_hash": "9c8f7a1b2d3e...",
+        "confidence": 1.0,
+        "method": ["regex"],
+        "location": "38-56"
+      }
+    ],
+    "total_pii_count": 2,
+    "blocking": true
+  }
+}
+```
+
+**Response `403 Forbidden` (policy violation):**
+
+When one or more active policies match a detected entity with `action: block`, the request is rejected before the refined output is returned. The response body contains the policy name and the entity *type* (never the raw PII value):
+
+```json
+{
+  "error":          "policy_violation",
+  "message":        "Request blocked by policy 'block-health-data'.",
+  "policy":         "block-health-data",
+  "blocked_entity": "HEALTH_ENTITY"
+}
+```
+
+The block event is written to the audit log with action `POLICY_BLOCK`.
+
+**Size limit:** 5 MB. Payloads exceeding this are rejected with `413 Request Entity Too Large`.
+
+---
+
+### 6.2 `POST /api/refine/file`
+
+Processes a file upload with streaming output. Designed for large datasets — never loads the entire file into RAM.
+
+**Request:**
+
+```http
+POST /api/refine/file HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="data.csv"
+Content-Type: text/csv
+
+email,name
+john@example.com,John Smith
+...
+```
+
+**Response `200 OK`:** `application/octet-stream` — the refined file, streamed line-by-line.
+
+```bash
+# Usage example
+curl -F "file=@my_data.csv" http://localhost:9090/api/refine/file > cleaned.csv
+```
+
+---
+
+### 6.3 `GET /api/config`
+
+Returns the full current configuration (`config.yaml` state).
+
+### 6.4 `GET /api/config/regex`
+
+Returns the list of active Regex rules, including their `canonical_mapping` (Google InfoType).
+
+### 6.5 `POST /api/config/regex`
+
+Adds or updates a Regex rule. Persists to `config.yaml`.
+**Body**: `{"type": "CUSTOM_ID", "pattern": "\\b[0-9]{5}\\b"}`
+
+### 6.6 `DELETE /api/config/regex`
+
+Removes a Regex rule.
+**Body**: `{"type": "CUSTOM_ID"}`
+
+### 6.7 `GET /api/config/dictionary`
+
+Returns all dictionary categories and their terms.
+
+### 6.8 `POST /api/config/dictionary`
+
+Adds a term to a dictionary category.
+**Body**: `{"type": "VIP", "term": "Internal Project Name"}`
+
+### 6.9 `DELETE /api/config/dictionary`
+
+Removes a category (and all its terms).
+**Body**: `{"type": "VIP"}`
+
+### 6.10 `GET /api/config/mapping`
+
+Returns the **Canonical Entity Registry**: a complete mapping of all OCULTAR internal identifiers to Google Cloud DLP InfoTypes.
+
+### 6.11 `GET /api/config/system`
+
+Returns system-level limits (`max_concurrency`, `queue_size`).
+
+---
+
+### 6.12 `GET /api/compliance/evidence`
+
+Returns a compliance evidence snapshot suitable for polling by SOC 2 / ISO 27001 audit tools (Vanta, Drata, Secureframe, or any custom collector). No authentication is required by default — protect with a network boundary or reverse proxy ACL in production.
+
+**Response `200 OK`:**
+
+```json
+{
+  "schema_version": "1",
+  "generated_at":   "2026-05-09T14:32:00Z",
+  "engine_version": "1.14",
+  "uptime":         "3h24m15s",
+  "vault_entries":  14823,
+  "policies_active": 2,
+  "policy_snapshot": [
+    {
+      "name":   "block-health-data",
+      "when":   { "entity": ["HEALTH_ENTITY", "SENSITIVE_EVENT"], "min_confidence": 0.8 },
+      "action": "block"
+    }
+  ],
+  "tiers_active": {
+    "tier0_dictionary": true,
+    "tier1_regex":      true,
+    "tier2_ai":         false
+  },
+  "audit_log_tail": [
+    {
+      "timestamp":          "2026-05-09T14:31:55Z",
+      "user":               "192.168.1.10:54321",
+      "action":             "POLICY_BLOCK",
+      "result":             "block-health-data",
+      "compliance_mapping": "HEALTH_ENTITY"
+    }
+  ]
+}
+```
+
+| Field | Description |
+|---|---|
+| `vault_entries` | Total distinct PII tokens stored since last vault reset |
+| `policies_active` | Number of active governance policy rules |
+| `policy_snapshot` | Full policy list as configured — proves policies are defined |
+| `tiers_active` | Which detection tiers are enabled |
+| `audit_log_tail` | Last 10 audit log entries including POLICY_BLOCK events |
+
+---
+
+## 7. HTTP Proxy Mode
+
+The proxy (`docker-compose.proxy.yml`) exposes port `8080` by default.
+
+### Request Headers
+
+| Header | Direction | Description |
+|---|---|---|
+| `Ocultar-Target` | Client → Proxy | Per-request upstream URL override. Validated against SSRF (blocks `localhost`, `127.x`, `10.x`, `192.168.x`, `169.254.x`). |
+| `X-Forwarded-For` | Client → Proxy | Used as the `actor` identifier in audit logs. Falls back to `RemoteAddr`. |
+
+### Response Headers Added by Proxy
+
+| Header | Direction | Description |
+|---|---|---|
+| `X-Ocultar-Redacted` | Proxy → Upstream | Set to `"true"` when at least one PII entity was redacted from the request body. |
+
+### Proxy Request Flow
+
+```
+Client POST ──► [5 MB cap] ──► obfuscation check
+    ──► refinery.ProcessInterface (Tier 0→2 redaction)
+        → on error → 403 / 500 (fail-closed, never forwards un-redacted data)
+    ──► forward sanitised body to upstream
+    ──► read upstream response
+    ──► scan for [TYPE_token] patterns → DecryptToken → rehydrate
+    ──► return final response to client
+```
+
+---
+
+## 8. Error Reference
+
+### Refinery Errors
+
+| Error string | Cause | Resolution |
+|---|---|---|
+| `"encryption failed: …"` | `crypto/rand` or AES failure | System-level; check OS entropy source. |
+| `"vault storage failed: …"` | DuckDB/PostgreSQL write error | Check disk space, DB connectivity, and `OCU_VAULT_PATH`. |
+| `"SLM inference failed: …"` | Local SLM HTTP timeout or bad response | Check SLM container health: `docker compose logs ocultar-ai`. |
+
+### Proxy HTTP Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Request processed and forwarded successfully. |
+| `400 Bad Request` | Body could not be parsed (returned by upstream, passed through). |
+| `403 Forbidden` | Refinery blocked the request (SSRF attempt, obfuscated payload, policy violation). |
+| `413 Request Entity Too Large` | Payload exceeds 5 MB. |
+| `429 Too Many Requests` | Concurrency semaphore full — retry after a short delay. |
+| `500 Internal Server Error` | Refinery error during redaction. Un-redacted data was **not** forwarded. |
+| `502 Bad Gateway` | Upstream returned an error or connection failed. |
+
+### Config / Startup Fatal Errors
+
+| Message | Cause |
+|---|---|
+| `[FATAL] Failed reading protected_entities.json!` | `configs/protected_entities.json` not found at startup. |
+| `[FATAL] Failed parsing protected_entities.json!` | File contains malformed JSON. |
+| `[FATAL] protected_entities.json parsed successfully but contains zero entries.` | File is a valid but empty JSON array `[]`. |
+| `[vault] vault_backend is 'postgres' but postgres_dsn is not set` | Missing `postgres_dsn` in `config.yaml`. |
+## 9. Sombra Gateway Configuration
+
+The Sombra Gateway (`github.com/Edu963/sombra`) adds an extra layer of policy enforcement on top of the OCULTAR refinery.
+
+### Connector Policy
+
+Connectors in `sombra.yaml` support a `policy` block for fine-grained control:
+
+```yaml
+connectors:
+  - name: slack-prod
+    type: slack
+    policy:
+      strip_categories: ["SSN", "CREDENTIAL", "SECRET"]
+      allowed_models: ["gemini-flash-latest"]
+```
+
+| Field | Description |
+|---|---|
+| `strip_categories` | List of PII types (e.g., `SSN`, `PERSON`) that should be **removed** (stripped) from the text before sending to the AI. This is stronger than redaction (which preserves relational tokens). |
+| `allowed_models` | List of LLM models this connector is permitted to call. |
+
+### Redaction vs. Stripping
+
+- **Redaction**: Replaces PII with a token like `[PERSON_1234abcd]`. Useful for tasks where the AI needs to know *that* a person was mentioned without knowing *who*.
+- **Stripping**: Replaces tokens with a generic placeholder like `[STRIPPED_SSN]`. Used for high-sensitivity data where the AI should not even see the pseudonymized token.

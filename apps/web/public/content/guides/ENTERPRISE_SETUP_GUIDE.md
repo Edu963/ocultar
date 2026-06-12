@@ -1,0 +1,495 @@
+# OCULTAR Advanced Setup Guide
+
+> **Audience:** Technical leads and operators deploying OCULTAR in production — covering PostgreSQL HA vault, SIEM audit logging, Policy-as-Code, and multi-node setups.
+
+---
+
+## Table of Contents
+
+1. [Prerequisites](#1-prerequisites)
+2. [Deployment Mode A: Standalone Binary + Dashboard](#2-deployment-mode-a-standalone-binary--dashboard)
+3. [Deployment Mode B: Docker Compose Proxy Stack](#3-deployment-mode-b-docker-compose-proxy-stack)
+4. [Configuration (`configs/config.yaml`)](#4-configuration-configsconfigyaml)
+5. [Policy-as-Code (Governance)](#5-policy-as-code-governance)
+6. [Dictionary Shield (`configs/protected_entities.json`)](#6-dictionary-shield-configsprotected_entitiesjson)
+7. [PostgreSQL HA Vault (Optional)](#7-postgresql-ha-vault-optional)
+8. [SIEM Audit Log](#8-siem-audit-log)
+9. [Compliance Dashboard](#9-compliance-dashboard)
+10. [Key Rotation](#10-key-rotation)
+11. [Shutting Down](#11-shutting-down)
+12. [Troubleshooting](#12-troubleshooting)
+
+---
+
+## 1. Prerequisites
+
+| Requirement | Details |
+|---|---|
+| **OS** | Linux or macOS (Windows via WSL 2 or Docker Desktop) |
+| **Docker** | Docker Engine + Compose plugin, or Docker Desktop |
+| **RAM** | 4 GB minimum (8 GB recommended for smooth model inference) |
+| **Disk** | ~1 GB free for HuggingFace model cache on first run |
+| **Go** | 1.22+ only if building from source |
+| **`OCU_JWT_SECRET`** | HS256 secret for Sombra Bearer token validation. Generate: `openssl rand -hex 32`. Required for Sombra gateway deployments; not used by the standalone refinery binary. |
+
+---
+
+## 2. Deployment Mode A: Standalone Binary + Dashboard
+
+Use this mode to run the OCULTAR refinery locally with the browser dashboard — ideal for demos, pilots, and batch processing.
+
+### Step 1 — Prepare the environment
+
+```bash
+# Create a dedicated directory and extract into it
+mkdir ocultar
+cd ocultar
+tar -xzf ../ocultar-*.tar.gz
+
+# Create your secrets file
+cp .env.example .env
+```
+
+Edit `.env`:
+```bash
+# ── Required ─────────────────────────────────────────────────────────────────
+export OCU_MASTER_KEY=<output of: openssl rand -hex 32>
+export OCU_SALT=<output of: openssl rand -hex 16>
+# ─────────────────────────────────────────────────────────────────────────────
+```
+
+> ⚠️ **Important:** `OCU_MASTER_KEY` and `OCU_SALT` derive your vault encryption key. **Changing either value after first run invalidates all vault entries.** Back them up securely before going to production.
+
+### Step 2 — Start the OCULTAR binary
+
+```bash
+source .env
+
+# Start the dashboard on port 3030
+./ocultar --serve 3030
+```
+
+Or for batch file processing from the CLI:
+```bash
+# Refine a file and print the result
+./ocultar < my_data.json
+
+# Dry-run scan (no vault writes, outputs JSON report)
+./ocultar --dry-run < my_data.json
+
+# Report mode (refines + appends PII report to stderr)
+./ocultar --report < my_data.json
+```
+
+### Step 3 — Open the Dashboard
+
+Navigate to **http://localhost:3030/index.html**
+
+The dashboard shows:
+- **Extraction Breakdown** — entity counts by type
+- **Global Regulatory Risk Matrix** — GDPR/HIPAA/AI Act/NIS2 compliance status per dataset
+- **"Payload Successfully Anonymized"** banner when all PII is caught
+- **Live Vault Metrics** — entry count, vault reuse rate, SLM health
+
+---
+
+## 3. Deployment Mode B: Docker Compose Proxy Stack
+
+Use this mode to sit OCULTAR transparently in front of any upstream API (OpenAI, Azure OpenAI, local Ollama, etc.) — ideal for production integration.
+
+### Step 1 — Prepare the environment
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with all required values:
+
+```bash
+# ── Required ─────────────────────────────────────────────────────────────────
+export OCU_MASTER_KEY=<output of: openssl rand -hex 32>
+export OCU_SALT=<output of: openssl rand -hex 16>
+export OCU_PROXY_TARGET=https://api.openai.com   # your upstream LLM API
+
+# ── Optional ─────────────────────────────────────────────────────────────────
+export OCU_PROXY_PORT=8081                        # host port the proxy listens on
+```
+
+### Step 2 — Launch the cluster
+
+```bash
+docker compose up -d
+```
+
+**What happens on first run:**
+1. `init-slm` (Alpine) downloads `qwen1_5-1_8b-chat-q4_k_m.gguf` (~1.2 GB) from HuggingFace into the `slm_data` named volume. This only happens once — subsequent starts detect the cached file and skip immediately.
+2. `slm-ner` starts the `llama.cpp` server and loads the model into memory. The container is health-checked before the proxy starts.
+3. `ocultar-proxy` starts once `slm-ner` is healthy, then begins listening for requests.
+
+Watch progress:
+```bash
+docker compose logs -f
+```
+
+Wait for:
+```
+ocultar-init-slm | [+] Download complete.
+slm-ner          | llama server listening at http://0.0.0.0:8080
+ocultar-proxy    | [INFO] Tier 2 AI active via Qwen/llama.cpp: http://slm-ner:8080
+ocultar-proxy    | [INFO] OCULTAR proxy listening on :8081
+```
+
+> **Note:** `init-slm` exits after the download completes — this is expected. `docker compose ps` will show it as `Exited (0)`.
+
+**Optional — Multilingual NER sidecar (piiranha-v1):**
+
+For mixed-language corpora, swap the default model for `piiranha-v1` by setting the model path before starting:
+
+```bash
+PRIVACY_FILTER_MODEL_PATH=iiiorg/piiranha-v1-detect-personal-information \
+MODEL_SCHEMA=piiranha docker compose --profile ai up -d
+```
+
+### Step 3 — Verify with the smoke test
+
+```bash
+bash scripts/smoke_test.sh
+```
+
+Expected:
+```
+[+] Proxy is healthy!
+[*] Running smoke test with leaky payload...
+[+] SUCCESS: PII successfully intercepted and redacted!
+```
+
+### Step 4 — Point your application at the proxy
+
+Change your application's LLM base URL from:
+```
+https://api.openai.com
+```
+to:
+```
+http://localhost:8081   (or whatever OCU_PROXY_PORT you set)
+```
+
+No other change needed. The proxy preserves all headers, paths, and query strings.
+
+**Optional — per-request upstream override:**
+```bash
+curl -X POST http://localhost:8081/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Ocultar-Target: https://other-llm.example.com" \
+  -d '{"messages":[{"role":"user","content":"My name is Alice Martin."}]}'
+```
+
+### Step 5 — Access the Dashboard (Optional)
+
+> **Note:** The visual Compliance Dashboard is **not** hosted by the Docker Compose proxy stack, because the proxy is designed to run headlessly. 
+
+If you want to view the visual dashboard while running your proxy cluster, simply open a new terminal window and run the standalone binary:
+
+```bash
+# Open a second terminal window
+cd ocultar
+source .env
+./ocultar --serve 3030
+```
+
+Then open your browser to **http://localhost:3030/index.html**.
+
+---
+
+## 4. Configuration (`configs/config.yaml`)
+
+Extend PII detection without recompiling. Edit `configs/config.yaml` and restart:
+
+```yaml
+# configs/config.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Minimum SLM confidence score for Tier 2 NER detections (0.0–1.0).
+slm_confidence: 0.75
+
+# Custom regex rules (Tier 1) ─────────────────────────────────────────────────
+# type: token label in UPPER_SNAKE_CASE
+# pattern: Go regexp/syntax compatible regex (no look-aheads/look-behinds)
+regexes:
+  - type: PATIENT_ID
+    pattern: '(?i)PTN-\d{6}'
+
+  - type: INTERNAL_EMPLOYEE_ID
+    pattern: '\b(ID|EMP)[-_][0-9]{4,6}\b'
+
+  - type: TRANSACTION_CODE
+    pattern: 'TXN-[A-Z0-9]{8}'
+
+# Custom dictionary rules (Tier 0) — exact match, case-insensitive ────────────
+dictionaries:
+  - type: INTERNAL_PROJECT
+    terms:
+      - "Project Apollo"
+      - "Operation Starlight"
+
+# Tier 2 Domain Sidecars ──────────────────────────────────────────────────────
+# domain_snapshot sets the active AI model for this deployment.
+# Each entry in tier2_domain_sidecars maps a domain name to a sidecar URL that
+# exposes GET /health and POST /scan {"text":"..."} → {"TYPE":["value"]}.
+#
+# Default: openai/privacy-filter — strong multilingual PII coverage.
+# Alternative: piiranha-v1 — optimized for mixed-language corpora.
+domain_snapshot: standard
+
+# To use piiranha-v1:
+#   PRIVACY_FILTER_MODEL_PATH=iiiorg/piiranha-v1-detect-personal-information \
+#   MODEL_SCHEMA=piiranha PORT=8086 \
+#   python apps/slm-engine/python/serve_privacy_filter.py
+```
+
+After editing, apply by restarting:
+```bash
+# Proxy stack:
+docker compose restart ocultar-proxy
+
+# Standalone binary — just re-run it; config is loaded at startup.
+```
+
+**Testing a new rule:**
+```bash
+echo "Patient PTN-001234 was admitted." | ./ocultar
+# Expected: Patient [PATIENT_ID_3f1a9c2b] was admitted.
+```
+
+---
+
+## 5. Policy-as-Code (Governance)
+
+Policies are evaluated **after PII detection, before the refined output is returned**. They let you enforce data-governance rules without writing code — just YAML in `configs/config.yaml`.
+
+### Policy Schema
+
+```yaml
+policies:
+  - name: <string>          # human-readable rule name (appears in audit log + 403 body)
+    when:
+      entity: [<TYPE>, ...]  # entity types to match (use "*" for any)
+      min_confidence: 0.0    # optional float 0.0–1.0; skip hits below this threshold
+    action: block            # "block" → HTTP 403 | "redact" → default behavior
+```
+
+### Example Policies
+
+```yaml
+policies:
+  # Hard-stop any request containing medical/sensitive life-event data
+  - name: block-health-data
+    when:
+      entity: [HEALTH_ENTITY, SENSITIVE_EVENT]
+      min_confidence: 0.8
+    action: block
+
+  # Block exposed credentials immediately — regardless of confidence
+  - name: block-credentials-always
+    when:
+      entity: [CREDENTIAL, SECRET, AWS_KEY, AWS_SECRET]
+    action: block
+
+  # Financial identifiers — redact (default), no hard block
+  - name: redact-financials
+    when:
+      entity: [IBAN, CREDIT_CARD, SSN]
+    action: redact
+```
+
+### Block Response
+
+A blocked request returns `HTTP 403` with a sanitized body — no raw PII values are included:
+
+```json
+{
+  "error":          "policy_violation",
+  "message":        "Request blocked by policy 'block-health-data'.",
+  "policy":         "block-health-data",
+  "blocked_entity": "HEALTH_ENTITY"
+}
+```
+
+The block event is recorded in the audit log with action `POLICY_BLOCK`.
+
+### Compliance Evidence Endpoint
+
+Pull a compliance snapshot for any SOC 2 / ISO 27001 audit tool:
+
+```bash
+curl http://localhost:8080/api/compliance/evidence
+```
+
+Returns: vault entry count, active policy list, tier coverage, and the last 10 audit log entries. No credentials required — protect with network ACL in production.
+
+---
+
+## 6. Dictionary Shield (`configs/protected_entities.json`)
+
+
+`configs/protected_entities.json` is the **Tier 0 Dictionary Shield** — a mandatory fail-closed dependency. The refinery **will not start** if this file is missing or empty.
+
+```json
+["Alice Martin", "Project Phoenix", "Ouroboros Protocol"]
+```
+
+These terms are matched case-insensitively before any regex or AI scan, guaranteeing 100% recall for known sensitive entities.
+
+> **Required even if empty-looking:** The file must contain at least one entry. An empty JSON array `[]` causes a fatal startup error by design.
+
+When using Docker Compose, this file is baked into the Docker image at build time. If you need to update it, rebuild the image:
+```bash
+docker compose build ocultar-proxy
+docker compose up -d ocultar-proxy
+```
+
+---
+
+## 7. PostgreSQL HA Vault (Optional)
+
+By default, OCULTAR uses an embedded DuckDB file (`vault.db`). For production multi-node deployments, switch to PostgreSQL:
+
+### Step 1 — Provision PostgreSQL
+
+Use any PostgreSQL 14+ instance: AWS RDS, Google CloudSQL, Azure Database, or a Docker container.
+
+### Step 2 — Configure the vault backend
+
+In `configs/config.yaml`:
+```yaml
+vault_backend: postgres
+postgres_dsn: "host=db.corp.internal port=5432 user=ocultar password=<secret> dbname=ocultar_vault sslmode=require"
+```
+
+The `vault` table schema is created automatically on first startup:
+```sql
+-- Auto-created by OCULTAR on startup:
+CREATE TABLE IF NOT EXISTS vault (
+    hash          TEXT PRIMARY KEY,
+    token         TEXT NOT NULL,
+    encrypted_pii TEXT NOT NULL
+);
+```
+
+### Step 3 — Deploy multiple proxy instances
+
+With a shared PostgreSQL vault, you can run as many `ocultar-proxy` containers as needed behind a load balancer. Each instance can handle up to 15 concurrent requests (semaphore-limited to match the PostgreSQL connection pool).
+
+---
+
+## 8. SIEM Audit Log
+
+When `OCU_AUDIT_PRIVATE_KEY` is set, every vault event is written as a structured JSON line to `audit.log`.
+
+**Format:**
+```json
+{"timestamp":"2026-03-06T14:00:00Z","actor":"192.168.1.1","action":"vaulted","token":"[EMAIL_9c8f7a1b]"}
+{"timestamp":"2026-03-06T14:00:01Z","actor":"192.168.1.1","action":"matched","token":"[EMAIL_9c8f7a1b]"}
+```
+
+| Field | Description |
+|---|---|
+| `timestamp` | ISO-8601 UTC |
+| `actor` | Client IP or `X-Forwarded-For` value |
+| `action` | `"vaulted"` = new PII stored; `"matched"` = existing token returned from cache |
+| `token` | The token string (never the original PII) |
+
+**Location in Docker:**
+```bash
+docker exec ocultar-proxy tail -f /app/audit.log
+```
+
+**SIEM integration:**
+- **Splunk**: Use the `monitor` stanza to ingest the log file
+- **Elastic**: Filebeat with `json.message_key: token` for structured parsing
+- **Datadog**: Fluent Bit sidecar with `Parser json`
+
+Satisfies **GDPR Article 32(1)(d)** — logging of all processing events without exposing raw PII.
+
+---
+
+## 9. Compliance Dashboard
+
+The compliance dashboard is available in **Deployment Mode A** (standalone binary) at:
+
+**http://localhost:3030/index.html**
+
+### Running an Audit
+
+1. Open the dashboard
+2. Paste or upload your data in the **Raw Input** panel
+3. Click **Execute Policy Audit**
+
+The dashboard renders:
+- **Extraction Breakdown**: PII entity counts by type (EMAIL, PERSON, HEALTH, CREDIT_CARD, etc.)
+- **Regulatory Risk Matrix**: Per-framework compliance status (GDPR, HIPAA, AI Act, BSI C5, NIS2, ISO 27001)
+- **Redacted Output**: The clean, token-substituted version of your data
+- **Vault Metrics**: Live count of unique PII entries, reuse rate, Deep Scan (SLM) health status
+
+### CLI Audit for CI/CD Gates
+
+```bash
+# Generate a JSON compliance report (non-zero exit if PII detected):
+./ocultar --dry-run < dataset.json
+echo "Exit code: $?"
+
+# Or pipe to jq to extract the PII count:
+./ocultar --report < dataset.json 2>&1 | grep '"total_pii_count"'
+```
+
+---
+
+## 10. Key Rotation
+
+> ⚠️ Key rotation is a **destructive operation** if your vault already contains entries.
+
+**If you must rotate `OCU_MASTER_KEY` or `OCU_SALT`:**
+
+1. Export all vault tokens before rotation (re-hydrate while the old key is still active).
+2. Stop all OCULTAR services.
+3. Clear the vault: `rm vault.db` (DuckDB) or `TRUNCATE vault;` (PostgreSQL).
+4. Update `OCU_MASTER_KEY` / `OCU_SALT` in `.env`.
+5. Restart services — a fresh vault will be created.
+
+**Rotating `OCU_JWT_SECRET` (Sombra gateway):**
+
+This is a non-destructive rotation — no vault data depends on this key.
+
+1. Generate a new secret: `openssl rand -hex 32`
+2. Update in Doppler: `doppler secrets set OCU_JWT_SECRET=<new_value>`
+3. Restart Sombra. All existing clients must present JWTs signed with the new secret immediately after restart — there is no grace period for old tokens.
+
+---
+
+## 11. Shutting Down
+
+**Proxy stack:**
+```bash
+docker compose down        # stops containers, keeps vault and model volumes
+docker compose down -v     # stops containers + deletes ALL volumes (vault.db AND the Qwen model cache)
+```
+
+> ⚠️ `docker compose down -v` also deletes the `slm_data` volume. The next `docker compose up` will re-download the Qwen model (~1.2 GB). Omit `-v` if you want to preserve the model cache.
+
+**Standalone binary:** `Ctrl+C` — the vault file (`vault.db`) is preserved.
+
+---
+
+## 12. Troubleshooting
+
+| Symptom | Likely Cause | Fix |
+|---|---|---|
+| `[FATAL] Failed reading protected_entities.json!` | File missing from `configs/` | Create the file with at least one entry (see §6) |
+| `[FATAL] protected_entities.json … contains zero entries` | File is `[]` | Add at least one string to the JSON array |
+| `[!] FATAL: OCU_MASTER_KEY must be set` | `.env` not loaded or key missing | Confirm `source .env` before running binary, or check Docker env vars |
+| `init-slm` exits with non-zero code | HuggingFace download failed or network issue | Check `docker compose logs ocultar-init-slm`; ensure outbound HTTPS to `huggingface.co` is allowed, then `docker compose up -d` again (download resumes) |
+| `slm-ner` never becomes healthy | Model file corrupt or insufficient RAM | Check `docker compose logs slm-ner`; ensure ≥ 4 GB RAM free. Delete the volume (`docker compose down -v`) and re-download if the GGUF file is corrupt |
+| Proxy returns `429 Too Many Requests` | More than 15 concurrent requests | Scale horizontally with PostgreSQL vault (see §7) |
+| Audit log is empty | `OCU_AUDIT_PRIVATE_KEY` not set | Set the env var and restart — see §8 |
+| Sombra returns `401 Unauthorized` | `OCU_JWT_SECRET` unset or client sending unsigned/expired token | Check startup logs for `[WARN] OCU_JWT_SECRET is not set`; ensure clients send a valid HS256 JWT in `Authorization: Bearer <token>` |
+
