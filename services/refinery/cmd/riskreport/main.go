@@ -107,7 +107,7 @@ const mdTemplate = `# OCULTAR Data Risk Assessment Report
 | **Dataset Scope** | ` + "`" + `{{.Meta.DatasetScope}}` + "`" + ` |
 | **Records Analysed** | {{.Meta.TotalRecords}} |
 | **Methodology Version** | v{{.Meta.MethodologyVersion}} |
-| **Engine** | OCULTAR Enterprise {{.Meta.EngineVersion}} |
+| **Engine** | Ocultar {{.Meta.EngineVersion}} |
 
 ---
 
@@ -201,7 +201,7 @@ The **Value at Risk (VaR)** range below is computed using a three-component meth
 
 ## Before / After Simulation
 
-This section demonstrates the modelled impact of the OCULTAR Enterprise pipeline on your dataset's risk profile. Figures are projected estimates based on typical processing outcomes.
+This section demonstrates the modelled impact of the Ocultar pipeline on your dataset's risk profile. Figures are projected estimates based on typical processing outcomes.
 
 | Metric | {{.Before.Label}} | {{.After.Label}} |
 | :--- | :--- | :--- |
@@ -254,11 +254,11 @@ This report applies the following analytical frameworks:
 - **Industry Breach Cost Benchmarks**: Operational cost ranges sourced from published annual breach cost studies (range: €100–€300/record).
 - **ISO/IEC 29101**: Privacy architecture framework for ICT systems.
 
-> This report was generated automatically by OCULTAR Enterprise {{.Meta.EngineVersion}}. Findings are based on the dataset provided at time of analysis and constitute a technical assessment only. Engage qualified legal counsel for regulatory compliance determinations.
+> This report was generated automatically by Ocultar {{.Meta.EngineVersion}}. Findings are based on the dataset provided at time of analysis and constitute a technical assessment only. Engage qualified legal counsel for regulatory compliance determinations.
 
 ---
 
-*OCULTAR Enterprise {{.Meta.EngineVersion}} | Methodology v{{.Meta.MethodologyVersion}} | Report ID: OCU-{{.Meta.ReportID}}*
+*Ocultar {{.Meta.EngineVersion}} | Methodology v{{.Meta.MethodologyVersion}} | Report ID: OCU-{{.Meta.ReportID}}*
 *Generated: {{.Meta.GeneratedAt}}*
 `
 
@@ -575,13 +575,13 @@ const htmlTemplate = `<!DOCTYPE html>
       {{end}}
       
       <div class="step numbered-step"><div class="step-num"></div><div class="step-body"><strong>Format-Preserving Encryption (FPE)</strong><p>Apply FPE to IBAN and financial fields to maintain data utility for analytics while preventing plaintext exposure.</p></div></div>
-      <div class="step numbered-step"><div class="step-num"></div><div class="step-body"><strong>Automate via OCULTAR Pipeline</strong><p>All steps above can be automated via the OCULTAR Enterprise proxy. Route your LLM API calls through the proxy and all PII is intercepted and redacted in real-time, with zero changes to your application code.</p></div></div>
+      <div class="step numbered-step"><div class="step-num"></div><div class="step-body"><strong>Automate via Ocultar</strong><p>All steps above can be automated via the Ocultar proxy. Route your LLM API calls through the proxy and all PII is intercepted and redacted in real-time, with zero changes to your application code.</p></div></div>
     </div>
   </div>
 
   <!-- Footer -->
   <div class="footer">
-    OCULTAR Enterprise {{.Meta.EngineVersion}} | Methodology v{{.Meta.MethodologyVersion}} | Report OCU-{{.Meta.ReportID}}<br>
+    Ocultar {{.Meta.EngineVersion}} | Methodology v{{.Meta.MethodologyVersion}} | Report OCU-{{.Meta.ReportID}}<br>
     This report was generated automatically. All findings are based on the dataset provided at time of analysis and constitute a technical assessment only.<br>
     Standards referenced: GDPR (context) · ISO/IEC 29101 · Industry Breach Cost Benchmarks
   </div>

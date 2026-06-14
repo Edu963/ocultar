@@ -446,7 +446,7 @@ func AnalyzeDatasetRisk(dataset []map[string]interface{}, quasiIdentifiers []str
 			"  1. **Tokenization** — Replace Names, IBANs, and Email addresses with OCULTAR vault tokens.\n" +
 			"  2. **Generalization** — Replace precise Region values with broader geographic tiers to increase K-Anonymity group size.\n" +
 			"  3. **Format-Preserving Encryption (FPE)** — Encrypt IBAN fields while preserving format for analytics.\n" +
-			"  All steps above can be automated via the OCULTAR Enterprise pipeline."
+			"  All steps above can be automated via the Ocultar pipeline."
 	}
 
 	return RiskReport{

@@ -1478,7 +1478,7 @@ const mdTemplate = `# OCULTAR Data Risk Assessment Report
 | **Dataset Scope** | ` + "`" + `{{.Meta.DatasetScope}}` + "`" + ` |
 | **Records Analysed** | {{.Meta.TotalRecords}} |
 | **Methodology Version** | v{{.Meta.MethodologyVersion}} |
-| **Engine** | OCULTAR Enterprise {{.Meta.EngineVersion}} |
+| **Engine** | Ocultar {{.Meta.EngineVersion}} |
 
 ---
 
@@ -1572,7 +1572,7 @@ The **Value at Risk (VaR)** range below is computed using a three-component meth
 
 ## Before / After Simulation
 
-This section demonstrates the modelled impact of the OCULTAR Enterprise pipeline on your dataset's risk profile. Figures are projected estimates based on typical processing outcomes.
+This section demonstrates the modelled impact of the Ocultar pipeline on your dataset's risk profile. Figures are projected estimates based on typical processing outcomes.
 
 | Metric | {{.Before.Label}} | {{.After.Label}} |
 | :--- | :--- | :--- |
@@ -1615,11 +1615,11 @@ This report applies the following analytical frameworks:
 - **GDPR Article 5(1)(f)**
 - **ISO/IEC 29101**
 
-> This report was generated automatically by OCULTAR Enterprise {{.Meta.EngineVersion}}. technical assessment only.
+> This report was generated automatically by Ocultar {{.Meta.EngineVersion}}. Technical assessment only.
 
 ---
 
-*OCULTAR Enterprise {{.Meta.EngineVersion}} | Methodology v{{.Meta.MethodologyVersion}} | Report ID: OCU-{{.Meta.ReportID}}*
+*Ocultar {{.Meta.EngineVersion}} | Methodology v{{.Meta.MethodologyVersion}} | Report ID: OCU-{{.Meta.ReportID}}*
 *Generated: {{.Meta.GeneratedAt}}*
 `
 
