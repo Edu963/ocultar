@@ -56,7 +56,7 @@ Data/Prompt → Sombra/Proxy → Tier 0/1/2 Redaction → Encrypted Vault Storag
 *Prerequisites: Go 1.22+ with CGO enabled (GCC required for DuckDB).*
 1. **Clone the Repo:** 
    ```bash
-   git clone https://github.com/Edu963/ocultar.git
+   git clone https://github.com/getki-ai/ocultar.git
    cd ocultar
    ```
 2. **Setup Dictionary Shield:** Ensure `configs/protected_entities.json` exists with at least an empty JSON array `[]` or dummy terms `["Project Nightshade"]`. OCULTAR fails safely (Fail-Closed) and won't start without it.

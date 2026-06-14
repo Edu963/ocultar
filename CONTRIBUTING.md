@@ -25,7 +25,7 @@ to go from zero to a merged pull request.
 
 ## Before you start
 
-- Check [open issues](https://github.com/Edu963/ocultar/issues) to avoid duplicate work.
+- Check [open issues](https://github.com/getki-ai/ocultar/issues) to avoid duplicate work.
 - For large changes, open an issue first to discuss the approach before writing code.
 - Security vulnerabilities must **not** be reported as public issues — see [Reporting security vulnerabilities](#reporting-security-vulnerabilities).
 
@@ -45,7 +45,7 @@ to go from zero to a merged pull request.
 **Clone and verify:**
 
 ```bash
-git clone https://github.com/Edu963/ocultar.git
+git clone https://github.com/getki-ai/ocultar.git
 cd ocultar
 CGO_ENABLED=1 go build ./...
 CGO_ENABLED=1 go test ./...
@@ -240,7 +240,7 @@ minimums pass before submitting the PR.
 
 ## Reporting bugs
 
-Open a [GitHub issue](https://github.com/Edu963/ocultar/issues/new?template=bug_report.md)
+Open a [GitHub issue](https://github.com/getki-ai/ocultar/issues/new?template=bug_report.md)
 with:
 
 - Ocultar version (`/api/health` → `version` field)

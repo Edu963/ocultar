@@ -3,7 +3,7 @@ package connector_test
 import (
 	"testing"
 
-	"github.com/Edu963/ocultar/apps/sombra/pkg/connector"
+	"github.com/getki-ai/ocultar/apps/sombra/pkg/connector"
 )
 
 // ── DataPolicy.IsModelAllowed ─────────────────────────────────────────────────

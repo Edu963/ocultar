@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Edu963/ocultar/apps/sombra/pkg/router"
+	"github.com/getki-ai/ocultar/apps/sombra/pkg/router"
 )
 
 // ── router.New ────────────────────────────────────────────────────────────────

@@ -6,7 +6,7 @@ package vault
 import (
 	"fmt"
 
-	"github.com/Edu963/ocultar/pkg/config"
+	"github.com/getki-ai/ocultar/pkg/config"
 )
 
 // EntitySeed defines a single entity for bulk-seeding into the registry.

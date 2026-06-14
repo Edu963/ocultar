@@ -20,4 +20,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Shield Manager Dashboard**: React-based UI for live redaction testing and system monitoring.
 
 ---
-[1.14.0]: https://github.com/Edu963/ocultar/releases/tag/v1.14.0
+[1.14.0]: https://github.com/getki-ai/ocultar/releases/tag/v1.14.0

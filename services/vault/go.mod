@@ -1,4 +1,4 @@
-module github.com/Edu963/ocultar/vault
+module github.com/getki-ai/ocultar/vault
 
 go 1.24.0
 

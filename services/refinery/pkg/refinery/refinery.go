@@ -17,9 +17,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/Edu963/ocultar/internal/pii"
-	"github.com/Edu963/ocultar/pkg/config"
-	"github.com/Edu963/ocultar/vault"
+	"github.com/getki-ai/ocultar/internal/pii"
+	"github.com/getki-ai/ocultar/pkg/config"
+	"github.com/getki-ai/ocultar/vault"
 )
 
 // AuditLogger defines the interface for the SIEM audit logger

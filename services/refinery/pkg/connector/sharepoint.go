@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Edu963/ocultar/pkg/refinery"
+	"github.com/getki-ai/ocultar/pkg/refinery"
 )
 
 // SharePointConnector implements the Connector interface for MS Graph.

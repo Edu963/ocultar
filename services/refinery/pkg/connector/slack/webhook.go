@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Edu963/ocultar/pkg/refinery"
+	"github.com/getki-ai/ocultar/pkg/refinery"
 )
 
 // EventWebhook is an http.Handler for the Slack Events API (push mode).

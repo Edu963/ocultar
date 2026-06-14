@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: edu963/ocultar
+  IMAGE_NAME: getki-ai/ocultar
 
 jobs:
   build-and-push:

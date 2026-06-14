@@ -14,7 +14,7 @@ docker run --rm -p 4141:4141 \
   -e OCU_MASTER_KEY=<64-hex-chars> \
   -e OCU_SALT=<32-hex-chars> \
   -e OCU_AUDITOR_TOKEN=<your-secret-token> \
-  ghcr.io/edu963/ocultar:latest -serve 4141
+  ghcr.io/getki-ai/ocultar:latest -serve 4141
 ```
 
 ### Installation

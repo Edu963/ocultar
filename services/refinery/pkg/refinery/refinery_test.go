@@ -5,9 +5,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/Edu963/ocultar/pkg/config"
-	"github.com/Edu963/ocultar/pkg/refinery"
-	"github.com/Edu963/ocultar/vault"
+	"github.com/getki-ai/ocultar/pkg/config"
+	"github.com/getki-ai/ocultar/pkg/refinery"
+	"github.com/getki-ai/ocultar/vault"
 )
 
 type qaTestCase struct {

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Edu963/ocultar/internal/pii"
+	"github.com/getki-ai/ocultar/internal/pii"
 )
 
 // TestAdversarialVectors verifies that the Tier 1 engine catches PII that has

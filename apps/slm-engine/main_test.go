@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Edu963/ocultar/apps/slm-engine/pkg/inference"
+	"github.com/getki-ai/ocultar/apps/slm-engine/pkg/inference"
 )
 
 // mockEngine is a test double for inference.Tier2Engine that returns

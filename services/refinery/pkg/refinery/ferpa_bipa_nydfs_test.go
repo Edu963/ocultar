@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Edu963/ocultar/pkg/config"
-	"github.com/Edu963/ocultar/vault"
+	"github.com/getki-ai/ocultar/pkg/config"
+	"github.com/getki-ai/ocultar/vault"
 )
 
 // setupComplianceRefinery creates a temporary vault and refinery for compliance tests.

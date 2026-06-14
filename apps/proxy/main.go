@@ -11,12 +11,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Edu963/ocultar/pkg/audit"
-	"github.com/Edu963/ocultar/pkg/config"
-	"github.com/Edu963/ocultar/pkg/proxy"
-	"github.com/Edu963/ocultar/pkg/refinery"
-	"github.com/Edu963/ocultar/pkg/inference"
-	"github.com/Edu963/ocultar/vault"
+	"github.com/getki-ai/ocultar/pkg/audit"
+	"github.com/getki-ai/ocultar/pkg/config"
+	"github.com/getki-ai/ocultar/pkg/proxy"
+	"github.com/getki-ai/ocultar/pkg/refinery"
+	"github.com/getki-ai/ocultar/pkg/inference"
+	"github.com/getki-ai/ocultar/vault"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/crypto/hkdf"
 )

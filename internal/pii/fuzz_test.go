@@ -5,7 +5,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/Edu963/ocultar/internal/pii"
+	"github.com/getki-ai/ocultar/internal/pii"
 )
 
 // FuzzScan feeds arbitrary byte sequences to the PII engine and verifies that:

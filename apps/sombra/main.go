@@ -9,14 +9,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/Edu963/ocultar/apps/sombra/pkg/connector"
-	"github.com/Edu963/ocultar/apps/sombra/pkg/handler"
-	"github.com/Edu963/ocultar/apps/sombra/pkg/router"
-	"github.com/Edu963/ocultar/pkg/audit"
-	"github.com/Edu963/ocultar/pkg/config"
-	"github.com/Edu963/ocultar/pkg/inference"
-	"github.com/Edu963/ocultar/pkg/refinery"
-	"github.com/Edu963/ocultar/vault"
+	"github.com/getki-ai/ocultar/apps/sombra/pkg/connector"
+	"github.com/getki-ai/ocultar/apps/sombra/pkg/handler"
+	"github.com/getki-ai/ocultar/apps/sombra/pkg/router"
+	"github.com/getki-ai/ocultar/pkg/audit"
+	"github.com/getki-ai/ocultar/pkg/config"
+	"github.com/getki-ai/ocultar/pkg/inference"
+	"github.com/getki-ai/ocultar/pkg/refinery"
+	"github.com/getki-ai/ocultar/vault"
 	"golang.org/x/crypto/hkdf"
 )
 

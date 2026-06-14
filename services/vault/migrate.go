@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Edu963/ocultar/pkg/config"
+	"github.com/getki-ai/ocultar/pkg/config"
 )
 
 // MigrateDuckDBtoPostgres reads all records from the DuckDB provider and inserts them into PostgreSQL.

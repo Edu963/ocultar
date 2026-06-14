@@ -3,7 +3,7 @@ package refinery
 import (
 	"testing"
 
-	"github.com/Edu963/ocultar/pkg/config"
+	"github.com/getki-ai/ocultar/pkg/config"
 )
 
 // Note: MockVault and its entity-registry stubs are defined in slm_domain_test.go.

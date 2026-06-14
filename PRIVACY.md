@@ -64,7 +64,7 @@ OCULTAR is a developer infrastructure tool not directed at children. We do not k
 
 ## 9. Changes to This Policy
 
-Material changes will be noted in the [CHANGELOG](https://github.com/Edu963/ocultar/blob/main/CHANGELOG.md) and reflected in the effective date above.
+Material changes will be noted in the [CHANGELOG](https://github.com/getki-ai/ocultar/blob/main/CHANGELOG.md) and reflected in the effective date above.
 
 ---
 

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Edu963/ocultar/pkg/refinery"
+	"github.com/getki-ai/ocultar/pkg/refinery"
 )
 
 // Refiner bridges the Sombra Gateway to the core OCULTAR Engine.

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Edu963/ocultar/apps/slm-engine/pkg/inference"
+	"github.com/getki-ai/ocultar/apps/slm-engine/pkg/inference"
 )
 
 var scanner inference.Tier2Engine

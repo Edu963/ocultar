@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	
-	"github.com/Edu963/ocultar/internal/pii"
+	"github.com/getki-ai/ocultar/internal/pii"
 )
 
 // ApplyBucketing generalises a given numeric string into a statistical range (e.g., age 34 -> "30-40")

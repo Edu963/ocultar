@@ -9,7 +9,7 @@ This guide covers how to run OCULTAR locally, package it for a client, and use t
 The fastest path to a working demo. You only need [Docker](https://docs.docker.com/get-docker/) and Docker Compose v2 — no secrets manager, no Go toolchain.
 
 ```bash
-git clone https://github.com/Edu963/ocultar
+git clone https://github.com/getki-ai/ocultar
 cd ocultar
 docker compose up --build
 ```

@@ -27,7 +27,7 @@
 OCULTAR uses a **Go Workspace** (`go.work`) to manage multiple modules in a single repository:
 
 ```
-ocultar/                          ← root — shared library (github.com/Edu963/ocultar)
+ocultar/                          ← root — shared library (github.com/getki-ai/ocultar)
 ├── go.mod
 ├── go.work                         ← workspace definition
 │
@@ -104,7 +104,7 @@ use (
 
 ```bash
 # Clone
-git clone https://github.com/Edu963/ocultar.git
+git clone https://github.com/getki-ai/ocultar.git
 cd ocultar
 
 # (Optional) add Sombra if you need gateway development
@@ -282,9 +282,9 @@ You can import the refinery directly into your own Go service:
 
 ```go
 import (
-    "github.com/Edu963/ocultar/pkg/config"
-    "github.com/Edu963/ocultar/pkg/refinery"
-    "github.com/Edu963/ocultar/pkg/vault"
+    "github.com/getki-ai/ocultar/pkg/config"
+    "github.com/getki-ai/ocultar/pkg/refinery"
+    "github.com/getki-ai/ocultar/pkg/vault"
     "crypto/sha256"
 )
 
@@ -317,9 +317,9 @@ func main() {
 }
 ```
 
-> Add `github.com/Edu963/ocultar` to your `go.mod`:
+> Add `github.com/getki-ai/ocultar` to your `go.mod`:
 > ```bash
-> go get github.com/Edu963/ocultar@latest
+> go get github.com/getki-ai/ocultar@latest
 > ```
 
 ---

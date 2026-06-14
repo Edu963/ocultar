@@ -25,7 +25,7 @@ docker run --rm -p 4141:4141 \
   -e OCU_MASTER_KEY \
   -e OCU_SALT \
   -e OCU_AUDITOR_TOKEN \
-  ghcr.io/edu963/ocultar:latest -serve 4141
+  ghcr.io/getki-ai/ocultar:latest -serve 4141
 ```
 
 ## Quick start — build from source
@@ -170,7 +170,7 @@ privacy-filter protocol (default).
 Requires Go 1.24+ with CGO enabled (DuckDB and libphonenumber need a C compiler).
 
 ```bash
-git clone https://github.com/Edu963/ocultar.git
+git clone https://github.com/getki-ai/ocultar.git
 cd ocultar
 make build
 ```

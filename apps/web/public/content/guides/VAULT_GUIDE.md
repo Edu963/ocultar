@@ -94,8 +94,8 @@ Set `OCU_VAULT_PATH` to control where the DuckDB file is written (default: `vaul
 
 ```go
 import (
-    "github.com/Edu963/ocultar/pkg/config"
-    "github.com/Edu963/ocultar/services/vault"
+    "github.com/getki-ai/ocultar/pkg/config"
+    "github.com/getki-ai/ocultar/services/vault"
 )
 
 func main() {

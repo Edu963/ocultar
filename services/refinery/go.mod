@@ -1,14 +1,14 @@
-module github.com/Edu963/ocultar
+module github.com/getki-ai/ocultar
 
 go 1.25.8
 
-replace github.com/Edu963/ocultar/internal/pii => ../../internal/pii
+replace github.com/getki-ai/ocultar/internal/pii => ../../internal/pii
 
-replace github.com/Edu963/ocultar/vault => ../vault
+replace github.com/getki-ai/ocultar/vault => ../vault
 
 require (
-	github.com/Edu963/ocultar/internal/pii v0.0.0-00010101000000-000000000000
-	github.com/Edu963/ocultar/vault v0.0.0-00010101000000-000000000000
+	github.com/getki-ai/ocultar/internal/pii v0.0.0-00010101000000-000000000000
+	github.com/getki-ai/ocultar/vault v0.0.0-00010101000000-000000000000
 	github.com/google/uuid v1.6.0
 	github.com/nyaruka/phonenumbers v1.6.10
 	github.com/prometheus/client_golang v1.23.2

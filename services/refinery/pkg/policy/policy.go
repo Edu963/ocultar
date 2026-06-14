@@ -3,8 +3,8 @@ package policy
 import (
 	"strings"
 
-	"github.com/Edu963/ocultar/internal/pii"
-	"github.com/Edu963/ocultar/pkg/config"
+	"github.com/getki-ai/ocultar/internal/pii"
+	"github.com/getki-ai/ocultar/pkg/config"
 )
 
 // Decision is the result of evaluating all policies against a set of detected entities.

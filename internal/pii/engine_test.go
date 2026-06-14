@@ -2,7 +2,7 @@ package pii_test
 
 import (
 	"testing"
-	"github.com/Edu963/ocultar/internal/pii"
+	"github.com/getki-ai/ocultar/internal/pii"
 )
 
 func TestEngineEvasionResistance(t *testing.T) {

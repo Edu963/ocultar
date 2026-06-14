@@ -3,7 +3,7 @@ package refinery
 import (
 	"testing"
 
-	"github.com/Edu963/ocultar/vault"
+	"github.com/getki-ai/ocultar/vault"
 )
 
 type DomainMockScanner struct {

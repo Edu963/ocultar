@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Edu963/ocultar/pkg/connector"
-	"github.com/Edu963/ocultar/pkg/refinery"
+	"github.com/getki-ai/ocultar/pkg/connector"
+	"github.com/getki-ai/ocultar/pkg/refinery"
 )
 
 func init() {

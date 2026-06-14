@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Edu963/ocultar/pkg/refinery"
-	"github.com/Edu963/ocultar/vault"
+	"github.com/getki-ai/ocultar/pkg/refinery"
+	"github.com/getki-ai/ocultar/vault"
 )
 
 // tokenRe matches OCULTAR vault tokens of the form [TYPE_hexhash8].
