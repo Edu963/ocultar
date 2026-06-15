@@ -255,7 +255,6 @@ func main() {
 	actor := "cli-user"
 	var jsonRaw interface{}
 	if err := json.Unmarshal(inputData, &jsonRaw); err == nil {
-		inputData = nil
 		refinedData, err := eng.ProcessInterface(jsonRaw, actor)
 		if err != nil {
 			log.Fatalf("Refinery failure: %v", err)
@@ -266,7 +265,6 @@ func main() {
 		}
 	} else {
 		lines := strings.Split(string(inputData), "\n")
-		inputData = nil
 		for _, line := range lines {
 			if strings.TrimSpace(line) == "" {
 				continue
@@ -769,14 +767,18 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		}
 		defer file.Close()
 
-		// Save to uploads
-		filename := fmt.Sprintf("%d_%s", time.Now().Unix(), handler.Filename)
+		// Save to uploads — filepath.Base strips any "../" traversal from the
+		// browser-supplied filename before joining it into the upload directory.
+		safeBase := filepath.Base(handler.Filename)
+		filename := fmt.Sprintf("%d_%s", time.Now().Unix(), safeBase)
 		dstPath := filepath.Join("pilot_data/uploads", filename)
-		dst, _ := os.Create(dstPath)
-		if dst != nil {
-			io.Copy(dst, file)
-			dst.Close()
+		dst, err := os.Create(dstPath)
+		if err != nil {
+			http.Error(w, "Failed to save file", http.StatusInternalServerError)
+			return
 		}
+		io.Copy(dst, file)
+		dst.Close()
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{"filename": filename, "original_name": handler.Filename})
@@ -1378,13 +1380,17 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		json.NewEncoder(w).Encode(map[string]interface{}{"seeded": len(tokens), "tokens": tokens})
 	})
 
-	port := servePort
-	if strings.HasPrefix(port, ":") {
-		port = port[1:] // strip leading colon — we build the full addr below
-	}
+	port := strings.TrimPrefix(servePort, ":")
 	addr := "127.0.0.1:" + port
 	fmt.Printf("OCULTAR REST API running on http://%s\n", addr)
-	log.Fatal(http.ListenAndServe(addr, corsHandler(http.DefaultServeMux)))
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           corsHandler(http.DefaultServeMux),
+		ReadHeaderTimeout: 10 * time.Second,
+		IdleTimeout:       120 * time.Second,
+		// WriteTimeout is intentionally unset: LLM streaming responses are long-lived.
+	}
+	log.Fatal(srv.ListenAndServe())
 }
 
 func readLastLines(path string, count int) ([]string, error) {

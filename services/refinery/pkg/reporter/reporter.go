@@ -87,12 +87,10 @@ func (r *Reporter) ParseAuditLog(filePath string) (*Metrics, error) {
 
 			// Extract PII type from result, e.g. "[EMAIL_836f82db]"
 			matches := tokenRegex.FindStringSubmatch(entry.Result)
-			piiType := "UNKNOWN"
+			var piiType string
 			if len(matches) > 1 {
 				piiType = matches[1]
 			} else {
-				// Sometimes result might just be the raw string if not a standard token, fallback
-				// In OCULTAR, result is always the token.
 				piiType = "UNKNOWN_TOKEN"
 			}
 

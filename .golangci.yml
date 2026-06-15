@@ -1,17 +1,16 @@
+version: "2"
+
 linters:
   enable:
     - errcheck
-    - gosimple
     - govet
     - ineffassign
     - staticcheck
-    - unused
     - gosec
-
-linters-settings:
-  gosec:
-    excludes:
-      - G304   # file path from variable — expected in vault/config code
+  settings:
+    gosec:
+      excludes:
+        - G304   # file path from variable — expected in vault/config code
 
 issues:
   exclude-dirs:

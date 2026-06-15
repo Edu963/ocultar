@@ -356,7 +356,7 @@ var hopByHopHeaders = map[string]bool{
 
 func copyRequestHeaders(dst, src http.Header) {
 	for k, vv := range src {
-		if hopByHopHeaders[strings.Title(k)] || hopByHopHeaders[k] {
+		if hopByHopHeaders[http.CanonicalHeaderKey(k)] {
 			continue
 		}
 		for _, v := range vv {
@@ -367,7 +367,7 @@ func copyRequestHeaders(dst, src http.Header) {
 
 func copyResponseHeaders(dst, src http.Header) {
 	for k, vv := range src {
-		if hopByHopHeaders[strings.Title(k)] || hopByHopHeaders[k] {
+		if hopByHopHeaders[http.CanonicalHeaderKey(k)] {
 			continue
 		}
 		for _, v := range vv {

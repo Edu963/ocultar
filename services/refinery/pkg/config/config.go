@@ -312,7 +312,7 @@ func UpdateSystemLimits(concurrency int, queue int) {
 func Save() error {
 	backupData, err := os.ReadFile("configs/config.yaml")
 	if err == nil {
-		os.WriteFile("configs/config.yaml.bak", backupData, 0644)
+		os.WriteFile("configs/config.yaml.bak", backupData, 0600)
 	}
 
 	var protected []string
@@ -328,7 +328,7 @@ func Save() error {
 
 	if len(protected) > 0 {
 		b, _ := json.MarshalIndent(protected, "", "  ")
-		os.WriteFile("configs/protected_entities.json", b, 0644)
+		os.WriteFile("configs/protected_entities.json", b, 0600)
 	}
 
 	saveObj := Global
@@ -338,5 +338,5 @@ func Save() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile("configs/config.yaml", b, 0644)
+	return os.WriteFile("configs/config.yaml", b, 0600)
 }
