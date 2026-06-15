@@ -5,7 +5,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/testutil"
 
-	"github.com/getki-ai/ocultar-proxy/metrics"
+	"github.com/ocultar-dev/ocultar-proxy/metrics"
 )
 
 func TestRequestsTotal_Increments(t *testing.T) {

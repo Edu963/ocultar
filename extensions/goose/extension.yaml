@@ -8,7 +8,7 @@ description: >
 version: 0.1.0
 author: ocultar-dev
 license: Apache-2.0
-repository: https://github.com/getki-ai/ocultar
+repository: https://github.com/ocultar-dev/ocultar
 tags:
   - security
   - privacy

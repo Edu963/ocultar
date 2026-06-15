@@ -15,8 +15,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/router"
-	"github.com/getki-ai/ocultar/pkg/proxy"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/router"
+	"github.com/ocultar-dev/ocultar/pkg/proxy"
 )
 
 type SlackEventPayload struct {

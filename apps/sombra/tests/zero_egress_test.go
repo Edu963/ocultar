@@ -9,12 +9,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/connector"
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/handler"
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/router"
-	"github.com/getki-ai/ocultar/pkg/config"
-	"github.com/getki-ai/ocultar/pkg/refinery"
-	"github.com/getki-ai/ocultar/vault"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/connector"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/handler"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/router"
+	"github.com/ocultar-dev/ocultar/pkg/config"
+	"github.com/ocultar-dev/ocultar/pkg/refinery"
+	"github.com/ocultar-dev/ocultar/vault"
 )
 
 // capturingAdapter records the exact message content sent to the upstream AI.

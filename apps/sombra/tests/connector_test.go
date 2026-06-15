@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/connector"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/connector"
 )
 
 func TestFileConnector_Fetch(t *testing.T) {

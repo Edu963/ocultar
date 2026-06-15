@@ -22,7 +22,7 @@ Initial public release.
 - Tier 2 circuit breaker: automatic Tier 1 fallback when SLM sidecar is unavailable
 - Claude MCP extension (`extensions/claude/`)
 - Goose MCP extension (`extensions/goose/`)
-- Docker image published to GHCR (`ghcr.io/getki-ai/ocultar`)
+- Docker image published to GHCR (`ghcr.io/ocultar-dev/ocultar`)
 - Cosign-signed Docker images (Sigstore keyless)
 - SBOM published with each release (CycloneDX JSON)
 

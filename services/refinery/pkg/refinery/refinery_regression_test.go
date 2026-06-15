@@ -14,9 +14,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/getki-ai/ocultar/pkg/config"
-	"github.com/getki-ai/ocultar/pkg/refinery"
-	"github.com/getki-ai/ocultar/vault"
+	"github.com/ocultar-dev/ocultar/pkg/config"
+	"github.com/ocultar-dev/ocultar/pkg/refinery"
+	"github.com/ocultar-dev/ocultar/vault"
 )
 
 func newRegressionEngine(t *testing.T) *refinery.Refinery {

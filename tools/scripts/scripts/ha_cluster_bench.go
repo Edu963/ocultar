@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/getki-ai/ocultar/pkg/config"
-	"github.com/getki-ai/ocultar/vault"
+	"github.com/ocultar-dev/ocultar/pkg/config"
+	"github.com/ocultar-dev/ocultar/vault"
 
 	_ "github.com/lib/pq"
 )

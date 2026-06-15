@@ -27,7 +27,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/getki-ai/ocultar"
+Repository = "https://github.com/ocultar-dev/ocultar"
 
 [project.scripts]
 ocultar-goose-mcp = "ocultar_mcp:main_sync"

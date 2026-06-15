@@ -29,7 +29,7 @@
 ## Step 1 — Clone
 
 ```bash
-git clone https://github.com/getki-ai/ocultar
+git clone https://github.com/ocultar-dev/ocultar
 cd ocultar
 cp .env.example .env
 ```

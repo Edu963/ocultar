@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/getki-ai/ocultar/pkg/refinery"
-	"github.com/getki-ai/ocultar/internal/pii"
+	"github.com/ocultar-dev/ocultar/pkg/refinery"
+	"github.com/ocultar-dev/ocultar/internal/pii"
 )
 
 type FileExposure struct {

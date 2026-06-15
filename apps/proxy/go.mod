@@ -1,22 +1,22 @@
-module github.com/getki-ai/ocultar-proxy
+module github.com/ocultar-dev/ocultar-proxy
 
 go 1.25.8
 
-replace github.com/getki-ai/ocultar => ../../services/refinery
+replace github.com/ocultar-dev/ocultar => ../../services/refinery
 
-replace github.com/getki-ai/ocultar/internal/pii => ../../internal/pii
+replace github.com/ocultar-dev/ocultar/internal/pii => ../../internal/pii
 
-replace github.com/getki-ai/ocultar/vault => ../../services/vault
+replace github.com/ocultar-dev/ocultar/vault => ../../services/vault
 
 require (
-	github.com/getki-ai/ocultar v0.0.0-00010101000000-000000000000
-	github.com/getki-ai/ocultar/vault v0.0.0-00010101000000-000000000000
+	github.com/ocultar-dev/ocultar v0.0.0-00010101000000-000000000000
+	github.com/ocultar-dev/ocultar/vault v0.0.0-00010101000000-000000000000
 	github.com/prometheus/client_golang v1.23.2
 	golang.org/x/crypto v0.48.0
 )
 
 require (
-	github.com/getki-ai/ocultar/internal/pii v0.0.0-00010101000000-000000000000 // indirect
+	github.com/ocultar-dev/ocultar/internal/pii v0.0.0-00010101000000-000000000000 // indirect
 	github.com/apache/arrow-go/v18 v18.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

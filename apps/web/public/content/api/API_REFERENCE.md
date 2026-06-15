@@ -1,7 +1,7 @@
 # OCULTAR | API Reference
 
 > **Audience:** Go developers embedding OCULTAR as a library, and operators calling the HTTP API.
-> All types come from `github.com/getki-ai/ocultar`.
+> All types come from `github.com/ocultar-dev/ocultar`.
 
 ---
 

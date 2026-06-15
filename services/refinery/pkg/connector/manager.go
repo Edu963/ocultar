@@ -6,7 +6,7 @@ import (
 	"plugin"
 	"sync"
 
-	"github.com/getki-ai/ocultar/pkg/refinery"
+	"github.com/ocultar-dev/ocultar/pkg/refinery"
 )
 
 // Registry maps connector types to their factory functions.

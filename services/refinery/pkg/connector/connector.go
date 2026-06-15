@@ -2,7 +2,7 @@ package connector
 
 import (
 	"context"
-	"github.com/getki-ai/ocultar/pkg/refinery"
+	"github.com/ocultar-dev/ocultar/pkg/refinery"
 )
 
 // Connector is the interface that all OCULTAR connectors must implement.

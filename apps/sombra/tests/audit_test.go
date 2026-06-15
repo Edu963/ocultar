@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/getki-ai/ocultar/pkg/audit"
+	"github.com/ocultar-dev/ocultar/pkg/audit"
 )
 
 // ── NewImmutableLogger ────────────────────────────────────────────────────────

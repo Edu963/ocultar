@@ -3,7 +3,7 @@ package pii_test
 import (
 	"encoding/json"
 	"testing"
-	"github.com/getki-ai/ocultar/internal/pii"
+	"github.com/ocultar-dev/ocultar/internal/pii"
 )
 
 func TestMappingAlias(t *testing.T) {

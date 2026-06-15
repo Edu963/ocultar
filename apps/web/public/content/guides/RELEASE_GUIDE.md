@@ -90,9 +90,9 @@ The project uses a `go.work` file to manage a multi-module workspace:
 
 ```
 go.work
-├── apps/proxy       (github.com/getki-ai/ocultar/apps/proxy)   ← transparent proxy
-├── apps/sombra      (github.com/getki-ai/ocultar/apps/sombra)  ← Sombra gateway
-├── apps/slm-engine  (github.com/getki-ai/ocultar/apps/slm-engine)
+├── apps/proxy       (github.com/ocultar-dev/ocultar/apps/proxy)   ← transparent proxy
+├── apps/sombra      (github.com/ocultar-dev/ocultar/apps/sombra)  ← Sombra gateway
+├── apps/slm-engine  (github.com/ocultar-dev/ocultar/apps/slm-engine)
 ├── services/refinery
 ├── services/vault
 ├── internal/pii

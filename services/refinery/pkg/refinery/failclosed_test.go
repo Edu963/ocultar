@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getki-ai/ocultar/pkg/config"
-	"github.com/getki-ai/ocultar/pkg/proxy"
-	"github.com/getki-ai/ocultar/pkg/refinery"
-	"github.com/getki-ai/ocultar/vault"
+	"github.com/ocultar-dev/ocultar/pkg/config"
+	"github.com/ocultar-dev/ocultar/pkg/proxy"
+	"github.com/ocultar-dev/ocultar/pkg/refinery"
+	"github.com/ocultar-dev/ocultar/vault"
 )
 
 // frenchPII is the standard input used across all fail-closed tests.

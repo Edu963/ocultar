@@ -3,7 +3,7 @@ package connector_test
 import (
 	"testing"
 
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/handler"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/handler"
 )
 
 // splitAtTokenBoundary is tested via the exported behaviour of streamRehydrator.

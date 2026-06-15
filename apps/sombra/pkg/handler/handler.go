@@ -9,14 +9,14 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/connector"
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/router"
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/scrubber"
-	"github.com/getki-ai/ocultar/pkg/audit"
-	"github.com/getki-ai/ocultar/pkg/config"
-	"github.com/getki-ai/ocultar/pkg/proxy"
-	"github.com/getki-ai/ocultar/pkg/refinery"
-	"github.com/getki-ai/ocultar/vault"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/connector"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/router"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/scrubber"
+	"github.com/ocultar-dev/ocultar/pkg/audit"
+	"github.com/ocultar-dev/ocultar/pkg/config"
+	"github.com/ocultar-dev/ocultar/pkg/proxy"
+	"github.com/ocultar-dev/ocultar/pkg/refinery"
+	"github.com/ocultar-dev/ocultar/vault"
 	"github.com/golang-jwt/jwt/v5"
 )
 

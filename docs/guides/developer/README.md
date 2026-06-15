@@ -34,7 +34,7 @@ Understanding the local inference engine and how to swap backends (llama.cpp vs.
 Prerequisite: Docker + Docker Compose v2.
 
 ```bash
-git clone https://github.com/getki-ai/ocultar.git
+git clone https://github.com/ocultar-dev/ocultar.git
 cd ocultar
 docker compose up --build
 ```
@@ -53,7 +53,7 @@ Required tools:
 - **Docker + Compose** (for integration tests)
 
 ```bash
-git clone https://github.com/getki-ai/ocultar.git
+git clone https://github.com/ocultar-dev/ocultar.git
 cd ocultar
 go work sync
 make build

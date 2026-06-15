@@ -10,14 +10,14 @@ OCULTAR is designed to run anywhere you have Docker. This guide covers the two m
 - Port 4141 available.
 
 ### Steps
-1.  **Clone the repo**: `git clone https://github.com/getki-ai/ocultar.git && cd ocultar`
+1.  **Clone the repo**: `git clone https://github.com/ocultar-dev/ocultar.git && cd ocultar`
 2.  **Start the server**:
     ```bash
     export OCU_MASTER_KEY=$(openssl rand -hex 32)
     export OCU_SALT=$(openssl rand -hex 16)
     export OCU_AUDITOR_TOKEN=dev
     docker run -e OCU_MASTER_KEY -e OCU_SALT -e OCU_AUDITOR_TOKEN \
-      -p 4141:4141 ghcr.io/getki-ai/ocultar:latest -serve 4141
+      -p 4141:4141 ghcr.io/ocultar-dev/ocultar:latest -serve 4141
     ```
 3.  **Verify**: `curl http://localhost:4141/api/health`
 

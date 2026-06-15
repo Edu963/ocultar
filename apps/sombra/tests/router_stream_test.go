@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/router"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/router"
 )
 
 // mockSSEServer returns an httptest.Server that emits the given text chunks

@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getki-ai/ocultar/pkg/proxy"
-	"github.com/getki-ai/ocultar/pkg/refinery"
-	"github.com/getki-ai/ocultar/vault"
+	"github.com/ocultar-dev/ocultar/pkg/proxy"
+	"github.com/ocultar-dev/ocultar/pkg/refinery"
+	"github.com/ocultar-dev/ocultar/vault"
 )
 
 // MockVault is a stub Vault Provider that can be configured to fail.

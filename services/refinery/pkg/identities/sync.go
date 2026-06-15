@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/getki-ai/ocultar/pkg/config"
+	"github.com/ocultar-dev/ocultar/pkg/config"
 )
 
 // StartSyncWorker boots a background goroutine that polls CRM/LDAP APIs

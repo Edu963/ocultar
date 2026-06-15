@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: getki-ai/ocultar
+  IMAGE_NAME: ocultar-dev/ocultar
 
 jobs:
   build-and-push:

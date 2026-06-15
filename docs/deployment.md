@@ -11,7 +11,7 @@ docker run --rm -p 4141:4141 \
   -e OCU_MASTER_KEY=$(openssl rand -hex 32) \
   -e OCU_SALT=$(openssl rand -hex 16) \
   -e OCU_AUDITOR_TOKEN=$(openssl rand -hex 24) \
-  ghcr.io/getki-ai/ocultar:latest -serve 4141
+  ghcr.io/ocultar-dev/ocultar:latest -serve 4141
 ```
 
 Test it:
@@ -53,7 +53,7 @@ docker run -d \
   -e OCU_AUDITOR_TOKEN=<your-token> \
   -e OCU_VAULT_PATH=/data/vault.db \
   -v /var/lib/ocultar:/data \
-  ghcr.io/getki-ai/ocultar:latest -serve 4141
+  ghcr.io/ocultar-dev/ocultar:latest -serve 4141
 ```
 
 ### 3. Verify
@@ -99,7 +99,7 @@ docker run -d \
   -e OCU_AUDITOR_TOKEN=<token> \
   -e SLM_SIDECAR_URL=http://your-slm-host:8085 \
   -e SLM_ADAPTER=openai-chat \
-  ghcr.io/getki-ai/ocultar:latest -serve 4141
+  ghcr.io/ocultar-dev/ocultar:latest -serve 4141
 ```
 
 Compatible sidecar endpoints:
@@ -119,7 +119,7 @@ Requires Go 1.24+ with CGO enabled. A C compiler is required for DuckDB and libp
 sudo apt-get install -y gcc
 
 # Clone and build
-git clone https://github.com/getki-ai/ocultar.git
+git clone https://github.com/ocultar-dev/ocultar.git
 cd ocultar
 CGO_ENABLED=1 go build -o ocultar ./services/refinery/cmd
 ./ocultar -serve 4141
@@ -170,7 +170,7 @@ Recommended alerting thresholds:
 ```yaml
 services:
   ocultar:
-    image: ghcr.io/getki-ai/ocultar:latest
+    image: ghcr.io/ocultar-dev/ocultar:latest
     command: ["-serve", "4141"]
     ports:
       - "4141:4141"

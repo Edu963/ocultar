@@ -6,7 +6,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/getki-ai/ocultar/pkg/refinery"
+	"github.com/ocultar-dev/ocultar/pkg/refinery"
 )
 
 // SyslogServer listens for incoming UDP syslog messages, redacts PII,

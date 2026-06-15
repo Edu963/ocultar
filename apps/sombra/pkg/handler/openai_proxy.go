@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/router"
-	"github.com/getki-ai/ocultar/apps/sombra/pkg/scrubber"
-	"github.com/getki-ai/ocultar/pkg/proxy"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/router"
+	"github.com/ocultar-dev/ocultar/apps/sombra/pkg/scrubber"
+	"github.com/ocultar-dev/ocultar/pkg/proxy"
 )
 
 // OpenAIChatCompletionRequest is the standard OpenAI /v1/chat/completions request shape.

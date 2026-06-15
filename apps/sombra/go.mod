@@ -1,17 +1,17 @@
-module github.com/getki-ai/ocultar/apps/sombra
+module github.com/ocultar-dev/ocultar/apps/sombra
 
 go 1.25.8
 
-replace github.com/getki-ai/ocultar => ../../services/refinery
+replace github.com/ocultar-dev/ocultar => ../../services/refinery
 
-replace github.com/getki-ai/ocultar/vault => ../../services/vault
+replace github.com/ocultar-dev/ocultar/vault => ../../services/vault
 
-replace github.com/getki-ai/ocultar/internal/pii => ../../internal/pii
+replace github.com/ocultar-dev/ocultar/internal/pii => ../../internal/pii
 
 require (
-	github.com/getki-ai/ocultar v0.0.0-00010101000000-000000000000
-	github.com/getki-ai/ocultar/internal/pii v0.0.0-00010101000000-000000000000
-	github.com/getki-ai/ocultar/vault v0.0.0-00010101000000-000000000000
+	github.com/ocultar-dev/ocultar v0.0.0-00010101000000-000000000000
+	github.com/ocultar-dev/ocultar/internal/pii v0.0.0-00010101000000-000000000000
+	github.com/ocultar-dev/ocultar/vault v0.0.0-00010101000000-000000000000
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/nguyenthenguyen/docx v0.0.0-20230621112118-9c8e795a11db
 	golang.org/x/crypto v0.48.0

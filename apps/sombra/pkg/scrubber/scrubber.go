@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/getki-ai/ocultar/internal/pii"
-	"github.com/getki-ai/ocultar/vault"
+	"github.com/ocultar-dev/ocultar/internal/pii"
+	"github.com/ocultar-dev/ocultar/vault"
 )
 
 // art9Tag is prepended to lines containing health-related data.

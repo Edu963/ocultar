@@ -11,7 +11,7 @@ import (
 	texttmpl "text/template"
 	"time"
 
-	"github.com/getki-ai/ocultar/pkg/audit"
+	"github.com/ocultar-dev/ocultar/pkg/audit"
 	"github.com/google/uuid"
 	"os/exec"
 	"runtime"

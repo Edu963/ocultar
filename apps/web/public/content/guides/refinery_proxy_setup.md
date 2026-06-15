@@ -24,7 +24,7 @@ tar -xzf ../ocultar-*.tar.gz
 
 If deploying from source:
 ```bash
-git clone https://github.com/getki-ai/ocultar.git
+git clone https://github.com/ocultar-dev/ocultar.git
 cd ocultar
 ```
 

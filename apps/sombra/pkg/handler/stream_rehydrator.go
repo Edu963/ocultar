@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/getki-ai/ocultar/pkg/proxy"
-	"github.com/getki-ai/ocultar/vault"
+	"github.com/ocultar-dev/ocultar/pkg/proxy"
+	"github.com/ocultar-dev/ocultar/vault"
 )
 
 // Vault tokens have the form [TYPE_8hexchars], e.g. [PERSON_ab3c12ef].

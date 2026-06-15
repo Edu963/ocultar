@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	refinery_conn "github.com/getki-ai/ocultar/pkg/connector"
+	refinery_conn "github.com/ocultar-dev/ocultar/pkg/connector"
 )
 
 // RefineryWrapper wraps an refinery-level connector to satisfy Sombra's Connector interface.

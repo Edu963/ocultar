@@ -26,8 +26,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/getki-ai/ocultar/pkg/config"
-	"github.com/getki-ai/ocultar/vault"
+	"github.com/ocultar-dev/ocultar/pkg/config"
+	"github.com/ocultar-dev/ocultar/vault"
 )
 
 // ── crypto helpers ────────────────────────────────────────────────────────────
