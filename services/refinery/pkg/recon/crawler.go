@@ -49,7 +49,7 @@ func extractText(path string) ([]byte, error) {
 	ext := strings.ToLower(filepath.Ext(path))
 	if ext == ".pdf" {
 		// Leverage existing system tool pdftotext for high-fidelity extraction
-		cmd := exec.Command("pdftotext", path, "-")
+		cmd := exec.Command("pdftotext", path, "-") //nolint:gosec // G204: pdftotext is a hardcoded system binary; path comes from the filesystem crawler, not user input
 		return cmd.Output()
 	}
 

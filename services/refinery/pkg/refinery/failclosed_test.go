@@ -234,7 +234,7 @@ func TestFailClosed_QueueFull(t *testing.T) {
 
 	// First request — blocks in the upstream, holds the queue slot.
 	go func() {
-		doPost(t, ps.URL, 30*time.Second) //nolint:errcheck
+		doPost(t, ps.URL, 30*time.Second) //nolint:errcheck,gosec // G104: error intentionally ignored in background goroutine
 	}()
 	time.Sleep(80 * time.Millisecond) // let the first request enter and block
 

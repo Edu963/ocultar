@@ -117,9 +117,10 @@ func extractPDF(data []byte) (string, error) {
 					i += 2 // skip escaped character
 					continue
 				}
-				if data[i] == '(' {
+				switch data[i] {
+				case '(':
 					depth++
-				} else if data[i] == ')' {
+				case ')':
 					depth--
 				}
 				i++
@@ -140,7 +141,7 @@ func extractPDF(data []byte) (string, error) {
 					if i+1 < n {
 						hi, lo := hexVal(data[i]), hexVal(data[i+1])
 						if hi >= 0 && lo >= 0 {
-							b := byte(hi<<4 | lo)
+							b := byte(hi<<4 | lo) //nolint:gosec // G115: hi and lo are hex digits (0-15), result fits in byte
 							if b >= 0x20 && b < 0x7f {
 								sb.WriteByte(b)
 							}

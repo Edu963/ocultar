@@ -66,7 +66,7 @@ func (e *Refinery) ApplyFPE(numericStr string) (string, error) {
 		if numericStr[i] >= '0' && numericStr[i] <= '9' {
 			offset := int(ct[i]) % 10
 			digit := int(numericStr[i] - '0')
-			result[i] = '0' + byte((digit+offset)%10)
+			result[i] = '0' + byte((digit+offset)%10) //nolint:gosec // G115: (digit+offset)%10 is always 0-9, '0'+9=57 fits in byte
 		} else {
 			// Keep non-numeric formatting characters untouched (e.g. '-' or ' ')
 			result[i] = numericStr[i]

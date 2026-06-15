@@ -661,13 +661,13 @@ func main() {
 // openBrowser opens the specified URL in the default user browser.
 func openBrowser(url string) {
 	var err error
-	switch runtime.GOOS {
+	switch runtime.GOOS { //nolint:gosec // G204: binary names are hardcoded constants, not user input
 	case "linux":
-		err = exec.Command("xdg-open", url).Start()
+		err = exec.Command("xdg-open", url).Start() //nolint:gosec // G204: xdg-open is a fixed system binary
 	case "windows":
-		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start() //nolint:gosec // G204: rundll32 is a fixed system binary
 	case "darwin":
-		err = exec.Command("open", url).Start()
+		err = exec.Command("open", url).Start() //nolint:gosec // G204: open is a fixed system binary
 	default:
 		err = fmt.Errorf("unsupported platform")
 	}

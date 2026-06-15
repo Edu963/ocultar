@@ -16,7 +16,7 @@ func TestParseAuditLog(t *testing.T) {
 {"timestamp":"2026-02-25T06:56:42Z","user":"test","action":"other","result":"ignoreme"}
 {"timestamp":"2026-02-25T06:56:42Z","user":"test","action":"vaulted","result":"[EMAIL_abc]"}
 `
-	if err := os.WriteFile(logPath, []byte(logData), 0644); err != nil {
+	if err := os.WriteFile(logPath, []byte(logData), 0600); err != nil {
 		t.Fatalf("failed to write test log: %v", err)
 	}
 
@@ -57,7 +57,7 @@ func TestGenerateHTMLReport(t *testing.T) {
 {"timestamp":"2026-02-25T06:58:42.100059377Z","user":"audit-tester","action":"matched","result":"[EMAIL_836f82db]"}
 {"timestamp":"2026-02-25T06:59:42.100059377Z","user":"audit-tester","action":"vaulted","result":"[ORG_xyz]"}
 `
-	if err := os.WriteFile(logPath, []byte(logData), 0644); err != nil {
+	if err := os.WriteFile(logPath, []byte(logData), 0600); err != nil {
 		t.Fatalf("failed to write test log: %v", err)
 	}
 

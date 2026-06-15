@@ -334,7 +334,7 @@ func Save() error {
 	saveObj := Global
 	saveObj.Dictionaries = saveDicts
 
-	b, err := yaml.Marshal(saveObj)
+	b, err := yaml.Marshal(saveObj) //nolint:gosec // G117: serialising config struct to its own config file is intentional
 	if err != nil {
 		return err
 	}

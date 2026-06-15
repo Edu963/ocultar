@@ -132,9 +132,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// ── 2. Redact PII from JSON body ─────────────────────────────────────────
 	refStart := time.Now()
 	sanitisedBody, redacted, err := h.redactBody(rawBody, actor)
-	log.Printf("[DEBUG] Redaction complete. Redacted: %v, Body length: %d -> %d", redacted, len(rawBody), len(sanitisedBody))
+	log.Printf("[DEBUG] Redaction complete. Redacted: %v, Body length: %d -> %d", redacted, len(rawBody), len(sanitisedBody)) //nolint:gosec // G706: body is already PII-masked by the refinery pipeline
 	if redacted {
-		log.Printf("[DEBUG] Sanitised Body (truncated): %s", string(sanitisedBody))
+		log.Printf("[DEBUG] Sanitised Body (truncated): %s", string(sanitisedBody)) //nolint:gosec // G706: body is already PII-masked by the refinery pipeline
 	}
 	RequestLatency.WithLabelValues("refinery_total").Observe(time.Since(refStart).Seconds())
 
@@ -157,7 +157,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("ocultar-proxy: %v", err), http.StatusForbidden)
 		return
 	}
-	upstreamReq, err := http.NewRequestWithContext(r.Context(), r.Method, upstreamURL, bytes.NewReader(sanitisedBody))
+	upstreamReq, err := http.NewRequestWithContext(r.Context(), r.Method, upstreamURL, bytes.NewReader(sanitisedBody)) //nolint:gosec // G704: forwarding to operator-configured upstream is this proxy's explicit purpose
 	if err != nil {
 		http.Error(w, "ocultar-proxy: failed to build upstream request", http.StatusInternalServerError)
 		return

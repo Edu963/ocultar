@@ -79,7 +79,7 @@ func (l *BasicFileLogger) Init(path string) error {
 }
 
 func (l *BasicFileLogger) Log(user, action, result, mapping string) {
-	f, err := os.OpenFile(l.path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(l.path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600) //nolint:gosec // G703: path is operator-configured at startup, not derived from user input
 	if err != nil {
 		return
 	}
@@ -178,10 +178,10 @@ func main() {
 	switch adapter {
 	case "openai-chat":
 		scanner = inference.NewQwenScanner(sidecarURL)
-		log.Printf("[INFO] Tier 2 AI active via openai-chat (Qwen/llama.cpp): %s", sidecarURL)
+		log.Printf("[INFO] Tier 2 AI active via openai-chat (Qwen/llama.cpp): %s", sidecarURL) //nolint:gosec // G706: sidecarURL is an operator-configured value, not user input
 	default:
 		scanner = inference.NewRemoteScanner(sidecarURL)
-		log.Printf("[INFO] Tier 2 AI active via privacy-filter sidecar: %s", sidecarURL)
+		log.Printf("[INFO] Tier 2 AI active via privacy-filter sidecar: %s", sidecarURL) //nolint:gosec // G706: sidecarURL is an operator-configured value, not user input
 	}
 	eng.SetAIScanner(scanner)
 
@@ -754,6 +754,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 			return
 		}
 
+		r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
 		err := r.ParseMultipartForm(10 << 20) // 10MB limit
 		if err != nil {
 			http.Error(w, "File too large", http.StatusBadRequest)
@@ -932,6 +933,7 @@ func startServer(eng *refinery.Refinery, servePort string) {
 		var email, company string
 
 		if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+			r.Body = http.MaxBytesReader(w, r.Body, 100*1024)
 			r.ParseMultipartForm(100 * 1024) // 100KB limit
 			email = r.FormValue("email")
 			company = r.FormValue("company")
@@ -1037,9 +1039,17 @@ func startServer(eng *refinery.Refinery, servePort string) {
 			http.Error(w, "Report ID missing", http.StatusBadRequest)
 			return
 		}
+		// IDs are generated as 8 uppercase hex chars (uuid[:8] + ToUpper).
+		// Reject anything else so a crafted id can't escape the reports directory.
+		for _, c := range id {
+			if (c < 'A' || c > 'F') && (c < '0' || c > '9') {
+				http.Error(w, "Invalid report ID", http.StatusBadRequest)
+				return
+			}
+		}
 
 		path := filepath.Join("pilot_data/reports", "report_"+id+".html")
-		content, err := os.ReadFile(path)
+		content, err := os.ReadFile(path) //nolint:gosec // G703: id is validated above to [A-F0-9] only — no path traversal possible
 		if err != nil {
 			http.Error(w, "Report not found", http.StatusNotFound)
 			return
