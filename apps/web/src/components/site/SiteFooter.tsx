@@ -14,9 +14,9 @@ const COLS = [
   {
     title: "Resources",
     links: [
-      { label: "GitHub", href: "https://github.com/Edu963/ocultar" },
-      { label: "Documentation", href: "https://github.com/Edu963/ocultar#readme" },
-      { label: "Security", href: "https://github.com/Edu963/ocultar/blob/main/SECURITY.md" },
+      { label: "GitHub", href: "https://github.com/ocultar-dev/ocultar" },
+      { label: "Documentation", href: "https://github.com/ocultar-dev/ocultar#readme" },
+      { label: "Security", href: "https://github.com/ocultar-dev/ocultar/blob/main/SECURITY.md" },
     ],
   },
   {
@@ -44,10 +44,10 @@ export const SiteFooter = () => (
             Runs in your infrastructure. Apache 2.0.
           </p>
           <a
-            href="https://github.com/Edu963/ocultar"
+            href="https://github.com/ocultar-dev/ocultar"
             className="inline-flex w-fit items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
           >
-            <Github className="h-4 w-4" /> github.com/Edu963/ocultar
+            <Github className="h-4 w-4" /> github.com/ocultar-dev/ocultar
           </a>
         </div>
         {COLS.map((c) => (

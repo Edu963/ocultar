@@ -237,7 +237,7 @@ export default function Calculator() {
                 Operational in under 60 minutes.
               </p>
               <a
-                href="https://github.com/Edu963/ocultar"
+                href="https://github.com/ocultar-dev/ocultar"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-8 py-4 rounded-lg text-sm uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/20"

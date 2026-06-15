@@ -41,7 +41,7 @@ export const Hero = () => {
             style={{ animationDelay: "180ms" }}
           >
             <a
-              href="https://github.com/Edu963/ocultar"
+              href="https://github.com/ocultar-dev/ocultar"
               className="group inline-flex h-11 items-center gap-2 rounded-md bg-foreground px-5 text-sm font-semibold text-background hover:bg-foreground/90 transition-colors"
             >
               Get started free

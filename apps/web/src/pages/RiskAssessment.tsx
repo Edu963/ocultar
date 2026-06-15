@@ -400,7 +400,7 @@ export default function RiskAssessment() {
                           </a>
                         )}
                         <a
-                          href="https://github.com/Edu963/ocultar"
+                          href="https://github.com/ocultar-dev/ocultar"
                           target="_blank"
                           rel="noreferrer"
                           className="border border-white/20 text-white px-12 py-6 rounded-lg text-lg font-bold hover:bg-white/5 transition-all"

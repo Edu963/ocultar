@@ -188,10 +188,10 @@ for _, err := range errs {
               Sombra sits between your infrastructure and every AI provider. It intercepts, sanitizes, routes, and re-hydrates — only redacted prompts are ever transmitted outbound. Fail-closed by construction. Apache 2.0 — self-host it, fork it, run it air-gapped.
             </p>
             <a
-              href="https://github.com/Edu963/ocultar"
+              href="https://github.com/ocultar-dev/ocultar"
               className="inline-flex w-fit items-center gap-2 text-[13px] font-mono text-primary hover:underline underline-offset-4"
             >
-              github.com/Edu963/ocultar →
+              github.com/ocultar-dev/ocultar →
             </a>
           </div>
 
@@ -422,7 +422,7 @@ if upstream != nil {
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="https://github.com/Edu963/ocultar"
+              href="https://github.com/ocultar-dev/ocultar"
               className="group inline-flex h-11 items-center gap-2 rounded-md bg-foreground px-6 text-[13px] font-semibold text-background hover:bg-foreground/90 transition-colors"
             >
               View on GitHub

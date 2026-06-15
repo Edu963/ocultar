@@ -18,7 +18,7 @@ export const FinalCTA = () => (
         </p>
         <div className="mt-9 flex flex-col sm:flex-row gap-3">
           <a
-            href="https://github.com/Edu963/ocultar"
+            href="https://github.com/ocultar-dev/ocultar"
             target="_blank"
             rel="noreferrer"
             className="group inline-flex h-11 items-center gap-2 rounded-md bg-foreground px-6 text-sm font-semibold text-background hover:bg-foreground/90 transition-colors"
@@ -27,7 +27,7 @@ export const FinalCTA = () => (
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </a>
           <a
-            href="https://github.com/Edu963/ocultar#quick-start--docker"
+            href="https://github.com/ocultar-dev/ocultar#quick-start--docker"
             target="_blank"
             rel="noreferrer"
             className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-surface/60 px-6 text-sm font-semibold text-foreground hover:border-border-strong transition-colors"

@@ -52,7 +52,7 @@ export const SiteNav = () => {
 
         <div className="flex items-center gap-2">
           <a
-            href="https://github.com/Edu963/ocultar"
+            href="https://github.com/ocultar-dev/ocultar"
             target="_blank"
             rel="noreferrer"
             className="hidden sm:inline-flex h-9 items-center gap-2 rounded-md px-3 text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
@@ -62,7 +62,7 @@ export const SiteNav = () => {
             GitHub
           </a>
           <a
-            href="https://github.com/Edu963/ocultar"
+            href="https://github.com/ocultar-dev/ocultar"
             target="_blank"
             rel="noreferrer"
             className="group inline-flex h-9 items-center gap-1.5 rounded-md bg-foreground px-4 text-[13px] font-semibold text-background hover:bg-foreground/90 transition-colors"
