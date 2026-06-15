@@ -2,6 +2,8 @@
 
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Go 1.24+](https://img.shields.io/badge/go-1.24%2B-00ADD8.svg)](https://go.dev)
+[![Docker](https://img.shields.io/badge/docker-ghcr.io%2Focultar--dev%2Focultar-blue?logo=docker)](https://github.com/ocultar-dev/ocultar/pkgs/container/ocultar)
+[![Release](https://img.shields.io/github/v/release/ocultar-dev/ocultar)](https://github.com/ocultar-dev/ocultar/releases/latest)
 
 Ocultar is an open-source local PII/PHI masking engine for AI workflows.
 
