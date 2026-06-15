@@ -1,10 +1,3 @@
-FROM node:22-bookworm AS dashboard-builder
-WORKDIR /dashboard
-COPY apps/dashboard/package*.json ./
-RUN npm install
-COPY apps/dashboard/ ./
-RUN npm run build
-
 FROM golang:1.25-bookworm AS builder
 
 # Install build dependencies for DuckDB/CGO
@@ -39,9 +32,6 @@ WORKDIR /app
 COPY --from=builder /workspace/sombra /app/sombra
 # Copy config from refinery
 COPY --from=builder /workspace/services/refinery/configs/ /app/configs/
-
-# Copy dashboard assets
-COPY --from=dashboard-builder /dashboard/dist/ /app/dashboard/
 
 # Default port
 EXPOSE 8081
