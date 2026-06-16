@@ -127,7 +127,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ocultar-proxy: payload exceeded configured limit", http.StatusRequestEntityTooLarge)
 		return
 	}
-	defer r.Body.Close()
+	defer r.Body.Close() //nolint:errcheck
 
 	// ── 2. Redact PII from JSON body ─────────────────────────────────────────
 	refStart := time.Now()

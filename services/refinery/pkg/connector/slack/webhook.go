@@ -73,7 +73,7 @@ func (h *EventWebhook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "url_verification":
 		// Slack sends this once when you save the Events subscription URL.
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"challenge": envelope.Challenge})
+		json.NewEncoder(w).Encode(map[string]string{"challenge": envelope.Challenge}) //nolint:errcheck
 		return
 
 	case "event_callback":

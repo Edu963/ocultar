@@ -630,7 +630,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create markdown output: %v", err)
 	}
-	defer mdFile.Close()
+	defer mdFile.Close() //nolint:errcheck
 	if err := mdTmpl.Execute(mdFile, report); err != nil {
 		log.Fatalf("Failed to render markdown: %v\nNote: ensure all template fields match the updated RiskReport struct.", err)
 	}
@@ -647,7 +647,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to create HTML output: %v", err)
 		}
-		defer htmlFile.Close()
+		defer htmlFile.Close() //nolint:errcheck
 		if err := htmlTmpl.Execute(htmlFile, report); err != nil {
 			log.Fatalf("Failed to render HTML: %v", err)
 		}

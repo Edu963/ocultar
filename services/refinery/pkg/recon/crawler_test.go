@@ -27,11 +27,11 @@ func TestCrawlLocalDirectory(t *testing.T) {
 
 	// 1. Create a safe file
 	safePath := filepath.Join(tempDir, "safe.txt")
-	os.WriteFile(safePath, []byte("This is a completely normal system log with no sensitive information."), 0644)
+	os.WriteFile(safePath, []byte("This is a completely normal system log with no sensitive information."), 0600)
 
 	// 2. Create a high-risk file
 	riskPath := filepath.Join(tempDir, "customer_data.txt")
-	os.WriteFile(riskPath, []byte(`Client: client@example.com Phone: +33 6 12 34 56 78 Note: Send to Paris.`), 0644)
+	os.WriteFile(riskPath, []byte(`Client: client@example.com Phone: +33 6 12 34 56 78 Note: Send to Paris.`), 0600)
 
 	// Execute crawl
 	report, err := crawler.CrawlLocalDirectory(tempDir)

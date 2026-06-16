@@ -207,8 +207,8 @@ func (s *QwenScanner) ScanForPII(text string) (map[string][]string, error) {
 	}
 	defer func() {
 		// Drain body to allow TCP connection reuse.
-		io.Copy(io.Discard, resp.Body)
-		resp.Body.Close()
+		io.Copy(io.Discard, resp.Body) //nolint:errcheck,gosec // G104: drain pattern — error irrelevant
+		resp.Body.Close()              //nolint:errcheck,gosec // G104: cleanup after drain
 	}()
 
 	if resp.StatusCode != http.StatusOK {
@@ -261,8 +261,8 @@ func (s *QwenScanner) CheckHealth(_ string) {
 	resp, err := s.client.Get(s.sidecarURL + "/health")
 	healthy := err == nil && resp != nil && resp.StatusCode == http.StatusOK
 	if resp != nil {
-		io.Copy(io.Discard, resp.Body)
-		resp.Body.Close()
+		io.Copy(io.Discard, resp.Body) //nolint:errcheck,gosec // G104: drain pattern — error irrelevant
+		resp.Body.Close()              //nolint:errcheck,gosec // G104: cleanup after drain
 	}
 
 	s.mu.Lock()

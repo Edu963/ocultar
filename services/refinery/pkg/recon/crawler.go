@@ -57,7 +57,7 @@ func extractText(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	return io.ReadAll(f)
 }

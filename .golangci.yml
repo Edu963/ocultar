@@ -11,7 +11,19 @@ linters:
     gosec:
       excludes:
         - G304   # file path from variable — expected in vault/config code
-
-issues:
-  exclude-dirs:
-    - apps/slm-engine
+  exclusions:
+    paths:
+      - apps/slm-engine
+    presets:
+      - std-error-handling   # suppresses: *.Close(), *.Flush(), os.Remove*, os.(Un)Setenv, fmt.Fprint*
+      - legacy               # suppresses: G104 (gosec duplicate of errcheck), SA4011 (break in switch)
+    rules:
+      - path: '_test\.go'
+        linters:
+          - errcheck
+      - text: 'Encoder\)\.Encode`'
+        linters:
+          - errcheck
+      - text: '`w\.Write`'
+        linters:
+          - errcheck

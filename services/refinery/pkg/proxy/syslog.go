@@ -74,8 +74,10 @@ func (s *SyslogServer) listen(upstream *net.UDPAddr) {
 			// Forward to SIEM
 			upstreamConn, err := net.DialUDP("udp", nil, upstream)
 			if err == nil {
-				upstreamConn.Write([]byte(refined))
-				upstreamConn.Close()
+				if _, err := upstreamConn.Write([]byte(refined)); err != nil {
+					log.Printf("[SYSLOG] Failed to send to SIEM: %v", err)
+				}
+				upstreamConn.Close() //nolint:errcheck
 			} else {
 				log.Printf("[SYSLOG] Failed to dial upstream: %v", err)
 			}
@@ -89,6 +91,6 @@ func (s *SyslogServer) listen(upstream *net.UDPAddr) {
 // Stop closes the UDP connection
 func (s *SyslogServer) Stop() {
 	if s.conn != nil {
-		s.conn.Close()
+		s.conn.Close() //nolint:errcheck
 	}
 }

@@ -52,7 +52,7 @@ func extractZipXML(data []byte, pathFilter func(string) bool, elemName string) (
 			continue
 		}
 		text, _ := xmlCharData(rc, elemName)
-		rc.Close()
+		rc.Close() //nolint:errcheck
 		if text != "" {
 			sb.WriteString(text)
 			sb.WriteByte('\n')

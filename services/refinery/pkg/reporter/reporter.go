@@ -69,7 +69,7 @@ func (r *Reporter) ParseAuditLog(filePath string) (*Metrics, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open audit log: %w", err)
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	metrics := &Metrics{}
 	categoryMap := make(map[string]int)
@@ -148,7 +148,7 @@ func (r *Reporter) GenerateHTMLReport(logFilePath, outputFilePath string) error 
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
-	defer outFile.Close()
+	defer outFile.Close() //nolint:errcheck
 
 	return tmpl.Execute(outFile, data)
 }

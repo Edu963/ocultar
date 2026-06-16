@@ -3,6 +3,7 @@ package config
 import (
 	"embed"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -312,7 +313,7 @@ func UpdateSystemLimits(concurrency int, queue int) {
 func Save() error {
 	backupData, err := os.ReadFile("configs/config.yaml")
 	if err == nil {
-		os.WriteFile("configs/config.yaml.bak", backupData, 0600)
+		_ = os.WriteFile("configs/config.yaml.bak", backupData, 0600) //nolint:errcheck,gosec // G703: hardcoded path literal — not a taint issue; best-effort backup
 	}
 
 	var protected []string
@@ -328,7 +329,9 @@ func Save() error {
 
 	if len(protected) > 0 {
 		b, _ := json.MarshalIndent(protected, "", "  ")
-		os.WriteFile("configs/protected_entities.json", b, 0600)
+		if err := os.WriteFile("configs/protected_entities.json", b, 0600); err != nil {
+			return fmt.Errorf("save protected entities: %w", err)
+		}
 	}
 
 	saveObj := Global
