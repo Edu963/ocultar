@@ -7,13 +7,13 @@ replace github.com/ocultar-dev/ocultar/internal/pii => ../../internal/pii
 replace github.com/ocultar-dev/ocultar/vault => ../vault
 
 require (
-	github.com/ocultar-dev/ocultar/internal/pii v0.0.0-00010101000000-000000000000
-	github.com/ocultar-dev/ocultar/vault v0.0.0-00010101000000-000000000000
 	github.com/google/uuid v1.6.0
 	github.com/nyaruka/phonenumbers v1.6.10
+	github.com/ocultar-dev/ocultar/internal/pii v0.0.0-00010101000000-000000000000
+	github.com/ocultar-dev/ocultar/vault v0.0.0-00010101000000-000000000000
 	github.com/prometheus/client_golang v1.23.2
-	golang.org/x/crypto v0.48.0
-	google.golang.org/grpc v1.79.3
+	golang.org/x/crypto v0.50.0
+	google.golang.org/grpc v1.82.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -37,14 +37,14 @@ require (
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/mod v0.32.0 // indirect
-	golang.org/x/net v0.49.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.41.0 // indirect
-	golang.org/x/telemetry v0.0.0-20260109210033-bd525da824e2 // indirect
-	golang.org/x/text v0.34.0 // indirect
-	golang.org/x/tools v0.41.0 // indirect
+	golang.org/x/mod v0.34.0 // indirect
+	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/telemetry v0.0.0-20260311193753-579e4da9a98c // indirect
+	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/tools v0.43.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260414002931-afd174a4e478 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 )
